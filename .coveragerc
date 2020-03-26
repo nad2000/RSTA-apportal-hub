@@ -1,0 +1,5 @@
+[run]
+include = pmspp/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
