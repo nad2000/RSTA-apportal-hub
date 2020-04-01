@@ -1,5 +1,6 @@
 :
 export ENV=${1:-local}
+echo "*** Running workder for ${ENV}..."
 
 # Script location directory:
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
