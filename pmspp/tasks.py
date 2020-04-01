@@ -9,3 +9,4 @@ def notify_user(user_id, message):
     # lookup user by id and send them a message
     user = User.objects.get(pk=user_id)
     user.email_user("Here is a notification", message or "You have been notified")
+    print(f"*** Message '{message}' was sent to address {user.email}")
