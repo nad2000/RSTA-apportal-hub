@@ -8,8 +8,7 @@ export PYTHONPATH="$DIR"
 if [ -d ./venv ] ; then
   source ./venv/bin/activate
 else
-    source /usr/local/bin/virtualenvwrapper.sh
-    workon venv
+    source "$HOME/.virtualenvs/venv/bin/activate"
 fi
 
 if [ -d "$HOME/$ENV" ] ; then
