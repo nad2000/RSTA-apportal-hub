@@ -1,9 +1,14 @@
 :
+
+# Script location directory:
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PYTHONPATH="$DIR"
+
 export ENV=${1:-local}
 [ -d ./venv ] && source ./venv/bin/activate || workon venv
 
 if [ -d "$HOME/$ENV" ] ; then
 	python $HOME/$ENV/manage.py process_tasks
 else
-	python ./manage.py process_tasks
+	python "$DIR/manage.py" process_tasks
 fi
