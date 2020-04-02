@@ -2,9 +2,17 @@
 import os
 import sys
 from pathlib import Path
+import importlib
 
 if __name__ == "__main__":
     env_name = os.getenv("ENV", "local")
+    # fall back to local if
+    try:
+        importlib.import_module(f"config.settings.{env_name}")
+    except ModuleNotFoundError:
+        parent_dir = os.path.basename(os.getcwd())
+        env_name = parent_dir if parent_dir in ["dev", "prod", "test"] else "local"
+
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"config.settings.{env_name}")
 
     try:
