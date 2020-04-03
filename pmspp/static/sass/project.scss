@@ -17,6 +17,19 @@ $pink: #f2dede;
 $dark-pink: #eed3d7;
 $red: #b94a48;
 
+// Styles
+
+html, body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+.asteriskField {
+  color: $red;
+  font-weight: bold;
+}
+
+
 ////////////////////////////////
 		//Alerts//
 ////////////////////////////////
@@ -37,7 +50,7 @@ $red: #b94a48;
 }
 
 #logo {
-  max-height: 92px;
+  max-height: 72px;
   display: inline-block;
   margin: 5px 0;
   vertical-align: top;
