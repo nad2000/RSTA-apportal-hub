@@ -6,10 +6,7 @@ from .base import env
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-SECRET_KEY = env(
-    "DJANGO_SECRET_KEY",
-    default="yggmNkpfXtTFVtf364OyhhhnboTM4yL8H4QJCMrUsy2Wpgk5ufYuokMyYXzgbQn4",
-)
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="=== HERE GOES YOUR DEFAULT KEY ===",)
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
 
@@ -21,8 +18,21 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+# OR: "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST_PASSWORD = "== YOUR GMAIL APP PASSWORD =="
+EMAIL_TIMEOUT = 5
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "nad2000@gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = env(
+    "DJANGO_DEFAULT_FROM_EMAIL",
+    default="Prime Minister's Science Prizes <noreply@pmscienceprizes.org.nz>",
+)
+SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
+EMAIL_SUBJECT_PREFIX = env(
+    "DJANGO_EMAIL_SUBJECT_PREFIX", default="[Prime Minister's Science Prizes]"
 )
 
 # WhiteNoise

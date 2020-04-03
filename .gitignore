@@ -346,3 +346,5 @@ db.sqlite3
 tags.tmp
 tags
 
+config/settings/local.py
+
