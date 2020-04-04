@@ -18,6 +18,8 @@ Prime Minister's Science Prizes Portal
 .. image:: https://img.shields.io/github/stars/nad2000/PMSPP
     :alt: GitHub stars
     :target: https://github.com/nad2000/PMSPP/stargazers
+.. image:: https://img.shields.io/travis/com/nad2000/django-cookiecutter-projects
+    :alt: Travis (.com)
 
 
 :License: MIT
