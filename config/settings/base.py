@@ -85,6 +85,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "portal",
     "portal.users.apps.UsersConfig",
     # Your stuff: custom apps go here
 ]

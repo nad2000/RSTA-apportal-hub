@@ -2,11 +2,12 @@ from django.urls import path
 from django.conf import settings
 from django.views.generic import TemplateView
 
-from .views import index, test_task
+from .views import index, test_task, subscribe
 
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
-    path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
+    # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
+    path("", subscribe, name="comingsoon"),
     path("home/", index, name="home"),
     path("index/", index, name="index"),
     path("index.html", index, name="index.html"),
