@@ -1,10 +1,14 @@
 :
-export ENV=${1:-local}
-echo "*** Running workder for ENV='${ENV}'..."
-
 # Script location directory:
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PYTHONPATH="$DIR"
+
+export ENV=$1
+if [ -z "${ENV}" ] ; then
+  ENV=$(basename "${DIR}")
+fi
+echo "*** Running workder for ENV='${ENV}'..."
+
 
 if [ -d ./venv ] ; then
   source ./venv/bin/activate
