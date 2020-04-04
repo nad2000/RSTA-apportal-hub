@@ -6,7 +6,12 @@ if not SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
 
-    sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True)
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=True,
+        environment="LOCAL",
+    )
 
 # GENERAL
 # ------------------------------------------------------------------------------
