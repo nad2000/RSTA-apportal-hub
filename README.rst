@@ -4,11 +4,20 @@ Prime Minister's Science Prizes
 Prime Minister's Science Prizes Portal
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
-     :target: https://github.com/pydanny/cookiecutter-django/
-     :alt: Built with Cookiecutter Django
+    :target: https://github.com/pydanny/cookiecutter-django/
+    :alt: Built with Cookiecutter Django
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-     :target: https://github.com/ambv/black
-     :alt: Black code style
+    :target: https://github.com/ambv/black
+    :alt: Black code style
+.. image:: https://img.shields.io/github/issues/nad2000/PMSPP
+    :alt: GitHub issues
+    :target: https://github.com/nad2000/PMSPP/issues
+.. image:: https://img.shields.io/github/forks/nad2000/PMSPP
+    :alt: GitHub forks
+    :target: https://github.com/nad2000/PMSPP/network
+.. image:: https://img.shields.io/github/stars/nad2000/PMSPP
+    :alt: GitHub stars
+    :target: https://github.com/nad2000/PMSPP/stargazers
 
 
 :License: MIT
