@@ -1,7 +1,7 @@
 import pytest
 
-from pmspp.users.forms import UserCreationForm
-from pmspp.users.tests.factories import UserFactory
+from portal.users.forms import UserCreationForm
+from portal.users.tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
 

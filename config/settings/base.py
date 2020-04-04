@@ -6,8 +6,8 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).parents[2]
-# pmspp/)
-APPS_DIR = ROOT_DIR / "pmspp"
+# portal/)
+APPS_DIR = ROOT_DIR / "portal"
 env = environ.Env()
 
 # Sentry:
@@ -50,7 +50,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///pmspp")}
+DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///portal")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # URLS
@@ -85,7 +85,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "pmspp.users.apps.UsersConfig",
+    "portal.users.apps.UsersConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -94,7 +94,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {"sites": "pmspp.contrib.sites.migrations"}
+MIGRATION_MODULES = {"sites": "portal.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
-                "pmspp.utils.context_processors.settings_context",
+                "portal.utils.context_processors.settings_context",
             ],
         },
     }
@@ -270,9 +270,9 @@ ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_ADAPTER = "pmspp.users.adapters.AccountAdapter"
+ACCOUNT_ADAPTER = "portal.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = "pmspp.users.adapters.SocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "portal.users.adapters.SocialAccountAdapter"
 # django-compressor
 # ------------------------------------------------------------------------------
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation

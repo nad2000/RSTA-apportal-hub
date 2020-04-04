@@ -33,8 +33,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # pmspp directory.
+    # portal directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "pmspp"))
+    sys.path.append(str(current_path / "portal"))
 
     execute_from_command_line(sys.argv)

@@ -1,6 +1,6 @@
 import pytest
 
-from pmspp.users.models import User
+from portal.users.models import User
 
 pytestmark = pytest.mark.django_db
 

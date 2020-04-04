@@ -3,11 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UsersConfig(AppConfig):
-    name = "pmspp.users"
+    name = "portal.users"
     verbose_name = _("Users")
 
     def ready(self):
         try:
-            import pmspp.users.signals  # noqa F401
+            import portal.users.signals  # noqa F401
         except ImportError:
             pass

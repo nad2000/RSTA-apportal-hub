@@ -20,9 +20,9 @@ from pathlib import Path
 from django.core.wsgi import get_wsgi_application
 
 # This allows easy placement of apps within the interior
-# pmspp directory.
+# portal directory.
 app_path = Path(__file__).parents[1].resolve()
-sys.path.append(str(app_path / "pmspp"))
+sys.path.append(str(app_path / "portal"))
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
 # mod_wsgi daemon mode with each site in its own daemon process, or use

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from pmspp.users.models import User
+from portal.users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):

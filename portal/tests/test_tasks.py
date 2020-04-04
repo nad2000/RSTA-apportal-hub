@@ -4,7 +4,7 @@ from django.test import RequestFactory
 
 from background_task.tasks import tasks
 
-from pmspp.tasks import notify_user
+from portal.tasks import notify_user
 
 
 User = get_user_model()
