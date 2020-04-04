@@ -10,6 +10,15 @@ ROOT_DIR = Path(__file__).parents[2]
 APPS_DIR = ROOT_DIR / "pmspp"
 env = environ.Env()
 
+# Sentry:
+SENTRY_DSN = env("SENTRY_DSN", None)
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True)
+
+
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env

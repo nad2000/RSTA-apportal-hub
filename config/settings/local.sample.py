@@ -1,6 +1,13 @@
 from .base import *  # noqa
 from .base import env
 
+if not SENTRY_DSN:
+    SENTRY_DSN = "=== YOUR SENTRY_DSN ==="
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True)
+
 # GENERAL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
