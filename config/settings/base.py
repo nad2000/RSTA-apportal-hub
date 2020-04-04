@@ -11,7 +11,7 @@ APPS_DIR = ROOT_DIR / "pmspp"
 env = environ.Env()
 
 # Sentry:
-SENTRY_DSN = env("SENTRY_DSN")
+SENTRY_DSN = env("SENTRY_DSN", default=None)
 if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
