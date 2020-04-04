@@ -1,3 +1,7 @@
+/*
+ * NB! DO NOT EDIT project.css DIRECTLY! IT IS GENERATED FROM project.scss.
+ * USE: sass sass/project.scss css/project.css
+ */
 html, body {
   height: 100%;
   font-family: "Roboto", sans-serif;
