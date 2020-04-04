@@ -1,11 +1,13 @@
 from django.urls import path
 from django.conf import settings
+from django.views.generic import TemplateView
 
 from .views import index, test_task
 
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
-    path("", index, name="home"),
+    path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
+    path("home/", index, name="home"),
     path("test_task/<message>", test_task),
     # path('', ProductListView.as_view(), name="product-list"),
 ]
