@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}
+  <title>{{ object.name }}</title>
+{% endblock %}
+
+{% block content %}
+  <p>Product {{ object.name }}</p>
+  <p>Manufacturer {{ object.manufacturer }}</p>
+  <p>Quantity {{ object.quantity }}</p>
+  <p>Description {{ object.description }}</p>
+  <p>Price: {{ object.price }}</p>
+  <p>Shipping Cost: {{ object.price }}</p>
+
+  <img src="{{ object.photo.url }}" alt="Product Photo">
+
+{% endblock %}
+

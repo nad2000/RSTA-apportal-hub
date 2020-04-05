@@ -1,7 +1,17 @@
 from django.db.models import (
-        CharField, CASCADE, BooleanField, Model as _Model, ForeignKey, TextField,
-        ImageField, FloatField, PositiveSmallIntegerField, DateTimeField,
-        DateField, EmailField)
+    CharField,
+    CASCADE,
+    BooleanField,
+    Model as _Model,
+    ForeignKey,
+    TextField,
+    ImageField,
+    FloatField,
+    PositiveSmallIntegerField,
+    DateTimeField,
+    DateField,
+    EmailField,
+)
 from django.forms.models import model_to_dict
 from django.contrib.auth import get_user_model
 
@@ -17,7 +27,6 @@ class TimeStampMixin(_Model):
 
 
 class Model(TimeStampMixin, _Model):
-
     @classmethod
     def first(cls):
         return cls.objects.first()
@@ -38,7 +47,7 @@ class Model(TimeStampMixin, _Model):
         abstract = True
 
 
-class Subscribtion(Model):
+class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
