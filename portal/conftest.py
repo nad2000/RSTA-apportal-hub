@@ -1,8 +1,8 @@
 import pytest
 from django.test import RequestFactory
 
-from portal.users.models import User
-from portal.users.tests.factories import UserFactory
+from users.models import User
+from users.tests.factories import UserFactory
 
 
 @pytest.fixture(autouse=True)

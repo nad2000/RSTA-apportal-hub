@@ -1,8 +1,8 @@
 import pytest
 from django.test import RequestFactory
 
-from portal.users.models import User
-from portal.users.views import UserRedirectView, UserUpdateView
+from users.models import User
+from users.views import UserRedirectView, UserUpdateView
 
 pytestmark = pytest.mark.django_db
 
