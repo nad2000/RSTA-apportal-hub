@@ -21,7 +21,7 @@ ALLOWED_HOSTS = env.list(
         "dev-pmspp.ap-southeast-2.elasticbeanstalk.com",
         "dev-pmspp.elasticbeanstalk.com",
         "pmscienceprizes.org.nz",
-        "*.elasticbeanstalk.com",
+        "pmspp-211.eba-gifymzje.ap-southeast-2.elasticbeanstalk.com",
         "localhost",
         "0.0.0.0",
     ],
