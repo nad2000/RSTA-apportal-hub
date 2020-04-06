@@ -18,6 +18,7 @@ SECRET_KEY = env(
 ALLOWED_HOSTS = env.list(
     "DJANGO_ALLOWED_HOSTS",
     default=[
+        "*",
         "dev-pmspp.ap-southeast-2.elasticbeanstalk.com",
         "dev-pmspp.elasticbeanstalk.com",
         "pmscienceprizes.org.nz",
