@@ -1,3 +1,4 @@
 # This file is expected by Heroku.
 
--r requirements/production.txt
+-r requirements/local.txt
+# -r requirements/production.txt
