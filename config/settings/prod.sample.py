@@ -167,5 +167,19 @@ sentry_logging = LoggingIntegration(
 )
 sentry_sdk.init(dsn=SENTRY_DSN, integrations=[sentry_logging, DjangoIntegration()])
 
+# CORS: https://github.com/adamchainz/django-cors-headers
+INSTALLED_APPS.append("corsheaders")
+MIDDLEWARE.extend(
+    ["corsheaders.middleware.CorsMiddleware", "django.middleware.common.CommonMiddleware"]
+)
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    "https://1237784535.rsc.cdn77.org",
+]
+CORS_ORIGIN_REGEX_WHITELIST = [
+    r"^https://\d+\.rsc\.cdn77\.org$",
+]
+
 # Your stuff...
 # ------------------------------------------------------------------------------
