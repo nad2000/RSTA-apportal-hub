@@ -2,12 +2,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
+from extra_views import ModelFormSetView
 
 # from django.views.generic import DetailView, ListView
 # from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from .models import Subscription
 from .tasks import notify_user
+
+
+class SubscriptionFormSetView(ModelFormSetView):
+    model = Subscription
+    fields = ["name", "email"]
+    template_name = "formset.html"
 
 
 @require_http_methods(["GET", "POST"])

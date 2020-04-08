@@ -8,11 +8,12 @@ from . import views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
-    path("", subscribe, name="comingsoon"),
+    path("subscription/", views.SubscriptionFormSetView.as_view(), name="subscription"),
     path("home/", index, name="home"),
     path("index/", index, name="index"),
     path("index.html", index, name="index.html"),
     path("test_task/<message>", test_task),
+    path("", subscribe, name="comingsoon"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     # path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),

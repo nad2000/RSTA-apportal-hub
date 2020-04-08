@@ -1,19 +1,19 @@
+from django.contrib.auth import get_user_model
 from django.db.models import (
-    CharField,
     CASCADE,
     BooleanField,
-    Model as _Model,
-    ForeignKey,
-    TextField,
-    ImageField,
-    FloatField,
-    PositiveSmallIntegerField,
-    DateTimeField,
+    CharField,
     DateField,
+    DateTimeField,
     EmailField,
+    FloatField,
+    ForeignKey,
+    ImageField,
 )
+from django.db.models import Model as _Model
+from django.db.models import PositiveSmallIntegerField, TextField
 from django.forms.models import model_to_dict
-from django.contrib.auth import get_user_model
+from simple_history.models import HistoricalRecords
 
 User = get_user_model()
 
@@ -51,6 +51,7 @@ class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name or self.email
