@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from extra_views import ModelFormSetView
 from django_tables2 import SingleTableView
 
 from django.views.generic import DetailView as _DetailView, ListView
