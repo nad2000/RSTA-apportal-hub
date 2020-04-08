@@ -3,5 +3,5 @@ include =
     portal/*
     users/*
 omit = *migrations*, *tests*
-plugins =
-    django_coverage_plugin
+; plugins =
+;     django_coverage_plugin
