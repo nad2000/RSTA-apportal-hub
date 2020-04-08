@@ -1,6 +1,8 @@
 dist: xenial
 services:
   - postgresql
+env:
+  - ENV=testing
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq build-essential gettext python-dev zlib1g-dev libpq-dev xvfb
@@ -14,6 +16,6 @@ python:
 install:
   - pip install -r requirements/local.txt
 script:
+  - ./manage.py collectstatic
   - coverage run -m pytest
   - coverage report -m
-
