@@ -1,5 +1,7 @@
 [run]
-include = pmspp/*
+include =
+    portal/*
+    users/*
 omit = *migrations*, *tests*
 plugins =
     django_coverage_plugin
