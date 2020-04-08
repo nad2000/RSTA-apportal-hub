@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n compress%}
 {% get_static_prefix as STATIC_PREFIX %}
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/vendor/bootstrap/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/vendor/animate/animate.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/vendor/select2/select2.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/css/util.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/css/main.css' %}">
+    {{ block.super }}
+    {% compress css %}
+      <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/vendor/animate/animate.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/vendor/select2/select2.min.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/css/util.css' %}">
+      <link rel="stylesheet" type="text/css" href="{% static 'comingsoon/css/main.css' %}">
+    {% endcompress %}
 {% endblock %}
 
 	<!--  -->
@@ -89,35 +91,40 @@
 	</div>
 
 
-  <script src="{% static '/comingsoon/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/bootstrap/js/popper.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/select2/select2.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/countdowntime/moment.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/countdowntime/moment-timezone.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/countdowntime/moment-timezone-with-data.min.js' %}"></script>
-  <script src="{% static '/comingsoon/vendor/countdowntime/countdowntime.js' %}"></script>
-	<script>
-		$('.cd100').countdown100({
-			/*Set Endtime here*/
-			/*Endtime must be > current time*/
-			endtimeYear: 0,
-			endtimeMonth: 0,
-			endtimeDate: 35,
-			endtimeHours: 18,
-			endtimeMinutes: 0,
-			endtimeSeconds: 0,
-			timeZone: ""
-			// ex:  timeZone: "America/New_York"
-			//go to " http://momentjs.com/timezone/ " to get timezone
-		});
-	</script>
-  <script src="{% static '/comingsoon/vendor/tilt/tilt.jquery.min.js' %}"></script>
-	<script >
-		$('.js-tilt').tilt({
-			scale: 1.1
-		})
-	</script>
-  <script src="{% static '/comingsoon/js/main.js' %}"></script>
+  {% block javascript %}
+
+      {% compress js %}
+        <script src="{% static '/comingsoon/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/bootstrap/js/popper.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/select2/select2.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/countdowntime/moment.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/countdowntime/moment-timezone.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/countdowntime/moment-timezone-with-data.min.js' %}"></script>
+        <script src="{% static '/comingsoon/vendor/countdowntime/countdowntime.js' %}"></script>
+        <script>
+          $('.cd100').countdown100({
+            /*Set Endtime here*/
+            /*Endtime must be > current time*/
+            endtimeYear: 0,
+            endtimeMonth: 0,
+            endtimeDate: 35,
+            endtimeHours: 18,
+            endtimeMinutes: 0,
+            endtimeSeconds: 0,
+            timeZone: ""
+            // ex:  timeZone: "America/New_York"
+            //go to " http://momentjs.com/timezone/ " to get timezone
+          });
+        </script>
+        <script src="{% static '/comingsoon/vendor/tilt/tilt.jquery.min.js' %}"></script>
+        <script >
+          $('.js-tilt').tilt({
+            scale: 1.1
+          })
+        </script>
+        <script src="{% static '/comingsoon/js/main.js' %}"></script>
+      {% endcompress %}
+  {% endblock %}
 
 {% endblock %}
