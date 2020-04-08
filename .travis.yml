@@ -16,6 +16,6 @@ python:
 install:
   - pip install -r requirements/local.txt
 script:
-  - ./manage.py collectstatic
+  # - ./manage.py collectstatic
   - coverage run -m pytest
   - coverage report -m
