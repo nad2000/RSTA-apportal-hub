@@ -83,6 +83,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount.providers.google",
     "rest_framework",
     "rest_framework.authtoken",
+    "django_tables2",
 ]
 
 LOCAL_APPS = [

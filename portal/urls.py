@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from django.conf import settings
 from django.views.generic import TemplateView
 
@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
-    path("subscription/", views.SubscriptionFormSetView.as_view(), name="subscription"),
+    path("subscription/", views.SubscriptionList.as_view(), name="subscription"),
     path("home/", index, name="home"),
     path("index/", index, name="index"),
     path("index.html", index, name="index.html"),
@@ -16,7 +16,7 @@ urlpatterns = [
     path("", subscribe, name="comingsoon"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
-    # path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
+    path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
     # path(
     #     "subscription/update/<int:pk>",
     #     views.SubscriptionUpdate.as_view(),
