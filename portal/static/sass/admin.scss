@@ -1,0 +1,134 @@
+/*
+ * NB! DO NOT EDIT project.css DIRECTLY! IT IS GENERATED FROM project.scss.
+ * USE: sass sass/admin.scss css/admin.css
+ * READ MORE AT: https://sass-lang.com/guide
+ */
+
+// project specific CSS goes here
+@import "_variables";
+
+////////////////////////////////
+		//Variables//
+////////////////////////////////
+
+// Alert colors
+
+$mint-green: #d6e9c6;
+$dark-pink: #eed3d7;
+$link-color:                theme-color("primary") !default;
+$link-hover-color:          darken($link-color, 15%) !default;
+$link-hover-decoration:     underline !default;
+
+// Styles
+
+.asteriskField {
+  color: $red;
+  font-weight: bold;
+}
+
+
+////////////////////////////////
+		//Alerts//
+////////////////////////////////
+
+// bootstrap alert CSS, translated to the django-standard levels of
+// debug, info, success, warning, error
+
+.alert-debug {
+  background-color: $white;
+  border-color: $mint-green;
+  color: $black;
+}
+
+.alert-error {
+  background-color: $pink;
+  border-color: $dark-pink;
+  color: $red;
+}
+
+#logo {
+  max-height: 72px;
+  display: inline-block;
+  margin: 5px 0;
+  vertical-align: top;
+  width: auto;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////::/
+:root {
+  // Custom variable values only support SassScript inside `#{}`.
+  --primary-color: #{$primary};
+  --primary-color-faded: #{lighten($primary, 5)};
+  // --primary-color-faded: #585853;
+  --secondary-color: #{$secondary};
+}
+
+::selection {
+  background: var(--secondary-color);
+  color:var(--primary-color);
+  opacity:1
+}
+
+::-moz-selection {
+  background: var(--secondary-color);
+  color:var(--primary-color);
+  opacity:1
+}
+body {
+  height: 100%;
+  font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        'Roboto',
+        Helvetica,
+        Arial,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Segoe UI Symbol';
+}
+
+#header {
+  background: var(--primary-color);
+}
+
+.module h2, .module caption, .inline-group h2 {
+  background-color: var(--primary-color-faded);
+}
+
+div.breadcrumbs {
+  background: var(--primary-color-faded);
+}
+
+a:link, a:visited {
+  // color: var(--primary-color-faded);
+  color: #{$link-color};
+}
+
+.deletelink {
+  background-color: #{$red};
+}
+
+.selector-chosen h2 {
+  background: var(--primary-color-faded) !important;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: var(--primary-color-faded);
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+  background: var(--primary-color);
+}
+
+.button:active, input[type=submit]:active, input[type=button]:active, .button:focus, input[type=submit]:focus, input[type=button]:focus, .button:hover, input[type=submit]:hover, input[type=button]:hover {
+  background: var(--primary-color-faded);
+  opacity: 0.8;
+}
+
+.button.default:active, input[type=submit].default:active, .button.default:focus, input[type=submit].default:focus, .button.default:hover, input[type=submit].default:hover {
+  background: var(--primary-color);
+  opacity: 0.8;
+}
