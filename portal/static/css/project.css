@@ -1,6 +1,7 @@
 /*
  * NB! DO NOT EDIT project.css DIRECTLY! IT IS GENERATED FROM project.scss.
  * USE: sass sass/project.scss css/project.css
+ * READ MORE AT: https://sass-lang.com/guide
  */
 html, body {
   height: 100%;
@@ -8,7 +9,7 @@ html, body {
 }
 
 .asteriskField {
-  color: #b94a48;
+  color: #a0270f;
   font-weight: bold;
 }
 
@@ -19,9 +20,9 @@ html, body {
 }
 
 .alert-error {
-  background-color: #f2dede;
+  background-color: #e83e8c;
   border-color: #eed3d7;
-  color: #b94a48;
+  color: #a0270f;
 }
 
 #logo {
