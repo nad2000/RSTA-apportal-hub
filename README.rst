@@ -32,6 +32,26 @@ Moved to settings_.
 
 .. _settings: http://cookiecutter-django.readthedocs.io/en/latest/settings.html
 
+Deployment Environment
+----------------------
+
+    1. Create a Python virtual environment.
+
+    1. Istall all dependecies.
+
+    1. Run migrations.
+
+    1. Create a superuser.
+
+    1. Create a self signed server sertivificate and a key::
+
+        $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
+    1. Run server with the the certificate::
+
+        $ ./manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+
+
 Basic Commands
 --------------
 

@@ -81,6 +81,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.orcid",
     "rest_framework",
     "rest_framework.authtoken",
     "django_tables2",
@@ -298,6 +299,10 @@ REST_FRAMEWORK = {
 # ------------------------------------------------------------------------------
 
 SOCIALACCOUNT_PROVIDERS = {
-    "google": {"SCOPE": ["profile", "email", "openid",], "AUTH_PARAMS": {"access_type": "online",}}
+    "google": {
+        "SCOPE": ["profile", "email", "openid",],
+        "AUTH_PARAMS": {"access_type": "online",},
+    },
+    "orcid": {"BASE_DOMAIN": "sandbox.orcid.org", "MEMBER_API": False,},
 }
 CRISPY_TEMPLATE_PACK = "bootstrap4"
