@@ -67,10 +67,6 @@ a:link, a:visited {
   color: #829c00;
 }
 
-.deletelink {
-  background-color: #a0270f;
-}
-
 .selector-chosen h2 {
   background: var(--primary-color-faded) !important;
 }
