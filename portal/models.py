@@ -47,6 +47,9 @@ class TimeStampMixin(_Model):
 
 
 class Model(TimeStampMixin, _Model):
+
+    history = HistoricalRecords(inherit=True)
+
     @classmethod
     def first(cls):
         return cls.objects.first()
@@ -71,7 +74,6 @@ class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
-    history = HistoricalRecords()
 
     def __str__(self):
         return self.name or self.email
