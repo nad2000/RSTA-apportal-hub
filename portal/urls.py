@@ -2,18 +2,22 @@ from django.urls import include, path
 from django.conf import settings
 from django.views.generic import TemplateView
 
-from .views import index, test_task, subscribe
 from . import views
 
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
     path("subscription/", views.SubscriptionList.as_view(), name="subscription"),
-    path("home/", index, name="home"),
-    path("index/", index, name="index"),
-    path("index.html", index, name="index.html"),
-    path("test_task/<message>", test_task),
-    path("", subscribe, name="comingsoon"),
+    path("user/<int:pk>/profile", views.user_profile, name="profile-detail"),
+    path("myprofile", views.user_profile, name="my-profile"),
+    path("profile/<int:pk>", views.ProfileDetail.as_view(), name="profile-detail"),
+    path("profile/create", views.ProfileCreate.as_view(), name="profile-create"),
+    path("profile/<int:pk>/update", views.ProfileUpdate.as_view(), name="profile-update"),
+    path("home/", views.index, name="home"),
+    path("index/", views.index, name="index"),
+    path("index.html", views.index, name="index.html"),
+    path("test_task/<message>", views.test_task),
+    path("", views.subscribe, name="comingsoon"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),

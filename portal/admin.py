@@ -1,10 +1,10 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Subscription
+from . import models
 
 
-@admin.register(Subscription)
+@admin.register(models.Subscription)
 class SubscriptionAdmin(SimpleHistoryAdmin):
     list_display = ["email", "name"]
     list_filter = ["created_at", "updated_at"]
@@ -12,3 +12,6 @@ class SubscriptionAdmin(SimpleHistoryAdmin):
         "email",
     ]
     date_hierarchy = "created_at"
+
+
+admin.site.register(models.Profile)

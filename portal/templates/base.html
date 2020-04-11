@@ -37,17 +37,27 @@
   <body>
   {% block body %}
 
-    <div class="mb-1">
+    {% block header %}
+    <div class="mb-0">
+
+      <header class="header">
+        <a href="#" style="margin-left: 24px;">
+          <img id="logo"
+            src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
+        </a>
+      </header>
+
       <nav class="navbar navbar-expand-md navbar-light bg-light">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="{% url 'home' %}">
+
+        <!--  a class="navbar-brand" href="{% url 'home' %}">
           <img
               id="logo"
               src="{% static 'images/logo.png' %}"
               alt="The Prime Minister's Science Prizes">
-        </a>
+        </a -->
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
@@ -81,8 +91,9 @@
       </nav>
 
     </div>
+    {% endblock header %}
 
-    <div class="container">
+    <div class="container-fluid">
 
       {% if messages %}
           {% for message in messages %}
@@ -94,7 +105,7 @@
         <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
 
-    </div> <!-- /container -->
+    </div> <!-- /container-fluid -->
 
     {% block modal %}{% endblock modal %}
 
@@ -120,4 +131,3 @@
   {% endblock %}
   </body>
 </html>
-
