@@ -17,7 +17,6 @@ from django.db.models import (
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.forms.models import model_to_dict
 from simple_history.models import HistoricalRecords
-from partial_date import PartialDateField
 from model_utils import Choices
 
 SEX_CHOICES = Choices("female", "male", "other")
@@ -89,7 +88,6 @@ class Profile(Model):
     #     (OTHER, "Other"),
     # ]
     sex = CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
-    # dob = PartialDateField(null=True, blank=True, verbose_name="date of birth")
     year_of_birth = PositiveSmallIntegerField(
         null=True,
         blank=True,
