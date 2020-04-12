@@ -1,20 +1,33 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block title %}User: {{ object.username }}{% endblock %}
+
 {% block content %}
 
-  <h1>
-    {% if object.user and object.user == request.user %}
-      Your Profile
-    {% else %}
-      {{ object }}
-    {% endif %}
-  </h1>
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-12">
+
+      <h1>
+        {% if object.user and object.user == request.user %}
+          Your Profile
+        {% else %}
+          {{ object }}
+        {% endif %}
+      </h1>
+
+    </div>
+  </div>
+
 
   <table class="table table-bordered searchable">
     <tbody>
       <tr>
-        <th style="width: 20%; min-width: 120px; max-width: 140px;">Sex</th>
-        <td>{{ object.sex }}</td>
+        <th style="width: 21%; min-width: 160px; max-width: 180px;">Sex</th>
+        <td>{{ object.get_sex_display }}</td>
       </tr>
       <tr>
         <th>Year of birth</th>
@@ -22,9 +35,33 @@
       </tr>
       <tr>
         <th>Ethnicity</th>
-        <td>{{ object.ethnicity }}</td>
+        <td>{{ object.get_ethnicity_display }}</td>
+      </tr>
+      <tr>
+        <th>Education Level</th>
+        <td>{{ object.get_education_level_display }}</td>
+      </tr>
+      <tr>
+        <th>Employment status</th>
+        <td>{{ object.get_employment_status_display }}</td>
+      </tr>
+      <tr>
+        <th>Primary language spoken</th>
+        <td>{{ object.get_primary_language_spoken_display }}</td>
       </tr>
     </tbody>
   </table>
+
+  <div class="row">
+
+    <div class="col-sm-12">
+      <a class="btn btn-primary" href="{% url 'profile-update' pk=object.pk %}">Edit</a>
+      {% if object.user == request.user %}
+        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
+        <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
+      {% endif %}
+    </div>
+
+  </div>
 
 {% endblock %}

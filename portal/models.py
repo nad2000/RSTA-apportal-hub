@@ -35,6 +35,70 @@ ETHNICITY_COICES = Choices(
     "Other",
 )
 
+EDUCATION_LEVEL = Choices(
+    (0, "No qualification"),
+    (1, "Level 1 certificate"),
+    (2, "Level 2 certificate"),
+    (3, "Level 3 certificate"),
+    (4, "Level 4 certificate"),
+    (5, "Level 5 diploma"),
+    (6, "Level 6 diploma"),
+    (7, "Bachelor's degree and level"),
+    (8, "Post-graduate and honours degrees"),
+    (9, "Master's degree"),
+    (10, "Doctorate degree"),
+    (100, "Overseas secondary school qualification"),
+)
+
+EMPLOYMENT_STATUS = Choices(
+    (1, "Paid employee"),
+    (2, "Employer"),
+    (3, "Self-employed and without employees"),
+    (4, "Unpaid family worker"),
+    (5, "Not stated"),
+)
+
+LANGUAGES = Choices(
+    "English (New Zealand English)",
+    "Māori",
+    "Samoan",
+    "Hindi",
+    "Mandarin Chinese",
+    "French",
+    "Yue Chinese (Cantonese)",
+    "Chinese (not further defined)",
+    "German",
+    "Tongan",
+    "Tagalog",
+    "Afrikaans",
+    "Spanish",
+    "Korean",
+    "Dutch",
+    "New Zealand Sign Language",
+    "Japanese",
+    "Punjabi",
+    "Gujarati",
+    "Arabic",
+    "Russian",
+    "Italian",
+    "Cook Islands Māori",
+    "Thai",
+    "Tamil",
+    "Malaysian",
+    "Khmer",
+    "Fijian",
+    "Vietnamese",
+    "Serbo-Croatian",
+    "Sinhala",
+    "Min Chinese",
+    "Persian",
+    "Urdu",
+    "Bahasa Indonesia",
+    "Niuean",
+    "Malayalam",
+    "Other",
+)
+
 User = get_user_model()
 
 
@@ -57,6 +121,7 @@ class Profile(Model):
     #     (FEMALE, "Female"),
     #     (OTHER, "Other"),
     # ]
+
     sex = CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
     year_of_birth = PositiveSmallIntegerField(
         null=True,
@@ -65,7 +130,19 @@ class Profile(Model):
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
     )
     ethnicity = CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
+    education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
+    employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     user = ForeignKey(User, null=True, on_delete=CASCADE)
+    # years since arrival in New Zealand
+    primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
+    # study participation
+    # legally registered relationship status
+    # highest secondary school qualification
+    # total personal income
+    # job indicator work and labour force status
+    # hours usually worked
+    # status in employment
+    # occupation
 
     def __str__(self):
 
@@ -81,8 +158,8 @@ class Profile(Model):
     # date of birth
     # age (n, 18-24, 25-34,35-49,50-64,65+)
     # ethnicity
-    # education level
-    # employment status (no education, primary, secondary school, highter, ...)
+    # education level (no education, primary, secondary school, highter, ...)
+    # employment status
     # years since arrival in New Zealand
     # primary languages spoken
     # study participation
