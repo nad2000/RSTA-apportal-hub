@@ -3,9 +3,10 @@ from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
+from common.models import HelperMixin
 
 
-class User(AbstractUser):
+class User(HelperMixin, AbstractUser):
 
     # First Name and Last Name do not cover name patterns
     # around the globe.

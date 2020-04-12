@@ -1,6 +1,6 @@
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.db.models import Model as _Model
+from common.models import Model
 from django.db.models import (
     CASCADE,
     BooleanField,
@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from simple_history.models import HistoricalRecords
 from model_utils import Choices
 
-SEX_CHOICES = Choices("female", "male", "other")
+SEX_CHOICES = Choices(("F", "Female"), ("M", "Male"), ("O", "Other"))
 
 ETHNICITY_COICES = Choices(
     "European",
@@ -36,38 +36,6 @@ ETHNICITY_COICES = Choices(
 )
 
 User = get_user_model()
-
-
-class TimeStampMixin(_Model):
-    created_at = DateTimeField(auto_now_add=True, null=True)
-    updated_at = DateTimeField(auto_now=True, null=True)
-
-    class Meta:
-        abstract = True
-
-
-class Model(TimeStampMixin, _Model):
-
-    history = HistoricalRecords(inherit=True)
-
-    @classmethod
-    def first(cls):
-        return cls.objects.first()
-
-    @classmethod
-    def last(cls):
-        return cls.objects.last()
-
-    @classmethod
-    def get(cls, *args, **kwargs):
-        if args:
-            return cls.objects.get(pk=args[0])
-        else:
-            return cls.objects.get(**kwargs)
-        return cls.objects.first()
-
-    class Meta:
-        abstract = True
 
 
 class Subscription(Model):

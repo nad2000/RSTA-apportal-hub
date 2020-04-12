@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  {{ object }}
 
-  <h1>1195</h1>
+  <h1>
+    {% if object.user and object.user == request.user %}
+      Your Profile
+    {% else %}
+      {{ object }}
+    {% endif %}
+  </h1>
+
   <table class="table table-bordered searchable">
     <tbody>
       <tr>
@@ -22,4 +28,3 @@
   </table>
 
 {% endblock %}
-

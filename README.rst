@@ -22,9 +22,6 @@ Prime Minister's Science Prizes Portal
     :alt: Travis (.com)
 
 
-:License: MIT
-
-
 Settings
 --------
 
@@ -35,21 +32,19 @@ Moved to settings_.
 Deployment Environment
 ----------------------
 
-    1. Create a Python virtual environment.
+1. Create a Python virtual environment.
 
-    1. Istall all dependecies.
+#. Istall all dependecies.
 
-    1. Run migrations.
+#. Run migrations.
 
-    1. Create a superuser.
+#. Create a superuser.
 
-    1. Create a self signed server sertivificate and a key::
+#. Run server with the the certificate::
 
-        $ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+    $ ./manage.py runserver_plus --cert-file cert.crt --key-file cert.key
 
-    1. Run server with the the certificate::
-
-        $ ./manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+#. To make life easier, add import the crt file as a trusted server sertificate in your browser (read more at: https://support.google.com/chrome/a/answer/6342302).
 
 
 Basic Commands
@@ -123,7 +118,4 @@ Heroku
 See detailed `cookiecutter-django Heroku documentation`_.
 
 .. _`cookiecutter-django Heroku documentation`: http://cookiecutter-django.readthedocs.io/en/latest/deployment-on-heroku.html
-
-
-
 
