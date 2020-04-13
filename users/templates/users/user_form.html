@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags socialaccount static %}
 
 {% block title %}{{ user.username }}{% endblock %}
 
@@ -7,6 +7,7 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12">
+
       <h1>{{ user.username|title }}</h1>
       <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
         {% csrf_token %}
@@ -14,9 +15,26 @@
         <div class="control-group">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
           </div>
         </div>
       </form>
+
+      <!-- a title="Google"
+          class="btn btn-lg btn-google btn-block"
+          href="{% provider_login_url 'google' process="connect" %}">
+        <i class="fab fa-google mr-2"></i>
+        Link another <strong>Google</strong> account
+      </a>
+
+      <a title="ORCID"
+          class="btn btn-lg btn-orcid btn-block btn-orcid"
+          href="{% provider_login_url 'orcid' process="connect" %}">
+        <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+        Link another <strong>ORCID</strong> account
+      </a -->
+
+
     </div>
   </div>
 </div>

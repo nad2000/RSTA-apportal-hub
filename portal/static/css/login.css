@@ -265,7 +265,11 @@ body {
   text-decoration: none;
 }
 
-.account .note, a {
+.account .note {
+  color: #fff;
+}
+
+.account .note a, .note a:hover, .note {
   color: #fff;
 }
 

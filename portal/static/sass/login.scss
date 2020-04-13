@@ -269,7 +269,11 @@ body {
   text-decoration: none;
 }
 
-.account .note, a {
+.account .note {
+  color: #{$white};
+}
+
+.account .note a, .note a:hover, .note {
   color: #{$white};
 }
 
