@@ -6,17 +6,25 @@
 
 {% block content %}
 
-  <h1>
-    {{ object }}
-  </h1>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
 
-<form method="post">{% csrf_token %}
-  {{ form|crispy }}
-  {% if object.id %}
-    <input class="btn btn-primary" type="submit" value="Update">
-  {% else %}
-    <input class="btn btn-primary" type="submit" value="Create">
-  {% endif %}
-</form>
+      <h1>
+        {{ object|title }}
+      </h1>
+
+      <form method="post">{% csrf_token %}
+        {{ form|crispy }}
+        {% if object.id %}
+          <input class="btn btn-primary" type="submit" value="Update">
+        {% else %}
+          <input class="btn btn-primary" type="submit" value="Create">
+        {% endif %}
+      </form>
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}
