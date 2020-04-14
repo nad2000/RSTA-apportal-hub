@@ -18,8 +18,9 @@ A home for development of the Application Portal for the Prime Ministers Science
 .. image:: https://img.shields.io/github/stars/Royal-Society-of-New-Zealand/RSTA-apportal-hub
     :alt: GitHub stars
     :target: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub
-.. image:: https://img.shields.io/travis/com/nad2000/django-cookiecutter-projects
-    :alt: Travis (.com)
+.. image:: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub/workflows/Django%20CI/badge.svg
+    :target: actions?query=workflow%3A%22Django+CI%22
+    :alt: Django CI
 
 
 Settings
