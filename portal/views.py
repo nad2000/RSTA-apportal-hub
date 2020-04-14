@@ -55,7 +55,7 @@ def test_task(req, message):
 def user_profile(req, pk=None):
     u = User.objects.get(pk=pk) if pk else req.user
     p, _ = Profile.objects.get_or_create(user=u)
-    return redirect("profile-detail", pk=p.pk)
+    return redirect("profile", pk=p.pk)
 
 
 class ProfileForm(forms.ModelForm):

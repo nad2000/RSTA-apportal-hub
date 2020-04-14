@@ -61,32 +61,32 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+            <li class="nav-item" id="home">
               <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="about">
               <a class="nav-link" href="{% url 'about' %}">About</a>
             </li>
             {% if request.user.is_authenticated %}
               {% if request.user.is_superuser or request.user.is_staff %}
-                <li class="nav-item">
+                <li class="nav-item" id="admin:index">
                   <a id="admin-link" class="nav-link" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
                 </li>
               {% endif %}
-              <li class="nav-item">
+              <li class="nav-item" id="profile">
                 {# URL provided by django-allauth/account/urls.py #}
                 <a class="nav-link" href="{% url 'my-profile' %}">{% trans "My Profile" %}</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" id="account_logout">
                 {# URL provided by django-allauth/account/urls.py #}
                 <a class="nav-link" href="{% url 'account_logout' %}">{% trans "Sign Out" %}</a>
               </li>
             {% else %}
-              <li class="nav-item">
+              <li class="nav-item" id="account_signup">
                 {# URL provided by django-allauth/account/urls.py #}
                 <a id="sign-up-link" class="nav-link" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" id="account_login">
                 {# URL provided by django-allauth/account/urls.py #}
                 <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}">{% trans "Sign In" %}</a>
               </li>
@@ -99,7 +99,6 @@
     {% endblock header %}
 
     <div class="container-fluid">
-
 
       {% if messages %}
           {% for message in messages %}
@@ -127,10 +126,20 @@
 
       <!-- Your stuff: Third-party javascript libraries go here -->
 
-
       <!-- place project specific Javascript in this file -->
       {% compress js %}
       <script src="{% static 'js/project.js' %}"></script>
+      <script>
+        $(document).ready(function(){
+          $("time").each(function () {
+             var el = $(this);
+             var dt = moment.utc(el.attr("datetime")).local();
+             el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
+          });
+          $('[data-toggle="tooltip"]').tooltip();
+          $("#{{request.resolver_match.view_name}}").addClass("active");
+        });
+      </script>
       {% endcompress %}
 
     {% endblock javascript %}
