@@ -1,7 +1,7 @@
-Prime Minister's Science Prizes
-===============================
+The Application Portal for the Prime Ministers Science Prizes
+=============================================================
 
-Prime Minister's Science Prizes Portal
+A home for development of the Application Portal for the Prime Ministers Science Prizes
 
 .. image:: https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg
     :target: https://github.com/pydanny/cookiecutter-django/
