@@ -9,15 +9,15 @@ A home for development of the Application Portal for the Prime Ministers Science
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
     :alt: Black code style
-.. image:: https://img.shields.io/github/issues/nad2000/PMSPP
+.. image:: https://img.shields.io/github/issues/Royal-Society-of-New-Zealand/RSTA-apportal-hub
     :alt: GitHub issues
-    :target: https://github.com/nad2000/PMSPP/issues
-.. image:: https://img.shields.io/github/forks/nad2000/PMSPP
+    :target: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub
+.. image:: https://img.shields.io/github/forks/Royal-Society-of-New-Zealand/RSTA-apportal-hub
     :alt: GitHub forks
-    :target: https://github.com/nad2000/PMSPP/network
-.. image:: https://img.shields.io/github/stars/nad2000/PMSPP
+    :target: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub
+.. image:: https://img.shields.io/github/stars/Royal-Society-of-New-Zealand/RSTA-apportal-hub
     :alt: GitHub stars
-    :target: https://github.com/nad2000/PMSPP/stargazers
+    :target: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub
 .. image:: https://img.shields.io/travis/com/nad2000/django-cookiecutter-projects
     :alt: Travis (.com)
 
@@ -68,7 +68,7 @@ Running type checks with mypy:
 
 ::
 
-  $ mypy pmspp
+  $ mypy portal
 
 Test coverage
 ^^^^^^^^^^^^^
