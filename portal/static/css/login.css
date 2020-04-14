@@ -106,6 +106,10 @@ body {
   background-color: #ea4335;
 }
 
+.btn-google:hover {
+  background-color: #d62516;
+}
+
 .btn-google i {
   padding-left: 11px;
   padding-right: 2px;
@@ -115,6 +119,10 @@ body {
   color: white;
   text-align: left;
   background-color: #3b5998;
+}
+
+.btn-facebook:hover {
+  background-color: #2d4373;
 }
 
 .btn-facebook i {
@@ -129,8 +137,7 @@ body {
 }
 
 .btn-orcid:hover {
-  background: #98be2f;
-  color: #fff;
+  background-color: #88aa2a;
 }
 
 .btn-orcid img {
