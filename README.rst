@@ -19,7 +19,7 @@ A home for development of the Application Portal for the Prime Ministers Science
     :alt: GitHub stars
     :target: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub
 .. image:: https://github.com/Royal-Society-of-New-Zealand/RSTA-apportal-hub/workflows/Django%20CI/badge.svg
-    :target: actions?query=workflow%3A%22Django+CI%22
+    :target: /RSTA-apportal-hub/actions?query=workflow%3A"Django+CI"
     :alt: Django CI
 
 
