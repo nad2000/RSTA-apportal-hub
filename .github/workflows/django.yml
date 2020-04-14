@@ -14,6 +14,7 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [3.8]
+
     steps:
     - uses: actions/checkout@v2
     - name: Cache
@@ -31,5 +32,14 @@ jobs:
         pip install -r requirements/cicd.txt
     - name: Run Tests
       run: |
+        MIN_COVERAGE=90
         coverage run -m pytest
         coverage report -m
+        COVERAGE_RESULT=`coverage report | grep TOTAL | awk 'N=1 {print $NF}' | sed 's/%//g'`
+        if [[ $COVERAGE_RESULT -gt $MIN_COVERAGE ]]; then
+            echo ::set-output name=coverage_result::$COVERAGE_RESULT
+        else
+            echo "#################################################"
+            echo "Code coverage below allowed threshold ($COVERAGE_RESULT<$MIN_COVERAGE)"
+            exit 1
+        fi
