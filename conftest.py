@@ -10,6 +10,12 @@ def media_storage(settings, tmpdir):
     settings.MEDIA_ROOT = tmpdir.strpath
 
 
+@pytest.fixture(autouse=True)
+def no_sentry(mocker):
+    """Subpress sentry."""
+    yield mocker.patch("sentry_sdk.transport.HttpTransport.capture_event")
+
+
 @pytest.fixture
 def user() -> User:
     return UserFactory()
