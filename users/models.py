@@ -1,9 +1,9 @@
+from common.models import HelperMixin
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
-from common.models import HelperMixin
 
 
 class User(HelperMixin, AbstractUser):
