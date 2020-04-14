@@ -9,6 +9,24 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 
 
+def test_template_views(client, admin_user):
+    resp = client.get("/index/")
+    assert resp.status_code == 302
+
+    resp = client.get("/about/")
+    assert resp.status_code == 200
+
+    resp = client.get("/accounts/login/")
+    assert resp.status_code == 200
+
+    resp = client.get("/accounts/signup/")
+    assert resp.status_code == 200
+
+    client.force_login(admin_user)
+    resp = client.get("/index/")
+    assert resp.status_code == 200
+
+
 def test_submit_task():
     client = Client()
     username, password = "tester", "p455w0rd"

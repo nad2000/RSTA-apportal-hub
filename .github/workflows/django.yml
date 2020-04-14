@@ -33,7 +33,7 @@ jobs:
     - name: Run Code Quality and Unit Tests
       run: |
         flake8 portal users
-        MIN_COVERAGE=90
+        MIN_COVERAGE=93
         coverage run -m pytest
         coverage report -m
         COVERAGE_RESULT=`coverage report | grep TOTAL | awk 'N=1 {print $NF}' | sed 's/%//g'`
