@@ -1,22 +1,14 @@
-from django.urls import reverse
-from django.contrib.auth import get_user_model
 from common.models import Model
+from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
-    BooleanField,
     CharField,
-    DateField,
-    DateTimeField,
     EmailField,
-    FloatField,
     ForeignKey,
-    ImageField,
     PositiveSmallIntegerField,
-    TextField,
 )
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.forms.models import model_to_dict
-from simple_history.models import HistoricalRecords
+from django.urls import reverse
 from model_utils import Choices
 
 SEX_CHOICES = Choices(("F", "Female"), ("M", "Male"), ("O", "Other"))

@@ -1,8 +1,7 @@
-from django.contrib.auth import get_user_model
 import pytest
-from django.test import RequestFactory
-from django.test.client import Client
 from background_task.tasks import tasks
+from django.contrib.auth import get_user_model
+from django.test.client import Client
 
 pytestmark = pytest.mark.django_db
 

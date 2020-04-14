@@ -2,14 +2,13 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
+from django.views.generic import DetailView as _DetailView
+from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 
-from django.views.generic import DetailView as _DetailView, ListView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
-
-from .models import Subscription, Profile, User
+from .models import Profile, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 

@@ -1,5 +1,4 @@
 import pytest
-
 from users.forms import UserCreationForm
 from users.tests.factories import UserFactory
 
