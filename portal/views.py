@@ -3,18 +3,28 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView as _CreateView
+from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 
-from .models import Profile, Subscription, User
+from .models import Application, Profile, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 
 
 class DetailView(_DetailView):
     template_name = "detail.html"
+
+
+class CreateView(_CreateView):
+    def get_success_url(self):
+        try:
+            return super().get_success_url()
+        except:
+            return self.request.META.get("HTTP_REFERER") or reverse("home")
 
 
 class SubscriptionList(LoginRequiredMixin, SingleTableView):
@@ -79,3 +89,43 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
     model = Profile
     fields = "__all__"
     template_name = "form.html"
+
+
+class ApplicationDetail(LoginRequiredMixin, DetailView):
+    model = Application
+
+
+class ApplicationCreate(LoginRequiredMixin, CreateView):
+    model = Application
+    fields = "__all__"
+    template_name = "form.html"
+
+    # def get_initial(self):
+    #     super().get_initial()
+    #     user = self.request.user
+    #     self.initial = {
+    #         "first_name": user.first_name,
+    #         "last_name": user.last_name,
+    #         "email": user.email,
+    #     }
+    #     return self.initial
+
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = super().get_form_kwargs()
+        if self.request.method == "GET" and "initial" in kwargs:
+            user = self.request.user
+            kwargs["initial"].update(
+                {"first_name": user.first_name, "last_name": user.last_name, "email": user.email,}
+            )
+        return kwargs
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     breakpoint()
+    #     if self.request.method == "GET":
+    #         user = self.request.user
+    #         context.update(
+    #             {"first_name": user.first_name, "last_name": user.last_name, "email": user.email,}
+    #         )
+    #     return context

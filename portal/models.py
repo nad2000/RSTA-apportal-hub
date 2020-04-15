@@ -7,6 +7,7 @@ from django.db.models import (
     EmailField,
     ForeignKey,
     PositiveSmallIntegerField,
+    BooleanField,
 )
 from django.urls import reverse
 from model_utils import Choices
@@ -162,3 +163,23 @@ class Profile(Model):
     # hours usually worked
     # status in employment
     # occupation
+
+
+class Application(Model):
+
+    # Members of the team must also complete the "Team Members & Signatures" Form.
+    is_team_application = BooleanField(default=False)
+    title = CharField(max_length=512)
+    first_name = CharField(max_length=30)
+    last_name = CharField(max_length=150)
+    organisation = CharField(max_length=200)
+    position = CharField(max_length=80)
+    postal_address = CharField(max_length=120)
+    city = CharField(max_length=80)
+    postcode = CharField(max_length=4)
+    daytime_phone = CharField("daytime phone numbrer", max_length=12)
+    mobile_phone = CharField("mobild phone number", max_length=12)
+    email = EmailField("email address", blank=True)
+
+    def get_absolute_url(self):
+        return reverse("application", kwargs={"pk": self.pk})

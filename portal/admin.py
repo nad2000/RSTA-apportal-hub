@@ -15,3 +15,4 @@ class SubscriptionAdmin(SimpleHistoryAdmin):
 
 
 admin.site.register(models.Profile)
+admin.site.register(models.Application)
