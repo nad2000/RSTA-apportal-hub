@@ -145,7 +145,7 @@ class Profile(Model):
         )
 
     def get_absolute_url(self):
-        return reverse("profile-detail", kwargs={"pk": self.pk})
+        return reverse("profile", kwargs={"pk": self.pk})
 
     # date of birth
     # age (n, 18-24, 25-34,35-49,50-64,65+)
