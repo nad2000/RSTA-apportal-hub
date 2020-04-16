@@ -52,3 +52,4 @@ class Model(TimeStampMixin, HelperMixin, _Model):
 
     class Meta:
         abstract = True
+        ordering = ["-id"]

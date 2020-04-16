@@ -7,6 +7,7 @@ from django.db.models import (
     CharField,
     EmailField,
     ForeignKey,
+    ManyToManyField,
     PositiveSmallIntegerField,
 )
 from django.urls import reverse
@@ -113,6 +114,27 @@ class Subscription(Model):
         db_table = "subscription"
 
 
+class Ethnicity(Model):
+
+    code = CharField(max_length=5, primary_key=True)
+    description = CharField(max_length=24)
+    level_three_code = CharField(max_length=3)
+    level_three_description = CharField(max_length=24)
+    level_two_code = CharField(max_length=2)
+    level_two_description = CharField(max_length=24)
+    level_one_code = CharField(max_length=20)
+    level_one_description = CharField(max_length=24)
+    definition = CharField(max_length=120, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.code}: {self.description}"
+
+    class Meta:
+        db_table = "ethnicity"
+        ordering = ["code"]
+
+
 class Profile(Model):
 
     # MALE = "M"
@@ -131,7 +153,8 @@ class Profile(Model):
         verbose_name="year of birth",
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
     )
-    ethnicity = CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
+    ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity")
+    CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     user = ForeignKey(User, null=True, on_delete=CASCADE)
@@ -198,23 +221,3 @@ class Application(Model):
 
     class Meta:
         db_table = "application"
-
-
-class Ethnicity(Model):
-
-    code = CharField(max_length=5)
-    description = CharField(max_length=24)
-    level_three_code = CharField(max_length=3)
-    level_three_description = CharField(max_length=24)
-    level_two_code = CharField(max_length=2)
-    level_two_description = CharField(max_length=24)
-    level_one_code = CharField(max_length=20)
-    level_one_description = CharField(max_length=24)
-    definition = CharField(max_length=120, null=True, blank=True)
-
-    def __str__(self):
-
-        return f"{self.code}: {self.description}"
-
-    class Meta:
-        db_table = "ethnicity"

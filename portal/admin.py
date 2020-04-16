@@ -19,7 +19,7 @@ class SubscriptionAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 class EthnicityResource(ModelResource):
     class Meta:
         model = models.Ethnicity
-        exclude = ["id", "created_at", "updated_at"]
+        exclude = ["created_at", "updated_at"]
         import_id_fields = ["code"]
 
 
@@ -35,5 +35,10 @@ class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = EthnicityResource
 
 
-admin.site.register(models.Profile)
+@admin.register(models.Profile)
+class ProfileAdmin(SimpleHistoryAdmin):
+
+    filter_horizontal = ["ethnicities"]
+
+
 admin.site.register(models.Application)
