@@ -3,11 +3,11 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
+    BooleanField,
     CharField,
     EmailField,
     ForeignKey,
     PositiveSmallIntegerField,
-    BooleanField,
 )
 from django.urls import reverse
 from model_utils import Choices
@@ -29,18 +29,24 @@ ETHNICITY_COICES = Choices(
 )
 
 EDUCATION_LEVEL = Choices(
-    (0, "No qualification"),
-    (1, "Level 1 certificate"),
-    (2, "Level 2 certificate"),
-    (3, "Level 3 certificate"),
-    (4, "Level 4 certificate"),
-    (5, "Level 5 diploma"),
-    (6, "Level 6 diploma"),
-    (7, "Bachelor's degree and level"),
-    (8, "Post-graduate and honours degrees"),
-    (9, "Master's degree"),
-    (10, "Doctorate degree"),
-    (100, "Overseas secondary school qualification"),
+    (0, "No Qualification"),
+    (1, "Level 1 Certificate"),
+    (2, "Level 2 Certificate"),
+    (3, "Level 3 Certificate"),
+    (4, "Level 4 Certificate"),
+    (5, "Level 5 Diploma/Certificate"),
+    (6, "Level 6 Graduate Certificate, Level 6 Diploma/Certificate"),
+    (7, "Bachelor Degree, Level 7 Graduate Diploma/Certificate, Level 7 Diploma/ Certificate"),
+    (8, "Postgraduate Diploma/Certificate, Bachelor Honours"),
+    (9, "Masters Degree"),
+    (10, "Doctorate Degree"),
+    (23, "Overseas Secondary School Qualification"),
+    (94, "Don't Know"),
+    (95, "Refused to Answer"),
+    (96, "Repeated Value"),
+    (97, "Response Unidentifiable"),
+    (98, "Response Outside Scope"),
+    (99, "Not Stated"),
 )
 
 EMPLOYMENT_STATUS = Choices(
@@ -103,6 +109,9 @@ class Subscription(Model):
     def __str__(self):
         return self.name or self.email
 
+    class Meta:
+        db_table = "subscription"
+
 
 class Profile(Model):
 
@@ -164,6 +173,9 @@ class Profile(Model):
     # status in employment
     # occupation
 
+    class Meta:
+        db_table = "profile"
+
 
 class Application(Model):
 
@@ -183,3 +195,26 @@ class Application(Model):
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
+
+    class Meta:
+        db_table = "application"
+
+
+class Ethnicity(Model):
+
+    code = CharField(max_length=5)
+    description = CharField(max_length=24)
+    level_three_code = CharField(max_length=3)
+    level_three_description = CharField(max_length=24)
+    level_two_code = CharField(max_length=2)
+    level_two_description = CharField(max_length=24)
+    level_one_code = CharField(max_length=20)
+    level_one_description = CharField(max_length=24)
+    definition = CharField(max_length=120, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.code}: {self.description}"
+
+    class Meta:
+        db_table = "ethnicity"

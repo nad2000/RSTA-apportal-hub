@@ -85,6 +85,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "django_tables2",
+    "import_export",
 ]
 
 LOCAL_APPS = [
@@ -308,3 +309,5 @@ SOCIALACCOUNT_PROVIDERS = {
     "orcid": {"BASE_DOMAIN": "sandbox.orcid.org", "MEMBER_API": False,},
 }
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+IMPORT_EXPORT_USE_TRANSACTIONS = True
+IMPORT_EXPORT_SKIP_ADMIN_LOG = True
