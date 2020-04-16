@@ -117,13 +117,13 @@ class Subscription(Model):
 class Ethnicity(Model):
 
     code = CharField(max_length=5, primary_key=True)
-    description = CharField(max_length=24)
+    description = CharField(max_length=40)
     level_three_code = CharField(max_length=3)
-    level_three_description = CharField(max_length=24)
+    level_three_description = CharField(max_length=40)
     level_two_code = CharField(max_length=2)
-    level_two_description = CharField(max_length=24)
+    level_two_description = CharField(max_length=40)
     level_one_code = CharField(max_length=20)
-    level_one_description = CharField(max_length=24)
+    level_one_description = CharField(max_length=40)
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
