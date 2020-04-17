@@ -30,3 +30,4 @@ django-simple-history>=2.8.0,<3.0.0
 django-import-export>=2.0.2,<3.0.0
 django-autocomplete-light>=3.5.1,<4.0.0
 xhtml2pdf>=0.2.4,<1.0.0
+django-select2>=7.2.3,<8.0.0
