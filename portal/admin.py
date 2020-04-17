@@ -57,7 +57,7 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
 
-    filter_horizontal = ["ethnicities"]
+    filter_horizontal = ["ethnicities", "languages_spoken"]
 
 
 admin.site.register(models.Application)
