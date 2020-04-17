@@ -128,7 +128,7 @@ class Ethnicity(Model):
 
     def __str__(self):
 
-        return f"{self.code}: {self.description}"
+        return f"{self.description}"
 
     class Meta:
         db_table = "ethnicity"

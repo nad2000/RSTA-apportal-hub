@@ -86,6 +86,8 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "django_tables2",
     "import_export",
+    "extra_views",
+    "django_select2",
 ]
 
 LOCAL_APPS = [

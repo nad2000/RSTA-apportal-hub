@@ -30,7 +30,15 @@
           </tr>
           <tr>
             <th>Ethnicity</th>
-            <td>{{ object.get_ethnicity_display|default_if_none:"" }}</td>
+            <td>
+              <ul>
+              {% for o in object.ethnicities.all %}
+                <li>
+                  {{ o |default_if_none:"" }}
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
           </tr>
           <tr>
             <th>Education Level</th>

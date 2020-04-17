@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,6 +9,7 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 
+from .forms import ProfileForm
 from .models import Application, Profile, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
@@ -68,12 +68,6 @@ def user_profile(req, pk=None):
     return redirect("profile", pk=p.pk)
 
 
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        exclude = ["user"]
-
-
 class ProfileDetail(LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile_detail.html"
@@ -89,6 +83,7 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
     model = Profile
     fields = "__all__"
     template_name = "form.html"
+    form_class = ProfileForm
 
 
 class ApplicationDetail(LoginRequiredMixin, DetailView):

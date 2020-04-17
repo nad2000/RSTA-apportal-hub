@@ -2,7 +2,7 @@ import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
 from django.test.client import Client
-from portal.models import Profile
+from portal.models import Ethnicity, Profile
 
 pytestmark = pytest.mark.django_db
 
@@ -41,23 +41,28 @@ def test_profile():
     username, password = "tester", "p455w0rd"
     user = User.objects.create_user(username=username, password=password)
     client.force_login(user)
+    Ethnicity.objects.create(code="11111", description="New Zealand European")
+    Ethnicity.objects.create(code="12411", description="Polish")
+    Ethnicity.objects.create(code="12928", description="Latvian")
     assert not Profile.objects.filter(user=user).exists()
     client.get("/myprofile", follow=True)
     assert Profile.objects.filter(user=user).exists()
     p = Profile.get(user=user)
-    assert p.sex is None and p.ethnicity is None
+    assert p.sex is None and p.ethnicities.count() == 0
     resp = client.post(
         f"/profile/{user.pk}/update",
         dict(
             sex="M",
             year_of_birth="1969",
-            ethnicity="New Zealander",
+            ethnicities=["11111"],
             education_level="7",
             employment_status="3",
         ),
         follow=True,
     )
     assert resp.status_code == 200
+    p = Profile.get(user=user)
+    assert p.sex == "M" and p.ethnicities.count() == 1
 
     admin = User.objects.create_user(username="admin", password=password, is_superuser=True)
     client.force_login(admin)
@@ -69,7 +74,7 @@ def test_profile():
         dict(
             sex="F",
             year_of_birth="1969",
-            ethnicity="New Zealander",
+            ethnicities=["11111", "12411", "12928"],
             education_level="7",
             employment_status="3",
         ),
@@ -77,3 +82,5 @@ def test_profile():
     )
     assert resp.status_code == 200
     assert b"Female" in resp.content
+    assert b"Latvian" in resp.content
+    assert p.sex == "M" and p.ethnicities.count() == 3

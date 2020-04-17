@@ -4,6 +4,11 @@
 
 {% block head_title %}{{ object }}{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  {{ form.media.css }}
+{% endblock %}
+
 {% block content %}
 
 <div class="container">
@@ -28,4 +33,10 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <!-- JS -->
+  {{ form.media.js }}
 {% endblock %}
