@@ -81,7 +81,6 @@ class ProfileUpdate(LoginRequiredMixin, UpdateView):
 
 class ProfileCreate(LoginRequiredMixin, CreateView):
     model = Profile
-    fields = "__all__"
     template_name = "form.html"
     form_class = ProfileForm
 
