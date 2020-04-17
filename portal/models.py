@@ -13,7 +13,7 @@ from django.db.models import (
 from django.urls import reverse
 from model_utils import Choices
 
-SEX_CHOICES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
+SEX_CHOICES = Choices((None, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
 
 ETHNICITY_COICES = Choices(
     "European",
@@ -146,7 +146,7 @@ class Profile(Model):
     #     (OTHER, "Other"),
     # ]
 
-    sex = PositiveSmallIntegerField(choices=SEX_CHOICES, default=0)
+    sex = PositiveSmallIntegerField(choices=SEX_CHOICES, null=True, blank=True)
     year_of_birth = PositiveSmallIntegerField(
         null=True,
         blank=True,
