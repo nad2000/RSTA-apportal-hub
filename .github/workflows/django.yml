@@ -17,11 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Cache
-      uses: actions/cache@v1.1.2
-      with:
-        path: venv
-        key: ${{ runner.os }}-venv
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
