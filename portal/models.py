@@ -138,7 +138,7 @@ class Ethnicity(Model):
 class Language(Model):
 
     code = CharField(max_length=3, primary_key=True)
-    description = CharField(max_length=60)
+    description = CharField(max_length=100)
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
