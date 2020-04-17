@@ -1,7 +1,7 @@
 from django import forms
 from django_select2.forms import ModelSelect2MultipleWidget
 
-from .models import Ethnicity, Profile, Subscription
+from .models import Ethnicity, Language, Profile, Subscription
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -19,4 +19,7 @@ class ProfileForm(forms.ModelForm):
                 model=Ethnicity, search_fields=["description__icontains"],
             ),
             sex=forms.RadioSelect,
+            languages_spoken=ModelSelect2MultipleWidget(
+                model=Language, search_fields=["description__icontains"],
+            ),
         )

@@ -13,7 +13,7 @@ from django.db.models import (
 from django.urls import reverse
 from model_utils import Choices
 
-SEX_CHOICES = Choices((None, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
+SEX_CHOICES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
 
 ETHNICITY_COICES = Choices(
     "European",
@@ -135,6 +135,21 @@ class Ethnicity(Model):
         ordering = ["code"]
 
 
+class Language(Model):
+
+    code = CharField(max_length=3, primary_key=True)
+    description = CharField(max_length=60)
+    definition = CharField(max_length=120, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "language"
+        ordering = ["code"]
+
+
 class Profile(Model):
 
     # MALE = "M"
@@ -153,13 +168,14 @@ class Profile(Model):
         verbose_name="year of birth",
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
     )
-    ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity")
+    ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     user = ForeignKey(User, null=True, on_delete=CASCADE)
     # years since arrival in New Zealand
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
+    languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
     # study participation
     # legally registered relationship status
     # highest secondary school qualification

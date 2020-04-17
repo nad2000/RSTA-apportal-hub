@@ -52,6 +52,18 @@
             <th>Primary language spoken</th>
             <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
           </tr>
+          <tr>
+            <th>Lanuages spoken</th>
+            <td>
+              <ul>
+              {% for o in object.languages_spoken.all %}
+                <li>
+                  {{ o |default_if_none:"" }}
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
         </tbody>
       </table>
 

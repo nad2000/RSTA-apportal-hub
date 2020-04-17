@@ -35,6 +35,19 @@ class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = EthnicityResource
 
 
+class LanguageResource(ModelResource):
+    class Meta:
+        model = models.Language
+        exclude = ["created_at", "updated_at"]
+        import_id_fields = ["code"]
+
+
+@admin.register(models.Language)
+class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = LanguageResource
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
 
