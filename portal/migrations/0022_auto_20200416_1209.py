@@ -6,48 +6,46 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portal', '0021_auto_20200416_1147'),
+        ("portal", "0021_auto_20200416_1147"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ethnicity',
-            name='description',
+            model_name="ethnicity", name="description", field=models.CharField(max_length=40),
+        ),
+        migrations.AlterField(
+            model_name="ethnicity",
+            name="level_one_description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='ethnicity',
-            name='level_one_description',
+            model_name="ethnicity",
+            name="level_three_description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='ethnicity',
-            name='level_three_description',
+            model_name="ethnicity",
+            name="level_two_description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='ethnicity',
-            name='level_two_description',
+            model_name="historicalethnicity",
+            name="description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='historicalethnicity',
-            name='description',
+            model_name="historicalethnicity",
+            name="level_one_description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='historicalethnicity',
-            name='level_one_description',
+            model_name="historicalethnicity",
+            name="level_three_description",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterField(
-            model_name='historicalethnicity',
-            name='level_three_description',
-            field=models.CharField(max_length=40),
-        ),
-        migrations.AlterField(
-            model_name='historicalethnicity',
-            name='level_two_description',
+            model_name="historicalethnicity",
+            name="level_two_description",
             field=models.CharField(max_length=40),
         ),
     ]
