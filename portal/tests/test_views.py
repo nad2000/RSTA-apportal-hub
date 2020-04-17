@@ -48,11 +48,11 @@ def test_profile():
     client.get("/myprofile", follow=True)
     assert Profile.objects.filter(user=user).exists()
     p = Profile.get(user=user)
-    assert p.sex is None and p.ethnicities.count() == 0
+    assert p.sex == 0 and p.ethnicities.count() == 0
     resp = client.post(
         f"/profile/{user.pk}/update",
         dict(
-            sex="M",
+            sex=1,
             year_of_birth="1969",
             ethnicities=["11111"],
             education_level="7",
@@ -62,7 +62,7 @@ def test_profile():
     )
     assert resp.status_code == 200
     p = Profile.get(user=user)
-    assert p.sex == "M" and p.ethnicities.count() == 1
+    assert p.sex == 1 and p.ethnicities.count() == 1
 
     admin = User.objects.create_user(username="admin", password=password, is_superuser=True)
     client.force_login(admin)
@@ -72,7 +72,7 @@ def test_profile():
     resp = client.post(
         f"/profile/{user.pk}/update",
         dict(
-            sex="F",
+            sex=2,
             year_of_birth="1969",
             ethnicities=["11111", "12411", "12928"],
             education_level="7",
@@ -83,13 +83,13 @@ def test_profile():
     assert resp.status_code == 200
     assert b"Female" in resp.content
     assert b"Latvian" in resp.content
-    assert p.sex == "M" and p.ethnicities.count() == 3
+    assert p.sex == 1 and p.ethnicities.count() == 3
 
     # Create a new profile:
     resp = client.post(
         f"/profile/create",
         dict(
-            sex="F",
+            sex=2,
             year_of_birth="1942",
             ethnicities=["11111", "12928"],
             education_level="8",

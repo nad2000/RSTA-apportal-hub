@@ -14,8 +14,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         exclude = ["user"]
-        widgets = {
-            "ethnicities": ModelSelect2MultipleWidget(
+        widgets = dict(
+            ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity, search_fields=["description__icontains"],
             ),
-        }
+            sex=forms.RadioSelect,
+        )
