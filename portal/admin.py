@@ -21,6 +21,9 @@ class EthnicityResource(ModelResource):
         model = models.Ethnicity
         exclude = ["created_at", "updated_at"]
         import_id_fields = ["code"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
 
 
 @admin.register(models.Ethnicity)
@@ -40,6 +43,9 @@ class LanguageResource(ModelResource):
         model = models.Language
         exclude = ["created_at", "updated_at"]
         import_id_fields = ["code"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
 
 
 @admin.register(models.Language)
