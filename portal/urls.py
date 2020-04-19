@@ -3,22 +3,24 @@ from django.urls import path
 
 from . import views
 
+# app_name = "portal"  ## in case if there is anohter app, add this prefix
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
     path("subscription/", views.SubscriptionList.as_view(), name="subscription"),
-    path("user/<int:pk>/profile", views.user_profile, name="user-profile"),
-    path("myprofile", views.user_profile, name="my-profile"),
-    path("profile/<int:pk>", views.ProfileDetail.as_view(), name="profile"),
-    path("profile/create", views.ProfileCreate.as_view(), name="profile-create"),
-    path("profile/<int:pk>/update", views.ProfileUpdate.as_view(), name="profile-update"),
-    path("application/create", views.ApplicationCreate.as_view(), name="application-create"),
+    path("user/<int:pk>/profile/", views.user_profile, name="user-profile"),
+    path("myprofile/", views.user_profile, name="my-profile"),
+    path("profile/<int:pk>/", views.ProfileDetail.as_view(), name="profile"),
+    path("profile/~create/", views.ProfileCreate.as_view(), name="profile-create"),
+    path("profile/<int:pk>/~update/", views.ProfileUpdate.as_view(), name="profile-update"),
+    path("application/create/", views.ApplicationCreate.as_view(), name="application-create"),
     path("application/<int:pk>", views.ApplicationDetail.as_view(), name="application"),
     path("start/", views.index, name="home"),
     path("index/", views.index, name="index"),
     path("home/", views.index, name="home"),
     path("index.html", views.index, name="index.html"),
     path("test_task/<message>", views.test_task),
+    path("onboard/", views.onboard, name="onboard"),
     path("", views.subscribe, name="comingsoon"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),

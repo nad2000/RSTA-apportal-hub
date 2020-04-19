@@ -6,8 +6,8 @@ from django.db.models import (
     BooleanField,
     CharField,
     EmailField,
-    ForeignKey,
     ManyToManyField,
+    OneToOneField,
     PositiveSmallIntegerField,
 )
 from django.urls import reverse
@@ -161,6 +161,7 @@ class Profile(Model):
     #     (OTHER, "Other"),
     # ]
 
+    user = OneToOneField(User, on_delete=CASCADE)
     sex = PositiveSmallIntegerField(choices=SEX_CHOICES, null=True, blank=True)
     year_of_birth = PositiveSmallIntegerField(
         null=True,
@@ -172,7 +173,6 @@ class Profile(Model):
     CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
-    user = ForeignKey(User, null=True, on_delete=CASCADE)
     # years since arrival in New Zealand
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
     languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
@@ -184,6 +184,7 @@ class Profile(Model):
     # hours usually worked
     # status in employment
     # occupation
+    is_accepted = BooleanField("Privace Policy Accepted", default=False)
 
     def __str__(self):
 

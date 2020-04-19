@@ -22,4 +22,6 @@ class ProfileForm(forms.ModelForm):
             languages_spoken=ModelSelect2MultipleWidget(
                 model=Language, search_fields=["description__icontains"],
             ),
+            is_acceted=forms.CheckboxInput(),
         )
+        labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")

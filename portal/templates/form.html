@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags static %}
 
 {% block head_title %}{{ object }}{% endblock %}
 
@@ -39,4 +39,7 @@
   {{ block.super }}
   <!-- JS -->
   {{ form.media.js }}
+  <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
+  <script src="{% static 'admin/js/SelectFilter2.js' %}"></script -->
+
 {% endblock %}

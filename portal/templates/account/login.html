@@ -23,9 +23,10 @@
     <form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}">
 
       {% csrf_token %}
-      {% if redirect_field_value %}
-      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-      {% endif %}
+
+      <input type="hidden"
+              name="{{ redirect_field_name }}"
+              value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
 
       <div class="avatar">
         <img src="{% static 'images/avatar.png' %}" alt="Avatar" />

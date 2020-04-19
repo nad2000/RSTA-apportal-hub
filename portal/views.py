@@ -1,8 +1,11 @@
+from functools import wraps
+from urllib.parse import quote
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import redirect, render, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
@@ -13,6 +16,25 @@ from .forms import ProfileForm
 from .models import Application, Profile, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
+
+
+def shoud_be_onboarded(function):
+    """
+    Check if the authentication user has a profile.
+    If it is misssing, the user gets redirected to
+    'onboard' to create a profile.
+    """
+
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+
+        try:
+            if request.user.profile:
+                return function(request, *args, **kwargs)
+        except ObjectDoesNotExist:
+            return redirect(reverse("onboard") + "?next=" + quote(request.get_full_path()))
+
+    return wrap
 
 
 class DetailView(_DetailView):
@@ -50,6 +72,7 @@ def subscribe(req):
 
 
 @login_required
+@shoud_be_onboarded
 def index(req):
     return render(req, "index.html", locals())
 
@@ -59,6 +82,20 @@ def test_task(req, message):
     notify_user(req.user.id, message)
     messages.add_message(req, messages.INFO, f"Task submitted with a message '{message}'")
     return render(req, "index.html", locals())
+
+
+@login_required
+def onboard(request):
+    next_url = request.GET.get("next")
+    try:
+        request.user.profile
+    except ObjectDoesNotExist:
+        messages.add_message(request, messages.INFO, "Please complete your profile.")
+        return redirect(
+            reverse("profile-create") + "?next=" + quote(next_url) if next_url else reverse("home")
+        )
+
+    return redirect(next_url or "home")
 
 
 @login_required
@@ -83,6 +120,10 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
     model = Profile
     template_name = "form.html"
     form_class = ProfileForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class ApplicationDetail(LoginRequiredMixin, DetailView):
