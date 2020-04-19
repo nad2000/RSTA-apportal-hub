@@ -1,5 +1,6 @@
 import pytest
 from django.test import RequestFactory
+from portal.models import Profile
 from users.models import User
 from users.views import UserRedirectView, UserUpdateView
 
@@ -43,3 +44,18 @@ class TestUserRedirectView:
         view.request = request
 
         assert view.get_redirect_url() == f"/users/{user.username}/"
+
+
+def test_adapter(client):
+
+    username, password = "tester", "p455w0rd"
+    user = User.objects.create_user(
+        username=username, password=password, email="test@test.com", is_active=True
+    )
+    resp = client.post("/accounts/login/", dict(login=username, password=password), follow=True)
+    assert b"Please complete your profile." in resp.content
+
+    Profile.objects.create(user=user)
+    client.post("/accounts/logout/", follow=True)
+    resp = client.post("/accounts/login/", dict(login=username, password=password), follow=True)
+    assert b"Please complete your profile." not in resp.content

@@ -51,3 +51,4 @@ if SENTRY_DSN:
     sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True)
 
 SELECT2_CACHE_PREFIX = "select2_"
+ACCOUNT_EMAIL_VERIFICATION = "none"

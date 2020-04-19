@@ -4,6 +4,7 @@ from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.shortcuts import resolve_url
 
@@ -14,8 +15,10 @@ class AccountAdapter(DefaultAccountAdapter):
 
     def get_login_redirect_url(self, request):
         url = super().get_login_redirect_url(request)
-        if not request.user.profile:
-            messages.add_message(request, messages.INFO, "Please complete the profile.")
+        try:
+            request.user.profile
+        except ObjectDoesNotExist:
+            messages.add_message(request, messages.INFO, "Please complete your profile.")
             return resolve_url("profile-create")
         return url
 
