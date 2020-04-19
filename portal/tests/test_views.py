@@ -1,6 +1,7 @@
 import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
 from django.test.client import Client
 from portal.models import Ethnicity, Profile, Subscription
 
@@ -10,10 +11,10 @@ User = get_user_model()
 
 
 def test_template_views(client, admin_user):
-    resp = client.get("/index/")
+    resp = client.get("/index")
     assert resp.status_code == 302
 
-    resp = client.get("/about/")
+    resp = client.get("/about")
     assert resp.status_code == 200
 
     resp = client.get("/accounts/login/")
@@ -23,8 +24,18 @@ def test_template_views(client, admin_user):
     assert resp.status_code == 200
 
     client.force_login(admin_user)
-    resp = client.get("/index/")
+    resp = client.get("/index")
+    assert resp.status_code == 302
+
+    resp = client.get("/index", follow=True)
+    assert b"Please complete your profile." in resp.content
+
+    Profile.objects.create(user=admin_user)
+    resp = client.get("/index")
     assert resp.status_code == 200
+
+    resp = client.get("/onboard")
+    assert resp.status_code == 302
 
 
 def test_submit_task():
@@ -36,11 +47,12 @@ def test_submit_task():
     assert tasks.run_next_task()
 
 
-def test_profile():
-    client = Client()
+def test_profile(client, admin_user):
+
     username, password = "tester", "p455w0rd"
     user = User.objects.create_user(username=username, password=password)
     client.force_login(user)
+
     Ethnicity.objects.create(code="11111", description="New Zealand European")
     Ethnicity.objects.create(code="12411", description="Polish")
     Ethnicity.objects.create(code="12928", description="Latvian")
@@ -48,9 +60,10 @@ def test_profile():
     client.get("/myprofile", follow=True)
     assert Profile.objects.filter(user=user).exists()
     p = Profile.get(user=user)
-    assert p.sex == 0 and p.ethnicities.count() == 0
+
+    assert p.sex is None and p.ethnicities.count() == 0
     resp = client.post(
-        f"/profile/{user.pk}/update",
+        f"/profiles/{p.pk}/~update",
         dict(
             sex=1,
             year_of_birth="1969",
@@ -64,13 +77,26 @@ def test_profile():
     p = Profile.get(user=user)
     assert p.sex == 1 and p.ethnicities.count() == 1
 
-    admin = User.objects.create_user(username="admin", password=password, is_superuser=True)
-    client.force_login(admin)
-    resp = client.get(f"/profile/{user.pk}")
-    assert resp.status_code == 200
+    client.force_login(admin_user)
+    resp = client.get(f"/profiles/{user.pk}")
+    assert resp.status_code == 404
 
     resp = client.post(
-        f"/profile/{user.pk}/update",
+        f"/profiles/~create",
+        dict(
+            sex=1,
+            year_of_birth="1969",
+            ethnicities=["11111"],
+            education_level="7",
+            employment_status="3",
+        ),
+        follow=True,
+    )
+    assert resp.status_code == 200
+    assert admin_user.profile.ethnicities.count() == 1
+
+    resp = client.post(
+        f"/profiles/{user.pk}/~update",
         dict(
             sex=2,
             year_of_birth="1969",
@@ -81,25 +107,26 @@ def test_profile():
         follow=True,
     )
     assert resp.status_code == 200
-    assert b"Female" in resp.content
-    assert b"Latvian" in resp.content
-    assert p.sex == 1 and p.ethnicities.count() == 3
 
-    # Create a new profile:
-    resp = client.post(
-        f"/profile/create",
-        dict(
-            sex=2,
-            year_of_birth="1942",
-            ethnicities=["11111", "12928"],
-            education_level="8",
-            employment_status="4",
-        ),
-        follow=True,
-    )
-    assert resp.status_code == 200
     assert b"Female" in resp.content
     assert b"Latvian" in resp.content
+    p = admin_user.profile
+    assert p.sex == 1 and p.ethnicities.count() == 3
+    assert p.ethnicities.count() == 3
+
+    # Create a new profile should fail:
+    with pytest.raises(IntegrityError):
+        resp = client.post(
+            f"/profiles/~create",
+            dict(
+                sex=2,
+                year_of_birth="1942",
+                ethnicities=["11111", "12928"],
+                education_level="8",
+                employment_status="4",
+            ),
+            follow=True,
+        )
 
 
 def test_sentry(client, admin_user):
@@ -148,15 +175,16 @@ def test_application(client, django_user_model):
         email="test123@test.com",
     )
     client.force_login(u)
+    Profile.objects.create(user=u)
 
-    resp = client.get("/application/create")
+    resp = client.get("/application/~create")
     assert resp.status_code == 200
     assert b"FN123" in resp.content
     assert b"LN123" in resp.content
     assert b"test123@test.com" in resp.content
 
     resp = client.post(
-        "/application/create/",
+        "/application/~create",
         dict(
             title="TEST TITLE",
             first_name=u.first_name,

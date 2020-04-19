@@ -46,7 +46,11 @@ class CreateView(_CreateView):
         try:
             return super().get_success_url()
         except:
-            return self.request.META.get("HTTP_REFERER") or reverse("home")
+            return (
+                self.request.GET.get("next")
+                or self.request.META.get("HTTP_REFERER")
+                or reverse("home")
+            )
 
 
 class SubscriptionList(LoginRequiredMixin, SingleTableView):
