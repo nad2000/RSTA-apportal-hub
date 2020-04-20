@@ -5,6 +5,10 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from . import models
 
+admin.site.site_url = "/start"
+admin.site.site_header = "Portal Administration"
+admin.site.site_title = "Portal Administration"
+
 
 @admin.register(models.Subscription)
 class SubscriptionAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
