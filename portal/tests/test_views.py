@@ -57,11 +57,15 @@ def test_profile(client, admin_user):
     Ethnicity.objects.create(code="12411", description="Polish")
     Ethnicity.objects.create(code="12928", description="Latvian")
     assert not Profile.objects.filter(user=user).exists()
-    client.get("/myprofile", follow=True)
-    assert Profile.objects.filter(user=user).exists()
-    p = Profile.get(user=user)
+    resp = client.get("/myprofile", follow=True)
+    assert b"Create" in resp.content
+    p = Profile.create(user=user)
 
+    resp = client.get("/myprofile", follow=True)
+    assert b"Your Profile" in resp.content
+    p = Profile.get(user=user)
     assert p.sex is None and p.ethnicities.count() == 0
+
     resp = client.post(
         f"/profiles/{p.pk}/~update",
         dict(

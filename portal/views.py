@@ -103,10 +103,13 @@ def onboard(request):
 
 
 @login_required
-def user_profile(req, pk=None):
-    u = User.objects.get(pk=pk) if pk else req.user
-    p, _ = Profile.objects.get_or_create(user=u)
-    return redirect("profile", pk=p.pk)
+def user_profile(request, pk=None):
+    u = User.objects.get(pk=pk) if pk else request.user
+    try:
+        p = u.profile
+        return redirect("profile", pk=p.pk)
+    except ObjectDoesNotExist:
+        return redirect("profile-create")
 
 
 class ProfileDetail(LoginRequiredMixin, _DetailView):
