@@ -11,6 +11,12 @@ class SubscriptionForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
+    def clean_is_accepted(self):
+        """Allow only 'True'"""
+        if not self.cleaned_data["is_accepted"]:
+            raise forms.ValidationError("Please read and consent to the Privacy Policy")
+        return True
+
     class Meta:
         model = Profile
         exclude = ["user"]

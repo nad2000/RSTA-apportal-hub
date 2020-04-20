@@ -74,6 +74,7 @@ def test_profile(client, admin_user):
             ethnicities=["11111"],
             education_level="7",
             employment_status="3",
+            is_accepted=True,
         ),
         follow=True,
     )
@@ -97,6 +98,22 @@ def test_profile(client, admin_user):
         follow=True,
     )
     assert resp.status_code == 200
+    assert Profile.objects.filter(user=admin_user).count() == 0
+    assert b"consent" in resp.content
+
+    resp = client.post(
+        f"/profiles/~create",
+        dict(
+            sex=1,
+            year_of_birth="1969",
+            ethnicities=["11111"],
+            education_level="7",
+            employment_status="3",
+            is_accepted=True,
+        ),
+        follow=True,
+    )
+    assert resp.status_code == 200
     assert admin_user.profile.ethnicities.count() == 1
 
     resp = client.post(
@@ -107,6 +124,7 @@ def test_profile(client, admin_user):
             ethnicities=["11111", "12411", "12928"],
             education_level="7",
             employment_status="3",
+            is_accepted=True,
         ),
         follow=True,
     )
@@ -128,6 +146,7 @@ def test_profile(client, admin_user):
                 ethnicities=["11111", "12928"],
                 education_level="8",
                 employment_status="4",
+                is_accepted=True,
             ),
             follow=True,
         )

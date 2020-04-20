@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.urls import path
+from django.views.generic import TemplateView
 
 from . import views
 
@@ -7,6 +8,7 @@ from . import views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
+    path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path("subscriptions/", views.SubscriptionList.as_view(), name="subscriptions"),
     path("users/<int:pk>/profile", views.user_profile, name="user-profile"),
     path("myprofile/", views.user_profile, name="my-profile"),
