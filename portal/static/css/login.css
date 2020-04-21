@@ -195,7 +195,6 @@ body {
   text-decoration: none;
   transition: all 0.4s;
   line-height: normal;
-  border: none;
 }
 
 .login-btn {
@@ -203,6 +202,10 @@ body {
   font-weight: bold;
   background: #99c432;
   margin-bottom: 20px;
+}
+
+.tuakiri:hover {
+  background-color: lightgray;
 }
 
 .login-btn:hover, .login-btn:active {

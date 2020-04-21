@@ -46,10 +46,18 @@
         Sign in with <strong>ORCID iD</strong>
       </a>
 
-      <a title="Facebook"
+      <!-- a title="Facebook"
          class="btn btn-lg btn-facebook btn-block"
          href="#">
         <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
+           style="border-color: #3e3f3a; border-bottom-width: 1px;"
+      </a -->
+
+      <a
+           title="Tuakiri"
+           class="btn btn-outline-secondary btn-lg btn-block tuakiri"
+           href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
+        <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
       </a>
 
       <hr class="my-4">

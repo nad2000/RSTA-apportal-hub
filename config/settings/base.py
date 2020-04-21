@@ -82,6 +82,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.orcid",
+    "allauth.socialaccount.providers.rapidconnect",
     "rest_framework",
     "rest_framework.authtoken",
     "django_tables2",
@@ -310,6 +311,9 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {"access_type": "online",},
     },
     "orcid": {"BASE_DOMAIN": "sandbox.orcid.org", "MEMBER_API": False,},
+    "rapidconnect": {
+        "BASE_URL": "https://rapidconnect.staging.tuakiri.ac.nz/jwt/authnrequest/research/",
+    },
 }
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 IMPORT_EXPORT_USE_TRANSACTIONS = True
