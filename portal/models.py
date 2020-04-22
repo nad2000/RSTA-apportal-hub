@@ -3,15 +3,19 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
+    SET_NULL,
     BooleanField,
     CharField,
     EmailField,
+    ForeignKey,
     ManyToManyField,
     OneToOneField,
     PositiveSmallIntegerField,
 )
 from django.urls import reverse
 from model_utils import Choices
+from model_utils.fields import MonitorField, StatusField
+from simple_history.models import HistoricalRecords
 
 SEX_CHOICES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
 
@@ -99,6 +103,7 @@ LANGUAGES = Choices(
     "Other",
 )
 
+
 User = get_user_model()
 
 
@@ -106,6 +111,8 @@ class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
+
+    history = HistoricalRecords(table_name="subscription_history")
 
     def __str__(self):
         return self.name or self.email
@@ -186,6 +193,8 @@ class Profile(Model):
     # occupation
     is_accepted = BooleanField("Privace Policy Accepted", default=False)
 
+    history = HistoricalRecords(table_name="profile_history")
+
     def __str__(self):
 
         return (
@@ -233,8 +242,42 @@ class Application(Model):
     mobile_phone = CharField("mobild phone number", max_length=12)
     email = EmailField("email address", blank=True)
 
+    history = HistoricalRecords(table_name="application_history")
+
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
 
     class Meta:
         db_table = "application"
+
+
+class Organisation(Model):
+
+    name = CharField(max_length=200)
+    history = HistoricalRecords(table_name="organisation_history")
+
+    class Meta:
+        db_table = "organisation"
+
+
+class Invitation(Model):
+
+    STATUS = Choices("draft", "submitted", "accepted", "expired")
+
+    email = EmailField("email address")
+    name = CharField("full name", max_length=150)
+    organisation = CharField("organisation", max_length=200)  # entered name
+    org = ForeignKey(
+        Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
+    )  # the org matched with the entered name
+
+    status = StatusField()
+    submitted_at = MonitorField(monitor="status", when=[STATUS.submitted])
+    accepted_at = MonitorField(monitor="status", when=[STATUS.accepted])
+    expired_at = MonitorField(monitor="status", when=[STATUS.expired])
+
+    # TODO: need to figure out how to propaged STATUS to the historycal rec model:
+    # history = HistoricalRecords(table_name="invitation_history")
+
+    class Meta:
+        db_table = "invitation"

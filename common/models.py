@@ -52,7 +52,8 @@ class HelperMixin:
 
 class Model(TimeStampMixin, HelperMixin, _Model):
 
-    history = HistoricalRecords(inherit=True)
+    # TODO: figure out how to make generic table naming:
+    # history = HistoricalRecords(inherit=True)
 
     class Meta:
         abstract = True
