@@ -256,6 +256,9 @@ class Organisation(Model):
     name = CharField(max_length=200)
     history = HistoricalRecords(table_name="organisation_history")
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "organisation"
 
@@ -272,12 +275,15 @@ class Invitation(Model):
     )  # the org matched with the entered name
 
     status = StatusField()
-    submitted_at = MonitorField(monitor="status", when=[STATUS.submitted])
-    accepted_at = MonitorField(monitor="status", when=[STATUS.accepted])
-    expired_at = MonitorField(monitor="status", when=[STATUS.expired])
+    submitted_at = MonitorField(monitor="status", when=[STATUS.submitted], null=True, blank=True)
+    accepted_at = MonitorField(monitor="status", when=[STATUS.accepted], null=True, blank=True)
+    expired_at = MonitorField(monitor="status", when=[STATUS.expired], null=True, blank=True)
 
     # TODO: need to figure out how to propaged STATUS to the historycal rec model:
     # history = HistoricalRecords(table_name="invitation_history")
+
+    def __str__(self):
+        return f"Invitation for {self.name} ({self.email})"
 
     class Meta:
         db_table = "invitation"

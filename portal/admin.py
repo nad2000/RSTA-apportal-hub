@@ -65,3 +65,21 @@ class ProfileAdmin(SimpleHistoryAdmin):
 
 
 admin.site.register(models.Application)
+
+
+@admin.register(models.Organisation)
+class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    list_display = ["name"]
+    list_filter = ["created_at", "updated_at"]
+    search_fields = [
+        "name",
+    ]
+    date_hierarchy = "created_at"
+
+
+@admin.register(models.Invitation)
+class InvitationAdmin(ImportExportModelAdmin):
+    list_display = ["email", "name", "org"]
+    list_filter = ["created_at", "updated_at"]
+    search_fields = ["name", "email"]
+    date_hierarchy = "created_at"
