@@ -105,7 +105,7 @@ def test_task(req, message):
 
 
 @login_required
-def onboard(request):
+def check_profile(request):
     next_url = request.GET.get("next")
     try:
         request.user.profile

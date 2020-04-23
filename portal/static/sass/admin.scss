@@ -6,6 +6,7 @@
 
 // project specific CSS goes here
 @import "_variables";
+@import "project";
 
 ////////////////////////////////
 		//Variables//
@@ -15,7 +16,7 @@
 
 $mint-green: #d6e9c6;
 $dark-pink: #eed3d7;
-$link-color:                theme-color("primary") !default;
+$link-color:                $primary !default;
 $link-hover-color:          darken($link-color, 15%) !default;
 $link-hover-decoration:     underline !default;
 

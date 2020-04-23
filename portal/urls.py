@@ -23,10 +23,12 @@ urlpatterns = [
     path("home", views.index, name="home"),
     path("index.html", views.index, name="index.html"),
     path("test_task/<message>", views.test_task),
-    path("onboard", views.onboard, name="onboard"),
+    path("onboard", views.check_profile, name="onboard"),
+    path("profile/~check", views.check_profile, name="check-profile"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
+    path("ui_kit", TemplateView.as_view(template_name="pages/ui_kit.html"), name="ui_kit"),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",

@@ -124,11 +124,11 @@ sup {
   top: -.5em; }
 
 a {
-  color: #829c00;
+  color: #026d7d;
   text-decoration: none;
   background-color: transparent; }
   a:hover {
-    color: #425000;
+    color: #012b32;
     text-decoration: underline; }
 
 a:not([href]):not([tabindex]) {
@@ -294,7 +294,8 @@ h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-bottom: 0.5rem;
   font-weight: 400;
-  line-height: 1.2; }
+  line-height: 1.2;
+  color: #026d7d; }
 
 h1, .h1 {
   font-size: 2.5rem; }
@@ -2042,10 +2043,10 @@ fieldset:disabled a.btn {
 
 .btn-link {
   font-weight: 400;
-  color: #829c00;
+  color: #026d7d;
   text-decoration: none; }
   .btn-link:hover {
-    color: #425000;
+    color: #012b32;
     text-decoration: underline; }
   .btn-link:focus, .btn-link.focus {
     text-decoration: underline;
@@ -4329,6 +4330,7 @@ a.close.disabled {
   padding: 0.5rem 0.75rem;
   margin-bottom: 0;
   font-size: 1rem;
+  color: #026d7d;
   background-color: #F8F5F0;
   border-bottom: 1px solid #f0e9df;
   border-top-left-radius: calc(0.3rem - 1px);

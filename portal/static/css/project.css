@@ -33,4 +33,57 @@ html, body {
   width: auto;
 }
 
+.btn-google {
+  color: white;
+  text-align: left;
+  background-color: #ea4335;
+}
+
+.btn-google:hover {
+  color: white;
+  background-color: #d62516;
+}
+
+.btn-google i {
+  padding-left: 11px;
+  padding-right: 2px;
+}
+
+.btn-facebook {
+  color: white;
+  text-align: left;
+  background-color: #3b5998;
+}
+
+.btn-facebook:hover {
+  background-color: #2d4373;
+}
+
+.btn-facebook i {
+  padding-left: 12px;
+  padding-right: 5px;
+}
+
+.btn-orcid {
+  color: white;
+  text-align: left;
+  background-color: #a6ce39;
+}
+
+.btn-orcid:hover {
+  color: white;
+  background-color: #88aa2a;
+}
+
+.btn-orcid img {
+  padding-left: 6px;
+  height: 26px;
+  vertical-align: -8px;
+  margin-right: 5px;
+}
+
+.tuakiri:hover {
+  background-color: #e6e6e6;
+}
+
 /*# sourceMappingURL=project.css.map */

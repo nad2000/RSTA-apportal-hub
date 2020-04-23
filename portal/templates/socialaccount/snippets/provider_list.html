@@ -1,0 +1,52 @@
+{% load socialaccount static %}
+
+{% get_providers as socialaccount_providers %}
+
+{% for provider in socialaccount_providers %}
+{% if provider.id == "openid" %}
+{% for brand in provider.get_brands %}
+
+<li>
+  <a title="{{brand.name}}"
+     class="socialaccount_provider {{provider.id}} {{brand.id}}"
+     href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
+     >{{brand.name}}</a>
+</li>
+
+
+{% endfor %}
+{% endif %}
+
+{% if provider.id == "google" %}
+      <a title="Google"
+          class="btn btn-lg btn-google btn-block"
+          href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
+        <i class="fab fa-google mr-2"></i>
+        Connect with <strong>Google</strong>
+      </a>
+
+{% elif provider.id == "orcid" %}
+      <a title="ORCID"
+          class="btn btn-lg btn-orcid btn-block btn-orcid"
+          href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
+        <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+        Connect with <strong>ORCID iD</strong>
+      </a>
+
+      <!-- a title="Facebook"
+         class="btn btn-lg btn-facebook btn-block"
+         href="#">
+        <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
+           style="border-color: #3e3f3a; border-bottom-width: 1px;"
+      </a -->
+
+{% elif provider.id == "rapidconnect" %}
+      <a
+           title="Tuakiri"
+           class="btn btn-outline-secondary btn-lg btn-block tuakiri"
+           href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
+        <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
+      </a>
+{% endif %}
+
+{% endfor %}
