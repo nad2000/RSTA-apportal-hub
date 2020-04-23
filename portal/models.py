@@ -1,3 +1,4 @@
+import secrets
 from common.models import Model
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -263,12 +264,22 @@ class Organisation(Model):
         db_table = "organisation"
 
 
+def get_unique_invitation_token():
+
+    while True:
+        token = secrets.token_urlsafe(8)
+        if not Invitation.objects.filter(token=token).exists():
+            return token
+
+
 class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "accepted", "expired")
 
+    token = CharField(max_length=8, default=get_unique_invitation_token, unique=True)
     email = EmailField("email address")
-    name = CharField("full name", max_length=150)
+    first_name = CharField(max_length=30)
+    last_name = CharField(max_length=150)
     organisation = CharField("organisation", max_length=200)  # entered name
     org = ForeignKey(
         Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
@@ -283,7 +294,7 @@ class Invitation(Model):
     # history = HistoricalRecords(table_name="invitation_history")
 
     def __str__(self):
-        return f"Invitation for {self.name} ({self.email})"
+        return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
 
     class Meta:
         db_table = "invitation"

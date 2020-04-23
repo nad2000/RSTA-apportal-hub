@@ -79,7 +79,7 @@ class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 @admin.register(models.Invitation)
 class InvitationAdmin(ImportExportModelAdmin):
-    list_display = ["email", "name", "org"]
+    list_display = ["email", "first_name", "last_name", "organisation"]
     list_filter = ["created_at", "updated_at"]
-    search_fields = ["name", "email"]
+    search_fields = ["first_name", "last_name", "email"]
     date_hierarchy = "created_at"
