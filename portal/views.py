@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, render, reverse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
@@ -67,21 +66,6 @@ class SubscriptionDetail(LoginRequiredMixin, DetailView):
 
 @require_http_methods(["GET", "POST"])
 def subscribe(req):
-
-    if req.method == "POST":
-        email = req.POST["email"]
-        name = req.POST.get("name")
-        Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
-
-    return render(req, "pages/comingsoon.html", locals())
-
-
-# /accounts/tuakiri/login/callback/
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
-def turakiri(req):
-
-    breakpoint()
 
     if req.method == "POST":
         email = req.POST["email"]

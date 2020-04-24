@@ -8,7 +8,6 @@ from . import views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
-    path("accounts/tuakiri/login/callback/", views.turakiri, name="turakiri"),
     path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path("subscriptions/", views.SubscriptionList.as_view(), name="subscriptions"),
     path("users/<int:pk>/profile", views.user_profile, name="user-profile"),

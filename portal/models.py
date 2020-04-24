@@ -1,4 +1,5 @@
 import secrets
+
 from common.models import Model
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
