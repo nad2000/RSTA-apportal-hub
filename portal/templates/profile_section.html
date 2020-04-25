@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {#% csrf_token %#}
+    {#{ formset|crispy }#}
+    {% crispy formset helper %}
+  <form method="post">
+    <input class="btn btn-primary" type="submit" value="Submit" />
+  </form>
+{% endblock %}

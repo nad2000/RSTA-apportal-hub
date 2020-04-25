@@ -13,6 +13,7 @@ from django.db.models import (
     ManyToManyField,
     OneToOneField,
     PositiveSmallIntegerField,
+    TextField,
 )
 from django.urls import reverse
 from model_utils import Choices
@@ -159,6 +160,31 @@ class Language(Model):
         ordering = ["code"]
 
 
+class CareerStage(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=40)
+    definition = TextField(max_length=1000)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "career_stage"
+        ordering = ["code"]
+
+
+class ProfileCareerStage(Model):
+    profile = ForeignKey("Profile", on_delete=CASCADE)
+    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
+    year_achieved = PositiveSmallIntegerField(
+        validators=[MinValueValidator(1900), MaxValueValidator(2100)]
+    )
+
+    class Meta:
+        db_table = "profile_career_stage"
+
+
 class Profile(Model):
 
     # MALE = "M"
@@ -194,7 +220,7 @@ class Profile(Model):
     # status in employment
     # occupation
     is_accepted = BooleanField("Privace Policy Accepted", default=False)
-
+    career_stages = ManyToManyField(CareerStage, blank=True, through="ProfileCareerStage")
     history = HistoricalRecords(table_name="profile_history")
 
     def __str__(self):

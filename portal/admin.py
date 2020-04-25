@@ -58,10 +58,31 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = LanguageResource
 
 
+class CareerStageResource(ModelResource):
+    class Meta:
+        model = models.CareerStage
+        exclude = ["created_at", "updated_at"]
+        import_id_fields = ["code"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
+
+
+@admin.register(models.CareerStage)
+class CareerStageAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = CareerStageResource
+
+
+class ProfileCareerStageInline(admin.StackedInline):
+    model = models.ProfileCareerStage
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
 
     filter_horizontal = ["ethnicities", "languages_spoken"]
+    inlines = [ProfileCareerStageInline]
 
 
 admin.site.register(models.Application)

@@ -12,8 +12,8 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 
-from .forms import ProfileForm
-from .models import Application, Profile, Subscription, User
+from .forms import ProfileCareerStageFormSet, ProfileCareerStageFormSetHelper, ProfileForm
+from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 
@@ -131,6 +131,29 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+@login_required
+@shoud_be_onboarded
+@require_http_methods(["GET", "POST"])
+def profile_career_stages(request, pk=None):
+
+    if request.method == "GET":
+        queryset = ProfileCareerStage.objects.filter(profile=request.user.profile)
+        formset = ProfileCareerStageFormSet(queryset=queryset)
+    elif request.method == "POST":
+        formset = ProfileCareerStageFormSet(request.POST)
+        if formset.is_valid():
+            for form in formset.save(commit=False):
+                if not hasattr(form, "profile") or not form.profile:
+                    form.profile = request.user.profile
+                form.save()
+            formset.save_m2m()
+    return render(
+        request,
+        "profile_section.html",
+        {"formset": formset, "helper": ProfileCareerStageFormSetHelper},
+    )
 
 
 class ApplicationDetail(LoginRequiredMixin, DetailView):

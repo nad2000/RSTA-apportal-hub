@@ -24,6 +24,7 @@ urlpatterns = [
     path("test_task/<message>", views.test_task),
     path("onboard", views.check_profile, name="onboard"),
     path("profile/~check", views.check_profile, name="check-profile"),
+    path("profile/career-stages", views.profile_career_stages, name="profile-career-stages"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
