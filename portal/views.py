@@ -11,6 +11,7 @@ from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
+from extra_views import ModelFormSetView
 
 from .forms import ProfileCareerStageFormSet, ProfileCareerStageFormSetHelper, ProfileForm
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
@@ -194,3 +195,12 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     #             {"first_name": user.first_name, "last_name": user.last_name, "email": user.email,}
     #         )
     #     return context
+
+
+class ProfileCareerStageFormSetView(LoginRequiredMixin, ModelFormSetView):
+    model = ProfileCareerStage
+    exclude = ["profile"]
+    template_name = "formset.html"
+
+    def get_queryset(self):
+        return ProfileCareerStage.objects.filter(profile=self.request.user.profile)

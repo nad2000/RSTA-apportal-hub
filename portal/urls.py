@@ -17,6 +17,7 @@ urlpatterns = [
     path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
     path("application/~create", views.ApplicationCreate.as_view(), name="application-create"),
     path("application/<int:pk>", views.ApplicationDetail.as_view(), name="application"),
+    path("career-stages/", views.ProfileCareerStageFormSetView.as_view(), name="career-stages"),
     path("start", views.index, name="home"),
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),
