@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Column, Layout, Row, Submit
+from crispy_forms.layout import Button, Column, Field, Layout, Submit
 from django import forms
+from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
 from django_select2.forms import ModelSelect2MultipleWidget
 
@@ -22,7 +23,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ["user"]
+        exclude = ["user", "career_stages"]
         widgets = dict(
             ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity, search_fields=["description__icontains"],
@@ -38,49 +39,26 @@ class ProfileForm(forms.ModelForm):
 
 class ProfileCareerStageForm(forms.ModelForm):
     class Meta:
+        exclude = ()
         model = ProfileCareerStage
-        exclude = ["profile"]
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.helper = FormHelper()
-    #     self.helper.layout = Layout(
-    #         Row(
-    #             Column("year_achieved", css_class="form-group col-md-6 mb-0"),
-    #             Column("career_stage", css_class="form-group col-md-6 mb-0"),
-    #             css_class="form-row",
-    #         ),
-    #         # "address_1",
-    #         # "address_2",
-    #         # Row(
-    #         #     Column("city", css_class="form-group col-md-6 mb-0"),
-    #         #     Column("state", css_class="form-group col-md-4 mb-0"),
-    #         #     Column("zip_code", css_class="form-group col-md-2 mb-0"),
-    #         #     css_class="form-row",
-    #         # ),
-    #         # "check_me_out",
-    #         # Submit("submit", "Sign in"),
-    #     )
 
 
 ProfileCareerStageFormSet = modelformset_factory(
     ProfileCareerStage,
-    form=ProfileCareerStageForm,
-    # exclude=["profile"],
-    # fields=['name', 'language'],
-    # extra=1,
+    # form=ProfileCareerStageForm,
+    # fields=["profile", "year_achieved", "career_stage"],
+    exclude=(),
     can_delete=True,
+    widgets={"profile": HiddenInput()},
 )
 
 
 class ProfileCareerStageFormSetHelper(FormHelper):
+
+    template = "bootstrap4/table_inline_formset.html"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.layout = Layout(
-            Row(
-                Column("year_achieved", css_class="form-group col-md-4 mb-0"),
-                Column("career_stage", css_class="form-group col-md-8 mb-0"),
-                css_class="form-row",
-            ),
-        )
-        self.template = "bootstrap4/table_inline_formset.html"
+        self.layout = Layout("year_achieved", "career_stage",)
+        self.add_input(Submit("save", "Save"))
+        self.add_input(Button("cancel", "Cancel", css_class="btn btn-danger"))

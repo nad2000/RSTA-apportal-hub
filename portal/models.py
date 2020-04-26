@@ -176,10 +176,10 @@ class CareerStage(Model):
 
 class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
-    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2100)]
     )
+    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
 
     class Meta:
         db_table = "profile_career_stage"

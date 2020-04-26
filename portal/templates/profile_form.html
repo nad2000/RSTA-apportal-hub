@@ -1,0 +1,41 @@
+{% extends "profile.html" %}
+
+{% load crispy_forms_tags static %}
+
+{% block head_title %}{{ object }}{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  {{ form.media.css }}
+{% endblock %}
+
+{% block section %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <form method="post">{% csrf_token %}
+        {{ form|crispy }}
+        {% if object.id %}
+          <input class="btn btn-primary" type="submit" value="Update">
+        {% else %}
+          <input class="btn btn-primary" type="submit" value="Create">
+        {% endif %}
+        <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <!-- JS -->
+  {{ form.media.js }}
+  <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
+  <script src="{% static 'admin/js/SelectFilter2.js' %}"></script -->
+
+{% endblock %}

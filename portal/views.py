@@ -120,18 +120,18 @@ def user_profile(request, pk=None):
 
 class ProfileDetail(LoginRequiredMixin, _DetailView):
     model = Profile
-    template_name = "profile_detail.html"
+    template_name = "profile.html"
 
 
 class ProfileUpdate(LoginRequiredMixin, UpdateView):
     model = Profile
-    template_name = "form.html"
+    template_name = "profile_form.html"
     form_class = ProfileForm
 
 
 class ProfileCreate(LoginRequiredMixin, CreateView):
     model = Profile
-    template_name = "form.html"
+    template_name = "profile_form.html"
     form_class = ProfileForm
 
     def form_valid(self, form):
@@ -145,20 +145,24 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
 def profile_career_stages(request, pk=None):
 
     if request.method == "GET":
-        queryset = ProfileCareerStage.objects.filter(profile=request.user.profile)
+        queryset = ProfileCareerStage.objects.filter(profile=request.user.profile).order_by(
+            "year_achieved"
+        )
         formset = ProfileCareerStageFormSet(queryset=queryset)
     elif request.method == "POST":
         formset = ProfileCareerStageFormSet(request.POST)
+        breakpoint()
         if formset.is_valid():
             for form in formset.save(commit=False):
                 if not hasattr(form, "profile") or not form.profile:
                     form.profile = request.user.profile
                 form.save()
-            formset.save_m2m()
+            # formset.save_m2m()
+            formset.save()
     return render(
         request,
         "profile_section.html",
-        {"formset": formset, "helper": ProfileCareerStageFormSetHelper},
+        {"formset": formset, "helper": ProfileCareerStageFormSetHelper()},
     )
 
 
@@ -171,16 +175,6 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     fields = "__all__"
     template_name = "form.html"
 
-    # def get_initial(self):
-    #     super().get_initial()
-    #     user = self.request.user
-    #     self.initial = {
-    #         "first_name": user.first_name,
-    #         "last_name": user.last_name,
-    #         "email": user.email,
-    #     }
-    #     return self.initial
-
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
@@ -191,30 +185,24 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             )
         return kwargs
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     breakpoint()
-    #     if self.request.method == "GET":
-    #         user = self.request.user
-    #         context.update(
-    #             {"first_name": user.first_name, "last_name": user.last_name, "email": user.email,}
-    #         )
-    #     return context
-
 
 class ProfileCareerStageFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     model = ProfileCareerStage
-    template_name = "formset.html"
+    formset_class = ProfileCareerStageFormSet
+    template_name = "profile_section.html"
+    extra_context = dict(helper=ProfileCareerStageFormSetHelper())
     exclude = ()
 
     def get_queryset(self):
-        return ProfileCareerStage.objects.filter(profile=self.request.user.profile)
+        return ProfileCareerStage.objects.filter(profile=self.request.user.profile).order_by(
+            "year_achieved"
+        )
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         kwargs["widgets"] = {"profile": HiddenInput()}
-        # modify kwargs here
+        kwargs["can_delete"] = True
         return kwargs
 
     def get_initial(self):
