@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import HiddenInput
 from django.shortcuts import redirect, render, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -13,7 +14,11 @@ from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
-from .forms import ProfileCareerStageFormSet, ProfileCareerStageFormSetHelper, ProfileForm
+from .forms import (
+    ProfileCareerStageFormSet,
+    ProfileCareerStageFormSetHelper,
+    ProfileForm,
+)
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
@@ -198,9 +203,22 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 
 
 class ProfileCareerStageFormSetView(LoginRequiredMixin, ModelFormSetView):
+
     model = ProfileCareerStage
-    exclude = ["profile"]
     template_name = "formset.html"
+    exclude = ()
 
     def get_queryset(self):
         return ProfileCareerStage.objects.filter(profile=self.request.user.profile)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs["widgets"] = {"profile": HiddenInput()}
+        # modify kwargs here
+        return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        profile = self.request.user.profile
+        initial.append(dict(profile=profile))
+        return initial
