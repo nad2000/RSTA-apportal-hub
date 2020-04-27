@@ -42,14 +42,18 @@ class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = EthnicityResource
 
 
-class LanguageResource(ModelResource):
+class CodeResource(ModelResource):
     class Meta:
-        model = models.Language
         exclude = ["created_at", "updated_at"]
         import_id_fields = ["code"]
         skip_unchanged = True
         report_skipped = True
         raise_errors = False
+
+
+class LanguageResource(CodeResource):
+    class Meta:
+        model = models.Language
 
 
 @admin.register(models.Language)
@@ -58,14 +62,9 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = LanguageResource
 
 
-class CareerStageResource(ModelResource):
+class CareerStageResource(CodeResource):
     class Meta:
         model = models.CareerStage
-        exclude = ["created_at", "updated_at"]
-        import_id_fields = ["code"]
-        skip_unchanged = True
-        report_skipped = True
-        raise_errors = False
 
 
 @admin.register(models.CareerStage)
@@ -74,15 +73,29 @@ class CareerStageAdmin(ImportExportModelAdmin):
     resource_class = CareerStageResource
 
 
-class ProfileCareerStageInline(admin.StackedInline):
-    model = models.ProfileCareerStage
+class PersonIdentifierTypeResource(CodeResource):
+    class Meta:
+        model = models.PersonIdentifierType
+
+
+@admin.register(models.PersonIdentifierType)
+class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = PersonIdentifierTypeResource
 
 
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
+    class ProfileCareerStageInline(admin.StackedInline):
+        extra = 1
+        model = models.ProfileCareerStage
+
+    class ProfilePersonIdentifierInline(admin.StackedInline):
+        extra = 1
+        model = models.ProfilePersonIdentifier
 
     filter_horizontal = ["ethnicities", "languages_spoken"]
-    inlines = [ProfileCareerStageInline]
+    inlines = [ProfileCareerStageInline, ProfilePersonIdentifierInline]
 
 
 admin.site.register(models.Application)

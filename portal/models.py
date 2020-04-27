@@ -174,6 +174,20 @@ class CareerStage(Model):
         ordering = ["code"]
 
 
+class PersonIdentifierType(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=40)
+    definition = TextField(max_length=200)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "person_identifier_type"
+        ordering = ["code"]
+
+
 class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
@@ -183,6 +197,15 @@ class ProfileCareerStage(Model):
 
     class Meta:
         db_table = "profile_career_stage"
+
+
+class ProfilePersonIdentifier(Model):
+    profile = ForeignKey("Profile", on_delete=CASCADE,)
+    code = ForeignKey(PersonIdentifierType, on_delete=CASCADE, verbose_name="type")
+    value = CharField(max_length=20)
+
+    class Meta:
+        db_table = "profile_person_identifier"
 
 
 class Profile(Model):
@@ -202,10 +225,10 @@ class Profile(Model):
         null=True,
         blank=True,
         verbose_name="year of birth",
-        validators=[MinValueValidator(1900), MaxValueValidator(2100)],
+        validators=[MinValueValidator(1950), MaxValueValidator(2100)],
     )
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
-    CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
+    # CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     # years since arrival in New Zealand
@@ -221,6 +244,9 @@ class Profile(Model):
     # occupation
     is_accepted = BooleanField("Privace Policy Accepted", default=False)
     career_stages = ManyToManyField(CareerStage, blank=True, through="ProfileCareerStage")
+    external_ids = ManyToManyField(
+        PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
+    )
     history = HistoricalRecords(table_name="profile_history")
 
     def __str__(self):

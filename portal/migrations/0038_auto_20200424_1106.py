@@ -5,17 +5,13 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
+    atomic = False
+
     dependencies = [
-        ('portal', '0037_auto_20200424_1103'),
+        ("portal", "0037_auto_20200424_1103"),
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='careerstage',
-            options={'ordering': ['code']},
-        ),
-        migrations.AlterModelTable(
-            name='careerstage',
-            table='career_stage',
-        ),
+        migrations.AlterModelOptions(name="careerstage", options={"ordering": ["code"]},),
+        migrations.AlterModelTable(name="careerstage", table="career_stage",),
     ]

@@ -7,28 +7,56 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-3">
+    <div class="col-md-3">
 
-      <div class="card">
+      <div class="card mb-2">
         <div class="card-header">
           <a href="{% url 'my-profile' %}">
             Profile
           </a>
         </div>
         <div class="card-body">
-          <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-            <a class="nav-link" id="v-pills-profile-tab" href="{% url 'career-stages' %}" role="tab" aria-controls="v-pills-home" aria-selected="true" >Career Stages</a>
-            <a class="nav-link" id="v-pills-career-stages-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Section #2...</a>
-            <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">Section #3...</a>
-            <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Section #4...</a>
-            <a class="nav-link" id="v-pills-linked-accounts-tab" data-toggle="pill" href="{% url 'socialaccount_connections' %}" role="tab" aria-controls="v-pills-settings" aria-selected="false">Linked Accounts</a>
-          </div>
+
+          <ul class="nav nav-pills flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile-career-stages' %}" id="profile-career-stages">Career Stages</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile-external-ids' %}" id="profile-external-ids">External IDs</a>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Section #2</a>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Section #3</a>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Section #4</a>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Section #5</a>
+              </li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="card mb-2">
+        <div class="card-header">
+          <a href="{% url 'my-profile' %}">
+            Account
+          </a>
+        </div>
+        <div class="card-body">
+
+          <ul class="nav nav-pills flex-column">
+              <a class="nav-link" href="{% url 'socialaccount_connections' %}">Linked Accounts</a>
+              <a class="nav-link" href="#">Link ...</a>
+              <a class="nav-link" href="#">Link ...</a>
+          </ul>
+
         </div>
       </div>
 
     </div>
 
-    <div class="col-9">
+    <div class="col-md-9">
 
       {% block section %}
 

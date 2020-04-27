@@ -16,12 +16,14 @@ from extra_views import ModelFormSetView
 
 from .forms import (
     ProfileCareerStageFormSet,
-    ProfileCareerStageFormSetHelper,
+    ProfileSectionFormSetHelper,
     ProfileForm,
 )
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
+from . import models
+from . import forms
 
 
 def shoud_be_onboarded(function):
@@ -162,7 +164,7 @@ def profile_career_stages(request, pk=None):
     return render(
         request,
         "profile_section.html",
-        {"formset": formset, "helper": ProfileCareerStageFormSetHelper()},
+        {"formset": formset, "helper": forms.ProfileSectionFormSetHelper()},
     )
 
 
@@ -186,18 +188,11 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         return kwargs
 
 
-class ProfileCareerStageFormSetView(LoginRequiredMixin, ModelFormSetView):
+class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
-    model = ProfileCareerStage
-    formset_class = ProfileCareerStageFormSet
     template_name = "profile_section.html"
-    extra_context = dict(helper=ProfileCareerStageFormSetHelper())
+    extra_context = dict(helper=ProfileSectionFormSetHelper())
     exclude = ()
-
-    def get_queryset(self):
-        return ProfileCareerStage.objects.filter(profile=self.request.user.profile).order_by(
-            "year_achieved"
-        )
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -210,3 +205,23 @@ class ProfileCareerStageFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         initial.append(dict(profile=profile))
         return initial
+
+
+class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
+
+    model = ProfileCareerStage
+    formset_class = ProfileCareerStageFormSet
+
+    def get_queryset(self):
+        return self.model.objects.filter(profile=self.request.user.profile).order_by(
+            "year_achieved"
+        )
+
+
+class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
+
+    model = models.ProfilePersonIdentifier
+    formset_class = forms.ProfilePersonIdentifierFormSet
+
+    def get_queryset(self):
+        return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
