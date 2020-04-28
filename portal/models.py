@@ -188,6 +188,22 @@ class PersonIdentifierType(Model):
         ordering = ["code"]
 
 
+class IwiGroup(Model):
+    code = CharField(max_length=4, primary_key=True)
+    description = CharField(max_length=80)
+    parent_code = CharField(max_length=2)
+    parent_description = CharField(max_length=100)
+    definition = TextField(max_length=200)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "iwi_group"
+        ordering = ["code"]
+
+
 class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(

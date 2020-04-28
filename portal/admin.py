@@ -84,6 +84,17 @@ class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
     resource_class = PersonIdentifierTypeResource
 
 
+class IwiGroupResource(CodeResource):
+    class Meta:
+        model = models.IwiGroup
+
+
+@admin.register(models.IwiGroup)
+class IwiGroupAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition", "parent_description"]
+    resource_class = IwiGroupResource
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
     class ProfileCareerStageInline(admin.StackedInline):
