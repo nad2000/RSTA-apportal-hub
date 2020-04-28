@@ -105,7 +105,7 @@ class ProfileAdmin(SimpleHistoryAdmin):
         extra = 1
         model = models.ProfilePersonIdentifier
 
-    filter_horizontal = ["ethnicities", "languages_spoken"]
+    filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
     inlines = [ProfileCareerStageInline, ProfilePersonIdentifierInline]
 
 
