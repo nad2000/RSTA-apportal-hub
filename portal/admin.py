@@ -95,6 +95,17 @@ class IwiGroupAdmin(ImportExportModelAdmin):
     resource_class = IwiGroupResource
 
 
+class OrgIdentifierTypeResource(CodeResource):
+    class Meta:
+        model = models.OrgIdentifierType
+
+
+@admin.register(models.OrgIdentifierType)
+class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = OrgIdentifierTypeResource
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
     class ProfileCareerStageInline(admin.StackedInline):

@@ -224,6 +224,21 @@ class ProfilePersonIdentifier(Model):
         db_table = "profile_person_identifier"
 
 
+class OrgIdentifierType(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=20)
+    definition = TextField(max_length=200)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "org_identifier_type"
+        verbose_name = "organisation identifier type"
+        ordering = ["code"]
+
+
 class Profile(Model):
 
     # MALE = "M"
