@@ -11,7 +11,7 @@
 
       <div class="card mb-2">
         <div class="card-header">
-          <a href="{% url 'my-profile' %}">
+          <a href="{% url 'my-profile' %}" id="profile">
             Profile
           </a>
         </div>
@@ -46,9 +46,15 @@
         <div class="card-body">
 
           <ul class="nav nav-pills flex-column">
-              <a class="nav-link" href="{% url 'socialaccount_connections' %}">Linked Accounts</a>
-              <a class="nav-link" href="#">Link ...</a>
-              <a class="nav-link" href="#">Link ...</a>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'socialaccount_connections' %}">Linked Accounts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link ...</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link ...</a>
+              </li>
           </ul>
 
         </div>

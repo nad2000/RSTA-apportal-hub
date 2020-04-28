@@ -42,11 +42,24 @@ html, body {
   color: $black;
 }
 
+// .alert-error {
+//   background-color: $pink;
+//   border-color: $dark-pink;
+//   color: $red;
+// }
+// .alert-error {
+//   @extend .alert-danger !optional
+// }
+
+
 .alert-error {
-  background-color: $pink;
-  border-color: $dark-pink;
-  color: $red;
-}
+  color: #531408;
+  background-color: #ecd4cf;
+  border-color: #e4c3bc; }
+  .alert-error hr {
+    border-top-color: #ddb3aa; }
+  .alert-error .alert-link {
+    color: #240904; }
 
 #logo {
   max-height: 72px;

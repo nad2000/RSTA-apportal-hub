@@ -20,9 +20,17 @@ html, body {
 }
 
 .alert-error {
-  background-color: #e83e8c;
-  border-color: #eed3d7;
-  color: #a0270f;
+  color: #531408;
+  background-color: #ecd4cf;
+  border-color: #e4c3bc;
+}
+
+.alert-error hr {
+  border-top-color: #ddb3aa;
+}
+
+.alert-error .alert-link {
+  color: #240904;
 }
 
 #logo {
