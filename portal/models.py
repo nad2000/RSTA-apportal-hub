@@ -250,6 +250,7 @@ class Profile(Model):
     # years since arrival in New Zealand
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
     languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
+    iwi_groups = ManyToManyField(IwiGroup, db_table="profile_iwi_group", blank=True)
     # study participation
     # legally registered relationship status
     # highest secondary school qualification

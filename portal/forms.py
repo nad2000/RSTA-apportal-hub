@@ -1,12 +1,12 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Button, Column, Field, Layout, Submit
+from crispy_forms.layout import Button, Submit
 from django import forms
 from django.forms import HiddenInput, NumberInput
 from django.forms.models import modelformset_factory
 from django_select2.forms import ModelSelect2MultipleWidget
 
-from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
 from . import models
+from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -32,6 +32,9 @@ class ProfileForm(forms.ModelForm):
             sex=forms.RadioSelect,
             languages_spoken=ModelSelect2MultipleWidget(
                 model=Language, search_fields=["description__icontains"],
+            ),
+            iwi_groups=ModelSelect2MultipleWidget(
+                model=models.IwiGroup, search_fields=["description__icontains"],
             ),
             is_acceted=forms.CheckboxInput(),
         )

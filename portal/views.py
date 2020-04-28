@@ -14,16 +14,11 @@ from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
-from .forms import (
-    ProfileCareerStageFormSet,
-    ProfileSectionFormSetHelper,
-    ProfileForm,
-)
+from . import forms, models
+from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSetHelper
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
-from . import models
-from . import forms
 
 
 def shoud_be_onboarded(function):

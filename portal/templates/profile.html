@@ -73,7 +73,7 @@
             <td>{{ object.get_sex_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Year of birth</th>
+            <th>Year of Birth</th>
             <td>{{ object.year_of_birth|default_if_none:"" }}</td>
           </tr>
           <tr>
@@ -93,25 +93,40 @@
             <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Employment status</th>
+            <th>Employment Status</th>
             <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Primary language spoken</th>
+            <th>Primary Language Spoken</th>
             <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
           </tr>
+
           <tr>
-            <th>Lanuages spoken</th>
+            <th>Lanuages Spoken</th>
             <td>
               <ul>
               {% for o in object.languages_spoken.all %}
                 <li>
-                  {{ o |default_if_none:"" }}
+                  {{ o | default_if_none:"" }}
                 </li>
               {% endfor %}
               </ul>
             </td>
           </tr>
+
+          <tr>
+            <th>Iwi Groups</th>
+            <td>
+              <ul>
+              {% for o in object.iwi_groups.all %}
+                <li>
+                  {{ o | default_if_none:"" }}
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+
         </tbody>
       </table>
 
