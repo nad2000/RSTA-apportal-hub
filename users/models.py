@@ -10,7 +10,7 @@ class User(HelperMixin, AbstractUser):
 
     # First Name and Last Name do not cover name patterns
     # around the globe.
-    name = CharField(_("Name of User"), blank=True, max_length=255)
+    name = CharField(_("Name of User"), blank=True, null=True, max_length=255)
     orcid = CharField("ORCID iD", blank=True, null=True, max_length=80)
     history = HistoricalRecords()
 
