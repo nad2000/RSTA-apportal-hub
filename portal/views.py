@@ -1,6 +1,7 @@
 from functools import wraps
 from urllib.parse import quote
 
+from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -169,8 +170,12 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     model = Application
-    fields = "__all__"
     template_name = "form.html"
+    form_class = forms.ApplicationForm
+
+    def form_valid(self, form):
+        form.instance.organisation = form.instance.org.name
+        return super().form_valid(form)
 
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
@@ -220,3 +225,17 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
+
+
+class OrgAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # # Don't forget to filter out results depending on the visitor !
+        # if not self.request.user.is_authenticated():
+        #     return Country.objects.none()
+
+        query = models.Organisation.objects.all()
+
+        if self.q:
+            return query.filter(name__icontains=self.q)
+
+        return query

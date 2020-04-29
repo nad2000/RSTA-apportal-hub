@@ -70,6 +70,10 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
+    # NB: has to be added before admin
+    "dal",
+    "dal_select2",
+    # 'grappelli',
     "django.contrib.admin",
     "django.forms",
 ]

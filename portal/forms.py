@@ -1,5 +1,6 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Submit
+from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput, NumberInput
 from django.forms.models import modelformset_factory
@@ -39,6 +40,13 @@ class ProfileForm(forms.ModelForm):
             is_acceted=forms.CheckboxInput(),
         )
         labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
+
+
+class ApplicationForm(forms.ModelForm):
+    class Meta:
+        model = models.Application
+        exclude = ["organisation"]
+        widgets = dict(org=autocomplete.ModelSelect2("org-autocomplete"))
 
 
 class ProfileCareerStageForm(forms.ModelForm):

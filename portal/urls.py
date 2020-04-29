@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 from django.views.generic import TemplateView
 
-from . import views
+from . import models, views
 
 # app_name = "portal"  ## in case if there is anohter app, add this prefix
 urlpatterns = [
@@ -39,6 +39,11 @@ urlpatterns = [
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
     path("ui_kit", TemplateView.as_view(template_name="pages/ui_kit.html"), name="ui_kit"),
+    path(
+        "org-autocomplete/",
+        views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
+        name="org-autocomplete",
+    ),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",

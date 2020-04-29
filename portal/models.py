@@ -312,6 +312,18 @@ class Profile(Model):
         db_table = "profile"
 
 
+class Organisation(Model):
+
+    name = CharField(max_length=200)
+    history = HistoricalRecords(table_name="organisation_history")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "organisation"
+
+
 class Application(Model):
 
     # Members of the team must also complete the "Team Members & Signatures" Form.
@@ -319,6 +331,14 @@ class Application(Model):
     title = CharField(max_length=512)
     first_name = CharField(max_length=30)
     last_name = CharField(max_length=150)
+    org = ForeignKey(
+        Organisation,
+        blank=False,
+        null=True,
+        on_delete=SET_NULL,
+        verbose_name="organisation",
+        help_text="Choose an existing organisation or create a new one",
+    )
     organisation = CharField(max_length=200)
     position = CharField(max_length=80)
     postal_address = CharField(max_length=120)
@@ -335,18 +355,6 @@ class Application(Model):
 
     class Meta:
         db_table = "application"
-
-
-class Organisation(Model):
-
-    name = CharField(max_length=200)
-    history = HistoricalRecords(table_name="organisation_history")
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = "organisation"
 
 
 def get_unique_invitation_token():
