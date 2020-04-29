@@ -227,7 +227,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
 
 
-class OrgAutocomplete(autocomplete.Select2QuerySetView):
+class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
         # # Don't forget to filter out results depending on the visitor !
         # if not self.request.user.is_authenticated():
