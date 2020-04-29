@@ -86,7 +86,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.orcid",
-    "allauth.socialaccount.providers.rapidconnect",
+    "rapidconnect",
     "rest_framework",
     "rest_framework.authtoken",
     "django_tables2",
