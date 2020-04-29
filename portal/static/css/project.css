@@ -94,4 +94,8 @@ html, body {
   background-color: #e6e6e6;
 }
 
+label {
+  font-weight: bold;
+}
+
 /*# sourceMappingURL=project.css.map */
