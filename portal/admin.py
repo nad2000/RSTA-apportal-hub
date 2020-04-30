@@ -62,6 +62,17 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = LanguageResource
 
 
+class FieldOfStudyResource(CodeResource):
+    class Meta:
+        model = models.FieldOfStudy
+
+
+@admin.register(models.FieldOfStudy)
+class FieldOfStudyAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = FieldOfStudyResource
+
+
 class CareerStageResource(CodeResource):
     class Meta:
         model = models.CareerStage

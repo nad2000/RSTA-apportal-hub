@@ -30,7 +30,8 @@ def login(request):
         url = urljoin(BASE_URL, url)
         # request.build_absolute_uri()
 
-    # SocialLogin.stash_state(request)
+    breakpoint()
+    SocialLogin.stash_state(request)
     return HttpResponseRedirect(url)
 
 
@@ -74,7 +75,8 @@ def callback(request):
         login = provider.sociallogin_from_response(request, attributes)
         login.token = SocialToken(app=app, token=token["jti"])
 
-        # login.state = SocialLogin.unstash_state(request)
+        breakpoint()
+        login.state = SocialLogin.unstash_state(request)
 
         ret = complete_social_login(request, login)
     except (requests.RequestException, RapidConnectApiError) as e:

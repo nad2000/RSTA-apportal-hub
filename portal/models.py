@@ -12,6 +12,7 @@ from django.db.models import (
     ForeignKey,
     ManyToManyField,
     OneToOneField,
+    PositiveIntegerField,
     PositiveSmallIntegerField,
     TextField,
 )
@@ -202,6 +203,20 @@ class IwiGroup(Model):
     class Meta:
         db_table = "iwi_group"
         ordering = ["code"]
+
+
+class FieldOfStudy(Model):
+    code = PositiveIntegerField(primary_key=True)
+    description = CharField(max_length=100)
+    four_digit_code = PositiveSmallIntegerField()
+    four_digit_description = CharField(max_length=100)
+    two_digit_code = PositiveSmallIntegerField()
+    two_digit_description = CharField(max_length=60)
+    definition = CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        db_table = "field_of_study"
+        ordering = ["description"]
 
 
 class ProfileCareerStage(Model):
