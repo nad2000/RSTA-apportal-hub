@@ -117,6 +117,16 @@ class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
     resource_class = OrgIdentifierTypeResource
 
 
+@admin.register(models.ApplicationDecision)
+class ApplicationDecisionAdmin(ImportExportModelAdmin):
+    class ApplicationDecisionResource(CodeResource):
+        class Meta:
+            model = models.ApplicationDecision
+
+    search_fields = ["description", "definition"]
+    resource_class = ApplicationDecisionResource
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
     class ProfileCareerStageInline(admin.StackedInline):

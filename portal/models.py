@@ -205,6 +205,20 @@ class IwiGroup(Model):
         ordering = ["code"]
 
 
+class ApplicationDecision(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=80)
+    definition = TextField(max_length=200)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "application_decision"
+        ordering = ["description"]
+
+
 class FieldOfStudy(Model):
     code = PositiveIntegerField(primary_key=True)
     description = CharField(max_length=100)
@@ -213,6 +227,10 @@ class FieldOfStudy(Model):
     two_digit_code = PositiveSmallIntegerField()
     two_digit_description = CharField(max_length=60)
     definition = CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.description}"
 
     class Meta:
         db_table = "field_of_study"
