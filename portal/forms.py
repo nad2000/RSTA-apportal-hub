@@ -25,7 +25,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ["user", "career_stages", "external_ids"]
+        exclude = ["user", "career_stages", "external_ids", "affiliation"]
         widgets = dict(
             ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity, search_fields=["description__icontains"],
