@@ -8,6 +8,7 @@ from django.db.models import (
     SET_NULL,
     BooleanField,
     CharField,
+    DateField,
     EmailField,
     ForeignKey,
     ManyToManyField,
@@ -21,9 +22,11 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from simple_history.models import HistoricalRecords
 
-SEX_CHOICES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
+SEXES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
 
-ETHNICITY_COICES = Choices(
+AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"),)
+
+ETHNICITIES = Choices(
     "European",
     "Maori",
     "Chinese",
@@ -272,6 +275,33 @@ class OrgIdentifierType(Model):
         ordering = ["code"]
 
 
+class Organisation(Model):
+
+    name = CharField(max_length=200)
+    history = HistoricalRecords(table_name="organisation_history")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "organisation"
+
+
+class Affiliation(Model):
+
+    profile = ForeignKey("Profile", on_delete=CASCADE)
+    org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name="organisation")
+    type = CharField(max_length=10, choices=AFFILIATION_TYPES)
+    role = CharField(max_length=100, null=True, blank=True)  # , help_text="position or degree")
+    start_date = DateField(null=True, blank=True)
+    end_date = DateField(null=True, blank=True)
+
+    history = HistoricalRecords(table_name="affiliation_history")
+
+    class Meta:
+        db_table = "affiliation"
+
+
 class Profile(Model):
 
     # MALE = "M"
@@ -284,7 +314,7 @@ class Profile(Model):
     # ]
 
     user = OneToOneField(User, on_delete=CASCADE)
-    sex = PositiveSmallIntegerField(choices=SEX_CHOICES, null=True, blank=True)
+    sex = PositiveSmallIntegerField(choices=SEXES, null=True, blank=True)
     year_of_birth = PositiveSmallIntegerField(
         null=True,
         blank=True,
@@ -292,7 +322,7 @@ class Profile(Model):
         validators=[MinValueValidator(1950), MaxValueValidator(2100)],
     )
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
-    # CharField(max_length=20, null=True, blank=True, choices=ETHNICITY_COICES)
+    # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     # years since arrival in New Zealand
@@ -312,7 +342,16 @@ class Profile(Model):
     external_ids = ManyToManyField(
         PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
     )
+    affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
     history = HistoricalRecords(table_name="profile_history")
+
+    @property
+    def employments(self):
+        return self.affiliations.fiter(type="EMP")
+
+    @property
+    def educations(self):
+        return self.affiliations.fiter(type="EDU")
 
     def __str__(self):
 
@@ -343,18 +382,6 @@ class Profile(Model):
 
     class Meta:
         db_table = "profile"
-
-
-class Organisation(Model):
-
-    name = CharField(max_length=200)
-    history = HistoricalRecords(table_name="organisation_history")
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = "organisation"
 
 
 class Application(Model):

@@ -27,6 +27,16 @@ urlpatterns = [
         views.ProfilePersonIdentifierFormSetView.as_view(),
         name="profile-external-ids",
     ),
+    path(
+        "profile/employments/",
+        views.ProfileEmploymentsFormSetView.as_view(),
+        name="profile-employments",
+    ),
+    path(
+        "profile/educations/",
+        views.ProfileEducationsFormSetView.as_view(),
+        name="profile-educations",
+    ),
     path("start", views.index, name="home"),
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),

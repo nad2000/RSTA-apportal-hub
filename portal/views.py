@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms import HiddenInput
+from django.forms import HiddenInput, widgets
 from django.shortcuts import redirect, render, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -196,7 +196,9 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
-        kwargs["widgets"] = {"profile": HiddenInput()}
+        widgets = kwargs.get("widgets", {})
+        widgets.update({"profile": HiddenInput()})
+        kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
         return kwargs
 
@@ -225,6 +227,48 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
+
+
+class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
+
+    model = models.Affiliation
+    # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            dict(
+                widgets={
+                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "type": HiddenInput(),
+                    "profile": HiddenInput(),
+                    "start_date": widgets.DateInput(attrs={"type": "date"}),
+                    "end_date": widgets.DateInput(attrs={"type": "date"}),
+                },
+                labels={"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
+            )
+        )
+        return kwargs
+
+    def get_queryset(self):
+        return self.model.objects.filter(
+            profile=self.request.user.profile, type=self.affiliation_type
+        ).order_by("start_date", "end_date",)
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial[0]["type"] = self.affiliation_type
+        return initial
+
+
+class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
+
+    affiliation_type = "EMP"
+
+
+class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
+
+    affiliation_type = "EDU"
 
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):

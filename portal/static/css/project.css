@@ -98,4 +98,17 @@ label {
   font-weight: bold;
 }
 
+.select2-container--default .select2-selection--single {
+  border: 1px solid #DFD7CA;
+}
+
+.select2-container .select2-selection--single {
+  height: calc(1.5em + .75rem + 2px);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  margin-left: -7px;
+  margin-top: initial;
+}
+
 /*# sourceMappingURL=project.css.map */

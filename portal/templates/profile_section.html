@@ -2,6 +2,17 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+{% block css %}
+  {{ formset.media.css }}
+  {{ block.super }}
+{% endblock %}
+
+
 {% block section %}
     {% crispy formset helper %}
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {{ formset.media.js }}
 {% endblock %}
