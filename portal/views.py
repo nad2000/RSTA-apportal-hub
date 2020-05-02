@@ -139,31 +139,31 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-@login_required
-@shoud_be_onboarded
-@require_http_methods(["GET", "POST"])
-def profile_career_stages(request, pk=None):
-
-    if request.method == "GET":
-        queryset = ProfileCareerStage.objects.filter(profile=request.user.profile).order_by(
-            "year_achieved"
-        )
-        formset = ProfileCareerStageFormSet(queryset=queryset)
-    elif request.method == "POST":
-        formset = ProfileCareerStageFormSet(request.POST)
-        breakpoint()
-        if formset.is_valid():
-            for form in formset.save(commit=False):
-                if not hasattr(form, "profile") or not form.profile:
-                    form.profile = request.user.profile
-                form.save()
-            # formset.save_m2m()
-            formset.save()
-    return render(
-        request,
-        "profile_section.html",
-        {"formset": formset, "helper": forms.ProfileSectionFormSetHelper()},
-    )
+# @login_required
+# @shoud_be_onboarded
+# @require_http_methods(["GET", "POST"])
+# def profile_career_stages(request, pk=None):
+#
+#     if request.method == "GET":
+#         queryset = ProfileCareerStage.objects.filter(profile=request.user.profile).order_by(
+#             "year_achieved"
+#         )
+#         formset = ProfileCareerStageFormSet(queryset=queryset)
+#     elif request.method == "POST":
+#         formset = ProfileCareerStageFormSet(request.POST)
+#         breakpoint()
+#         if formset.is_valid():
+#             for form in formset.save(commit=False):
+#                 if not hasattr(form, "profile") or not form.profile:
+#                     form.profile = request.user.profile
+#                 form.save()
+#             # formset.save_m2m()
+#             formset.save()
+#     return render(
+#         request,
+#         "profile_section.html",
+#         {"formset": formset, "helper": forms.ProfileSectionFormSetHelper()},
+#     )
 
 
 class ApplicationDetail(LoginRequiredMixin, DetailView):
@@ -275,13 +275,7 @@ class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        # # Don't forget to filter out results depending on the visitor !
-        # if not self.request.user.is_authenticated():
-        #     return Country.objects.none()
-
-        query = models.Organisation.objects.all()
 
         if self.q:
-            return query.filter(name__icontains=self.q)
-
-        return query
+            return models.Organisation.where(name__icontains=self.q)
+        return models.Organisation.objects.none()

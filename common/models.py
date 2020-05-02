@@ -47,7 +47,11 @@ class HelperMixin:
 
     @classmethod
     def create(cls, *args, **kwargs):
-        return cls.objects.create(**kwargs)
+        return cls.objects.create(*args, **kwargs)
+
+    @classmethod
+    def where(cls, *args, **kwargs):
+        return cls.objects.filter(*args, **kwargs)
 
 
 class Model(TimeStampMixin, HelperMixin, _Model):

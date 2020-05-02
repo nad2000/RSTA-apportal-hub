@@ -319,7 +319,7 @@ class Profile(Model):
         null=True,
         blank=True,
         verbose_name="year of birth",
-        validators=[MinValueValidator(1950), MaxValueValidator(2100)],
+        validators=[MinValueValidator(1920), MaxValueValidator(2030)],
     )
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
@@ -355,9 +355,14 @@ class Profile(Model):
 
     def __str__(self):
 
+        u = self.user
         return (
-            f"{self.user.name or self.user.username}'s profile"
-            if self.user
+            (
+                f"{u.name} ({u.username})'s profile"
+                if u.name and u.username
+                else f"{u.name or u.username or u.email}'s profile"
+            )
+            if u
             else f"Proile: ID={self.id}"
         )
 
