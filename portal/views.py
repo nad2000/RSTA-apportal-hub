@@ -1,4 +1,4 @@
-from functools import wraps
+from functools import partial, wraps
 from urllib.parse import quote
 
 from dal import autocomplete
@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms import HiddenInput, widgets
+from django.forms import DateInput, HiddenInput
 from django.shortcuts import redirect, render, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -20,6 +20,8 @@ from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSet
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
+
+DateInput = partial(DateInput, attrs={"class": "datepicker", "type": "date"}, format="%Y-%m-%d")
 
 
 def shoud_be_onboarded(function):
@@ -237,16 +239,16 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         kwargs.update(
-            dict(
-                widgets={
+            {
+                "widgets": {
                     "org": autocomplete.ModelSelect2("org-autocomplete"),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
-                    "start_date": widgets.DateInput(attrs={"type": "date"}),
-                    "end_date": widgets.DateInput(attrs={"type": "date"}),
+                    "start_date": DateInput(),
+                    "end_date": DateInput(),
                 },
-                labels={"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
-            )
+                "labels": {"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
+            }
         )
         return kwargs
 
