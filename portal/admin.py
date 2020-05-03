@@ -141,8 +141,17 @@ class ProfileAdmin(SimpleHistoryAdmin):
         extra = 1
         model = models.Affiliation
 
+    class CurriculumVitaeInline(admin.StackedInline):
+        extra = 1
+        model = models.CurriculumVitae
+
     filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
-    inlines = [ProfileCareerStageInline, ProfilePersonIdentifierInline, AffiliationInline]
+    inlines = [
+        ProfileCareerStageInline,
+        ProfilePersonIdentifierInline,
+        AffiliationInline,
+        CurriculumVitaeInline,
+    ]
 
 
 admin.site.register(models.Application)

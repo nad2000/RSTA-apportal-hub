@@ -6,12 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms import DateInput, HiddenInput
+from django.forms import DateInput, FileInput, HiddenInput
+from django.forms import widgets
 from django.shortcuts import redirect, render, reverse
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
+from django.utils.safestring import mark_safe
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
@@ -22,6 +24,8 @@ from .tables import SubscriptionTable
 from .tasks import notify_user
 
 DateInput = partial(DateInput, attrs={"class": "datepicker", "type": "date"}, format="%Y-%m-%d")
+# FileInput = partial(FileInput, attrs={"class": "custom-file-input", "type": "file"})
+# FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
 
 
 def shoud_be_onboarded(function):
@@ -215,6 +219,9 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
 
     model = ProfileCareerStage
     formset_class = ProfileCareerStageFormSet
+    factory_kwargs = {
+        "widgets": {"year_achieved": widgets.DateInput(attrs={"class": "yearpicker"})}
+    }
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by(
@@ -289,7 +296,13 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         kwargs.update(
-            {"widgets": {"profile": HiddenInput(), "owner": HiddenInput(),},}
+            {
+                "widgets": {
+                    "profile": HiddenInput(),
+                    "owner": HiddenInput(),
+                    # "file": FileInput(),
+                },
+            }
         )
         return kwargs
 
