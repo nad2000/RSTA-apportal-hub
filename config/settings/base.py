@@ -86,12 +86,13 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.orcid",
-    "rapidconnect",
+    "allauth.socialaccount.providers.rapidconnect",
     "rest_framework",
     "rest_framework.authtoken",
     "django_tables2",
     "import_export",
     "django_select2",
+    "private_storage",
 ]
 
 LOCAL_APPS = [
@@ -181,6 +182,10 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
+# Protected storage:
+PRIVATE_STORAGE_ROOT = str(ROOT_DIR / "private-media")
+PRIVATE_STORAGE_AUTH_FUNCTION = "private_storage.permissions.allow_staff"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------

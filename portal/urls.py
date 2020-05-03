@@ -37,6 +37,7 @@ urlpatterns = [
         views.ProfileEducationsFormSetView.as_view(),
         name="profile-educations",
     ),
+    path("profile/cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",),
     path("start", views.index, name="home"),
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),

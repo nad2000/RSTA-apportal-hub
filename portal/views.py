@@ -279,3 +279,24 @@ class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         if self.q:
             return models.Organisation.where(name__icontains=self.q)
         return models.Organisation.objects.none()
+
+
+class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
+
+    model = models.CurriculumVitae
+    # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            {"widgets": {"profile": HiddenInput(), "owner": HiddenInput(),},}
+        )
+        return kwargs
+
+    def get_queryset(self):
+        return self.model.objects.filter(owner=self.request.user).order_by("-id")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial[0]["owner"] = self.request.user
+        return initial

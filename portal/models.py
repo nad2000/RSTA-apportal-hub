@@ -20,6 +20,7 @@ from django.db.models import (
 from django.urls import reverse
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
+from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
 SEXES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
@@ -456,3 +457,32 @@ class Invitation(Model):
 
     class Meta:
         db_table = "invitation"
+
+
+FILE_TYPE = Choices("CV")
+
+
+# class PrivateFile(Model):
+
+#     profile = ForeignKey(Profile, null=True, blank=True, on_delete=CASCADE)
+#     owner = ForeignKey(User, on_delete=CASCADE)
+#     type = CharField(max_length=100, choices=FILE_TYPE)
+#     title = CharField("title", max_length=200, null=True, blank=True)
+#     # file = PrivateFileField(upload_subfolder=lambda instance: f"cv-{instance.owner.id}")
+#     file = PrivateFileField()
+
+#     class Meta:
+#         db_table = "private_file"
+
+
+class CurriculumVitae(Model):
+    profile = ForeignKey(Profile, on_delete=CASCADE)
+    owner = ForeignKey(User, on_delete=CASCADE)
+    title = CharField("title", max_length=200, null=True, blank=True)
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: f"cv/{hex(instance.owner.id*instance.profile.id)[2:]}"
+    )
+    # file = PrivateFileField()
+
+    class Meta:
+        db_table = "curriculum_vitae"
