@@ -2,18 +2,21 @@ from functools import partial, wraps
 from urllib.parse import quote
 
 from dal import autocomplete
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.forms import DateInput, FileInput, HiddenInput
+from django.forms import models as model_forms
 from django.forms import widgets
 from django.shortcuts import redirect, render, reverse
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
-from django.utils.safestring import mark_safe
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
@@ -99,7 +102,7 @@ def test_task(req, message):
 
 
 @login_required
-def check_profile(request):
+def check_profile(request, token=None):
     next_url = request.GET.get("next")
     try:
         request.user.profile
@@ -141,6 +144,63 @@ class ProfileCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
+# def send_mail(self, subject_template_name, email_template_name,
+#                 context, from_email, to_email, html_email_template_name=None):
+#     """
+#     Send a django.core.mail.EmailMultiAlternatives to `to_email`.
+#     """
+#     subject = loader.render_to_string(subject_template_name, context)
+#     # Email subject *must not* contain newlines
+#     subject = ''.join(subject.splitlines())
+#     body = loader.render_to_string(email_template_name, context)
+
+#     email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+#     if html_email_template_name is not None:
+#         html_email = loader.render_to_string(html_email_template_name, context)
+#         email_message.attach_alternative(html_email, 'text/html')
+
+#     email_message.send()
+
+
+class InvitationCreate(LoginRequiredMixin, CreateView):
+    model = models.Invitation
+    template_name = "form.html"
+    # form_class = ProfileForm
+    # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
+    fields = ["email", "first_name", "last_name", "org"]
+    widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
+    labels = {"org": "organisation"}
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.organisation = form.instance.org.name
+        self.object = form.save()
+        url = self.request.build_absolute_uri(
+            reverse("onboard-with-token", kwargs=dict(token=self.object.token))
+        )
+        send_mail(
+            "You are invited to join the portal",
+            f"You are invited to join the portal. Please follow the link: {url}.",
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[form.instance.email],
+            fail_silently=False,
+        )
+        messages.success(self.request, f"An invitation was sent to {form.instance.email}")
+
+        return redirect(self.get_success_url())
+
+    def get_form_class(self):
+        """Return the form class to use in this view."""
+        if self.model is not None:
+            model = self.model
+        elif getattr(self, "object", None) is not None:
+            model = self.object.__class__
+        else:
+            model = self.get_queryset().model
+
+        return model_forms.modelform_factory(model, fields=self.fields, widgets=self.widgets)
 
 
 # @login_required

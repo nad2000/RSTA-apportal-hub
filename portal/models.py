@@ -444,6 +444,7 @@ class Invitation(Model):
         Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
     )  # the org matched with the entered name
 
+    # TODO: take a look FSM ... as an alternative. might be more appropriate...
     status = StatusField()
     submitted_at = MonitorField(monitor="status", when=[STATUS.submitted], null=True, blank=True)
     accepted_at = MonitorField(monitor="status", when=[STATUS.accepted], null=True, blank=True)

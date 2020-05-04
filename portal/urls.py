@@ -43,6 +43,7 @@ urlpatterns = [
     path("home", views.index, name="home"),
     path("index.html", views.index, name="index.html"),
     path("test_task/<message>", views.test_task),
+    path("onboard/<token>", views.check_profile, name="onboard-with-token"),
     path("onboard", views.check_profile, name="onboard"),
     path("profile/~check", views.check_profile, name="check-profile"),
     # path("profile/career-stages", views.profile_career_stages, name="profile-career-stages"),
@@ -55,6 +56,7 @@ urlpatterns = [
         views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
         name="org-autocomplete",
     ),
+    path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",
