@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 04:16-0500\n"
+"POT-Creation-Date: 2020-05-05 23:35+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,8 +79,9 @@ msgid ""
 "You currently do not have any e-mail address set up. You should really add "
 "an e-mail address so you can receive notifications, reset your password, etc."
 msgstr ""
-"Kāore koe i te wāhitau imeera i naianei. Me tino whakauru koe he wahitau imera "
-"kia taea ai e koe te whakamohiotanga, tautuhi ano i to kupuhipa, me era atu"
+"Kāore koe i te wāhitau imeera i naianei. Me tino whakauru koe he wahitau "
+"imera kia taea ai e koe te whakamohiotanga, tautuhi ano i to kupuhipa, me "
+"era atu"
 
 #: portal/templates/account/email.html:56
 msgid "Add E-mail Address"
@@ -138,9 +139,17 @@ msgstr "Mahara kupuhipa"
 msgid "Sign in"
 msgstr "Haina"
 
+#: portal/templates/account/login.html:80
+msgid "Forgot Password?"
+msgstr "Wareware Kupuhipa?"
+
 #: portal/templates/account/login.html:83
 msgid "Don't have an account or any other social network account?"
 msgstr "Kaore he putea kaute, he kaute hononga hapori ranei?"
+
+#: portal/templates/account/login.html:83
+msgid "Sign&nbsp;up&nbsp;here!"
+msgstr "Haina i konei"
 
 #: portal/templates/account/logout.html:5
 #: portal/templates/account/logout.html:8
@@ -174,8 +183,8 @@ msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll send you "
 "an e-mail allowing you to reset it."
 msgstr ""
-"Kua wareware koe i to kupu huna? Whakauruhia to wahitau imeera i raro nei, "
-"a ka tukuna atu e matou he imeera hei tuku ki a koe kia tautuhi ano."
+"Kua wareware koe i to kupu huna? Whakauruhia to wahitau imeera i raro nei, a "
+"ka tukuna atu e matou he imeera hei tuku ki a koe kia tautuhi ano."
 
 #: portal/templates/account/password_reset.html:21
 msgid "Reset My Password"
@@ -190,7 +199,8 @@ msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
-"Na matou i tuku atu i a koe he imeera. Tena koa whakapiri mai ki a koe mena kaore koe i te waa."
+"Na matou i tuku atu i a koe he imeera. Tena koa whakapiri mai ki a koe mena "
+"kaore koe i te waa."
 
 #: portal/templates/account/password_reset_from_key.html:8
 msgid "Bad Token"
@@ -236,7 +246,8 @@ msgstr "Waitohu ake"
 msgid ""
 "Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
 msgstr ""
-"Kei a koe he kaute? Na me whakauru ki <a href=\"%(login_url)s\">te takiuru</a>."
+"Kei a koe he kaute? Na me whakauru ki <a href=\"%(login_url)s\">te takiuru</"
+"a>."
 
 #: portal/templates/account/signup_closed.html:5
 #: portal/templates/account/signup_closed.html:8
@@ -260,8 +271,9 @@ msgid ""
 "finalize the signup process. Please contact us if you do not receive it "
 "within a few minutes."
 msgstr ""
-"I tukuna e matou he imeera ki a koe hei whakamana. Whaaia te hono i whakaratohia "
-"hei whakaoti i te tukanga haina. Tena koa whakapiri mai ki a koe mena kaore koe i te waa."
+"I tukuna e matou he imeera ki a koe hei whakamana. Whaaia te hono i "
+"whakaratohia hei whakaoti i te tukanga haina. Tena koa whakapiri mai ki a "
+"koe mena kaore koe i te waa."
 
 #: portal/templates/account/verified_email_required.html:12
 msgid ""
@@ -276,7 +288,9 @@ msgid ""
 "verification. Please click on the link inside this e-mail. Please\n"
 "contact us if you do not receive it within a few minutes."
 msgstr ""
-"Ko tenei waahanga o te papaanga me whakarite e matou ko koe tonu e kii ana koe. Mo tenei kaupapa, e hiahia ana matou ki te whakaū i nga rangatira o to wahitau imeera."
+"Ko tenei waahanga o te papaanga me whakarite e matou ko koe tonu e kii ana "
+"koe. Mo tenei kaupapa, e hiahia ana matou ki te whakaū i nga rangatira o to "
+"wahitau imeera."
 
 #: portal/templates/account/verified_email_required.html:20
 #, python-format

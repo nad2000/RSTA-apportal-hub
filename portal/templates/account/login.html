@@ -80,7 +80,7 @@
     <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
   </div>
 </div>
-<p class="text-center small note">{% trans "Don't have an account or any other social network account?" %} <a class="note" href="{{ signup_url }}">{% trans 'Sign&nbsp;up&nbsp;here!' %}</a></p>
+<p class="text-center small note">{% trans "Don't have an account or any other social network account?" %} <a class="note" href="{{ signup_url }}">{% trans "Sign&nbsp;up&nbsp;here!" %}</a></p>
 </div>
 
 <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
