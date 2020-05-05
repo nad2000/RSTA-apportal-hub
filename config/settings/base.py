@@ -1,7 +1,11 @@
 """
 Base settings to build other settings files upon.
 """
+from django.utils.translation import ugettext_lazy as _
+from django.conf.locale import LANG_INFO
+
 from pathlib import Path
+
 
 import environ
 
@@ -33,8 +37,25 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # though not all of them may be available with every OS.
 # In Windows, this must be set to your system time zone.
 # TIME_ZONE = "UTC+12"
+TIME_ZONE = "Pacific/Auckland"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 LANGUAGE_CODE = "en-nz"
+LANGUAGES = [
+    ("en-nz", "New Zealand English"),
+    ("mi", "Maori"),
+]
+LANG_INFO.update(
+    {
+        "mi": {"bidi": False, "code": "mi", "name": "Maori", "name_local": "Māori",},
+        "en-nz": {
+            "bidi": False,
+            "code": "en-nz",
+            "name": "New Zealand English",
+            "name_local": "New Zealand English",
+        },
+    }
+)
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n

@@ -9,6 +9,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 import private_storage.urls
 
 urlpatterns = [
+    path("i18n/", include("django.conf.urls.i18n")),
     # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),

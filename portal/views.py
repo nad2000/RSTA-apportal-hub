@@ -19,6 +19,7 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
+from django.utils.translation import gettext as _
 
 from . import forms, models
 from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSetHelper
@@ -171,7 +172,7 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
     # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
     fields = ["email", "first_name", "last_name", "org"]
     widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
-    labels = {"org": "organisation"}
+    labels = {"org": _("organisation")}
 
     def form_valid(self, form):
         form.instance.user = self.request.user

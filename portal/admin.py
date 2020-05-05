@@ -58,6 +58,7 @@ class LanguageResource(CodeResource):
 
 @admin.register(models.Language)
 class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    list_display = ["code", "description"]
     search_fields = ["description", "definition"]
     resource_class = LanguageResource
 

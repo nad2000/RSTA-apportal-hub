@@ -18,6 +18,7 @@ from django.db.models import (
     TextField,
 )
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
@@ -224,8 +225,8 @@ class ApplicationDecision(Model):
 
 
 class FieldOfStudy(Model):
-    code = PositiveIntegerField(primary_key=True)
-    description = CharField(max_length=100)
+    code = PositiveIntegerField(primary_key=True, verbose_name=_("code"))
+    description = CharField(_("description"), max_length=100)
     four_digit_code = PositiveSmallIntegerField()
     four_digit_description = CharField(max_length=100)
     two_digit_code = PositiveSmallIntegerField()

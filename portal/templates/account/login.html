@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% load static i18n %}
-{% load account socialaccount %}
-{% load crispy_forms_tags %}
+{% load static i18n account socialaccount %}
 
 {% block localcss %}
   {{ block.super }}
@@ -35,14 +33,14 @@
           class="btn btn-lg btn-google btn-block"
           href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
         <i class="fab fa-google mr-2"></i>
-        Sign in with <strong>Google</strong>
+        {% trans 'Sign in with' %} <strong>Google</strong>
       </a>
 
       <a title="ORCID"
           class="btn btn-lg btn-orcid btn-block btn-orcid"
           href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
         <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
-        Sign in with <strong>ORCID iD</strong>
+        {% trans 'Sign in with' %} <strong>ORCID iD</strong>
       </a>
 
       <!-- a title="Facebook"
@@ -64,26 +62,42 @@
 
       <div class="form-label-group">
         <input name="login" id="inputEmail" class="form-control" placeholder="Email address or username" required autofocus>
-        <label for="inputEmail">Email address or username</label>
+        <label for="inputEmail">{% trans 'Email address or username' %}</label>
       </div>
 
       <div class="form-label-group">
         <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-        <label for="inputPassword">Password</label>
+        <label for="inputPassword">{% trans 'Password' %}</label>
       </div>
 
       <div class="custom-control custom-checkbox mb-3">
         <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
-        <label class="custom-control-label" for="customCheck1">Remember password</label>
+        <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
       </div>
 
-      <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Sign in</button>
+      <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
     </form>
-    <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">Forgot Password?</a></p>
+    <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
   </div>
 </div>
-<p class="text-center small note">Don't have an account or any other social network account? <a class="note" href="{{ signup_url }}">Sign&nbsp;up&nbsp;here!</a></p>
+<p class="text-center small note">{% trans "Don't have an account or any other social network account?" %} <a class="note" href="{{ signup_url }}">{% trans 'Sign&nbsp;up&nbsp;here!' %}</a></p>
 </div>
+
+<form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+    <input name="next" type="hidden" value="{{ redirect_to }}">
+    <select name="language">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_available_languages as LANGUAGES %}
+        {% get_language_info_list for LANGUAGES as languages %}
+        {% for language in languages %}
+            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                {{ language.name_local }} ({{ language.code }})
+            </option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Go">
+</form>
+
 </div>
 {% endblock %}
 
