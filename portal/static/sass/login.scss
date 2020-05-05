@@ -148,6 +148,10 @@ body {
   width: 100%;
 }
 
+.login-form label {
+  font-weight: normal;
+}
+
 .login-form .btn {
   color: #fff;
   border-radius: 4px;
@@ -162,6 +166,10 @@ body {
   font-weight: bold;
   background: #99c432;
   margin-bottom: 20px;
+}
+
+.tuakiri {
+  border-color: gray;
 }
 
 .tuakiri:hover {
