@@ -8,18 +8,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.forms import DateInput, FileInput, HiddenInput
+from django.forms import DateInput, HiddenInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.shortcuts import redirect, render, reverse
-from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
-from django.utils.translation import gettext as _
 
 from . import forms, models
 from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSetHelper

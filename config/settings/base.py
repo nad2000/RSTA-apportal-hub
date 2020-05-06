@@ -114,6 +114,8 @@ THIRD_PARTY_APPS = [
     "import_export",
     "django_select2",
     "private_storage",
+    "django_fsm_log",
+    "fsm_admin",
 ]
 
 LOCAL_APPS = [
@@ -234,6 +236,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
+                # "django.core.context_processors.request",
                 "portal.utils.context_processors.settings_context",
             ],
         },

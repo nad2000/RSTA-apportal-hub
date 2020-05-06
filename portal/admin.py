@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django_fsm_log.admin import StateLogInline
+from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 from simple_history.admin import SimpleHistoryAdmin
@@ -169,8 +171,13 @@ class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 
 @admin.register(models.Invitation)
-class InvitationAdmin(ImportExportModelAdmin):
+class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
+    fsm_field = [
+        "status",
+    ]
     list_display = ["email", "first_name", "last_name", "organisation"]
     list_filter = ["created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email"]
     date_hierarchy = "created_at"
+    readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
+    inlines = [StateLogInline]

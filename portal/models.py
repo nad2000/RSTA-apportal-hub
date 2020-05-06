@@ -19,6 +19,7 @@ from django.db.models import (
 )
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django_fsm import FSMField
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
@@ -432,11 +433,16 @@ def get_unique_invitation_token():
             return token
 
 
+class StateField(StatusField, FSMField):
+
+    pass
+
+
 class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "accepted", "expired")
 
-    token = CharField(max_length=8, default=get_unique_invitation_token, unique=True)
+    token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
     email = EmailField("email address")
     first_name = CharField(max_length=30)
     last_name = CharField(max_length=150)
@@ -446,10 +452,17 @@ class Invitation(Model):
     )  # the org matched with the entered name
 
     # TODO: take a look FSM ... as an alternative. might be more appropriate...
-    status = StatusField()
-    submitted_at = MonitorField(monitor="status", when=[STATUS.submitted], null=True, blank=True)
-    accepted_at = MonitorField(monitor="status", when=[STATUS.accepted], null=True, blank=True)
-    expired_at = MonitorField(monitor="status", when=[STATUS.expired], null=True, blank=True)
+    # status = StatusField()
+    status = StateField()
+    submitted_at = MonitorField(
+        monitor="status", when=[STATUS.submitted], null=True, blank=True, default=None
+    )
+    accepted_at = MonitorField(
+        monitor="status", when=[STATUS.accepted], null=True, blank=True, default=None
+    )
+    expired_at = MonitorField(
+        monitor="status", when=[STATUS.expired], null=True, blank=True, default=None
+    )
 
     # TODO: need to figure out how to propaged STATUS to the historycal rec model:
     # history = HistoricalRecords(table_name="invitation_history")
