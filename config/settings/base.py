@@ -281,7 +281,7 @@ EMAIL_USE_TLS = True
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("Royal Society of New Zealand Te Apārangi", "pmspp_admin@mailinator.com")]
+ADMINS = [("Royal Society of New Zealand Te Apārangi", "pmspp@mailinator.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
