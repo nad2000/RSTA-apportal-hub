@@ -43,7 +43,7 @@ ETHNICITIES = Choices(
     "Other",
 )
 
-EDUCATION_LEVEL = Choices(
+QUALIFICATION_LEVEL = Choices(
     (0, "No Qualification"),
     (1, "Level 1 Certificate"),
     (2, "Level 2 Certificate"),
@@ -195,6 +195,23 @@ class PersonIdentifierType(Model):
         ordering = ["code"]
 
 
+class FieldOfResearch(Model):
+    code = CharField(max_length=6, primary_key=True)
+    description = CharField(_("description"), max_length=120)
+    four_digit_code = CharField(max_length=4)
+    four_digit_description = CharField(max_length=60)
+    two_digit_code = CharField(max_length=2)
+    two_digit_description = CharField(max_length=60)
+    definition = CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "field_of_research"
+
+
 class IwiGroup(Model):
     code = CharField(max_length=4, primary_key=True)
     description = CharField(max_length=80)
@@ -327,7 +344,7 @@ class Profile(Model):
     )
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
-    education_level = PositiveSmallIntegerField(null=True, blank=True, choices=EDUCATION_LEVEL)
+    education_level = PositiveSmallIntegerField(null=True, blank=True, choices=QUALIFICATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
     # years since arrival in New Zealand
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
@@ -391,6 +408,21 @@ class Profile(Model):
 
     class Meta:
         db_table = "profile"
+
+
+class AcademicRecord(Model):
+    profile = ForeignKey(Profile, related_name="academic_records", on_delete=CASCADE)
+    start_year = PositiveIntegerField(
+        validators=[MinValueValidator(1960), MaxValueValidator(2099)]
+    )
+    qualification = PositiveSmallIntegerField(choices=QUALIFICATION_LEVEL)
+    conferred_on = DateField(null=True, blank=True)
+    discipline = ForeignKey(FieldOfResearch, on_delete=CASCADE)
+    awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
+    research_topic = CharField(max_length=80, null=True, blank=True)
+
+    class Meta:
+        db_table = "academic_record"
 
 
 class Application(Model):

@@ -17,6 +17,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
+from django_select2.forms import ModelSelect2Widget
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
@@ -373,3 +374,34 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
         initial = super().get_initial()
         initial[0]["owner"] = self.request.user
         return initial
+
+
+class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
+
+    model = models.AcademicRecord
+    # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            {
+                "widgets": {
+                    "profile": HiddenInput(),
+                    "owner": HiddenInput(),
+                    "start_year": DateInput(attrs={"class": "yearpicker"}),
+                    # "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                    "awarded_by": ModelSelect2Widget(
+                        model=models.Organisation, search_fields=["name__icontains"],
+                    ),
+                    "discipline": ModelSelect2Widget(
+                        model=models.FieldOfResearch, search_fields=["description__icontains"],
+                    ),
+                    # "file": FileInput(),
+                    "conferred_on": DateInput(),
+                },
+            }
+        )
+        return kwargs
+
+    def get_queryset(self):
+        return self.model.objects.filter(profile=self.request.user.profile).order_by("-start_year")

@@ -76,6 +76,17 @@ class FieldOfStudyAdmin(ImportExportModelAdmin):
     resource_class = FieldOfStudyResource
 
 
+class FieldOfResearchResource(CodeResource):
+    class Meta:
+        model = models.FieldOfResearch
+
+
+@admin.register(models.FieldOfResearch)
+class FieldOfResearchAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "definition"]
+    resource_class = FieldOfResearchResource
+
+
 class CareerStageResource(CodeResource):
     class Meta:
         model = models.CareerStage
