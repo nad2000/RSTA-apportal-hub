@@ -25,7 +25,7 @@ from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
-SEXES = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
+GENDERS = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
 
 AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"),)
 
@@ -317,7 +317,8 @@ class Profile(Model):
     # ]
 
     user = OneToOneField(User, on_delete=CASCADE)
-    sex = PositiveSmallIntegerField(choices=SEXES, null=True, blank=True)
+    gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
+    date_of_birth = DateField(null=True, blank=True)
     year_of_birth = PositiveSmallIntegerField(
         null=True,
         blank=True,
