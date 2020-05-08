@@ -1,4 +1,4 @@
-from functools import partial, wraps
+from functools import wraps
 from urllib.parse import quote
 
 from dal import autocomplete
@@ -26,10 +26,6 @@ from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSet
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
-
-DateInput = partial(DateInput, attrs={"class": "datepicker", "type": "date"}, format="%Y-%m-%d")
-# FileInput = partial(FileInput, attrs={"class": "custom-file-input", "type": "file"})
-# FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
 
 
 def shoud_be_onboarded(function):
@@ -312,8 +308,8 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                     "org": autocomplete.ModelSelect2("org-autocomplete"),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
-                    "start_date": DateInput(),
-                    "end_date": DateInput(),
+                    "start_date": forms.DateInput(),
+                    "end_date": forms.DateInput(),
                 },
                 "labels": {"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
             }
@@ -397,7 +393,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
                         model=models.FieldOfResearch, search_fields=["description__icontains"],
                     ),
                     # "file": FileInput(),
-                    "conferred_on": DateInput(),
+                    "conferred_on": forms.DateInput(),
                 },
             }
         )

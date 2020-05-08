@@ -1,3 +1,4 @@
+from functools import partial
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Submit
 from dal import autocomplete
@@ -8,6 +9,13 @@ from django_select2.forms import ModelSelect2MultipleWidget
 
 from . import models
 from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
+
+DateInput = partial(
+    forms.DateInput, attrs={"class": "form-control datepicker", "type": "text"}, format="%Y-%m-%d"
+)
+YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", "type": "text"})
+# FileInput = partial(FileInput, attrs={"class": "custom-file-input", "type": "file"})
+# FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -27,6 +35,7 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         exclude = ["user", "career_stages", "external_ids", "affiliations"]
         widgets = dict(
+            date_of_birth=forms.widgets.TextInput(),
             ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity, search_fields=["description__icontains"],
             ),
@@ -61,7 +70,7 @@ ProfileCareerStageFormSet = modelformset_factory(
     # fields=["profile", "year_achieved", "career_stage"],
     exclude=(),
     can_delete=True,
-    widgets=dict(profile=HiddenInput(), year_achieved=NumberInput(attrs={"min": 1950})),
+    widgets=dict(profile=HiddenInput(), year_achieved=YearInput(attrs={"min": 1950})),
 )
 
 
