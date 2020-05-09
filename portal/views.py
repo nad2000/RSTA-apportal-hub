@@ -342,7 +342,15 @@ class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
         if self.q:
             return models.Organisation.where(name__icontains=self.q)
-        return models.Organisation.objects.none()
+        return models.Organisation.objects.order_by("-id", "name")
+
+
+class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+
+        if self.q:
+            return models.Award.where(name__icontains=self.q)
+        return models.Award.objects.order_by("-id", "name")
 
 
 class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
@@ -383,7 +391,6 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
             {
                 "widgets": {
                     "profile": HiddenInput(),
-                    "owner": HiddenInput(),
                     "start_year": DateInput(attrs={"class": "yearpicker"}),
                     # "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
                     "awarded_by": ModelSelect2Widget(
@@ -401,3 +408,28 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("-start_year")
+
+
+class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
+
+    model = models.Recognition
+    # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            {
+                "widgets": {
+                    "profile": HiddenInput(),
+                    "recognized_in": forms.YearInput(),
+                    "award": autocomplete.ModelSelect2("award-autocomplete"),
+                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                },
+            }
+        )
+        return kwargs
+
+    def get_queryset(self):
+        return self.model.objects.filter(profile=self.request.user.profile).order_by(
+            "-recognized_in"
+        )

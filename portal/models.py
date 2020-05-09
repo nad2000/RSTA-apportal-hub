@@ -9,6 +9,7 @@ from django.db.models import (
     BooleanField,
     CharField,
     DateField,
+    DecimalField,
     EmailField,
     ForeignKey,
     ManyToManyField,
@@ -423,6 +424,30 @@ class AcademicRecord(Model):
 
     class Meta:
         db_table = "academic_record"
+
+
+class Award(Model):
+    name = CharField(_("prestigious prize or medal"), max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "award"
+
+
+class Recognition(Model):
+    profile = ForeignKey(Profile, related_name="recognitions", on_delete=CASCADE)
+    recognized_in = PositiveSmallIntegerField("year of recognition", null=True, blank=True)
+    award = ForeignKey(Award, on_delete=CASCADE)
+    awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
+    amount = DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return self.award.name
+
+    class Meta:
+        db_table = "recognition"
 
 
 class Application(Model):

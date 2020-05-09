@@ -40,7 +40,12 @@ urlpatterns = [
     path(
         "profile/academic-records/",
         views.ProfileAcademicRecordFormSetView.as_view(),
-        name="academic-records",
+        name="profile-academic-records",
+    ),
+    path(
+        "profile/recognitions/",
+        views.ProfileRecognitionFormSetView.as_view(),
+        name="profile-recognitions",
     ),
     path("profile/cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",),
     path("start", views.index, name="home"),
@@ -60,6 +65,11 @@ urlpatterns = [
         "org-autocomplete/",
         views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
         name="org-autocomplete",
+    ),
+    path(
+        "award-autocomplete/",
+        views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
+        name="award-autocomplete",
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("", views.subscribe, name="comingsoon"),

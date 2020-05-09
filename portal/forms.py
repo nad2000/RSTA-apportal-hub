@@ -1,9 +1,10 @@
 from functools import partial
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Button, Submit
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput, NumberInput
+from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
 from django_select2.forms import ModelSelect2MultipleWidget
 

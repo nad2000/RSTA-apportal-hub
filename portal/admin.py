@@ -169,6 +169,7 @@ class ProfileAdmin(SimpleHistoryAdmin):
 
 
 admin.site.register(models.Application)
+admin.site.register(models.Award)
 
 
 @admin.register(models.Organisation)
