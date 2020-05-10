@@ -341,7 +341,7 @@ class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
 
         if self.q:
-            return models.Organisation.where(name__icontains=self.q)
+            return models.Organisation.where(name__icontains=self.q).order_by("-id", "name")
         return models.Organisation.objects.order_by("-id", "name")
 
 
@@ -349,7 +349,7 @@ class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
 
         if self.q:
-            return models.Award.where(name__icontains=self.q)
+            return models.Award.where(name__icontains=self.q).order_by("-id", "name")
         return models.Award.objects.order_by("-id", "name")
 
 

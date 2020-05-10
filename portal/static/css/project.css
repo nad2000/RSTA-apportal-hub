@@ -104,6 +104,7 @@ label {
 
 .select2-container .select2-selection--single {
   height: calc(1.5em + .75rem + 2px);
+  width: 100%;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {

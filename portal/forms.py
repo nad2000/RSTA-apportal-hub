@@ -36,7 +36,8 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         exclude = ["user", "career_stages", "external_ids", "affiliations"]
         widgets = dict(
-            date_of_birth=forms.widgets.TextInput(),
+            gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
+            date_of_birth=DateInput(),
             ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity, search_fields=["description__icontains"],
             ),

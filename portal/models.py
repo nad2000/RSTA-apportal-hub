@@ -337,12 +337,6 @@ class Profile(Model):
     user = OneToOneField(User, on_delete=CASCADE)
     gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
     date_of_birth = DateField(null=True, blank=True)
-    year_of_birth = PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        verbose_name="year of birth",
-        validators=[MinValueValidator(1920), MaxValueValidator(2030)],
-    )
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=QUALIFICATION_LEVEL)

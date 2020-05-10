@@ -91,12 +91,12 @@
       <table class="table table-bordered searchable">
         <tbody>
           <tr>
-            <th style="width: 21%; min-width: 160px; max-width: 180px;">Sex</th>
-            <td>{{ object.get_sex_display|default_if_none:"" }}</td>
+            <th style="width: 21%; min-width: 160px; max-width: 180px;">{% trans "Gender" %}</th>
+            <td>{{ object.get_gender_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Year of Birth</th>
-            <td>{{ object.year_of_birth|default_if_none:"" }}</td>
+            <th>Date of Birth</th>
+            <td>{{ object.date_of_birth|date:"Y-m-d"|default_if_none:"" }}</td>
           </tr>
           <tr>
             <th>Ethnicity</th>

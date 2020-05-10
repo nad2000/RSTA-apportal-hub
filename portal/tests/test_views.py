@@ -64,13 +64,13 @@ def test_profile(client, admin_user):
     assert b"Primary Language Spoken" in resp.content
     assert b"Edit" in resp.content
     p = Profile.get(user=user)
-    assert p.sex is None and p.ethnicities.count() == 0
+    assert p.gender is None and p.ethnicities.count() == 0
 
     resp = client.post(
         f"/profiles/{p.pk}/~update",
         dict(
-            sex=1,
-            year_of_birth="1969",
+            gender=1,
+            date_of_birth="1969-01-01",
             ethnicities=["11111"],
             education_level="7",
             employment_status="3",
@@ -83,8 +83,8 @@ def test_profile(client, admin_user):
     resp = client.post(
         f"/profiles/{p.pk}/~update",
         dict(
-            sex=1,
-            year_of_birth="1969",
+            gender=1,
+            date_of_birth="1969-01-01",
             ethnicities=["11111"],
             education_level="7",
             employment_status="3",
@@ -94,7 +94,7 @@ def test_profile(client, admin_user):
     )
     assert resp.status_code == 200
     p = Profile.get(user=user)
-    assert p.sex == 1 and p.ethnicities.count() == 1
+    assert p.gender == 1 and p.ethnicities.count() == 1
 
     client.force_login(admin_user)
     resp = client.get(f"/profiles/{user.pk}")
@@ -103,8 +103,8 @@ def test_profile(client, admin_user):
     resp = client.post(
         f"/profiles/~create",
         dict(
-            sex=1,
-            year_of_birth="1969",
+            gender=1,
+            date_of_birth="1969-01-01",
             ethnicities=["11111"],
             education_level="7",
             employment_status="3",
@@ -118,8 +118,8 @@ def test_profile(client, admin_user):
     resp = client.post(
         f"/profiles/~create",
         dict(
-            sex=1,
-            year_of_birth="1969",
+            gender=1,
+            date_of_birth="1969-01-01",
             ethnicities=["11111"],
             education_level="7",
             employment_status="3",
@@ -133,8 +133,8 @@ def test_profile(client, admin_user):
     resp = client.post(
         f"/profiles/{user.pk}/~update",
         dict(
-            sex=2,
-            year_of_birth="1969",
+            gender=2,
+            date_of_birth="1969-01-01",
             ethnicities=["11111", "12411", "12928"],
             education_level="7",
             employment_status="3",
@@ -147,7 +147,7 @@ def test_profile(client, admin_user):
     assert b"Female" in resp.content
     assert b"Latvian" in resp.content
     p = admin_user.profile
-    assert p.sex == 1 and p.ethnicities.count() == 3
+    assert p.gender == 1 and p.ethnicities.count() == 3
     assert p.ethnicities.count() == 3
 
     # Create and update career stages
@@ -278,8 +278,8 @@ def test_profile(client, admin_user):
         resp = client.post(
             f"/profiles/~create",
             dict(
-                sex=2,
-                year_of_birth="1942",
+                gender=2,
+                date_of_birth="1942-01-01",
                 ethnicities=["11111", "12928"],
                 education_level="8",
                 employment_status="4",
@@ -374,8 +374,16 @@ def test_org_autocompleting(client, user):
     client.force_login(user)
     resp = client.get("/org-autocomplete/")
     assert resp.status_code == 200
-    assert b"ORG" not in resp.content
+    assert b"ORG" in resp.content
 
     resp = client.get("/org-autocomplete/?q=OR")
     assert resp.status_code == 200
     assert b"ORG" in resp.content
+
+    # if query is not given select last
+    for i in range(1, 20):
+        models.Organisation.create(name=f"ABC #{i}")
+
+    resp = client.get("/org-autocomplete/")
+    assert resp.status_code == 200
+    assert b"ORG" not in resp.content
