@@ -172,19 +172,20 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.organisation = form.instance.org.name
+        if form.instance.org:
+            form.instance.organisation = form.instance.org.name
         self.object = form.save()
         url = self.request.build_absolute_uri(
             reverse("onboard-with-token", kwargs=dict(token=self.object.token))
         )
         send_mail(
-            "You are invited to join the portal",
-            f"You are invited to join the portal. Please follow the link: {url}.",
+            _("You are invited to join the portal"),
+            _("You are invited to join the portal. Please follow the link: ") + url,
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=[form.instance.email],
             fail_silently=False,
         )
-        messages.success(self.request, f"An invitation was sent to {form.instance.email}")
+        messages.success(self.request, _("An invitation was sent to ") + form.instance.email)
 
         return redirect(self.get_success_url())
 

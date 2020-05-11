@@ -498,7 +498,7 @@ class Invitation(Model):
     email = EmailField("email address")
     first_name = CharField(max_length=30)
     last_name = CharField(max_length=150)
-    organisation = CharField("organisation", max_length=200)  # entered name
+    organisation = CharField("organisation", max_length=200, null=True, blank=True)  # entered name
     org = ForeignKey(
         Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
     )  # the org matched with the entered name

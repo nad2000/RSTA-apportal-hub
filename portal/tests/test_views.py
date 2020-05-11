@@ -387,3 +387,30 @@ def test_org_autocompleting(client, user):
     resp = client.get("/org-autocomplete/")
     assert resp.status_code == 200
     assert b"ORG" not in resp.content
+
+
+def test_invitation(client, admin_user):
+
+    client.force_login(admin_user)
+    org = models.Organisation.create(name="ORG")
+
+    resp = client.get("/invitation/~create")
+    assert resp.status_code == 200
+    email = "test@test.net"
+
+    resp = client.post(
+        "/invitation/~create", dict(email=email, first_name="FN", last_name="LN"), follow=True,
+    )
+    assert resp.status_code == 200
+    assert (f"An invitation was sent to {email}").encode() in resp.content
+
+    assert models.Invitation.where(email=email).exists()
+
+    resp = client.post(
+        "/invitation/~create",
+        dict(email=email, first_name="FN", last_name="LN", org=org.id),
+        follow=True,
+    )
+    assert resp.status_code == 200
+    assert (f"An invitation was sent to {email}").encode() in resp.content
+    assert models.Invitation.where(org=org).exists()
