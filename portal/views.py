@@ -191,14 +191,7 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
 
     def get_form_class(self):
         """Return the form class to use in this view."""
-        if self.model is not None:
-            model = self.model
-        elif getattr(self, "object", None) is not None:
-            model = self.object.__class__
-        else:
-            model = self.get_queryset().model
-
-        return model_forms.modelform_factory(model, fields=self.fields, widgets=self.widgets)
+        return model_forms.modelform_factory(self.model, fields=self.fields, widgets=self.widgets)
 
 
 # @login_required

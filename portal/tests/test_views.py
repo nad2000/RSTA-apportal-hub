@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
@@ -273,6 +275,58 @@ def test_profile(client, admin_user):
     )
     assert models.Affiliation.where(type="EMP", profile=p).exists()
 
+    # Accademic records:
+    models.FieldOfResearch.create(
+        code="180101",
+        description="test",
+        four_digit_code="1010",
+        four_digit_description="test",
+        two_digit_code="11",
+        two_digit_description="test #11",
+        definition="test definition",
+    )
+    resp = client.get("/profile/academic-records/")
+    assert not models.AcademicRecord.where(profile=p).exists()
+    resp = client.post(
+        "/profile/academic-records/",
+        {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-profile": p.id,
+            "form-0-start_year": 2020,
+            "form-0-qualification": 9,
+            "form-0-conferred_on": "2020-05-02",
+            "form-0-discipline": "180101",
+            "form-0-awarded_by": org.id,
+            "form-0-research_topic": "TOPIC",
+            "form-0-id": "",
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert models.AcademicRecord.where(profile=p).exists()
+
+    # Recognitions:
+    a = models.Award.create(name="AWARD")
+    resp = client.get("/profile/recognitions/")
+    assert not models.Recognition.where(profile=p).exists()
+    resp = client.post(
+        "/profile/recognitions/",
+        {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-profile": p.id,
+            "form-0-recognized_in": 2020,
+            "form-0-award": a.id,
+            "form-0-awarded_by": org.id,
+            "form-0-amount": "9999.99",
+            "form-0-id": "",
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert models.Recognition.where(profile=p).exists()
+
     # Create a new profile should fail:
     with pytest.raises(IntegrityError):
         resp = client.post(
@@ -327,6 +381,7 @@ def test_subscription(client):
 
 
 def test_application(client, django_user_model):
+
     u = django_user_model.objects.create(
         first_name="FN123",
         last_name="LN123",
@@ -438,3 +493,47 @@ def test_invitation(client, admin_user):
     assert resp.status_code == 200
     assert (f"An invitation was sent to {email}").encode() in resp.content
     assert models.Invitation.where(org=org).exists()
+
+
+def test_cv(client, admin_user):
+
+    resp = client.get("/profile/cvs/")
+    assert resp.status_code == 302
+
+    client.force_login(admin_user)
+
+    with pytest.raises(models.User.profile.RelatedObjectDoesNotExist):
+        resp = client.post(
+            "/profile/cvs/",
+            {
+                "form-TOTAL_FORMS": 1,
+                "form-INITIAL_FORMS": 0,
+                "form-0-id": "",
+                "form-0-title": "TEST",
+                "form-0-file": BytesIO(b"TEST"),
+                "save": "Save",
+            },
+            follow=True,
+        )
+
+    profile = models.Profile.create(user=admin_user)
+
+    resp = client.get("/profile/cvs/")
+
+    resp = client.post(
+        "/profile/cvs/",
+        {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-id": "",
+            "form-0-profile": profile.id,
+            "form-0-owner": admin_user.id,
+            "form-0-title": "TEST",
+            "form-0-file": BytesIO(b"TEST"),
+            "save": "Save",
+        },
+        follow=True,
+    )
+
+    assert resp.status_code == 200
+    assert models.CurriculumVitae.where(owner=admin_user, profile=profile).exists()
