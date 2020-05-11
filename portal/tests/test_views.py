@@ -389,6 +389,30 @@ def test_org_autocompleting(client, user):
     assert b"ORG" not in resp.content
 
 
+def test_award_autocompleting(client, user):
+
+    models.Award.create(name="AWARD")
+    resp = client.get("/award-autocomplete/?q=AW", follow=True)
+    assert b"Sign in" in resp.content
+
+    client.force_login(user)
+    resp = client.get("/award-autocomplete/")
+    assert resp.status_code == 200
+    assert b"AWARD" in resp.content
+
+    resp = client.get("/award-autocomplete/?q=AW", follow=True)
+    assert resp.status_code == 200
+    assert b"AWARD" in resp.content
+
+    # if query is not given select last
+    for i in range(1, 20):
+        models.Award.create(name=f"ABC #{i}")
+
+    resp = client.get("/award-autocomplete/")
+    assert resp.status_code == 200
+    assert b"AWARD" not in resp.content
+
+
 def test_invitation(client, admin_user):
 
     client.force_login(admin_user)
