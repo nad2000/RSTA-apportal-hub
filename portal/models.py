@@ -196,23 +196,6 @@ class PersonIdentifierType(Model):
         ordering = ["code"]
 
 
-class FieldOfResearch(Model):
-    code = CharField(max_length=6, primary_key=True)
-    description = CharField(_("description"), max_length=120)
-    four_digit_code = CharField(max_length=4)
-    four_digit_description = CharField(max_length=60)
-    two_digit_code = CharField(max_length=2)
-    two_digit_description = CharField(max_length=60)
-    definition = CharField(max_length=200, null=True, blank=True)
-
-    def __str__(self):
-
-        return f"{self.description}"
-
-    class Meta:
-        db_table = "field_of_research"
-
-
 class IwiGroup(Model):
     code = CharField(max_length=4, primary_key=True)
     description = CharField(max_length=80)
@@ -243,12 +226,29 @@ class ApplicationDecision(Model):
         ordering = ["description"]
 
 
+class FieldOfResearch(Model):
+    code = CharField(max_length=6, primary_key=True)
+    description = CharField(_("description"), max_length=120)
+    four_digit_code = CharField(max_length=4)
+    four_digit_description = CharField(max_length=60)
+    two_digit_code = CharField(max_length=2)
+    two_digit_description = CharField(max_length=60)
+    definition = CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+
+        return f"{self.description}"
+
+    class Meta:
+        db_table = "field_of_research"
+
+
 class FieldOfStudy(Model):
-    code = PositiveIntegerField(primary_key=True, verbose_name=_("code"))
+    code = CharField(max_length=6, primary_key=True, verbose_name=_("code"))
     description = CharField(_("description"), max_length=100)
-    four_digit_code = PositiveSmallIntegerField()
+    four_digit_code = CharField(max_length=4)
     four_digit_description = CharField(max_length=100)
-    two_digit_code = PositiveSmallIntegerField()
+    two_digit_code = CharField(max_length=2)
     two_digit_description = CharField(max_length=60)
     definition = CharField(max_length=200, null=True, blank=True)
 
@@ -412,7 +412,8 @@ class AcademicRecord(Model):
     )
     qualification = PositiveSmallIntegerField(choices=QUALIFICATION_LEVEL)
     conferred_on = DateField(null=True, blank=True)
-    discipline = ForeignKey(FieldOfResearch, on_delete=CASCADE)
+    # discipline = ForeignKey(FieldOfResearch, on_delete=CASCADE)
+    discipline = ForeignKey(FieldOfStudy, on_delete=CASCADE)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
     research_topic = CharField(max_length=80, null=True, blank=True)
 
