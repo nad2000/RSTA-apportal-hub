@@ -1,4 +1,5 @@
 import secrets
+import enum
 
 from common.models import Model
 from django.contrib.auth import get_user_model
@@ -323,6 +324,13 @@ class Affiliation(Model):
         db_table = "affiliation"
 
 
+# class ProfilePart(enum.IntFlag):
+#     NONE = 0b00000000
+#     DEMOGRAFICS = 0b00000001
+#     EMPLOYMENT = 0b00000001
+#     CAREER_STAGE = 0b00000001
+
+
 class Profile(Model):
 
     # MALE = "M"
@@ -555,21 +563,22 @@ class Scheme(Model):
     name = CharField(max_length=100)
     history = HistoricalRecords(table_name="scheme_history")
 
+    def __str__(self):
+        return self.scheme.name
+
     class Meta:
         db_table = "scheme"
 
 
 class Round(Model):
 
-    STATUS = Choices("draft", "open", "finished")
-
     name = CharField(max_length=100)
     scheme = ForeignKey(Scheme, on_delete=CASCADE)
-    # history = HistoricalRecords(table_name="round_history")
-    status = StateField()
-    open_at = MonitorField(
-        monitor="status", when=[STATUS.open], null=True, blank=True, default=None
-    )
+    history = HistoricalRecords(table_name="round_history")
+    open_on = DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.scheme.name
 
     class Meta:
         db_table = "round"

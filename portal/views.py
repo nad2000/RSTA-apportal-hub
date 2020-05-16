@@ -122,18 +122,25 @@ def user_profile(request, pk=None):
         return redirect("profile-create")
 
 
-class ProfileDetail(LoginRequiredMixin, _DetailView):
+class ProfileView:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["progress"] = 10
+        return context
+
+
+class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
 
 
-class ProfileUpdate(LoginRequiredMixin, UpdateView):
+class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
     template_name = "profile_form.html"
     form_class = ProfileForm
 
 
-class ProfileCreate(LoginRequiredMixin, CreateView):
+class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
     model = Profile
     template_name = "profile_form.html"
     form_class = ProfileForm
@@ -248,7 +255,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     template_name = "profile_section.html"
-    extra_context = dict(helper=ProfileSectionFormSetHelper())
+    extra_context = dict(helper=ProfileSectionFormSetHelper(), progress=25)
     exclude = ()
 
     def get_factory_kwargs(self):
@@ -264,6 +271,11 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         initial.append(dict(profile=profile))
         return initial
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["progress"] = 25
+    #     return context
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
