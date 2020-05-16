@@ -31,9 +31,6 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         # This should be done somewhere else:
         state = sociallogin.state or request.session.get("socialaccount_state")[0]
         next_path = state.get("next")
-        if not next_path:
-            # get next_path from the stashed session...
-            state = request.session[""]
         if next_path:
             url_base, invitation_token = next_path.split("/")[-2:]
             if url_base == "onboard" and invitation_token:
