@@ -63,7 +63,9 @@ target/
 .python-version
 
 
-
+private-media/
+cert.crt
+cert.key
 # Environments
 .venv
 venv/
