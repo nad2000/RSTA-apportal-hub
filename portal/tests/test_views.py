@@ -103,7 +103,7 @@ def test_profile(client, admin_user):
     assert resp.status_code == 404
 
     resp = client.post(
-        f"/profiles/~create",
+        "/profiles/~create",
         dict(
             gender=1,
             date_of_birth="1969-01-01",
@@ -118,7 +118,7 @@ def test_profile(client, admin_user):
     assert b"consent" in resp.content
 
     resp = client.post(
-        f"/profiles/~create",
+        "/profiles/~create",
         dict(
             gender=1,
             date_of_birth="1969-01-01",
@@ -330,7 +330,7 @@ def test_profile(client, admin_user):
     # Create a new profile should fail:
     with pytest.raises(IntegrityError):
         resp = client.post(
-            f"/profiles/~create",
+            "/profiles/~create",
             dict(
                 gender=2,
                 date_of_birth="1942-01-01",
