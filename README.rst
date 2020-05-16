@@ -44,6 +44,10 @@ Deployment Environment
 #. Run server with the the certificate::
 
     $ ./manage.py runserver_plus --cert-file cert.crt --key-file cert.key
+    
+    OR:
+    
+    $ ./manage.py runserver_plus 0.0.0.0:8080 --cert-file cert.crt --key-file cert.key
 
 #. To make life easier, add import the crt file as a trusted server sertificate in your browser (read more at: https://support.google.com/chrome/a/answer/6342302).
 
