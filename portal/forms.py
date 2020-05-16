@@ -6,6 +6,7 @@ from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
+from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
 
 from . import models
@@ -57,7 +58,12 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = models.Application
         exclude = ["organisation"]
-        widgets = dict(org=autocomplete.ModelSelect2("org-autocomplete"))
+        widgets = dict(
+            org=autocomplete.ModelSelect2(
+                "org-autocomplete",
+                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+            )
+        )
 
 
 class ProfileCareerStageForm(forms.ModelForm):

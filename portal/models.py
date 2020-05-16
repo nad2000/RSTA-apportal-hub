@@ -453,12 +453,7 @@ class Application(Model):
     first_name = CharField(max_length=30)
     last_name = CharField(max_length=150)
     org = ForeignKey(
-        Organisation,
-        blank=False,
-        null=True,
-        on_delete=SET_NULL,
-        verbose_name="organisation",
-        help_text="Choose an existing organisation or create a new one",
+        Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
     )
     organisation = CharField(max_length=200)
     position = CharField(max_length=80)

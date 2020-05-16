@@ -332,6 +332,10 @@ class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
     def get_queryset(self):
 
         if self.q:
@@ -340,6 +344,10 @@ class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
 
 class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
     def get_queryset(self):
 
         if self.q:
