@@ -554,3 +554,27 @@ class CurriculumVitae(Model):
 
     class Meta:
         db_table = "curriculum_vitae"
+
+
+class Scheme(Model):
+    name = CharField(max_length=100)
+    history = HistoricalRecords(table_name="scheme_history")
+
+    class Meta:
+        db_table = "scheme"
+
+
+class Round(Model):
+
+    STATUS = Choices("draft", "open", "finished")
+
+    name = CharField(max_length=100)
+    scheme = ForeignKey(Scheme, on_delete=CASCADE)
+    # history = HistoricalRecords(table_name="round_history")
+    status = StateField()
+    open_at = MonitorField(
+        monitor="status", when=[STATUS.open], null=True, blank=True, default=None
+    )
+
+    class Meta:
+        db_table = "round"
