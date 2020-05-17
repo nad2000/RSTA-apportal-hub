@@ -1,6 +1,7 @@
 from functools import wraps
 from urllib.parse import quote
 
+from crispy_forms.layout import Button
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
@@ -293,6 +294,8 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
     model = models.Affiliation
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+    extra_context = dict(helper=ProfileSectionFormSetHelper())
+    extra_context.get('helper').add_input(Button("fetch_orcid", "Fetch ORCiD", css_class="btn btn-info"))
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -311,6 +314,22 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
+        social_accounts = self.request.user.socialaccount_set.all()
+        breakpoint()
+        for sa in social_accounts:
+            if sa.provider == "orcid" and sa.extra_data:
+                affiliations = {
+                    at: [
+                        ag for ag in sa.extra_data.get(
+                            "activities-summary").get(f"{at}s").get(f"{at}-summary")
+                    ] for at in ["employment", "education"]
+                }
+
+                employment_data = affiliations.get("employment")
+                education_data = affiliations.get("education")
+                breakpoint()
+                print(affiliations)
+
         return self.model.objects.filter(
             profile=self.request.user.profile, type=self.affiliation_type
         ).order_by("start_date", "end_date",)
