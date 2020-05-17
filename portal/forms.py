@@ -6,6 +6,7 @@ from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput
 from django.forms.models import modelformset_factory
+from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
 
 from . import models
@@ -34,7 +35,21 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ["user", "career_stages", "external_ids", "affiliations"]
+        exclude = [
+            "user",
+            "career_stages",
+            "external_ids",
+            "affiliations",
+            "is_ethnicities_completed",
+            "is_iwi_groups_completed",
+            "is_career_stages_completed",
+            "is_external_ids_completed",
+            "is_employments_completed",
+            "is_educations_completed",
+            "is_academic_records_completed",
+            "is_recognitions_completed",
+            "is_cvs_completed",
+        ]
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
@@ -57,7 +72,12 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = models.Application
         exclude = ["organisation"]
-        widgets = dict(org=autocomplete.ModelSelect2("org-autocomplete"))
+        widgets = dict(
+            org=autocomplete.ModelSelect2(
+                "org-autocomplete",
+                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+            )
+        )
 
 
 class ProfileCareerStageForm(forms.ModelForm):
@@ -88,9 +108,29 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
 
 class ProfileSectionFormSetHelper(FormHelper):
 
-    template = "bootstrap4/table_inline_formset.html"
+    template = "portal/table_inline_formset.html"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_input(Submit("save", "Save"))
-        self.add_input(Button("cancel", "Cancel", css_class="btn btn-danger"))
+        add_more_button = Button(
+            "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
+        )
+        if previous_step or next_step:
+            previous_button = Button(
+                "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
+            )
+            previous_button.input_type = "submit"
+            self.add_input(previous_button)
+            self.add_input(add_more_button)
+            if next_step:
+                next_button = Button(
+                    "next", _("Next") + " »", css_class="btn btn-primary float-right"
+                )
+                next_button.input_type = "submit"
+                self.add_input(next_button)
+            else:
+                self.add_input(Submit("save", _("Save"), css_class="float-right"))
+        else:
+            self.add_input(add_more_button)
+            self.add_input(Submit("save", _("Save")))
+            self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))

@@ -102,15 +102,15 @@ def test_task(req, message):
 @login_required
 def check_profile(request, token=None):
     next_url = request.GET.get("next")
-    try:
-        request.user.profile
-    except ObjectDoesNotExist:
+    if Profile.where(user=request.user).exists():
+        return redirect(next_url or "home")
+    else:
         messages.add_message(request, messages.INFO, "Please complete your profile.")
         return redirect(
-            reverse("profile-create") + "?next=" + quote(next_url) if next_url else reverse("home")
+            reverse("profile-create")
+            + "?next="
+            + (quote(next_url) if next_url else reverse("home"))
         )
-
-    return redirect(next_url or "home")
 
 
 @login_required
@@ -123,18 +123,32 @@ def user_profile(request, pk=None):
         return redirect("profile-create")
 
 
-class ProfileDetail(LoginRequiredMixin, _DetailView):
+class ProfileView:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        u = self.request.user
+        if not Profile.where(user=u).exists() or not u.profile.is_completed:
+            context["progress"] = 10
+        return context
+
+    def get_success_url(self):
+        if not self.request.user.profile.is_completed:
+            return reverse(ProfileSectionFormSetView.section_views[0])
+        return super().get_success_url()
+
+
+class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
 
 
-class ProfileUpdate(LoginRequiredMixin, UpdateView):
+class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
     template_name = "profile_form.html"
     form_class = ProfileForm
 
 
-class ProfileCreate(LoginRequiredMixin, CreateView):
+class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
     model = Profile
     template_name = "profile_form.html"
     form_class = ProfileForm
@@ -249,8 +263,21 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     template_name = "profile_section.html"
-    extra_context = dict(helper=ProfileSectionFormSetHelper())
     exclude = ()
+    section_views = [
+        "profile-employments",
+        "profile-educations",
+        "profile-career-stages",
+        "profile-external-ids",
+        "profile-cvs",
+        "profile-academic-records",
+        "profile-recognitions",
+    ]
+
+    def dispatch(self, request, *args, **kwargs):
+        if not Profile.where(user=self.request.user).exists():
+            return redirect("onboard")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -265,6 +292,53 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         initial.append(dict(profile=profile))
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        previous_step = next_step = None
+        if not self.request.user.profile.is_completed:
+            view_idx = self.section_views.index(self.request.resolver_match.url_name)
+            if view_idx > 0:
+                previous_step = self.section_views[view_idx - 1]
+                context["previous_step"] = previous_step
+            if view_idx < len(self.section_views) - 1:
+                next_step = self.section_views[view_idx - 1]
+                context["next_step"] = next_step
+            context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
+        context["helper"] = ProfileSectionFormSetHelper(
+            previous_step=previous_step, next_step=next_step
+        )
+        return context
+
+    def get_success_url(self):
+        if not self.request.user.profile.is_completed:
+            view_idx = self.section_views.index(self.request.resolver_match.url_name)
+            if "previous" in self.request.POST:
+                return reverse(self.section_views[view_idx - 1])
+            if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
+                return reverse(self.section_views[view_idx + 1])
+            return reverse("profile", kwargs={"pk": self.request.user.profile.id})
+        return super().get_success_url()
+
+    def formset_valid(self, formset):
+        url_name = self.request.resolver_match.url_name
+        profile = self.request.user.profile
+        if url_name == "profile-employments":
+            profile.is_employments_completed = True
+        if url_name == "profile-educations":
+            profile.is_educations_completed = True
+        if url_name == "profile-career-stages":
+            profile.is_career_stages_completed = True
+        if url_name == "profile-external-ids":
+            profile.is_external_ids_completed = True
+        if url_name == "profile-cvs":
+            profile.is_cvs_completed = True
+        if url_name == "profile-academic-records":
+            profile.is_academic_records_completed = True
+        if url_name == "profile-recognitions":
+            profile.is_recognitions_completed = True
+        profile.save()
+        return super().formset_valid(formset)
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
@@ -358,6 +432,10 @@ class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
     def get_queryset(self):
 
         if self.q:
@@ -366,6 +444,10 @@ class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
 
 class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
     def get_queryset(self):
 
         if self.q:

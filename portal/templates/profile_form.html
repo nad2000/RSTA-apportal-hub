@@ -13,26 +13,20 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-12 mb-4">
 
       <form method="post">{% csrf_token %}
         {{ form|crispy }}
-        {% if object.id %}
-          <input class="btn btn-primary" type="submit" value="Update">
+        {% if progress %}
+          <input type="submit" style="float:right" class="btn btn-primary float-right" value="{% trans 'Next' %} &raquo;">
         {% else %}
-          {% comment %}
-          {% if request.resolver_match.view_name != 'FIRST-VIEW' %}
-            <input class="btn btn-primary" type="submit" name="previous" value="{% trans 'Previous' %}">
-          {% endif %}
-          {% if request.resolver_match.view_name == 'LAST-VIEW' %}
-            <input class="btn btn-primary" type="submit"  name="next" value="{% trans 'Next' %}">
+          {% if object.id %}
+            <input class="btn btn-primary" type="submit" name="update" alue="{% trans 'Update' %}">
           {% else %}
-            <input class="btn btn-primary" type="submit"  name="save" value="{% trans 'Save' %}">
+            <input class="btn btn-primary" type="submit" name="save" value="{% trans 'Create' %}">
           {% endif %}
-          {% endcomment %}
-          <input class="btn btn-primary" type="submit"  name="save" value="{% trans 'Create' %}">
+          <a href="{{ view.get_success_url }}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
         {% endif %}
-        <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
       </form>
 
     </div>
