@@ -1,5 +1,4 @@
 import secrets
-import enum
 
 from common.models import Model
 from django.contrib.auth import get_user_model
@@ -27,7 +26,9 @@ from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
-GENDERS = Choices((0, "Undisclosed"), (1, "Male"), (2, "Female"), (3, "Gender diverse"))
+GENDERS = Choices(
+    (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
+)
 
 AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"),)
 
@@ -300,6 +301,9 @@ class OrgIdentifierType(Model):
 class Organisation(Model):
 
     name = CharField(max_length=200)
+    identifier_type = ForeignKey(OrgIdentifierType, null=True, blank=True, on_delete=SET_NULL)
+    identifier = CharField(max_length=24, null=True, blank=True)
+
     history = HistoricalRecords(table_name="organisation_history")
 
     def __str__(self):
@@ -324,28 +328,13 @@ class Affiliation(Model):
         db_table = "affiliation"
 
 
-# class ProfilePart(enum.IntFlag):
-#     NONE = 0b00000000
-#     DEMOGRAFICS = 0b00000001
-#     EMPLOYMENT = 0b00000001
-#     CAREER_STAGE = 0b00000001
-
-
 class Profile(Model):
-
-    # MALE = "M"
-    # FEMALE = "F"
-    # OTHER = "O"
-    # SEX_CHOICES = [
-    #     (MALE, "Male"),
-    #     (FEMALE, "Female"),
-    #     (OTHER, "Other"),
-    # ]
 
     user = OneToOneField(User, on_delete=CASCADE)
     gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
     date_of_birth = DateField(null=True, blank=True)
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
+    is_ethnicities_completed = BooleanField(default=False)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=QUALIFICATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
@@ -353,6 +342,7 @@ class Profile(Model):
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
     languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
     iwi_groups = ManyToManyField(IwiGroup, db_table="profile_iwi_group", blank=True)
+    is_iwi_groups_completed = BooleanField(default=False)
     # study participation
     # legally registered relationship status
     # highest secondary school qualification
@@ -363,19 +353,30 @@ class Profile(Model):
     # occupation
     is_accepted = BooleanField("Privace Policy Accepted", default=False)
     career_stages = ManyToManyField(CareerStage, blank=True, through="ProfileCareerStage")
+    is_career_stages_completed = BooleanField(default=False)
     external_ids = ManyToManyField(
         PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
     )
+    is_external_ids_completed = BooleanField(default=False)
     affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
+
     history = HistoricalRecords(table_name="profile_history")
 
     @property
     def employments(self):
         return self.affiliations.fiter(type="EMP")
 
+    is_employments_completed = BooleanField(default=False)
+
     @property
     def educations(self):
         return self.affiliations.fiter(type="EDU")
+
+    is_educations_completed = BooleanField(default=False)
+
+    is_academic_records_completed = BooleanField(default=False)
+    is_recognitions_completed = BooleanField(default=False)
+    # is_professional_memeberships_completed = BooleanField(default=False)
 
     def __str__(self):
 
@@ -393,8 +394,38 @@ class Profile(Model):
     def get_absolute_url(self):
         return reverse("profile", kwargs={"pk": self.pk})
 
+    @property
+    def is_completed(self):
+        return (
+            self.is_career_stages_completed
+            and self.is_educations_completed
+            and self.is_ethnicities_completed
+            and self.is_ethnicities_completed
+            and self.is_recognitions_completed
+            and self.is_iwi_groups_completed
+            and self.is_external_ids_completed
+        )
+
+    @property
+    def percents_completed(self):
+        compiled_parts = 1
+        if self.is_career_stages_completed:
+            compiled_parts += 1
+        if self.is_educations_completed:
+            compiled_parts += 1
+        if self.is_ethnicities_completed:
+            compiled_parts += 1
+        if self.is_ethnicities_completed:
+            compiled_parts += 1
+        if self.is_recognitions_completed:
+            compiled_parts += 1
+        if self.is_iwi_groups_completed:
+            compiled_parts += 1
+        if self.is_external_ids_completed:
+            compiled_parts += 1
+        return (compiled_parts * 100) / 8
+
     # date of birth
-    # age (n, 18-24, 25-34,35-49,50-64,65+)
     # ethnicity
     # education level (no education, primary, secondary school, highter, ...)
     # employment status
@@ -411,6 +442,10 @@ class Profile(Model):
 
     class Meta:
         db_table = "profile"
+
+
+# class ProfessionalMembership(Model):
+#     org = ForeignKey(Organisation, on_delete=CASCADE)
 
 
 class AcademicRecord(Model):

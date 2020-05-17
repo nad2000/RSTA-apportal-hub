@@ -125,8 +125,14 @@ def user_profile(request, pk=None):
 class ProfileView:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["progress"] = 10
+        if not self.request.user.profile.is_completed:
+            context["progress"] = 10
         return context
+
+    def get_success_url(self):
+        if not self.request.user.profile.is_completed:
+            return reverse(ProfileSectionFormSetView.section_views[0])
+        return super().get_success_url()
 
 
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
@@ -255,8 +261,16 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     template_name = "profile_section.html"
-    extra_context = dict(helper=ProfileSectionFormSetHelper(), progress=25)
     exclude = ()
+    section_views = [
+        "profile-employments",
+        "profile-educations",
+        "profile-career-stages",
+        "profile-external-ids",
+        "profile-cvs",
+        "profile-academic-records",
+        "profile-recognitions",
+    ]
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -272,10 +286,32 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         initial.append(dict(profile=profile))
         return initial
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context["progress"] = 25
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        previous_step = next_step = None
+        if not self.request.user.profile.is_completed:
+            view_idx = self.section_views.index(self.request.resolver_match.url_name)
+            if view_idx > 0:
+                previous_step = self.section_views[view_idx - 1]
+                context["previous_step"] = previous_step
+            if view_idx < len(self.section_views) - 1:
+                next_step = self.section_views[view_idx - 1]
+                context["next_step"] = next_step
+            context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
+        context["helper"] = ProfileSectionFormSetHelper(
+            previous_step=previous_step, next_step=next_step
+        )
+        return context
+
+    def get_success_url(self):
+        if not self.request.user.profile.is_completed:
+            view_idx = self.section_views.index(self.request.resolver_match.url_name)
+            if "previous" in self.request.POST:
+                return reverse(self.section_views[view_idx - 1])
+            if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
+                return reverse(self.section_views[view_idx + 1])
+            return reverse("profile", kwargs={"pk": self.request.user.profile.id})
+        return super().get_success_url()
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
