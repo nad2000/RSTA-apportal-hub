@@ -295,7 +295,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     model = models.Affiliation
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
     extra_context = dict(helper=ProfileSectionFormSetHelper())
-    extra_context.get('helper').add_input(Button("fetch_orcid", "Fetch ORCiD", css_class="btn btn-info"))
+    extra_context.get('helper').add_input(Button("fetch_orcid", "Fetch data from ORCiD", css_class="btn btn-info"))
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -315,7 +315,6 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
     def get_queryset(self):
         social_accounts = self.request.user.socialaccount_set.all()
-        breakpoint()
         for sa in social_accounts:
             if sa.provider == "orcid" and sa.extra_data:
                 affiliations = {
@@ -327,7 +326,6 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
                 employment_data = affiliations.get("employment")
                 education_data = affiliations.get("education")
-                breakpoint()
                 print(affiliations)
 
         return self.model.objects.filter(
