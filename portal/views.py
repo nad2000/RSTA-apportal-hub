@@ -101,15 +101,15 @@ def test_task(req, message):
 @login_required
 def check_profile(request, token=None):
     next_url = request.GET.get("next")
-    try:
-        request.user.profile
-    except ObjectDoesNotExist:
+    if Profile.where(user=request.user).exists():
+        return redirect(next_url or "home")
+    else:
         messages.add_message(request, messages.INFO, "Please complete your profile.")
         return redirect(
-            reverse("profile-create") + "?next=" + quote(next_url) if next_url else reverse("home")
+            reverse("profile-create")
+            + "?next="
+            + (quote(next_url) if next_url else reverse("home"))
         )
-
-    return redirect(next_url or "home")
 
 
 @login_required
@@ -272,6 +272,11 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         "profile-academic-records",
         "profile-recognitions",
     ]
+
+    def dispatch(self, request, *args, **kwargs):
+        if not Profile.where(user=self.request.user).exists():
+            return redirect("onboard")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
