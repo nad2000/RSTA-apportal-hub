@@ -125,7 +125,8 @@ def user_profile(request, pk=None):
 class ProfileView:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not self.request.user.profile.is_completed:
+        u = self.request.user
+        if not Profile.where(user=u).exists() or not u.profile.is_completed:
             context["progress"] = 10
         return context
 
@@ -312,6 +313,26 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 return reverse(self.section_views[view_idx + 1])
             return reverse("profile", kwargs={"pk": self.request.user.profile.id})
         return super().get_success_url()
+
+    def formset_valid(self, formset):
+        url_name = self.request.resolver_match.url_name
+        profile = self.request.user.profile
+        if url_name == "profile-employments":
+            profile.is_employments_completed = True
+        if url_name == "profile-educations":
+            profile.is_educations_completed = True
+        if url_name == "profile-career-stages":
+            profile.is_career_stages_completed = True
+        if url_name == "profile-external-ids":
+            profile.is_external_ids_completed = True
+        if url_name == "profile-cvs":
+            profile.is_cvs_completed = True
+        if url_name == "profile-academic-records":
+            profile.is_academic_records_completed = True
+        if url_name == "profile-recognitions":
+            profile.is_recognitions_completed = True
+        profile.save()
+        return super().formset_valid(formset)
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):

@@ -48,6 +48,7 @@ class ProfileForm(forms.ModelForm):
             "is_educations_completed",
             "is_academic_records_completed",
             "is_recognitions_completed",
+            "is_cvs_completed",
         ]
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),

@@ -334,7 +334,7 @@ class Profile(Model):
     gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
     date_of_birth = DateField(null=True, blank=True)
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
-    is_ethnicities_completed = BooleanField(default=False)
+    is_ethnicities_completed = BooleanField(default=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
     education_level = PositiveSmallIntegerField(null=True, blank=True, choices=QUALIFICATION_LEVEL)
     employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
@@ -342,7 +342,7 @@ class Profile(Model):
     primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
     languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
     iwi_groups = ManyToManyField(IwiGroup, db_table="profile_iwi_group", blank=True)
-    is_iwi_groups_completed = BooleanField(default=False)
+    is_iwi_groups_completed = BooleanField(default=True)
     # study participation
     # legally registered relationship status
     # highest secondary school qualification
@@ -377,6 +377,7 @@ class Profile(Model):
     is_academic_records_completed = BooleanField(default=False)
     is_recognitions_completed = BooleanField(default=False)
     # is_professional_memeberships_completed = BooleanField(default=False)
+    is_cvs_completed = BooleanField(default=False)
 
     def __str__(self):
 
@@ -404,6 +405,7 @@ class Profile(Model):
             and self.is_recognitions_completed
             and self.is_iwi_groups_completed
             and self.is_external_ids_completed
+            and self.is_cvs_completed
         )
 
     @property
@@ -423,7 +425,9 @@ class Profile(Model):
             compiled_parts += 1
         if self.is_external_ids_completed:
             compiled_parts += 1
-        return (compiled_parts * 100) / 8
+        if self.is_cvs_completed:
+            compiled_parts += 1
+        return (compiled_parts * 100) / 9
 
     # date of birth
     # ethnicity
