@@ -27,6 +27,7 @@ from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSet
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
+from .utils.date_utils import PartialDate
 
 
 def shoud_be_onboarded(function):
@@ -368,8 +369,6 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
     model = models.Affiliation
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
-    extra_context = dict(helper=ProfileSectionFormSetHelper())
-    extra_context.get('helper').add_input(Submit("load_from_orcid", "Fetch data from ORCiD", css_class="btn btn-info"))
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -403,22 +402,30 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
             social_accounts = self.request.user.socialaccount_set.all()
             for sa in social_accounts:
                 if sa.provider == "orcid" and sa.extra_data:
-                    affiliations = {
-                        at: [
-                            ag for ag in sa.extra_data.get(
-                                "activities-summary").get(f"{at}s").get(f"{at}-summary")
-                        ] for at in ["employment", "education"]
-                    }
+                    at = "employment" if self.affiliation_type == "EMP" else "education"
+                    affiliation_objs = [
+                        ag for ag in sa.extra_data.get(
+                            "activities-summary").get(f"{at}s").get(f"{at}-summary")
+                    ]
 
-                    for emp in affiliations.get("employment"):
-                        affiliation_obj = self.model.objects.create(profile=self.request.user.profile, org=models.Organisation(2))
+                    for aff in affiliation_objs:
+                        org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
+                        org.save()
+                        affiliation_obj = self.model.objects.create(profile=self.request.user.profile, org=org)
                         affiliation_obj.type = self.affiliation_type
-                        affiliation_obj.role = emp.get('role-title')
-                        affiliation_obj.start_date = "2010-10-11"
-                        affiliation_obj.end_date = "2011-10-11"
+                        affiliation_obj.role = aff.get('role-title')
+                        if aff.get('start-date'):
+                            affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
+                        if aff.get('end-date'):
+                            affiliation_obj.end_date = str(PartialDate.create(aff.get('end-date')))
                         affiliation_obj.save()
 
         return super(ProfileAffiliationsFormSetView, self).post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.get('helper').add_input(Submit("load_from_orcid", "Fetch data from ORCiD", css_class="btn btn-info"))
+        return context
 
 
 class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
