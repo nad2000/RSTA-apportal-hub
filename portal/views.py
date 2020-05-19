@@ -38,11 +38,10 @@ def shoud_be_onboarded(function):
     @wraps(function)
     def wrap(request, *args, **kwargs):
 
-        try:
-            if request.user.profile:
-                return function(request, *args, **kwargs)
-        except ObjectDoesNotExist:
+        user = request.user
+        if not Profile.where(user=user).exists() or not user.profile.is_completed:
             return redirect(reverse("onboard") + "?next=" + quote(request.get_full_path()))
+        return function(request, *args, **kwargs)
 
     return wrap
 
@@ -101,12 +100,15 @@ def test_task(req, message):
 @login_required
 def check_profile(request, token=None):
     next_url = request.GET.get("next")
-    if Profile.where(user=request.user).exists():
+    if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
     else:
         messages.add_message(request, messages.INFO, "Please complete your profile.")
+        profile = Profile.where(user=request.user).first()
         return redirect(
-            reverse("profile-create")
+            reverse("profile-update", kwargs=dict(pk=profile.id))
+            if profile
+            else reverse("profile-create")
             + "?next="
             + (quote(next_url) if next_url else reverse("home"))
         )
@@ -181,7 +183,7 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
     # form_class = ProfileForm
     # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
     fields = ["email", "first_name", "last_name", "org"]
-    widgets = {"org": forms.ModelSelect2("org-autocomplete")}
+    widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
     labels = {"org": _("organisation")}
 
     def form_valid(self, form):
@@ -407,7 +409,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "org": forms.ModelSelect2("org-autocomplete"),
+                    "org": autocomplete.ModelSelect2("org-autocomplete"),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "start_date": forms.DateInput(),
@@ -534,8 +536,8 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "recognized_in": forms.YearInput(),
-                    "award": forms.ModelSelect2("award-autocomplete"),
-                    "awarded_by": forms.ModelSelect2("org-autocomplete"),
+                    "award": autocomplete.ModelSelect2("award-autocomplete"),
+                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
                 },
             }
         )

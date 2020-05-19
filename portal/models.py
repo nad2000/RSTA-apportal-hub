@@ -406,6 +406,7 @@ class Profile(Model):
             and self.is_iwi_groups_completed
             and self.is_external_ids_completed
             and self.is_cvs_completed
+            and self.is_accepted
         )
 
     @property
