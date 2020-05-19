@@ -134,3 +134,10 @@ class ProfileSectionFormSetHelper(FormHelper):
             self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
             self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+
+
+class ModelSelect2(autocomplete.ModelSelect2):
+    def build_attr(self, attrs):
+        attrs = super().build_attrs(attrs)
+        attrs["width"] = "null"
+        return attrs

@@ -181,7 +181,7 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
     # form_class = ProfileForm
     # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
     fields = ["email", "first_name", "last_name", "org"]
-    widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
+    widgets = {"org": forms.ModelSelect2("org-autocomplete")}
     labels = {"org": _("organisation")}
 
     def form_valid(self, form):
@@ -407,7 +407,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "org": forms.ModelSelect2("org-autocomplete"),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "start_date": forms.DateInput(),
@@ -534,8 +534,8 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "recognized_in": forms.YearInput(),
-                    "award": autocomplete.ModelSelect2("award-autocomplete"),
-                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                    "award": forms.ModelSelect2("award-autocomplete"),
+                    "awarded_by": forms.ModelSelect2("org-autocomplete"),
                 },
             }
         )

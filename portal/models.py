@@ -483,7 +483,7 @@ class Recognition(Model):
     recognized_in = PositiveSmallIntegerField("year of recognition", null=True, blank=True)
     award = ForeignKey(Award, on_delete=CASCADE)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
-    amount = DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    amount = DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return self.award.name
