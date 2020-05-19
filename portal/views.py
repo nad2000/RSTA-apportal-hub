@@ -278,6 +278,26 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             return redirect("onboard")
         return super().dispatch(request, *args, **kwargs)
 
+    def get_defaults(self):
+        """Default values for a form."""
+        return dict(profile=self.request.user.profile)
+
+    def get_formset(self):
+
+        klass = super().get_formset()
+        defaults = self.get_defaults()
+
+        class Klass(klass):
+            def get_form_kwargs(self, index):
+                kwargs = super().get_form_kwargs(index)
+                if "initial" not in kwargs:
+                    kwargs["initial"] = defaults
+                else:
+                    kwargs["initial"].update(defaults)
+                return kwargs
+
+        return Klass
+
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
@@ -286,11 +306,16 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         kwargs["can_delete"] = True
         return kwargs
 
-    def get_initial(self):
-        initial = super().get_initial()
-        profile = self.request.user.profile
-        initial.append(dict(profile=profile))
-        return initial
+    # def get_initial(self):
+    #     defaults = self.get_defaults()
+    #     initial = super().get_initial()
+    #     if not initial:
+    #         initial = [dict()]
+    #         if self.request.method != "GET":
+    #             initial = initial * int(self.request.POST["form-TOTAL_FORMS"])
+    #     for row in initial:
+    #         row.update(defaults)
+    #     return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -338,6 +363,15 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             profile.is_recognitions_completed = True
         profile.save()
         return super().formset_valid(formset)
+
+    # def construct_formset(self):
+    #     formset = super().construct_formset()
+    #     initials = self.get_initial()
+    #     empty_form = formset.empty_form
+    #     for k, v in initials[0].items():
+    #         empty_form.fields[k].initial = v
+    #     empty_form.initial = initials[0]
+    #     return formset
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
@@ -389,10 +423,11 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
             profile=self.request.user.profile, type=self.affiliation_type
         ).order_by("start_date", "end_date",)
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial[0]["type"] = self.affiliation_type
-        return initial
+    def get_defaults(self):
+        """Default values for a form."""
+        defaults = super().get_defaults()
+        defaults["type"] = self.affiliation_type
+        return defaults
 
 
 class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
@@ -450,10 +485,11 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
     def get_queryset(self):
         return self.model.objects.filter(owner=self.request.user).order_by("-id")
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial[0]["owner"] = self.request.user
-        return initial
+    def get_defaults(self):
+        """Default values for a form."""
+        defaults = super().get_defaults()
+        defaults["owner"] = self.request.user
+        return defaults
 
 
 class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
