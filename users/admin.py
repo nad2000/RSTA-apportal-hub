@@ -13,7 +13,7 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
 
     form = UserChangeForm
     add_form = UserCreationForm
-    fieldsets = (("User", {"fields": ("name",)}),) + auth_admin.UserAdmin.fieldsets
+    fieldsets = (("User", {"fields": ("name", "orcid",)}),) + auth_admin.UserAdmin.fieldsets
     list_display = [
         "username",
         "name",
