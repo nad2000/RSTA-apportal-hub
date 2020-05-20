@@ -321,6 +321,7 @@ class Affiliation(Model):
     role = CharField(max_length=100, null=True, blank=True)  # , help_text="position or degree")
     start_date = DateField(null=True, blank=True)
     end_date = DateField(null=True, blank=True)
+    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     history = HistoricalRecords(table_name="affiliation_history")
 
