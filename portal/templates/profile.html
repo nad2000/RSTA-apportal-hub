@@ -161,13 +161,16 @@
 
           </tbody>
         </table>
-
+        <form method="post">
         <a class="btn btn-primary" href="{% url 'profile-update' pk=object.pk %}">Edit</a>
         {% if object.user == request.user %}
           <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
           <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
           <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
+          {% csrf_token %}
+            <input type="submit" name="load_from_orcid" value="Fetch All ORCID Data" class="btn btn-outline-primary">
         {% endif %}
+        </form>
 
       {% endblock %}
 
