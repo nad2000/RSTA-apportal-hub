@@ -62,8 +62,8 @@ def test_partial_date():
     assert PartialDate.create("31.12.1997 12:00:00 PM") == PartialDate(year=1997, month=12, day=31)
     assert PartialDate.create("6.08.2017 12:00:00 PM") == PartialDate(year=2017, month=8, day=6)
 
-    assert str(PartialDate.create("1997")) == "1997"
-    assert str(PartialDate.create("1997-12")) == "1997-12"
+    assert str(PartialDate.create("1997")) == "1997-01-01"
+    assert str(PartialDate.create("1997-12")) == "1997-12-01"
     assert str(PartialDate.create("1997-12-31")) == "1997-12-31"
 
     with pytest.raises(Exception):
