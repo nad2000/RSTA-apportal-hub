@@ -440,7 +440,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
             orcidhelper = OrcidDataHelperView()
             at = "employment" if self.affiliation_type == "EMP" else "education"
             count = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
-            messages.success(self.request, f" {count} new records from ORCID loaded!!")
+            messages.success(self.request, f" {count} new ORCID records loaded!!")
             return HttpResponseRedirect(self.request.path_info)
         return super(ProfileAffiliationsFormSetView, self).post(request, *args, **kwargs)
 
@@ -583,11 +583,19 @@ class OrcidDataHelperView(LoginRequiredMixin, RedirectView):
         return (None, False)
 
     def get_redirect_url(self):
-        count = self.fetch_and_load_affiliation_data(self.request.user)
-        messages.success(self.request, f" {count} new records from ORCID loaded!!")
+
+        at = []
+        if self.request.GET.get('AFF') == "EMP":
+            at.append('employment')
+        elif self.request.GET.get('AFF') == "EDU":
+            at.append('education')
+        else:
+            at = ["employment", "education"]
+        count = self.fetch_and_load_affiliation_data(self.request.user, affiliation_types=at)
+        messages.success(self.request, f" {count} new ORCID records loaded!!")
         return reverse('profile', kwargs={'pk':self.request.user.profile.id})
 
-    def fetch_and_load_affiliation_data(self, current_user, affiliation_types=["employment", "education"]):
+    def fetch_and_load_affiliation_data(self, current_user, affiliation_types):
         """Fetch the data from orcid. ["employment", "education"]"""
         extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
         if user_has_linked_orcid:
