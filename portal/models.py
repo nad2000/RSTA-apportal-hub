@@ -410,6 +410,18 @@ class Profile(Model):
             and self.is_accepted
         )
 
+    @is_completed.setter
+    def is_completed(self, value):
+        self.is_career_stages_completed = value
+        self.is_educations_completed = value
+        self.is_ethnicities_completed = value
+        self.is_ethnicities_completed = value
+        self.is_recognitions_completed = value
+        self.is_iwi_groups_completed = value
+        self.is_external_ids_completed = value
+        self.is_cvs_completed = value
+        self.is_accepted = value
+
     @property
     def percents_completed(self):
         compiled_parts = 1

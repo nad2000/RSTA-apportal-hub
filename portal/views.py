@@ -277,7 +277,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     ]
 
     def dispatch(self, request, *args, **kwargs):
-        if not Profile.where(user=self.request.user).exists():
+        if request.user.is_authenticated and not Profile.where(user=self.request.user).exists():
             return redirect("onboard")
         return super().dispatch(request, *args, **kwargs)
 
