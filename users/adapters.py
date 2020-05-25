@@ -29,34 +29,38 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
     def handle_invitation(self, request, sociallogin):
         # This should be done somewhere else:
-        state = sociallogin.state or request.session.get("socialaccount_state")[0]
-        next_path = state.get("next")
-        if next_path:
-            url_base, invitation_token = next_path.split("/")[-2:]
-            if url_base == "onboard" and invitation_token:
-                self.invitation = Invitation.where(token=invitation_token).first()
-                if not self.invitation:
-                    messages.add_message(request, messages.ERROR, _("Invitation is missing!"))
-                    return False
-                if email_address_exists(self.invitation.email):
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        DefaultAccountAdapter.error_messages["email_taken"],
-                    )
-                    return False
-                for ea in sociallogin.email_addresses:
-                    if ea.email == self.invitation.email:
-                        ea.verified = True
-                        break
-                else:
-                    sociallogin.email_addresses.append(
-                        EmailAddress(
-                            email=self.invitation.email,
-                            verified=True,
-                            primary=not sociallogin.email_addresses,
+        state = sociallogin.state
+        if not state and "socialaccount_state" in request.session:
+            state = request.session.get("socialaccount_state")[0]
+
+        if state:
+            next_path = state.get("next")
+            if next_path:
+                url_base, invitation_token = next_path.split("/")[-2:]
+                if url_base == "onboard" and invitation_token:
+                    self.invitation = Invitation.where(token=invitation_token).first()
+                    if not self.invitation:
+                        messages.add_message(request, messages.ERROR, _("Invitation is missing!"))
+                        return False
+                    if email_address_exists(self.invitation.email):
+                        messages.add_message(
+                            request,
+                            messages.ERROR,
+                            DefaultAccountAdapter.error_messages["email_taken"],
                         )
-                    )
+                        return False
+                    for ea in sociallogin.email_addresses:
+                        if ea.email == self.invitation.email:
+                            ea.verified = True
+                            break
+                    else:
+                        sociallogin.email_addresses.append(
+                            EmailAddress(
+                                email=self.invitation.email,
+                                verified=True,
+                                primary=not sociallogin.email_addresses,
+                            )
+                        )
         return True
 
     def is_open_for_signup(self, request, sociallogin):

@@ -17,9 +17,9 @@ from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
+from django.views.generic import RedirectView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
-from django.views.generic import RedirectView
 from django_select2.forms import ModelSelect2Widget
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
@@ -38,7 +38,6 @@ def shoud_be_onboarded(function):
     If it is misssing, the user gets redirected to
     'onboard' to create a profile.
     """
-
     @wraps(function)
     def wrap(request, *args, **kwargs):
 
@@ -145,6 +144,7 @@ class ProfileView:
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
+
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
@@ -448,8 +448,8 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         """Get the context data"""
 
         context = super().get_context_data(**kwargs)
-        context.get('helper').add_input(Submit("load_from_orcid", f"Fetch {self.affiliation_type} from ORCiD",
-                                               css_class="btn btn-info"))
+        context.get('helper').add_input(
+            Submit("load_from_orcid", f"Fetch {self.affiliation_type} from ORCiD", css_class="btn btn-info"))
         return context
 
 
