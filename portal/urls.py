@@ -33,6 +33,11 @@ urlpatterns = [
         name="profile-employments",
     ),
     path(
+        "profile/orcid/update",
+        views.OrcidDataHelperView.as_view(),
+        name="profile-orcid-update",
+    ),
+    path(
         "profile/educations/",
         views.ProfileEducationsFormSetView.as_view(),
         name="profile-educations",

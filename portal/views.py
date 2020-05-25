@@ -19,6 +19,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
+from django.views.generic import RedirectView
 from django_select2.forms import ModelSelect2Widget
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
@@ -144,15 +145,6 @@ class ProfileView:
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
-
-    def post(self, request, *args, **kwargs):
-        """Check the POST request call """
-        if "load_from_orcid" in request.POST:
-            orcidhelper = OrcidDataHelper()
-            count = orcidhelper.fetch_and_load_affiliation_data(request.user, ["education", "employment"])
-            messages.success(self.request, f" {count} records from ORCID loaded!!")
-        return redirect(self.get_success_url())
-
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
@@ -445,7 +437,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
-            orcidhelper = OrcidDataHelper()
+            orcidhelper = OrcidDataHelperView()
             at = "employment" if self.affiliation_type == "EMP" else "education"
             count = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
             messages.success(self.request, f" {count} records from ORCID loaded!!")
@@ -578,7 +570,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         )
 
 
-class OrcidDataHelper():
+class OrcidDataHelperView(LoginRequiredMixin, RedirectView):
     """Main class to fetch ORCID record"""
 
     def get_orcid_profile_data(self, current_user):
@@ -590,7 +582,12 @@ class OrcidDataHelper():
                 pass
         return (None, False)
 
-    def fetch_and_load_affiliation_data(self, current_user, affiliation_types):
+    def get_redirect_url(self):
+        count = self.fetch_and_load_affiliation_data(self.request.user)
+        messages.success(self.request, f" {count} records from ORCID loaded!!")
+        return reverse('profile', kwargs={'pk':self.request.user.profile.id})
+
+    def fetch_and_load_affiliation_data(self, current_user, affiliation_types=["employment", "education"]):
         """Fetch the data from orcid. ["employment", "education"]"""
         extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
         if user_has_linked_orcid:
