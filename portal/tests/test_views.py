@@ -59,7 +59,7 @@ def test_profile(client, admin_user):
     Ethnicity.objects.create(code="12928", description="Latvian")
     assert not Profile.objects.filter(user=user).exists()
     resp = client.get("/myprofile", follow=True)
-    assert b"Create" in resp.content
+    assert b"Next" in resp.content
 
     p = Profile.create(user=user)
     resp = client.get("/myprofile", follow=True)
@@ -145,9 +145,30 @@ def test_profile(client, admin_user):
         follow=True,
     )
     assert resp.status_code == 200
+    assert b"Position" in resp.content
 
-    assert b"Female" in resp.content
-    assert b"Latvian" in resp.content
+    # Employments:
+    org = models.Organisation.create(name="ORG")
+    resp = client.get("/profile/employments/")
+    assert not models.Affiliation.where(type="EMP", profile=p).exists()
+    resp = client.post(
+        "/profile/employments/",
+        {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-profile": p.id,
+            "form-0-org": org.id,
+            "form-0-type": "EMP",
+            "form-0-role": "ROLE",
+            "form-0-start_date": "2020-05-02",
+            "form-0-end_date": "",
+            "form-0-id": "",
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert models.Affiliation.where(type="EMP", profile=p).exists()
+
     p = admin_user.profile
     assert p.gender == 1 and p.ethnicities.count() == 3
     assert p.ethnicities.count() == 3
@@ -185,7 +206,7 @@ def test_profile(client, admin_user):
             "form-1-year_achieved": "",
             "form-1-career_stage": "",
             "form-1-id": "",
-            "save": "Save",
+            "next": "Next",
         },
         follow=True,
     )
@@ -205,7 +226,7 @@ def test_profile(client, admin_user):
             "form-1-year_achieved": "",
             "form-1-career_stage": "",
             "form-1-id": "",
-            "save": "Save",
+            "next": "Next",
         },
         follow=True,
     )
@@ -232,51 +253,24 @@ def test_profile(client, admin_user):
     )
     assert models.ProfilePersonIdentifier.where(profile=p).exists()
 
-    # Educations:
-    org = models.Organisation.create(name="ORG")
-    resp = client.get("/profile/educations/")
-    assert not models.Affiliation.where(type="EDU", profile=p).exists()
     resp = client.post(
-        "/profile/educations/",
+        "/profile/cvs/",
         {
             "form-TOTAL_FORMS": 1,
             "form-INITIAL_FORMS": 0,
-            "form-0-profile": p.id,
-            "form-0-org": org.id,
-            "form-0-type": "EDU",
-            "form-0-role": "DEGREE",
-            "form-0-start_date": "2020-05-02",
-            "form-0-end_date": "",
             "form-0-id": "",
-            "save": "Save",
+            "form-0-profile": p.id,
+            "form-0-owner": admin_user.id,
+            "form-0-title": "TEST",
+            "form-0-file": BytesIO(b"TEST"),
+            "next": "Next",
         },
         follow=True,
     )
-    assert models.Affiliation.where(type="EDU", profile=p).exists()
-
-    # Employments:
-    resp = client.get("/profile/employments/")
-    assert not models.Affiliation.where(type="EMP", profile=p).exists()
-    resp = client.post(
-        "/profile/employments/",
-        {
-            "form-TOTAL_FORMS": 1,
-            "form-INITIAL_FORMS": 0,
-            "form-0-profile": p.id,
-            "form-0-org": org.id,
-            "form-0-type": "EMP",
-            "form-0-role": "ROLE",
-            "form-0-start_date": "2020-05-02",
-            "form-0-end_date": "",
-            "form-0-id": "",
-            "save": "Save",
-        },
-        follow=True,
-    )
-    assert models.Affiliation.where(type="EMP", profile=p).exists()
+    assert resp.status_code == 200
 
     # Accademic records:
-    models.FieldOfResearch.create(
+    models.FieldOfStudy.create(
         code="180101",
         description="test",
         four_digit_code="1010",
@@ -300,7 +294,7 @@ def test_profile(client, admin_user):
             "form-0-awarded_by": org.id,
             "form-0-research_topic": "TOPIC",
             "form-0-id": "",
-            "save": "Save",
+            "next": "Next",
         },
         follow=True,
     )
@@ -321,13 +315,19 @@ def test_profile(client, admin_user):
             "form-0-awarded_by": org.id,
             "form-0-amount": "9999.99",
             "form-0-id": "",
-            "save": "Save",
+            "next": "Next",
         },
         follow=True,
     )
     assert models.Recognition.where(profile=p).exists()
 
-    # Create a new profile should fail:
+    # Comleted project
+    resp = client.get(f"/profiles/{user.pk}")
+
+    assert b"Female" in resp.content
+    assert b"Latvian" in resp.content
+
+    # Attempt to create a new profile should fail:
     with pytest.raises(IntegrityError):
         resp = client.post(
             "/profiles/~create",

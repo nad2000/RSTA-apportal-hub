@@ -400,7 +400,7 @@ class Profile(Model):
     def is_completed(self):
         return (
             self.is_career_stages_completed
-            and self.is_educations_completed
+            # and self.is_educations_completed
             and self.is_ethnicities_completed
             and self.is_ethnicities_completed
             and self.is_recognitions_completed
@@ -415,8 +415,8 @@ class Profile(Model):
         compiled_parts = 1
         if self.is_career_stages_completed:
             compiled_parts += 1
-        if self.is_educations_completed:
-            compiled_parts += 1
+        # if self.is_educations_completed:
+        #     compiled_parts += 1
         if self.is_ethnicities_completed:
             compiled_parts += 1
         if self.is_ethnicities_completed:
