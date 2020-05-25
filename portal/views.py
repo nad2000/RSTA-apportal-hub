@@ -36,7 +36,6 @@ def shoud_be_onboarded(function):
     If it is misssing, the user gets redirected to
     'onboard' to create a profile.
     """
-
     @wraps(function)
     def wrap(request, *args, **kwargs):
 
@@ -442,37 +441,48 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                 if sa.provider == "orcid" and sa.extra_data:
                     at = "employment" if self.affiliation_type == "EMP" else "education"
                     affiliation_objs = [
-                        ag for ag in sa.extra_data.get(
-                            "activities-summary").get(f"{at}s").get(f"{at}-summary")
+                        ag
+                        for ag in sa.extra_data.get("activities-summary")
+                        .get(f"{at}s")
+                        .get(f"{at}-summary")
                     ]
-                    count=0
+                    count = 0
                     for aff in affiliation_objs:
-                        org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
+                        org, _ = models.Organisation.objects.get_or_create(
+                            name=aff.get("organization").get("name")
+                        )
                         org.save()
-                        affiliation_obj, status = self.model.objects.get_or_create(profile=self.request.user.profile,
-                                                                                   org=org,
-                                                                                   put_code=aff.get('put-code'))
+                        affiliation_obj, status = self.model.objects.get_or_create(
+                            profile=self.request.user.profile,
+                            org=org,
+                            put_code=aff.get("put-code"),
+                        )
                         if status:
                             affiliation_obj.type = self.affiliation_type
-                            affiliation_obj.role = aff.get('role-title')
-                            if aff.get('start-date'):
-                                affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
-                            if aff.get('end-date'):
-                                affiliation_obj.end_date = str(PartialDate.create(aff.get('end-date')))
-                            affiliation_obj.put_code = aff.get('put-code')
+                            affiliation_obj.role = aff.get("role-title")
+                            if aff.get("start-date"):
+                                affiliation_obj.start_date = str(
+                                    PartialDate.create(aff.get("start-date"))
+                                )
+                            if aff.get("end-date"):
+                                affiliation_obj.end_date = str(
+                                    PartialDate.create(aff.get("end-date"))
+                                )
+                            affiliation_obj.put_code = aff.get("put-code")
                             affiliation_obj.save()
-                            count+=1
+                            count += 1
                     messages.success(self.request, f" {count} {at} records from ORCID loaded!!")
                     user_has_linked_orcid = True
             if not user_has_linked_orcid:
                 messages.warning(self.request, f"Please link your ORCID Account!!")
 
-
         return super(ProfileAffiliationsFormSetView, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.get('helper').add_input(Submit("load_from_orcid", "Fetch data from ORCiD", css_class="btn btn-info"))
+        context.get("helper").add_input(
+            Submit("load_from_orcid", "Fetch data from ORCiD", css_class="btn btn-info")
+        )
         return context
 
 
