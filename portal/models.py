@@ -148,7 +148,7 @@ class Ethnicity(Model):
 
     def __str__(self):
 
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "ethnicity"
@@ -163,7 +163,7 @@ class Language(Model):
 
     def __str__(self):
 
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "language"
@@ -177,7 +177,7 @@ class CareerStage(Model):
 
     def __str__(self):
 
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "career_stage"
@@ -191,7 +191,7 @@ class PersonIdentifierType(Model):
 
     def __str__(self):
 
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "person_identifier_type"
@@ -207,11 +207,25 @@ class IwiGroup(Model):
 
     def __str__(self):
 
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "iwi_group"
         ordering = ["code"]
+
+
+class ProtectionPattern(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=80)
+    pattern = CharField(max_length=80)
+
+    def __str__(self):
+
+        return self.description
+
+    class Meta:
+        db_table = "protection_pattern"
+        ordering = ["description"]
 
 
 class ApplicationDecision(Model):
@@ -358,8 +372,12 @@ class Profile(Model):
     external_ids = ManyToManyField(
         PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
     )
-    is_external_ids_completed = BooleanField(default=False)
     affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
+
+    protection_pattern = ForeignKey(ProtectionPattern, null=True, blank=True, on_delete=SET_NULL)
+    protection_pattern_expires_on = DateField(null=True, blank=True)
+
+    is_external_ids_completed = BooleanField(default=False)
 
     history = HistoricalRecords(table_name="profile_history")
 

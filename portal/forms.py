@@ -35,20 +35,17 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = [
-            "user",
-            "career_stages",
-            "external_ids",
-            "affiliations",
-            "is_ethnicities_completed",
-            "is_iwi_groups_completed",
-            "is_career_stages_completed",
-            "is_external_ids_completed",
-            "is_employments_completed",
-            "is_educations_completed",
-            "is_academic_records_completed",
-            "is_recognitions_completed",
-            "is_cvs_completed",
+        fields = [
+            "date_of_birth",
+            "gender",
+            "ethnicities",
+            "education_level",
+            "employment_status",
+            "primary_language_spoken",
+            "iwi_groups",
+            "protection_pattern",
+            "protection_pattern_expires_on",
+            "is_accepted",
         ]
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
@@ -63,6 +60,7 @@ class ProfileForm(forms.ModelForm):
             iwi_groups=ModelSelect2MultipleWidget(
                 model=models.IwiGroup, search_fields=["description__icontains"],
             ),
+            protection_pattern_expires_on=DateInput(),
             is_acceted=forms.CheckboxInput(),
         )
         labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
