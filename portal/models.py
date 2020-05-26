@@ -147,7 +147,6 @@ class Ethnicity(Model):
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -162,7 +161,6 @@ class Language(Model):
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -176,7 +174,6 @@ class CareerStage(Model):
     definition = TextField(max_length=1000)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -190,7 +187,6 @@ class PersonIdentifierType(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -206,7 +202,6 @@ class IwiGroup(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -220,7 +215,6 @@ class ProtectionPattern(Model):
     pattern = CharField(max_length=80)
 
     def __str__(self):
-
         return self.description
 
     class Meta:
@@ -234,8 +228,7 @@ class ApplicationDecision(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "application_decision"
@@ -252,8 +245,7 @@ class FieldOfResearch(Model):
     definition = CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "field_of_research"
@@ -269,8 +261,7 @@ class FieldOfStudy(Model):
     definition = CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "field_of_study"
@@ -303,8 +294,7 @@ class OrgIdentifierType(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "org_identifier_type"
@@ -439,42 +429,6 @@ class Profile(Model):
         self.is_external_ids_completed = value
         self.is_cvs_completed = value
         self.is_accepted = value
-
-    @property
-    def percents_completed(self):
-        compiled_parts = 1
-        if self.is_career_stages_completed:
-            compiled_parts += 1
-        # if self.is_educations_completed:
-        #     compiled_parts += 1
-        if self.is_ethnicities_completed:
-            compiled_parts += 1
-        if self.is_ethnicities_completed:
-            compiled_parts += 1
-        if self.is_recognitions_completed:
-            compiled_parts += 1
-        if self.is_iwi_groups_completed:
-            compiled_parts += 1
-        if self.is_external_ids_completed:
-            compiled_parts += 1
-        if self.is_cvs_completed:
-            compiled_parts += 1
-        return (compiled_parts * 100) / 9
-
-    # date of birth
-    # ethnicity
-    # education level (no education, primary, secondary school, highter, ...)
-    # employment status
-    # years since arrival in New Zealand
-    # primary languages spoken
-    # study participation
-    # legally registered relationship status
-    # highest secondary school qualification
-    # total personal income
-    # job indicator work and labour force status
-    # hours usually worked
-    # status in employment
-    # occupation
 
     class Meta:
         db_table = "profile"

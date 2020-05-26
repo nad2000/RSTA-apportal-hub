@@ -24,7 +24,7 @@ jobs:
     - name: Run Code Quality and Unit Tests
       run: |
         flake8 portal users
-        MIN_COVERAGE=97
+        MIN_COVERAGE=92
         coverage run -m pytest --disable-warnings
         coverage report -m
         COVERAGE_RESULT=`coverage report | grep TOTAL | awk 'N=1 {print $NF}' | sed 's/%//g'`

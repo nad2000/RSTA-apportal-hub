@@ -83,12 +83,20 @@ def test_profile(client, admin_user):
     assert resp.status_code == 200
     assert b"Please read and consent to the Privacy Policy" in resp.content
 
+    models.IwiGroup.create(
+        code="1111",
+        description="TEST",
+        parent_code="11",
+        parent_description="TEST",
+        definition="TEST",
+    )
     resp = client.post(
         f"/profiles/{p.pk}/~update",
         dict(
             gender=1,
             date_of_birth="1969-01-01",
             ethnicities=["11111"],
+            iwi_groups=["1111"],
             education_level="7",
             employment_status="3",
             is_accepted=True,
