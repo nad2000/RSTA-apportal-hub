@@ -2,6 +2,7 @@ import secrets
 
 from common.models import Model
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -586,10 +587,21 @@ class CurriculumVitae(Model):
 
 class Scheme(Model):
     name = CharField(max_length=100)
+    groups = ManyToManyField(
+        Group, blank=True, verbose_name=_("who starts"), db_table="scheme_group"
+    )
+    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    research_summary_required = BooleanField(_("research summary required"), default=False)
+    team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
+    presentation_required = BooleanField(default=False)
+    cv_required = BooleanField(_("CVs required"), default=True)
+    pid_required = BooleanField(_("photo ID required"), default=True)
+    animal_ethics_required = BooleanField(default=False)
+
     history = HistoricalRecords(table_name="scheme_history")
 
     def __str__(self):
-        return self.scheme.name
+        return self.name
 
     class Meta:
         db_table = "scheme"
@@ -597,10 +609,11 @@ class Scheme(Model):
 
 class Round(Model):
 
-    name = CharField(max_length=100)
+    name = CharField(max_length=100, null=True, blank=True)
     scheme = ForeignKey(Scheme, on_delete=CASCADE)
+    opens_on = DateField(null=True, blank=True)
+
     history = HistoricalRecords(table_name="round_history")
-    open_on = DateField(null=True, blank=True)
 
     def __str__(self):
         return self.scheme.name

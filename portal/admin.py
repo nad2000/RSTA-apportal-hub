@@ -199,3 +199,14 @@ class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
     date_hierarchy = "created_at"
     readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
     inlines = [StateLogInline]
+
+
+@admin.register(models.Scheme)
+class SchemeAdmin(ImportExportModelAdmin):
+    list_display = ["name"]
+
+
+@admin.register(models.Round)
+class RoundAdmin(ImportExportModelAdmin):
+    list_display = ["name", "scheme", "opens_on"]
+    list_filter = ["created_at", "updated_at"]
