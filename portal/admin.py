@@ -43,7 +43,6 @@ class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 
 class CodeResource(ModelResource):
-
     class Meta:
         exclude = ["created_at", "updated_at"]
         import_id_fields = ["code"]
@@ -201,9 +200,20 @@ class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
     inlines = [StateLogInline]
 
 
+class SchemeResource(ModelResource):
+    class Meta:
+        exclude = ["created_at", "updated_at", "groups", "id"]
+        import_id_fields = ["name"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
+        model = models.Scheme
+
+
 @admin.register(models.Scheme)
 class SchemeAdmin(ImportExportModelAdmin):
     list_display = ["name"]
+    resource_class = SchemeResource
 
 
 @admin.register(models.Round)
