@@ -2,6 +2,7 @@ import secrets
 
 from common.models import Model
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -147,8 +148,7 @@ class Ethnicity(Model):
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "ethnicity"
@@ -162,8 +162,7 @@ class Language(Model):
     definition = CharField(max_length=120, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "language"
@@ -176,8 +175,7 @@ class CareerStage(Model):
     definition = TextField(max_length=1000)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "career_stage"
@@ -190,8 +188,7 @@ class PersonIdentifierType(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "person_identifier_type"
@@ -206,12 +203,24 @@ class IwiGroup(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "iwi_group"
         ordering = ["code"]
+
+
+class ProtectionPattern(Model):
+    code = CharField(max_length=2, primary_key=True)
+    description = CharField(max_length=80)
+    pattern = CharField(max_length=80)
+
+    def __str__(self):
+        return self.description
+
+    class Meta:
+        db_table = "protection_pattern"
+        ordering = ["description"]
 
 
 class ApplicationDecision(Model):
@@ -220,8 +229,7 @@ class ApplicationDecision(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "application_decision"
@@ -238,8 +246,7 @@ class FieldOfResearch(Model):
     definition = CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "field_of_research"
@@ -255,8 +262,7 @@ class FieldOfStudy(Model):
     definition = CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "field_of_study"
@@ -289,8 +295,7 @@ class OrgIdentifierType(Model):
     definition = TextField(max_length=200)
 
     def __str__(self):
-
-        return f"{self.description}"
+        return self.description
 
     class Meta:
         db_table = "org_identifier_type"
@@ -358,8 +363,12 @@ class Profile(Model):
     external_ids = ManyToManyField(
         PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
     )
-    is_external_ids_completed = BooleanField(default=False)
     affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
+
+    protection_pattern = ForeignKey(ProtectionPattern, null=True, blank=True, on_delete=SET_NULL)
+    protection_pattern_expires_on = DateField(null=True, blank=True)
+
+    is_external_ids_completed = BooleanField(default=False)
 
     history = HistoricalRecords(table_name="profile_history")
 
@@ -410,41 +419,17 @@ class Profile(Model):
             and self.is_accepted
         )
 
-    @property
-    def percents_completed(self):
-        compiled_parts = 1
-        if self.is_career_stages_completed:
-            compiled_parts += 1
-        # if self.is_educations_completed:
-        #     compiled_parts += 1
-        if self.is_ethnicities_completed:
-            compiled_parts += 1
-        if self.is_ethnicities_completed:
-            compiled_parts += 1
-        if self.is_recognitions_completed:
-            compiled_parts += 1
-        if self.is_iwi_groups_completed:
-            compiled_parts += 1
-        if self.is_external_ids_completed:
-            compiled_parts += 1
-        if self.is_cvs_completed:
-            compiled_parts += 1
-        return (compiled_parts * 100) / 9
-
-    # date of birth
-    # ethnicity
-    # education level (no education, primary, secondary school, highter, ...)
-    # employment status
-    # years since arrival in New Zealand
-    # primary languages spoken
-    # study participation
-    # legally registered relationship status
-    # highest secondary school qualification
-    # total personal income
-    # job indicator work and labour force status
-    # hours usually worked
-    # status in employment
-    # occupation
+    @is_completed.setter
+    def is_completed(self, value):
+        self.is_career_stages_completed = value
+        self.is_educations_completed = value
+        self.is_ethnicities_completed = value
+        self.is_ethnicities_completed = value
+        self.is_recognitions_completed = value
+        self.is_iwi_groups_completed = value
+        self.is_external_ids_completed = value
+        self.is_cvs_completed = value
+        self.is_accepted = value
 
     class Meta:
         db_table = "profile"
@@ -602,10 +587,21 @@ class CurriculumVitae(Model):
 
 class Scheme(Model):
     name = CharField(max_length=100)
+    groups = ManyToManyField(
+        Group, blank=True, verbose_name=_("who starts"), db_table="scheme_group"
+    )
+    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    research_summary_required = BooleanField(_("research summary required"), default=False)
+    team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
+    presentation_required = BooleanField(default=False)
+    cv_required = BooleanField(_("CVs required"), default=True)
+    pid_required = BooleanField(_("photo ID required"), default=True)
+    animal_ethics_required = BooleanField(default=False)
+
     history = HistoricalRecords(table_name="scheme_history")
 
     def __str__(self):
-        return self.scheme.name
+        return self.name
 
     class Meta:
         db_table = "scheme"
@@ -613,10 +609,11 @@ class Scheme(Model):
 
 class Round(Model):
 
-    name = CharField(max_length=100)
+    name = CharField(max_length=100, null=True, blank=True)
     scheme = ForeignKey(Scheme, on_delete=CASCADE)
+    opens_on = DateField(null=True, blank=True)
+
     history = HistoricalRecords(table_name="round_history")
-    open_on = DateField(null=True, blank=True)
 
     def __str__(self):
         return self.scheme.name

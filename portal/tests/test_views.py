@@ -32,7 +32,8 @@ def test_template_views(client, admin_user):
     resp = client.get("/index", follow=True)
     assert b"Please complete your profile." in resp.content
 
-    Profile.objects.create(user=admin_user)
+    Profile.objects.create(user=admin_user, is_completed=True)
+
     resp = client.get("/index")
     assert resp.status_code == 200
 
@@ -82,12 +83,20 @@ def test_profile(client, admin_user):
     assert resp.status_code == 200
     assert b"Please read and consent to the Privacy Policy" in resp.content
 
+    models.IwiGroup.create(
+        code="1111",
+        description="TEST",
+        parent_code="11",
+        parent_description="TEST",
+        definition="TEST",
+    )
     resp = client.post(
         f"/profiles/{p.pk}/~update",
         dict(
             gender=1,
             date_of_birth="1969-01-01",
             ethnicities=["11111"],
+            iwi_groups=["1111"],
             education_level="7",
             employment_status="3",
             is_accepted=True,
@@ -502,21 +511,21 @@ def test_cv(client, admin_user):
 
     client.force_login(admin_user)
 
-    with pytest.raises(models.User.profile.RelatedObjectDoesNotExist):
-        resp = client.post(
-            "/profile/cvs/",
-            {
-                "form-TOTAL_FORMS": 1,
-                "form-INITIAL_FORMS": 0,
-                "form-0-id": "",
-                "form-0-title": "TEST",
-                "form-0-file": BytesIO(b"TEST"),
-                "save": "Save",
-            },
-            follow=True,
-        )
+    resp = client.post(
+        "/profile/cvs/",
+        {
+            "form-TOTAL_FORMS": 1,
+            "form-INITIAL_FORMS": 0,
+            "form-0-id": "",
+            "form-0-title": "TEST",
+            "form-0-file": BytesIO(b"TEST"),
+            "save": "Save",
+        },
+        follow=True,
+    )
+    assert b"Please complete your profile" in resp.content
 
-    profile = models.Profile.create(user=admin_user)
+    profile = models.Profile.create(user=admin_user, is_completed=True)
 
     resp = client.get("/profile/cvs/")
 

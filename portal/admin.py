@@ -16,9 +16,7 @@ admin.site.site_title = "Portal Administration"
 class SubscriptionAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ["email", "name"]
     list_filter = ["created_at", "updated_at"]
-    search_fields = [
-        "email",
-    ]
+    search_fields = ["email"]
     date_hierarchy = "created_at"
 
 
@@ -120,6 +118,17 @@ class IwiGroupAdmin(ImportExportModelAdmin):
     resource_class = IwiGroupResource
 
 
+class ProtectionPatternResource(CodeResource):
+    class Meta:
+        model = models.ProtectionPattern
+
+
+@admin.register(models.ProtectionPattern)
+class ProtectionPatternAdmin(ImportExportModelAdmin):
+    search_fields = ["description", "pattern"]
+    resource_class = ProtectionPatternResource
+
+
 class OrgIdentifierTypeResource(CodeResource):
     class Meta:
         model = models.OrgIdentifierType
@@ -176,20 +185,38 @@ admin.site.register(models.Award)
 class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ["name"]
     list_filter = ["created_at", "updated_at"]
-    search_fields = [
-        "name",
-    ]
+    search_fields = ["name"]
     date_hierarchy = "created_at"
 
 
 @admin.register(models.Invitation)
 class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
-    fsm_field = [
-        "status",
-    ]
+    fsm_field = ["status"]
     list_display = ["email", "first_name", "last_name", "organisation"]
     list_filter = ["created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email"]
     date_hierarchy = "created_at"
     readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
     inlines = [StateLogInline]
+
+
+class SchemeResource(ModelResource):
+    class Meta:
+        exclude = ["created_at", "updated_at", "groups", "id"]
+        import_id_fields = ["name"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
+        model = models.Scheme
+
+
+@admin.register(models.Scheme)
+class SchemeAdmin(ImportExportModelAdmin):
+    list_display = ["name"]
+    resource_class = SchemeResource
+
+
+@admin.register(models.Round)
+class RoundAdmin(ImportExportModelAdmin):
+    list_display = ["name", "scheme", "opens_on"]
+    list_filter = ["created_at", "updated_at"]
