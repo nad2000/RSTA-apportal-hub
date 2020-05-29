@@ -36,23 +36,23 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # TIME_ZONE = "UTC+12"
 TIME_ZONE = "Pacific/Auckland"
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = "en-nz"
+LANGUAGE_CODE = "en"
 gettext = lambda s: s  # noqa: E731
 LANGUAGES = [
-    ("en-nz", gettext("New Zealand English")),
+    ("en", gettext("English")),
     ("mi", gettext("Maori")),
 ]
-MODELTRANSLATION_DEFAULT_LANGUAGE = "en-nz"
-MODELTRANSLATION_LANGUAGES = ["en-nz", "mi"]
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
+MODELTRANSLATION_LANGUAGES = ["en", "mi"]
 LANG_INFO.update(
     {
         "mi": {"bidi": False, "code": "mi", "name": "Maori", "name_local": "Māori",},
-        "en-nz": {
-            "bidi": False,
-            "code": "en-nz",
-            "name": "New Zealand English",
-            "name_local": "New Zealand English",
-        },
+        # "en-nz": {
+        #     "bidi": False,
+        #     "code": "en-nz",
+        #     "name": "New Zealand English",
+        #     "name_local": "New Zealand English",
+        # },
     }
 )
 
