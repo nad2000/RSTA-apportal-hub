@@ -202,7 +202,7 @@ class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
 
 class SchemeResource(ModelResource):
     class Meta:
-        exclude = ["created_at", "updated_at", "groups", "id"]
+        exclude = ["created_at", "updated_at", "groups", "id", "current_round"]
         import_id_fields = ["name"]
         skip_unchanged = True
         report_skipped = True
