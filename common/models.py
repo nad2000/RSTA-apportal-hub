@@ -41,7 +41,7 @@ class HelperMixin:
     def get(cls, *args, **kwargs):
         if args:
             return cls.objects.get(pk=args[0])
-        else:
+        elif kwargs:
             return cls.objects.get(**kwargs)
         return cls.objects.first()
 

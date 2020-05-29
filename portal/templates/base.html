@@ -65,9 +65,6 @@
             <li class="nav-item" id="home">
               <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item" id="about">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
             {% if request.user.is_authenticated %}
               {% if request.user.is_superuser or request.user.is_staff %}
                 <li class="nav-item" id="admin:index">

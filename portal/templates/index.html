@@ -1,8 +1,44 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Apply for The Prime Minister’s Science Prize" %}{% endblock title %}
 
 {% block content %}
-  <h1>
-  ... UNDER CONSTRUCTION ...
-  </h1>
-{% endblock %}
+<div class="container">
+<h1>{% trans "Apply for The Prime Minister’s Science Prize" %}</h1>
+
+
+  {% for scheme in schemes %}
+
+  <div class="row">
+    <dic class="col mb-3">
+    <div class="card">
+      <h5 class="card-header">
+        {% trans "The Prime Minister's" %}
+        <b style="text-transform: uppercase;">{{ scheme.name }}</b>
+      </h5>
+      <div class="card-body">
+        <p class="card-text">{{ scheme.description }}</p>
+        <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
+          {% trans "Read" %} <b>{% trans "More" %}</b>
+        </a>
+        {% if scheme.current_round %}
+          <a href="#" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+            style="text-transform: uppercase;"
+            {% if not scheme.current_round.is_open %}
+              disabled
+              data-toggle="tooltip"
+              title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+            {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+        </a>
+        {% endif %}
+      </div>
+    </dic>
+    </div>
+  </div>
+
+  {% endfor %}
+
+</div>
+
+{% endblock content %}

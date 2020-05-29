@@ -36,6 +36,7 @@ def shoud_be_onboarded(function):
     If it is misssing, the user gets redirected to
     'onboard' to create a profile.
     """
+
     @wraps(function)
     def wrap(request, *args, **kwargs):
 
@@ -88,6 +89,7 @@ def subscribe(req):
 @login_required
 @shoud_be_onboarded
 def index(req):
+    schemes = models.Scheme.objects.all()
     return render(req, "index.html", locals())
 
 
@@ -195,6 +197,7 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
         url = self.request.build_absolute_uri(
             reverse("onboard-with-token", kwargs=dict(token=self.object.token))
         )
+        breakpoint()
         send_mail(
             _("You are invited to join the portal"),
             _("You are invited to join the portal. Please follow the link: ") + url,
@@ -268,7 +271,6 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     exclude = ()
     section_views = [
         "profile-employments",
-        "profile-educations",
         "profile-career-stages",
         "profile-external-ids",
         "profile-cvs",
@@ -342,7 +344,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if "previous" in self.request.POST:
                 return reverse(self.section_views[view_idx - 1])
-            if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
+            if "next" in self.request.POST and view_idx < len(self.section_views) - 2:
                 return reverse(self.section_views[view_idx + 1])
             return reverse("profile", kwargs={"pk": self.request.user.profile.id})
         return super().get_success_url()
