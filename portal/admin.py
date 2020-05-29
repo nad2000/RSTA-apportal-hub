@@ -3,6 +3,7 @@ from django_fsm_log.admin import StateLogInline
 from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
+from modeltranslation.admin import TranslationAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
 from . import models
@@ -211,12 +212,12 @@ class SchemeResource(ModelResource):
 
 
 @admin.register(models.Scheme)
-class SchemeAdmin(ImportExportModelAdmin):
-    list_display = ["name"]
+class SchemeAdmin(TranslationAdmin, ImportExportModelAdmin):
+    list_display = ["title"]
     resource_class = SchemeResource
 
 
 @admin.register(models.Round)
 class RoundAdmin(ImportExportModelAdmin):
-    list_display = ["name", "scheme", "opens_on"]
+    list_display = ["title", "scheme", "opens_on"]
     list_filter = ["created_at", "updated_at"]

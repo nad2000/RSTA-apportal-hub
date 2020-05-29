@@ -589,7 +589,7 @@ class CurriculumVitae(Model):
 
 
 class Scheme(Model):
-    name = CharField(max_length=100)
+    title = CharField(max_length=100)
     groups = ManyToManyField(
         Group, blank=True, verbose_name=_("who starts"), db_table="scheme_group"
     )
@@ -606,10 +606,8 @@ class Scheme(Model):
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
 
-    history = HistoricalRecords(table_name="scheme_history")
-
     def __str__(self):
-        return self.name
+        return self.title
 
     class Meta:
         db_table = "scheme"
@@ -617,7 +615,7 @@ class Scheme(Model):
 
 class Round(Model):
 
-    name = CharField(max_length=100, null=True, blank=True)
+    title = CharField(max_length=100, null=True, blank=True)
     scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds")
     opens_on = DateField(null=True, blank=True)
     closes_on = DateField(null=True, blank=True)
@@ -627,11 +625,11 @@ class Round(Model):
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
             raise ValidationError(_("the round cannot close before it opens."))
-        if not self.name:
-            self.name = self.scheme.name
+        if not self.title:
+            self.title = self.scheme.title
 
     def __str__(self):
-        return self.name or self.scheme.name
+        return self.title or self.scheme.title
 
     @property
     def is_open(self):
