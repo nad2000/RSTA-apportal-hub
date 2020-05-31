@@ -1,11 +1,14 @@
 import secrets
+from datetime import date
 
 from common.models import Model
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
+    DO_NOTHING,
     SET_NULL,
     BooleanField,
     CharField,
@@ -20,7 +23,7 @@ from django.db.models import (
     TextField,
 )
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
@@ -365,7 +368,7 @@ class Profile(Model):
     )
     affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
 
-    protection_pattern = ForeignKey(ProtectionPattern, null=True, blank=True, on_delete=SET_NULL)
+    protection_pattern = ForeignKey(ProtectionPattern, null=True, blank=True, on_delete=DO_NOTHING)
     protection_pattern_expires_on = DateField(null=True, blank=True)
 
     is_external_ids_completed = BooleanField(default=False)
@@ -586,11 +589,12 @@ class CurriculumVitae(Model):
 
 
 class Scheme(Model):
-    name = CharField(max_length=100)
+    title = CharField(max_length=100)
     groups = ManyToManyField(
         Group, blank=True, verbose_name=_("who starts"), db_table="scheme_group"
     )
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    description = TextField(_("short description"), max_length=1000, null=True, blank=True)
     research_summary_required = BooleanField(_("research summary required"), default=False)
     team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
     presentation_required = BooleanField(default=False)
@@ -598,10 +602,12 @@ class Scheme(Model):
     pid_required = BooleanField(_("photo ID required"), default=True)
     animal_ethics_required = BooleanField(default=False)
 
-    history = HistoricalRecords(table_name="scheme_history")
+    current_round = OneToOneField(
+        "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
+    )
 
     def __str__(self):
-        return self.name
+        return self.title
 
     class Meta:
         db_table = "scheme"
@@ -609,14 +615,26 @@ class Scheme(Model):
 
 class Round(Model):
 
-    name = CharField(max_length=100, null=True, blank=True)
-    scheme = ForeignKey(Scheme, on_delete=CASCADE)
+    title = CharField(max_length=100, null=True, blank=True)
+    scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds")
     opens_on = DateField(null=True, blank=True)
+    closes_on = DateField(null=True, blank=True)
 
     history = HistoricalRecords(table_name="round_history")
 
+    def clean(self):
+        if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
+            raise ValidationError(_("the round cannot close before it opens."))
+        if not self.title:
+            self.title = self.scheme.title
+
     def __str__(self):
-        return self.scheme.name
+        return self.title or self.scheme.title
+
+    @property
+    def is_open(self):
+        today = date.today()
+        return self.opens_on <= today and (self.closes_on is None or self.closes_on >= today)
 
     class Meta:
         db_table = "round"
