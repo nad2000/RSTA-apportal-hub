@@ -24,7 +24,7 @@
 
           <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-employments' %}" id="profile-employments">Employment</a>
+              <a class="nav-link" href="{% url 'profile-employments' %}" id="profile-employments">Organisation Affiliations</a>
             </li>
             <!-- li class="nav-item">
               <a class="nav-link" href="{% url 'profile-educations' %}" id="profile-educations">Education</a>
@@ -171,9 +171,10 @@
           <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
           <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
           <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
-          {% load socialaccount %}
-          <a class="btn btn-outline-primary" href='/accounts/orcid/login/?process=process&next=/profile/orcid/update' role="button">Fetch All ORCID Data</a>
-          {% csrf_token %}
+          <form method="POST">
+              <input type="Submit" class="btn btn-primary"  name="load_from_orcid" value="Fetch All Data From Orcid" />
+              {% csrf_token %}
+          </form>
         {% endif %}
         </form>
 

@@ -1,6 +1,7 @@
 from functools import wraps
 from urllib.parse import quote
 
+from allauth.socialaccount.models import SocialToken
 from crispy_forms.layout import Submit
 from dal import autocomplete
 from django.conf import settings
@@ -17,7 +18,6 @@ from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
-from django.views.generic import RedirectView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_select2.forms import ModelSelect2Widget
@@ -30,6 +30,8 @@ from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 from .utils.date_utils import PartialDate
+
+import requests
 
 
 def shoud_be_onboarded(function):
@@ -147,6 +149,18 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
 
+    def post(self, request, *args, **kwargs):
+        """Check the POST request call """
+        if "load_from_orcid" in request.POST:
+            orcidhelper = OrcidDataHelperView()
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, ["employment", "education", "qualification"])
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
+                return HttpResponseRedirect(self.request.path_info)
+
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
@@ -199,7 +213,6 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
         url = self.request.build_absolute_uri(
             reverse("onboard-with-token", kwargs=dict(token=self.object.token))
         )
-        breakpoint()
         send_mail(
             _("You are invited to join the portal"),
             _("You are invited to join the portal. Please follow the link: ") + url,
@@ -441,9 +454,12 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
             at = "employment" if self.affiliation_type == "EMP" else "education"
-            count = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
-            messages.success(self.request, f" {count} new ORCID records loaded!!")
-            return HttpResponseRedirect(self.request.path_info)
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
         return super(ProfileAffiliationsFormSetView, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -572,61 +588,74 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         )
 
 
-class OrcidDataHelperView(LoginRequiredMixin, RedirectView):
+class OrcidDataHelperView():
     """Main class to fetch ORCID record"""
 
     def get_orcid_profile_data(self, current_user):
         social_accounts = current_user.socialaccount_set.all()
         for sa in social_accounts:
-            if sa.provider == "orcid" and sa.extra_data:
-                return (sa.extra_data, True)
-            else:
-                pass
+            if sa.provider == "orcid":
+                orcid_id = sa.uid
+                access_token = SocialToken.objects.get(account__user=current_user, account__provider=sa.provider)
+                url = f"https://pub.sandbox.orcid.org/v3.0/{orcid_id}"
+                headers = {
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {access_token.token}",
+                    "Content-Length": "0"
+                }
+                resp = requests.get(url, headers=headers)
+                if resp.status_code == 200:
+                    extra_data = resp.json()
+                    return (extra_data, True)
         return (None, False)
 
-    def get_redirect_url(self):
-
-        at = []
-        if self.request.GET.get('AFF') == "EMP":
-            at.append('employment')
-        elif self.request.GET.get('AFF') == "EDU":
-            at.append('education')
-        else:
-            at = ["employment", "education"]
-        count = self.fetch_and_load_affiliation_data(self.request.user, affiliation_types=at)
-        messages.success(self.request, f" {count} new ORCID records loaded!!")
-        return reverse('profile', kwargs={'pk':self.request.user.profile.id})
-
     def fetch_and_load_affiliation_data(self, current_user, affiliation_types):
-        """Fetch the data from orcid. ["employment", "education"]"""
+        """Fetch the data from orcid. ["employment", "education", "qualification"]"""
         extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
         if user_has_linked_orcid:
+
             affiliation_objs = {
                 at: [
-                    ag for ag in extra_data.get(
-                        "activities-summary").get(f"{at}s").get(f"{at}-summary")
-                ] for at in affiliation_types
+                    s.get(f"{at}-summary") for ag in extra_data.get(
+                        "activities-summary").get(f"{at}s").get("affiliation-group", [])
+                    for s in ag.get("summaries", [])
+                ]
+                for at in affiliation_types
             }
+
             count = 0
             for affiliation_type in affiliation_objs.keys():
                 for aff in affiliation_objs.get(affiliation_type):
                     org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
                     org.save()
-                    affiliation_obj, status = models.Affiliation.objects.get_or_create(profile=current_user.profile,
-                                                                                       org=org,
-                                                                                       put_code=aff.get('put-code'))
-                    if status:
-                        affiliation_obj.type = "EMP" if affiliation_type == "employment" else "EDU"
+
+                    if affiliation_type == "employment":
+                        affiliation_obj, status = models.Affiliation.objects.get_or_create(profile=current_user.profile,
+                                                                                           org=org,
+                                                                                           put_code=aff.get('put-code'))
+                        affiliation_obj.type = "EMP"
                         affiliation_obj.role = aff.get('role-title')
                         if aff.get('start-date'):
                             affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
                         if aff.get('end-date'):
                             affiliation_obj.end_date = str(PartialDate.create(aff.get('end-date')))
-                        affiliation_obj.put_code = aff.get('put-code')
                         affiliation_obj.save()
                         count += 1
-            return count
-        else:
-            pass
+                    elif affiliation_type in ["education", "qualification"]:
+                        breakpoint()
+                        academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
+                                                                                           awarded_by=org,
+                                                                                           put_code=aff.get('put-code'),
+                                                                                           qualification=94)
+                        if aff.get('start-date'):
+                            academic_obj.start_year = PartialDate.create(aff.get('start-date')).year
+                        if aff.get('end-date'):
+                            academic_obj.conferred_on = str(PartialDate.create(aff.get('end-date')))
+                        academic_obj.save()
+                        count += 1
 
-        return 0
+            return (count, user_has_linked_orcid)
+        else:
+            return (-1, user_has_linked_orcid)
+
+        return (-1, False)

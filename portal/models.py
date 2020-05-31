@@ -445,14 +445,15 @@ class Profile(Model):
 class AcademicRecord(Model):
     profile = ForeignKey(Profile, related_name="academic_records", on_delete=CASCADE)
     start_year = PositiveIntegerField(
-        validators=[MinValueValidator(1960), MaxValueValidator(2099)]
+        validators=[MinValueValidator(1960), MaxValueValidator(2099)], null=True, blank=True
     )
     qualification = PositiveSmallIntegerField(choices=QUALIFICATION_LEVEL)
     conferred_on = DateField(null=True, blank=True)
     # discipline = ForeignKey(FieldOfResearch, on_delete=CASCADE)
-    discipline = ForeignKey(FieldOfStudy, on_delete=CASCADE)
+    discipline = ForeignKey(FieldOfStudy, on_delete=CASCADE, null=True, blank=True)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
     research_topic = CharField(max_length=80, null=True, blank=True)
+    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     class Meta:
         db_table = "academic_record"
