@@ -1,6 +1,7 @@
 from functools import wraps
 from urllib.parse import quote
 
+import requests
 from allauth.socialaccount.models import SocialToken
 from crispy_forms.layout import Submit
 from dal import autocomplete
@@ -30,8 +31,6 @@ from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 from .utils.date_utils import PartialDate
-
-import requests
 
 
 def shoud_be_onboarded(function):
@@ -153,7 +152,9 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
-            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, ["employment", "education", "qualification"])
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user,
+                                                                                       ["employment", "education",
+                                                                                        "qualification"])
             if user_has_linked_orcid:
                 messages.success(self.request, f" {count} new ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
