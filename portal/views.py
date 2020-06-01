@@ -76,14 +76,16 @@ class SubscriptionDetail(LoginRequiredMixin, DetailView):
 
 
 @require_http_methods(["GET", "POST"])
-def subscribe(req):
+def subscribe(request):
 
-    if req.method == "POST":
-        email = req.POST["email"]
-        name = req.POST.get("name")
+    form = forms.SubscriptionForm(request.POST)
+    if request.method == "POST":
+        breakpoint()
+        email = request.POST["email"]
+        name = request.POST.get("name")
         Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
 
-    return render(req, "pages/comingsoon.html", locals())
+    return render(request, "pages/comingsoon.html", locals())
 
 
 @login_required
@@ -197,7 +199,6 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
         url = self.request.build_absolute_uri(
             reverse("onboard-with-token", kwargs=dict(token=self.object.token))
         )
-        breakpoint()
         send_mail(
             _("You are invited to join the portal"),
             _("You are invited to join the portal. Please follow the link: ") + url,

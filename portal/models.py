@@ -129,8 +129,6 @@ class Subscription(Model):
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
 
-    history = HistoricalRecords(table_name="subscription_history")
-
     def __str__(self):
         return self.name or self.email
 
