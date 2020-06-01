@@ -23,7 +23,7 @@
           {% trans "Read" %} <b>{% trans "More" %}</b>
         </a>
         {% if scheme.current_round %}
-          <a href="#" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+          <a href="{% url 'application-create' %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
             style="text-transform: uppercase;"
             {% if not scheme.current_round.is_open %}
               disabled

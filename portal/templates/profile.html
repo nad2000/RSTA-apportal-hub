@@ -11,177 +11,96 @@
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-md-3">
-
-      <div class="card mb-2">
-        <div class="card-header">
-          <a href="{% url 'my-profile' %}" id="profile">
-            Profile
-          </a>
-        </div>
-        <div class="card-body">
-
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-employments' %}" id="profile-employments">Organisation Affiliations</a>
-            </li>
-            <!-- li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-educations' %}" id="profile-educations">Education</a>
-            </li -->
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-career-stages' %}" id="profile-career-stages">Career Stages</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-external-ids' %}" id="profile-external-ids">External IDs</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-cvs' %}" id="profile-cvs">Curriculum Vitae</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-academic-records' %}" id="profile-academic-records">
-                {% trans "Academic Records" %}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'profile-recognitions' %}" id="profile-recognitions">
-                {% trans "Recoginitions" %}
-              </a>
-            </li>
-          </ul>
-
-        </div>
-      </div>
-
-      <div class="card mb-2">
-        <div class="card-header">
-          <a href="{% url 'my-profile' %}">
-            Account
-          </a>
-        </div>
-        <div class="card-body">
-
-          <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="{% url 'socialaccount_connections' %}"
-                title="{% trans 'Add or remove linked external system or social network accounts' %}"
-                data-toggle="tooltip"
-              >{% trans 'Linked Accounts' %}</a>
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                href="{% url 'account_set_password' %}"
-                title="{% trans 'Set or reset your password' %}"
-                data-toggle="tooltip"
-                >{% trans 'Password' %}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Link ...</a>
-            </li>
-          </ul>
-
-        </div>
-      </div>
-
-    </div>
-
-    <div class="col-md-9">
-      {% if progress %}
-      <div class="progress mb-3">
-        <div
-          class="progress-bar"
-          role="progressbar"
-          style="width: {{ progress }}%"
-        >
-        </div>
-      </div>
-      {% endif %}
-
-      {% block section %}
-
-        <table class="table table-bordered searchable">
-          <tbody>
-            <tr>
-              <th style="width: 21%; min-width: 160px; max-width: 180px;">{% trans "Gender" %}</th>
-              <td>{{ object.get_gender_display|default_if_none:"" }}</td>
-            </tr>
-            <tr>
-              <th>Date of Birth</th>
-              <td>{{ object.date_of_birth|date:"Y-m-d"|default_if_none:"" }}</td>
-            </tr>
-            <tr>
-              <th>Ethnicity</th>
-              <td>
-                <ul>
-                  {% for o in object.ethnicities.all %}
-                    <li>
-                      {{ o |default_if_none:"" }}
-                    </li>
-                  {% endfor %}
-                </ul>
-              </td>
-            </tr>
-            <tr>
-              <th>Education Level</th>
-              <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
-            </tr>
-            <tr>
-              <th>Employment Status</th>
-              <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
-            </tr>
-            <tr>
-              <th>Primary Language Spoken</th>
-              <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
-            </tr>
-
-            <tr>
-              <th>Lanuages Spoken</th>
-              <td>
-                <ul>
-                  {% for o in object.languages_spoken.all %}
-                    <li>
-                      {{ o | default_if_none:"" }}
-                    </li>
-                  {% endfor %}
-                </ul>
-              </td>
-            </tr>
-
-            <tr>
-              <th>Iwi Groups</th>
-              <td>
-                <ul>
-                  {% for o in object.iwi_groups.all %}
-                    <li>
-                      {{ o | default_if_none:"" }}
-                    </li>
-                  {% endfor %}
-                </ul>
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
-        <form method="post">
-        <a class="btn btn-primary" href="{% url 'profile-update' pk=object.pk %}">Edit</a>
-        {% if object.user == request.user %}
-          <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
-          <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
-          <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
-          <form method="POST">
-              <input type="Submit" class="btn btn-primary"  name="load_from_orcid" value="Fetch All Data From Orcid" />
-              {% csrf_token %}
-          </form>
-        {% endif %}
-        </form>
-
-      {% endblock %}
-
+  {% if progress %}
+  <div class="progress mb-3">
+    <div
+      class="progress-bar"
+      role="progressbar"
+      style="width: {{ progress }}%"
+    >
     </div>
   </div>
+  {% endif %}
+
+  {% block section %}
+
+    <table class="table table-bordered searchable">
+      <tbody>
+        <tr>
+          <th style="width: 21%; min-width: 160px; max-width: 180px;">{% trans "Gender" %}</th>
+          <td>{{ object.get_gender_display|default_if_none:"" }}</td>
+        </tr>
+        <tr>
+          <th>Date of Birth</th>
+          <td>{{ object.date_of_birth|date:"Y-m-d"|default_if_none:"" }}</td>
+        </tr>
+        <tr>
+          <th>Ethnicity</th>
+          <td>
+            <ul>
+              {% for o in object.ethnicities.all %}
+                <li>
+                  {{ o |default_if_none:"" }}
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th>Education Level</th>
+          <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
+        </tr>
+        <tr>
+          <th>Employment Status</th>
+          <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
+        </tr>
+        <tr>
+          <th>Primary Language Spoken</th>
+          <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
+        </tr>
+
+        <tr>
+          <th>Lanuages Spoken</th>
+          <td>
+            <ul>
+              {% for o in object.languages_spoken.all %}
+                <li>
+                  {{ o | default_if_none:"" }}
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+
+        <tr>
+          <th>Iwi Groups</th>
+          <td>
+            <ul>
+              {% for o in object.iwi_groups.all %}
+                <li>
+                  {{ o | default_if_none:"" }}
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+    <form method="post">
+    <a class="btn btn-primary" href="{% url 'profile-update' pk=object.pk %}">Edit</a>
+    {% if object.user == request.user %}
+      <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
+      <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
+      <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
+      <form method="POST">
+          <input type="Submit" class="btn btn-primary"  name="load_from_orcid" value="Fetch All Data From Orcid" />
+          {% csrf_token %}
+      </form>
+    {% endif %}
+    </form>
+
+  {% endblock %}
 
 {% endblock %}
 

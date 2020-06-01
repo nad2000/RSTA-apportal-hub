@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>{% block title %}Prime Minister's Science Prizes{% endblock title %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Prime Minister's Science Prizes">
     <meta name="author" content="Royal Society Te Apārangi">
 
@@ -82,6 +82,7 @@
               {% endif %}
 
             </ul>
+
             <ul class="navbar-nav ml-auto">
 
               <li class="nav-item dropdown" id="profile">
@@ -139,13 +140,93 @@
 
       {% endif %}
 
-      {% block sidebar %}
+      <div class="row">
+        <div class="col-md-3">
+          {% block sidebar %}
 
-      {% endblock sidebar %}
+          <div class="card mb-2">
+            <div class="card-header">
+              <a href="{% url 'my-profile' %}" id="profile">
+                Profile
+              </a>
+            </div>
+            <div class="card-body">
 
-      {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
-      {% endblock content %}
+              <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                  <a class="nav-link"
+                     href="{% url 'profile-employments' %}"
+                     id="profile-employments"
+                     title="{% trans 'Organisation Affiliations' %}"
+                     data-toggle="tooltip"
+                   >Organisation Affiliations</a>
+                </li>
+                <!-- li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-educations' %}" id="profile-educations">Education</a>
+                </li -->
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-career-stages' %}" id="profile-career-stages">Career Stages</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-external-ids' %}" id="profile-external-ids">External IDs</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-cvs' %}" id="profile-cvs">Curriculum Vitae</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-academic-records' %}" id="profile-academic-records">
+                    {% trans "Academic Records" %}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'profile-recognitions' %}" id="profile-recognitions">
+                    {% trans "Recoginitions" %}
+                  </a>
+                </li>
+              </ul>
+
+            </div>
+          </div>
+
+          <div class="card mb-2">
+            <div class="card-header">
+              <a href="{% url 'my-profile' %}">
+                Account
+              </a>
+            </div>
+            <div class="card-body">
+
+              <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="{% url 'socialaccount_connections' %}"
+                    title="{% trans 'Add or remove linked external system or social network accounts' %}"
+                    data-toggle="tooltip"
+                  >{% trans 'Linked Accounts' %}</a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="{% url 'account_set_password' %}"
+                    title="{% trans 'Set or reset your password' %}"
+                    data-toggle="tooltip"
+                    >{% trans 'Password' %}</a>
+                </li>
+              </ul>
+
+            </div>
+          </div>
+          {% endblock sidebar %}
+
+        </div>
+
+        <div class="col-md-9">
+          {% block content %}
+
+          {% endblock content %}
+        </div>
+      </div>
 
     </div> <!-- /container-fluid -->
 
