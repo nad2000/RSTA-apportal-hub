@@ -1,6 +1,8 @@
 from functools import wraps
 from urllib.parse import quote
 
+import requests
+from allauth.socialaccount.models import SocialToken
 from crispy_forms.layout import Submit
 from dal import autocomplete
 from django.conf import settings
@@ -12,6 +14,7 @@ from django.core.mail import send_mail
 from django.forms import DateInput, HiddenInput
 from django.forms import models as model_forms
 from django.forms import widgets
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -146,6 +149,20 @@ class ProfileView:
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
+
+    def post(self, request, *args, **kwargs):
+        """Check the POST request call """
+        if "load_from_orcid" in request.POST:
+            orcidhelper = OrcidDataHelperView()
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user,
+                                                                                       ["employment", "education",
+                                                                                        "qualification"])
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
+                return HttpResponseRedirect(self.request.path_info)
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
@@ -438,54 +455,22 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
-            social_accounts = self.request.user.socialaccount_set.all()
-            user_has_linked_orcid = False
-            for sa in social_accounts:
-                if sa.provider == "orcid" and sa.extra_data:
-                    at = "employment" if self.affiliation_type == "EMP" else "education"
-                    affiliation_objs = [
-                        ag
-                        for ag in sa.extra_data.get("activities-summary")
-                        .get(f"{at}s")
-                        .get(f"{at}-summary")
-                    ]
-                    count = 0
-                    for aff in affiliation_objs:
-                        org, _ = models.Organisation.objects.get_or_create(
-                            name=aff.get("organization").get("name")
-                        )
-                        org.save()
-                        affiliation_obj, status = self.model.objects.get_or_create(
-                            profile=self.request.user.profile,
-                            org=org,
-                            put_code=aff.get("put-code"),
-                        )
-                        if status:
-                            affiliation_obj.type = self.affiliation_type
-                            affiliation_obj.role = aff.get("role-title")
-                            if aff.get("start-date"):
-                                affiliation_obj.start_date = str(
-                                    PartialDate.create(aff.get("start-date"))
-                                )
-                            if aff.get("end-date"):
-                                affiliation_obj.end_date = str(
-                                    PartialDate.create(aff.get("end-date"))
-                                )
-                            affiliation_obj.put_code = aff.get("put-code")
-                            affiliation_obj.save()
-                            count += 1
-                    messages.success(self.request, f" {count} {at} records from ORCID loaded!!")
-                    user_has_linked_orcid = True
-            if not user_has_linked_orcid:
-                messages.warning(self.request, f"Please link your ORCID Account!!")
-
+            orcidhelper = OrcidDataHelperView()
+            at = "employment" if self.affiliation_type == "EMP" else "education"
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
         return super(ProfileAffiliationsFormSetView, self).post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        """Get the context data"""
+
         context = super().get_context_data(**kwargs)
-        context.get("helper").add_input(
-            Submit("load_from_orcid", "Fetch data from ORCiD", css_class="btn btn-info")
-        )
+        context.get('helper').add_input(
+            Submit("load_from_orcid", f"Fetch {self.affiliation_type} from ORCiD", css_class="btn btn-info"))
         return context
 
 
@@ -604,3 +589,76 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         return self.model.objects.filter(profile=self.request.user.profile).order_by(
             "-recognized_in"
         )
+
+
+class OrcidDataHelperView():
+    """Main class to fetch ORCID record"""
+
+    def get_orcid_profile_data(self, current_user):
+        social_accounts = current_user.socialaccount_set.all()
+        for sa in social_accounts:
+            if sa.provider == "orcid":
+                orcid_id = sa.uid
+                access_token = SocialToken.objects.get(account__user=current_user, account__provider=sa.provider)
+                url = f"https://pub.sandbox.orcid.org/v3.0/{orcid_id}"
+                headers = {
+                    "Accept": "application/json",
+                    "Authorization": f"Bearer {access_token.token}",
+                    "Content-Length": "0"
+                }
+                resp = requests.get(url, headers=headers)
+                if resp.status_code == 200:
+                    extra_data = resp.json()
+                    return (extra_data, True)
+        return (None, False)
+
+    def fetch_and_load_affiliation_data(self, current_user, affiliation_types):
+        """Fetch the data from orcid. ["employment", "education", "qualification"]"""
+        extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
+        if user_has_linked_orcid:
+
+            affiliation_objs = {
+                at: [
+                    s.get(f"{at}-summary") for ag in extra_data.get(
+                        "activities-summary").get(f"{at}s").get("affiliation-group", [])
+                    for s in ag.get("summaries", [])
+                ]
+                for at in affiliation_types
+            }
+
+            count = 0
+            for affiliation_type in affiliation_objs.keys():
+                for aff in affiliation_objs.get(affiliation_type):
+                    org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
+                    org.save()
+
+                    if affiliation_type == "employment":
+                        affiliation_obj, status = models.Affiliation.objects.get_or_create(profile=current_user.profile,
+                                                                                           org=org,
+                                                                                           put_code=aff.get('put-code'))
+                        affiliation_obj.type = "EMP"
+                        affiliation_obj.role = aff.get('role-title')
+                        if aff.get('start-date'):
+                            affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
+                        if aff.get('end-date'):
+                            affiliation_obj.end_date = str(PartialDate.create(aff.get('end-date')))
+                        affiliation_obj.save()
+                        count += 1
+                    elif affiliation_type in ["education", "qualification"]:
+                        breakpoint()
+                        academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
+                                                                                           awarded_by=org,
+                                                                                           put_code=aff.get('put-code'),
+                                                                                           qualification=94)
+                        if aff.get('start-date'):
+                            academic_obj.start_year = PartialDate.create(aff.get('start-date')).year
+                        if aff.get('end-date'):
+                            academic_obj.conferred_on = str(PartialDate.create(aff.get('end-date')))
+                        academic_obj.save()
+                        count += 1
+
+            return (count, user_has_linked_orcid)
+        else:
+            return (-1, user_has_linked_orcid)
+
+        return (-1, False)
