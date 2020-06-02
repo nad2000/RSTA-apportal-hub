@@ -473,7 +473,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get('helper').add_input(
-            Submit("load_from_orcid", f"Fetch {' and '.join(self.affiliation_type.keys())} from ORCiD", css_class="btn btn-info"))
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid"))
         return context
 
 
@@ -577,7 +577,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get('helper').add_input(
-            Submit("load_from_orcid", "Fetch Academic Record from ORCiD", css_class="btn btn-info"))
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid"))
         return context
 
     def post(self, request, *args, **kwargs):
@@ -624,7 +624,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get('helper').add_input(
-            Submit("load_from_orcid", "Fetch Prizes and/or Medals from ORCiD", css_class="btn btn-info"))
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid"))
         return context
 
     def post(self, request, *args, **kwargs):
