@@ -376,8 +376,8 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         if url_name == "profile-employments":
             profile.is_employments_completed = True
-        if url_name == "profile-educations":
-            profile.is_educations_completed = True
+        if url_name == "profile-professional-records":
+            profile.is_professional_bodies_completed = True
         if url_name == "profile-career-stages":
             profile.is_career_stages_completed = True
         if url_name == "profile-external-ids":
