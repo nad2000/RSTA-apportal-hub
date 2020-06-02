@@ -34,7 +34,7 @@ GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
 
-AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"),)
+AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),)
 
 ETHNICITIES = Choices(
     "European",
@@ -473,6 +473,7 @@ class Recognition(Model):
     award = ForeignKey(Award, on_delete=CASCADE)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
     amount = DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
+    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     def __str__(self):
         return self.award.name
