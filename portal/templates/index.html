@@ -23,14 +23,21 @@
           {% trans "Read" %} <b>{% trans "More" %}</b>
         </a>
         {% if scheme.current_round %}
-          <a href="{% url 'application-create' %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
-            style="text-transform: uppercase;"
-            {% if not scheme.current_round.is_open %}
-              disabled
-              data-toggle="tooltip"
-              title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
-            {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
-        </a>
+          {% if request.user.is_applicant and scheme.can_be_applied_to %}
+            <a href="{% url 'application-create' %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+              style="text-transform: uppercase;"
+              {% if not scheme.current_round.is_open %}
+                disabled
+                data-toggle="tooltip"
+                title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+              {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+            </a>
+          {% endif %}
+          {% if request.user.is_nominator and scheme.can_be_nominated_to %}
+            <a href="{% url 'invitation-create' %}" class="btn btn-primary" style="text-transform: uppercase;"
+              > {% trans "Invite to" %} <b>{% trans "Apply" %}</b>
+            </a>
+          {% endif %}
         {% endif %}
       </div>
     </dic>

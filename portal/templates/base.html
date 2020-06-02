@@ -108,6 +108,32 @@
                 </div>
               </li>
 
+              <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
+                {% get_current_language as LANGUAGE_CODE %}
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="langDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <strong>{{ LANGUAGE_CODE }}</strong>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right " aria-labelledby="langDropdownMenuButton">
+
+                      {% for language in languages %}
+                        <button type="submit"
+                                name="language"
+                                value="{{ language.code }}"
+                                class="dropdown-item {% if language.code == LANGUAGE_CODE %}selected{% endif %}">
+                          <strong>{{ language.code }}</strong>: {{ language.name_local }}
+                        </button>
+                      {% endfor %}
+
+                  </div>
+                </div>
+              </form>
+
             {% endif %}
           </ul>
         </div>

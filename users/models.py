@@ -16,3 +16,14 @@ class User(HelperMixin, AbstractUser):
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
+
+    def in_group(self, group_name):
+        return self.groups.filter(name=group_name).exists()
+
+    @property
+    def is_applicant(self):
+        return self.in_group("APPLICANT")
+
+    @property
+    def is_nominator(self):
+        return self.in_group("NOMINATOR")

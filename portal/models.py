@@ -608,6 +608,18 @@ class Scheme(Model):
     def __str__(self):
         return self.title
 
+    def can_be_started_by(self, group_name):
+        return self.groups.filter(name=group_name).exists()
+
+    @property
+    def can_be_applied_to(self):
+        """Can be applied directly."""
+        return self.can_be_started_by("APPLICANT")
+
+    @property
+    def can_be_nominated_to(self):
+        return self.can_be_started_by("NOMINATOR")
+
     class Meta:
         db_table = "scheme"
 

@@ -83,7 +83,6 @@ def subscribe(request):
 
     form = forms.SubscriptionForm(request.POST)
     if request.method == "POST":
-        breakpoint()
         email = request.POST["email"]
         name = request.POST.get("name")
         Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
@@ -93,9 +92,9 @@ def subscribe(request):
 
 @login_required
 @shoud_be_onboarded
-def index(req):
-    schemes = models.Scheme.objects.all()
-    return render(req, "index.html", locals())
+def index(request):
+    schemes = models.Scheme.where(groups__in=request.user.groups.all()).all()
+    return render(request, "index.html", locals())
 
 
 @login_required
@@ -645,7 +644,6 @@ class OrcidDataHelperView():
                         affiliation_obj.save()
                         count += 1
                     elif affiliation_type in ["education", "qualification"]:
-                        breakpoint()
                         academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
                                                                                            awarded_by=org,
                                                                                            put_code=aff.get('put-code'),
