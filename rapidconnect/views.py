@@ -30,7 +30,6 @@ def login(request):
         url = urljoin(BASE_URL, url)
         # request.build_absolute_uri()
 
-    breakpoint()
     SocialLogin.stash_state(request)
     return HttpResponseRedirect(url)
 
@@ -75,7 +74,6 @@ def callback(request):
         login = provider.sociallogin_from_response(request, attributes)
         login.token = SocialToken(app=app, token=token["jti"])
 
-        breakpoint()
         login.state = SocialLogin.unstash_state(request)
 
         ret = complete_social_login(request, login)

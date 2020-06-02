@@ -83,7 +83,6 @@ def subscribe(request):
 
     form = forms.SubscriptionForm(request.POST)
     if request.method == "POST":
-        breakpoint()
         email = request.POST["email"]
         name = request.POST.get("name")
         Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
@@ -294,6 +293,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         "profile-cvs",
         "profile-academic-records",
         "profile-recognitions",
+        "profile-professional-records",
     ]
 
     def dispatch(self, request, *args, **kwargs):
@@ -362,7 +362,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if "previous" in self.request.POST:
                 return reverse(self.section_views[view_idx - 1])
-            if "next" in self.request.POST and view_idx < len(self.section_views) - 2:
+            if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
                 return reverse(self.section_views[view_idx + 1])
             return reverse("profile", kwargs={"pk": self.request.user.profile.id})
         return super().get_success_url()
@@ -443,7 +443,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
     def get_queryset(self):
         return self.model.objects.filter(
-            profile=self.request.user.profile, type=self.affiliation_type
+            profile=self.request.user.profile, type__in=self.affiliation_type.values()
         ).order_by("start_date", "end_date",)
 
     def get_defaults(self):
@@ -456,8 +456,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
-            at = "employment" if self.affiliation_type == "EMP" else "education"
-            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, self.affiliation_type)
             if user_has_linked_orcid:
                 messages.success(self.request, f" {count} new ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
@@ -470,18 +469,22 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get('helper').add_input(
-            Submit("load_from_orcid", f"Fetch {self.affiliation_type} from ORCiD", css_class="btn btn-info"))
+            Submit("load_from_orcid", f"Fetch {' '.join(self.affiliation_type.values())} from ORCiD", css_class="btn btn-info"))
         return context
 
 
 class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
 
-    affiliation_type = "EMP"
+    affiliation_type = {"employment": "EMP"}
 
 
 class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
-    affiliation_type = "EDU"
+    affiliation_type = {"education": "EDU"}
+
+class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
+
+    affiliation_type = {"membership": "MEM", "service": "SER"}
 
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
@@ -623,7 +626,7 @@ class OrcidDataHelperView():
                         "activities-summary").get(f"{at}s").get("affiliation-group", [])
                     for s in ag.get("summaries", [])
                 ]
-                for at in affiliation_types
+                for at in affiliation_types.keys()
             }
 
             count = 0
@@ -632,11 +635,11 @@ class OrcidDataHelperView():
                     org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
                     org.save()
 
-                    if affiliation_type == "employment":
+                    if affiliation_type in ["employment", "membership", "service"]:
                         affiliation_obj, status = models.Affiliation.objects.get_or_create(profile=current_user.profile,
                                                                                            org=org,
                                                                                            put_code=aff.get('put-code'))
-                        affiliation_obj.type = "EMP"
+                        affiliation_obj.type = affiliation_types[affiliation_type]
                         affiliation_obj.role = aff.get('role-title')
                         if aff.get('start-date'):
                             affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
@@ -645,7 +648,6 @@ class OrcidDataHelperView():
                         affiliation_obj.save()
                         count += 1
                     elif affiliation_type in ["education", "qualification"]:
-                        breakpoint()
                         academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
                                                                                            awarded_by=org,
                                                                                            put_code=aff.get('put-code'),
@@ -656,6 +658,7 @@ class OrcidDataHelperView():
                             academic_obj.conferred_on = str(PartialDate.create(aff.get('end-date')))
                         academic_obj.save()
                         count += 1
+
 
             return (count, user_has_linked_orcid)
         else:
