@@ -154,8 +154,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
             count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user,
-                                                                                       ["employment", "education",
-                                                                                        "qualification"])
+                                                                                       {"employment": "EMP",
+                                                                                        "education": "EDU",
+                                                                                        "qualification": "QUA",
+                                                                                        "membership": "MEM",
+                                                                                        "service": "SER"})
             if user_has_linked_orcid:
                 messages.success(self.request, f" {count} new ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
@@ -436,7 +439,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                     "start_date": forms.DateInput(),
                     "end_date": forms.DateInput(),
                 },
-                "labels": {"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
+                "labels": {"role": "Position"},
             }
         )
         return kwargs
@@ -449,7 +452,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     def get_defaults(self):
         """Default values for a form."""
         defaults = super().get_defaults()
-        defaults["type"] = self.affiliation_type
+        defaults["type"] = next(iter(self.affiliation_type.values()))
         return defaults
 
     def post(self, request, *args, **kwargs):
@@ -568,6 +571,28 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("-start_year")
 
+    def get_context_data(self, **kwargs):
+        """Get the context data"""
+
+        context = super().get_context_data(**kwargs)
+        context.get('helper').add_input(
+            Submit("load_from_orcid", "Fetch Academic Record from ORCiD", css_class="btn btn-info"))
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Check the POST request call """
+        if "load_from_orcid" in request.POST:
+            orcidhelper = OrcidDataHelperView()
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user,
+                                                                                       {"education": "EDU",
+                                                                                        "qualification": "QUA"})
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
+        return super(ProfileAcademicRecordFormSetView, self).post(request, *args, **kwargs)
+
 
 class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
@@ -648,10 +673,14 @@ class OrcidDataHelperView():
                         affiliation_obj.save()
                         count += 1
                     elif affiliation_type in ["education", "qualification"]:
+                        qualification = 94
+                        for key, value in dict(models.QUALIFICATION_LEVEL).items():
+                            if aff.get('role-title') == value:
+                                qualification = key
                         academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
                                                                                            awarded_by=org,
                                                                                            put_code=aff.get('put-code'),
-                                                                                           qualification=94)
+                                                                                           qualification=qualification)
                         if aff.get('start-date'):
                             academic_obj.start_year = PartialDate.create(aff.get('start-date')).year
                         if aff.get('end-date'):
