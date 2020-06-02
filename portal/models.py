@@ -34,7 +34,7 @@ GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
 
-AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"),)
+AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),)
 
 ETHNICITIES = Choices(
     "European",
@@ -383,7 +383,7 @@ class Profile(Model):
     def educations(self):
         return self.affiliations.fiter(type="EDU")
 
-    is_educations_completed = BooleanField(default=False)
+    is_professional_bodies_completed = BooleanField(default=False)
 
     is_academic_records_completed = BooleanField(default=False)
     is_recognitions_completed = BooleanField(default=False)
@@ -410,9 +410,9 @@ class Profile(Model):
     def is_completed(self):
         return (
             self.is_career_stages_completed
-            # and self.is_educations_completed
+            and self.is_employments_completed
             and self.is_ethnicities_completed
-            and self.is_ethnicities_completed
+            and self.is_professional_bodies_completed
             and self.is_recognitions_completed
             and self.is_iwi_groups_completed
             and self.is_external_ids_completed
@@ -423,8 +423,8 @@ class Profile(Model):
     @is_completed.setter
     def is_completed(self, value):
         self.is_career_stages_completed = value
-        self.is_educations_completed = value
-        self.is_ethnicities_completed = value
+        self.is_professional_bodies_completed = value
+        self.is_employments_completed = value
         self.is_ethnicities_completed = value
         self.is_recognitions_completed = value
         self.is_iwi_groups_completed = value
@@ -473,6 +473,7 @@ class Recognition(Model):
     award = ForeignKey(Award, on_delete=CASCADE)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
     amount = DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
+    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     def __str__(self):
         return self.award.name

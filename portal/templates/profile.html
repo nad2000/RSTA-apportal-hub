@@ -94,7 +94,7 @@
       <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
       <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
       <form method="POST">
-          <input type="Submit" class="btn btn-primary"  name="load_from_orcid" value="Fetch All Data From Orcid" />
+          <input type="Submit" class="btn btn-orcid"  name="load_from_orcid" value="Fetch All Data From Orcid" />
           {% csrf_token %}
       </form>
     {% endif %}

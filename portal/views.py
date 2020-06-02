@@ -153,11 +153,19 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
-            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user,
-                                                                                       ["employment", "education",
-                                                                                        "qualification"])
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
+                request.user,
+                {
+                    "employment": "EMP",
+                    "education": "EDU",
+                    "qualification": "QUA",
+                    "membership": "MEM",
+                    "service": "SER",
+                    "funding": "FUN",
+                },
+            )
             if user_has_linked_orcid:
-                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                messages.success(self.request, f" {count} ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 return redirect("socialaccount_connections")
@@ -293,6 +301,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         "profile-cvs",
         "profile-academic-records",
         "profile-recognitions",
+        "profile-professional-records",
     ]
 
     def dispatch(self, request, *args, **kwargs):
@@ -361,7 +370,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if "previous" in self.request.POST:
                 return reverse(self.section_views[view_idx - 1])
-            if "next" in self.request.POST and view_idx < len(self.section_views) - 2:
+            if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
                 return reverse(self.section_views[view_idx + 1])
             return reverse("profile", kwargs={"pk": self.request.user.profile.id})
         return super().get_success_url()
@@ -371,8 +380,8 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         if url_name == "profile-employments":
             profile.is_employments_completed = True
-        if url_name == "profile-educations":
-            profile.is_educations_completed = True
+        if url_name == "profile-professional-records":
+            profile.is_professional_bodies_completed = True
         if url_name == "profile-career-stages":
             profile.is_career_stages_completed = True
         if url_name == "profile-external-ids":
@@ -435,30 +444,31 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                     "start_date": forms.DateInput(),
                     "end_date": forms.DateInput(),
                 },
-                "labels": {"role": "Degree" if self.affiliation_type == "EDU" else "Position"},
+                "labels": {"role": "Position"},
             }
         )
         return kwargs
 
     def get_queryset(self):
         return self.model.objects.filter(
-            profile=self.request.user.profile, type=self.affiliation_type
+            profile=self.request.user.profile, type__in=self.affiliation_type.values()
         ).order_by("start_date", "end_date",)
 
     def get_defaults(self):
         """Default values for a form."""
         defaults = super().get_defaults()
-        defaults["type"] = self.affiliation_type
+        defaults["type"] = next(iter(self.affiliation_type.values()))
         return defaults
 
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidDataHelperView()
-            at = "employment" if self.affiliation_type == "EMP" else "education"
-            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(request.user, [at])
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
+                request.user, self.affiliation_type
+            )
             if user_has_linked_orcid:
-                messages.success(self.request, f" {count} new ORCID records loaded!!")
+                messages.success(self.request, f" {count} ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 return redirect("socialaccount_connections")
@@ -468,19 +478,25 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         """Get the context data"""
 
         context = super().get_context_data(**kwargs)
-        context.get('helper').add_input(
-            Submit("load_from_orcid", f"Fetch {self.affiliation_type} from ORCiD", css_class="btn btn-info"))
+        context.get("helper").add_input(
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+        )
         return context
 
 
 class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
 
-    affiliation_type = "EMP"
+    affiliation_type = {"employment": "EMP"}
 
 
 class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
-    affiliation_type = "EDU"
+    affiliation_type = {"education": "EDU"}
+
+
+class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
+
+    affiliation_type = {"membership": "MEM", "service": "SER"}
 
 
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
@@ -564,6 +580,29 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("-start_year")
 
+    def get_context_data(self, **kwargs):
+        """Get the context data"""
+
+        context = super().get_context_data(**kwargs)
+        context.get("helper").add_input(
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Check the POST request call """
+        if "load_from_orcid" in request.POST:
+            orcidhelper = OrcidDataHelperView()
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
+                request.user, {"education": "EDU", "qualification": "QUA"}
+            )
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
+        return super(ProfileAcademicRecordFormSetView, self).post(request, *args, **kwargs)
+
 
 class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
@@ -589,8 +628,31 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
             "-recognized_in"
         )
 
+    def get_context_data(self, **kwargs):
+        """Get the context data"""
 
-class OrcidDataHelperView():
+        context = super().get_context_data(**kwargs)
+        context.get("helper").add_input(
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Check the POST request call """
+        if "load_from_orcid" in request.POST:
+            orcidhelper = OrcidDataHelperView()
+            count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
+                request.user, {"funding": "FUN"}
+            )
+            if user_has_linked_orcid:
+                messages.success(self.request, f" {count} ORCID records loaded!!")
+                return HttpResponseRedirect(self.request.path_info)
+            else:
+                return redirect("socialaccount_connections")
+        return super(ProfileRecognitionFormSetView, self).post(request, *args, **kwargs)
+
+
+class OrcidDataHelperView:
     """Main class to fetch ORCID record"""
 
     def get_orcid_profile_data(self, current_user):
@@ -598,12 +660,14 @@ class OrcidDataHelperView():
         for sa in social_accounts:
             if sa.provider == "orcid":
                 orcid_id = sa.uid
-                access_token = SocialToken.objects.get(account__user=current_user, account__provider=sa.provider)
+                access_token = SocialToken.objects.get(
+                    account__user=current_user, account__provider=sa.provider
+                )
                 url = f"https://pub.sandbox.orcid.org/v3.0/{orcid_id}"
                 headers = {
                     "Accept": "application/json",
                     "Authorization": f"Bearer {access_token.token}",
-                    "Content-Length": "0"
+                    "Content-Length": "0",
                 }
                 resp = requests.get(url, headers=headers)
                 if resp.status_code == 200:
@@ -615,46 +679,95 @@ class OrcidDataHelperView():
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
         extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
         if user_has_linked_orcid:
+            orcid_objs = {}
 
-            affiliation_objs = {
+            orcid_objs = {
                 at: [
-                    s.get(f"{at}-summary") for ag in extra_data.get(
-                        "activities-summary").get(f"{at}s").get("affiliation-group", [])
+                    s.get(f"{at}-summary")
+                    for ag in extra_data.get("activities-summary")
+                    .get(f"{at}s")
+                    .get("affiliation-group", [])
                     for s in ag.get("summaries", [])
                 ]
-                for at in affiliation_types
+                for at in affiliation_types.keys()
             }
+            orcid_objs.update(
+                {
+                    "funding": [
+                        w
+                        for g in extra_data.get("activities-summary")
+                        .get("fundings")
+                        .get("group", [])
+                        for w in g.get("funding-summary")
+                    ]
+                }
+            )
 
             count = 0
-            for affiliation_type in affiliation_objs.keys():
-                for aff in affiliation_objs.get(affiliation_type):
-                    org, _ = models.Organisation.objects.get_or_create(name=aff.get('organization').get('name'))
+            for affiliation_type in affiliation_types.keys():
+                for aff in orcid_objs.get(affiliation_type):
+                    org, _ = models.Organisation.objects.get_or_create(
+                        name=aff.get("organization").get("name")
+                    )
                     org.save()
 
-                    if affiliation_type == "employment":
-                        affiliation_obj, status = models.Affiliation.objects.get_or_create(profile=current_user.profile,
-                                                                                           org=org,
-                                                                                           put_code=aff.get('put-code'))
-                        affiliation_obj.type = "EMP"
-                        affiliation_obj.role = aff.get('role-title')
-                        if aff.get('start-date'):
-                            affiliation_obj.start_date = str(PartialDate.create(aff.get('start-date')))
-                        if aff.get('end-date'):
-                            affiliation_obj.end_date = str(PartialDate.create(aff.get('end-date')))
+                    if affiliation_type in ["employment", "membership", "service"]:
+                        affiliation_obj, status = models.Affiliation.objects.get_or_create(
+                            profile=current_user.profile, org=org, put_code=aff.get("put-code")
+                        )
+                        affiliation_obj.type = affiliation_types[affiliation_type]
+                        affiliation_obj.role = aff.get("role-title")
+                        if aff.get("start-date"):
+                            affiliation_obj.start_date = str(
+                                PartialDate.create(aff.get("start-date"))
+                            )
+                        if aff.get("end-date"):
+                            affiliation_obj.end_date = str(PartialDate.create(aff.get("end-date")))
                         affiliation_obj.save()
                         count += 1
                     elif affiliation_type in ["education", "qualification"]:
-                        academic_obj, status = models.AcademicRecord.objects.get_or_create(profile=current_user.profile,
-                                                                                           awarded_by=org,
-                                                                                           put_code=aff.get('put-code'),
-                                                                                           qualification=94)
-                        if aff.get('start-date'):
-                            academic_obj.start_year = PartialDate.create(aff.get('start-date')).year
-                        if aff.get('end-date'):
-                            academic_obj.conferred_on = str(PartialDate.create(aff.get('end-date')))
+                        qualification = 94
+                        for key, value in dict(models.QUALIFICATION_LEVEL).items():
+                            if aff.get("role-title") == value:
+                                qualification = key
+                        academic_obj, status = models.AcademicRecord.objects.get_or_create(
+                            profile=current_user.profile,
+                            awarded_by=org,
+                            put_code=aff.get("put-code"),
+                            qualification=qualification,
+                        )
+                        if aff.get("start-date"):
+                            academic_obj.start_year = PartialDate.create(
+                                aff.get("start-date")
+                            ).year
+                        if aff.get("end-date"):
+                            academic_obj.conferred_on = str(
+                                PartialDate.create(aff.get("end-date"))
+                            )
                         academic_obj.save()
                         count += 1
-
+                    elif affiliation_type == "funding":
+                        if aff.get("type") in ["award", "salary-award"] and aff.get(
+                            "title", {}
+                        ).get("title", {}).get("value", {}):
+                            award, _ = models.Award.objects.get_or_create(
+                                name=aff.get("title").get("title").get("value")
+                            )
+                            award.save()
+                            rec_obj, status = models.Recognition.objects.get_or_create(
+                                profile=current_user.profile,
+                                award=award,
+                                awarded_by=org,
+                                put_code=aff.get("put-code"),
+                            )
+                            if aff.get("start-date"):
+                                rec_obj.recognized_in = PartialDate.create(
+                                    aff.get("start-date")
+                                ).year
+                            if aff.get("amount"):
+                                rec_obj.amount = aff.get("amount")
+                            rec_obj.save()
+                            count += 1
             return (count, user_has_linked_orcid)
         else:
             return (-1, user_has_linked_orcid)

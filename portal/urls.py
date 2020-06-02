@@ -73,6 +73,11 @@ urlpatterns = [
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("", views.subscribe, name="comingsoon"),
+    path(
+        "profile/professional/",
+        views.ProfileProfessionalFormSetView.as_view(),
+        name="profile-professional-records",
+    ),
     # path(
     #     "subscription/update/<int:pk>",
     #     views.SubscriptionUpdate.as_view(),
