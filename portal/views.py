@@ -93,7 +93,7 @@ def subscribe(request):
 @login_required
 @shoud_be_onboarded
 def index(request):
-    schemes = models.Scheme.where(groups__in=request.user.groups.all()).all()
+    schemes = models.Scheme.where(groups__in=request.user.groups.all()).distinct()
     return render(request, "index.html", locals())
 
 
