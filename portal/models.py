@@ -471,10 +471,12 @@ class Award(Model):
 
 class Recognition(Model):
     profile = ForeignKey(Profile, related_name="recognitions", on_delete=CASCADE)
-    recognized_in = PositiveSmallIntegerField("year of recognition", null=True, blank=True)
-    award = ForeignKey(Award, on_delete=CASCADE)
-    awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
-    amount = DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
+    recognized_in = PositiveSmallIntegerField(_("year of recognition"), null=True, blank=True)
+    award = ForeignKey(Award, on_delete=CASCADE, verbose_name=_("award"))
+    awarded_by = ForeignKey(Organisation, on_delete=CASCADE, verbose_name=_("awarded by"))
+    amount = DecimalField(
+        max_digits=9, decimal_places=2, null=True, blank=True, verbose_name=_("amount")
+    )
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     def __str__(self):
