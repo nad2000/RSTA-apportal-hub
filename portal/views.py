@@ -523,6 +523,19 @@ class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         return models.Award.objects.order_by("-id", "name")
 
 
+class FosAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
+    def get_queryset(self):
+
+        q = models.FieldOfStudy.objects
+        if self.q:
+            q = q.filter(description__icontains=self.q).order_by("description")
+        return q.order_by("description")
+
+
 class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
 
     model = models.CurriculumVitae
@@ -563,14 +576,14 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "start_year": DateInput(attrs={"class": "yearpicker"}),
-                    # "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
-                    "awarded_by": ModelSelect2Widget(
-                        model=models.Organisation, search_fields=["name__icontains"],
-                    ),
-                    "discipline": ModelSelect2Widget(
-                        model=models.FieldOfResearch, search_fields=["description__icontains"],
-                    ),
-                    # "file": FileInput(),
+                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                    # "awarded_by": ModelSelect2Widget(
+                    #     model=models.Organisation, search_fields=["name__icontains"],
+                    # ),
+                    "discipline": autocomplete.ModelSelect2("fos-autocomplete"),
+                    # "discipline": ModelSelect2Widget(
+                    #     model=models.FieldOfResearch, search_fields=["description__icontains"],
+                    # ),
                     "conferred_on": forms.DateInput(),
                 },
             }

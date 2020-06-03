@@ -67,6 +67,11 @@ urlpatterns = [
         name="org-autocomplete",
     ),
     path(
+        "fos-autocomplete/",
+        views.FosAutocomplete.as_view(model=models.FieldOfStudy),
+        name="fos-autocomplete",
+    ),
+    path(
         "award-autocomplete/",
         views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
         name="award-autocomplete",

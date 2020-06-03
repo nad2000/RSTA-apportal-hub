@@ -34,7 +34,9 @@ GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
 
-AFFILIATION_TYPES = Choices(("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),)
+AFFILIATION_TYPES = Choices(
+    ("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),
+)
 
 ETHNICITIES = Choices(
     "European",
