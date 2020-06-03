@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.urls import path
+from django.urls import include, path
 from django.views.generic import TemplateView
 
-from . import models, views
+from . import apis, models, views
 
 # app_name = "portal"  ## in case if there is anohter app, add this prefix
 urlpatterns = [
@@ -94,6 +94,7 @@ urlpatterns = [
     #     name="subscription-delete",
     # ),
     # path("subscriptions", views.SubscriptionList.as_view(), name="subscription-list"),
+    path("api/", include(apis.router.urls)),
 ]
 
 if settings.SENTRY_DSN:
