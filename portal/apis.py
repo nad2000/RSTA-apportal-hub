@@ -4,8 +4,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateMode
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from . import serializers
-from . import models
+from . import models, serializers
 
 
 class AffiliationViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):

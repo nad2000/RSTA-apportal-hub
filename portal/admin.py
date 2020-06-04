@@ -52,91 +52,84 @@ class CodeResource(ModelResource):
         raise_errors = False
 
 
-class LanguageResource(CodeResource):
-    class Meta:
-        model = models.Language
-
-
 @admin.register(models.Language)
 class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    class LanguageResource(CodeResource):
+        class Meta:
+            model = models.Language
+
     list_display = ["code", "description"]
     search_fields = ["description", "definition"]
     resource_class = LanguageResource
 
 
-class FieldOfStudyResource(CodeResource):
-    class Meta:
-        model = models.FieldOfStudy
-
-
 @admin.register(models.FieldOfStudy)
 class FieldOfStudyAdmin(ImportExportModelAdmin):
+    class FieldOfStudyResource(CodeResource):
+        class Meta:
+            model = models.FieldOfStudy
+
     search_fields = ["description", "definition"]
     resource_class = FieldOfStudyResource
 
 
-class FieldOfResearchResource(CodeResource):
-    class Meta:
-        model = models.FieldOfResearch
-
-
 @admin.register(models.FieldOfResearch)
 class FieldOfResearchAdmin(ImportExportModelAdmin):
+    class FieldOfResearchResource(CodeResource):
+        class Meta:
+            model = models.FieldOfResearch
+
     search_fields = ["description", "definition"]
     resource_class = FieldOfResearchResource
 
 
-class CareerStageResource(CodeResource):
-    class Meta:
-        model = models.CareerStage
-
-
 @admin.register(models.CareerStage)
 class CareerStageAdmin(ImportExportModelAdmin):
+    class CareerStageResource(CodeResource):
+        class Meta:
+            model = models.CareerStage
+
     search_fields = ["description", "definition"]
     resource_class = CareerStageResource
 
 
-class PersonIdentifierTypeResource(CodeResource):
-    class Meta:
-        model = models.PersonIdentifierType
-
-
 @admin.register(models.PersonIdentifierType)
 class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
+    class PersonIdentifierTypeResource(CodeResource):
+        class Meta:
+            model = models.PersonIdentifierType
+
     search_fields = ["description", "definition"]
     resource_class = PersonIdentifierTypeResource
 
 
-class IwiGroupResource(CodeResource):
-    class Meta:
-        model = models.IwiGroup
-
-
 @admin.register(models.IwiGroup)
 class IwiGroupAdmin(ImportExportModelAdmin):
+    class IwiGroupResource(CodeResource):
+        class Meta:
+            model = models.IwiGroup
+
     search_fields = ["description", "definition", "parent_description"]
     resource_class = IwiGroupResource
 
 
-class ProtectionPatternResource(CodeResource):
-    class Meta:
-        model = models.ProtectionPattern
-
-
 @admin.register(models.ProtectionPattern)
 class ProtectionPatternAdmin(ImportExportModelAdmin):
+    class ProtectionPatternResource(CodeResource):
+        class Meta:
+            model = models.ProtectionPattern
+
     search_fields = ["description", "pattern"]
+    list_display = ["code", "description", "pattern"]
     resource_class = ProtectionPatternResource
-
-
-class OrgIdentifierTypeResource(CodeResource):
-    class Meta:
-        model = models.OrgIdentifierType
 
 
 @admin.register(models.OrgIdentifierType)
 class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
+    class OrgIdentifierTypeResource(CodeResource):
+        class Meta:
+            model = models.OrgIdentifierType
+
     search_fields = ["description", "definition"]
     resource_class = OrgIdentifierTypeResource
 
@@ -147,8 +140,20 @@ class ApplicationDecisionAdmin(ImportExportModelAdmin):
         class Meta:
             model = models.ApplicationDecision
 
-    search_fields = ["description", "definition"]
+    searcah_fields = ["description", "definition"]
     resource_class = ApplicationDecisionResource
+
+
+@admin.register(models.Qualification)
+class QualificationDecisionAdmin(ImportExportModelAdmin):
+    class QualificationDecisionResource(CodeResource):
+        class Meta:
+            fields = ["code", "description", "definition"]
+            model = models.Qualification
+
+    search_fields = ["description", "definition"]
+    list_display = ["code", "description", "definition"]
+    resource_class = QualificationDecisionResource
 
 
 @admin.register(models.Profile)

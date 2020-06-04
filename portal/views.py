@@ -21,7 +21,6 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
-from django_select2.forms import ModelSelect2Widget
 from django_tables2 import SingleTableView
 from extra_views import ModelFormSetView
 
@@ -523,6 +522,20 @@ class AwardAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         return models.Award.objects.order_by("-id", "name")
 
 
+class QualificationAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
+    def get_queryset(self):
+
+        if self.q:
+            return models.Qualification.where(description__icontains=self.q).order_by(
+                "description"
+            )
+        return models.Qualification.objects.order_by("description")
+
+
 class FosAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def has_add_permission(self, request):
         # Authenticated users can add new records
@@ -576,6 +589,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "start_year": DateInput(attrs={"class": "yearpicker"}),
+                    "qualification": autocomplete.ModelSelect2("qualification-autocomplete"),
                     "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
                     # "awarded_by": ModelSelect2Widget(
                     #     model=models.Organisation, search_fields=["name__icontains"],

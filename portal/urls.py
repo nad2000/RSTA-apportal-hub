@@ -76,6 +76,13 @@ urlpatterns = [
         views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
         name="award-autocomplete",
     ),
+    path(
+        "qualification-autocomplete/",
+        views.QualificationAutocomplete.as_view(
+            model=models.Qualification, create_field="description"
+        ),
+        name="qualification-autocomplete",
+    ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("", views.subscribe, name="comingsoon"),
     path(

@@ -306,6 +306,22 @@ class OrgIdentifierType(Model):
         ordering = ["code"]
 
 
+class Qualification(Model):
+    code = CharField(max_length=2, null=True, blank=True)
+    description = CharField(max_length=100)
+    definition = TextField(max_length=100, null=True, blank=True)
+    is_nzqf = BooleanField(
+        _("the New Zealand Qualifications Framework Qualification level"), default=True,
+    )
+
+    def __str__(self):
+        return self.description
+
+    class Meta:
+        db_table = "qualification"
+        ordering = ["definition"]
+
+
 class Organisation(Model):
 
     name = CharField(max_length=200)
@@ -447,9 +463,8 @@ class AcademicRecord(Model):
     start_year = PositiveIntegerField(
         validators=[MinValueValidator(1960), MaxValueValidator(2099)], null=True, blank=True
     )
-    qualification = PositiveSmallIntegerField(choices=QUALIFICATION_LEVEL)
+    qualification = ForeignKey(Qualification, null=True, blank=True, on_delete=DO_NOTHING)
     conferred_on = DateField(null=True, blank=True)
-    # discipline = ForeignKey(FieldOfResearch, on_delete=CASCADE)
     discipline = ForeignKey(FieldOfStudy, on_delete=CASCADE, null=True, blank=True)
     awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
     research_topic = CharField(max_length=80, null=True, blank=True)
