@@ -503,6 +503,7 @@ class Recognition(Model):
 
 class Application(Model):
 
+    submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
     title = CharField(max_length=512)

@@ -304,8 +304,18 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     template_name = "form.html"
     form_class = forms.ApplicationForm
 
+    def get(self, request, *args, **kwargs):
+        a = models.Application.where(submitted_by=request.user).order_by("-id").first()
+        if a:
+            messages.warning(
+                self.request, _("You have aleady created an application. Please update it.")
+            )
+            return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
+        return super().get(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.organisation = form.instance.org.name
+        form.instance.submitted_by = self.request.user
         return super().form_valid(form)
 
     def get_form_kwargs(self):

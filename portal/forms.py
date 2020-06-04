@@ -80,7 +80,7 @@ class ApplicationForm(forms.ModelForm):
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
                 attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
-            )
+            ),
         )
 
 

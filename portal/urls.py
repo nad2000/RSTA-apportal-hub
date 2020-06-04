@@ -26,7 +26,7 @@ urlpatterns = [
     path("profiles/~create", views.ProfileCreate.as_view(), name="profile-create"),
     path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
     path("application/~create", views.ApplicationCreate.as_view(), name="application-create"),
-    path("application/~update", views.ApplicationUpdate.as_view(), name="application-update"),
+    path("application/<int:pk>/~update", views.ApplicationUpdate.as_view(), name="application-update"),
     path("application/<int:pk>", views.ApplicationDetail.as_view(), name="application"),
     path(
         "profile/career-stages/",
