@@ -26,6 +26,12 @@ class SubscriptionForm(forms.ModelForm):
         fields = "__all__"
 
 
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = models.User
+        fields = ["first_name", "middle_names", "last_name"]
+
+
 class ProfileForm(forms.ModelForm):
     def clean_is_accepted(self):
         """Allow only 'True'"""

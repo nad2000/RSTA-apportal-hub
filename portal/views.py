@@ -131,17 +131,37 @@ def user_profile(request, pk=None):
 
 
 class ProfileView:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_user_form(self):
         u = self.request.user
-        if not Profile.where(user=u).exists() or not u.profile.is_completed:
-            context["progress"] = 10
-        return context
+        if self.request.method == "POST":
+            user_form = forms.UserForm(self.request.POST, instance=u)
+        else:
+            user_form = forms.UserForm(instance=u)
+        return user_form
+
+    def get_context_data(self, **kwargs):
+
+        if "progress" not in kwargs:
+            u = self.request.user
+            if not Profile.where(user=u).exists() or not u.profile.is_completed:
+                kwargs["progress"] = 10
+
+        if "user_form" not in kwargs:
+            kwargs["user_form"] = self.get_user_form()
+
+        return super().get_context_data(**kwargs)
 
     def get_success_url(self):
         if not self.request.user.profile.is_completed:
             return reverse(ProfileSectionFormSetView.section_views[0])
         return super().get_success_url()
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_user_form()
+        if not form.is_valid():
+            return self.form_invalid(form)
+        form.save()
+        return super().post(request, *args, **kwargs)
 
 
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
@@ -269,6 +289,16 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
     model = Application
 
 
+class ApplicationUpdate(LoginRequiredMixin, UpdateView):
+    model = Application
+    template_name = "form.html"
+    form_class = forms.ApplicationForm
+
+    def form_valid(self, form):
+        form.instance.organisation = form.instance.org.name
+        return super().form_valid(form)
+
+
 class ApplicationCreate(LoginRequiredMixin, CreateView):
     model = Application
     template_name = "form.html"
@@ -284,7 +314,12 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         if self.request.method == "GET" and "initial" in kwargs:
             user = self.request.user
             kwargs["initial"].update(
-                {"first_name": user.first_name, "last_name": user.last_name, "email": user.email,}
+                {
+                    "first_name": user.first_name,
+                    "middle_names": user.middle_names,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                }
             )
         return kwargs
 

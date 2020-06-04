@@ -8,6 +8,13 @@ from simple_history.models import HistoricalRecords
 
 class User(HelperMixin, AbstractUser):
 
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
     # First Name and Last Name do not cover name patterns
     # around the globe.
     name = CharField(_("Name of User"), blank=True, null=True, max_length=255)

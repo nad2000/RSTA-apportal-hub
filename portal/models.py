@@ -507,6 +507,13 @@ class Application(Model):
     is_team_application = BooleanField(default=False)
     title = CharField(max_length=512)
     first_name = CharField(max_length=30)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
     last_name = CharField(max_length=150)
     org = ForeignKey(
         Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
