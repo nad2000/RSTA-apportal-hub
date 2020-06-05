@@ -24,7 +24,7 @@
         </a>
         {% if scheme.current_round %}
           {% if request.user.is_applicant and scheme.can_be_applied_to %}
-            <a href="{% url 'application-create' %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+            <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
               style="text-transform: uppercase;"
               {% if not scheme.current_round.is_open %}
                 disabled

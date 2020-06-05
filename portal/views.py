@@ -305,7 +305,11 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     form_class = forms.ApplicationForm
 
     def get(self, request, *args, **kwargs):
-        a = models.Application.where(submitted_by=request.user).order_by("-id").first()
+        a = (
+            models.Application.where(submitted_by=request.user, round_id=kwargs["round"])
+            .order_by("-id")
+            .first()
+        )
         if a:
             messages.warning(
                 self.request, _("You have aleady created an application. Please update it.")
@@ -316,6 +320,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.organisation = form.instance.org.name
         form.instance.submitted_by = self.request.user
+        form.instance.round_id = self.kwargs["round"]
         return super().form_valid(form)
 
     def get_form_kwargs(self):
@@ -329,6 +334,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
                     "middle_names": user.middle_names,
                     "last_name": user.last_name,
                     "email": user.email,
+                    # "title": models.Round.get(self.kwargs["round"]).title,
                 }
             )
         return kwargs
@@ -579,6 +585,9 @@ class QualificationAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySet
                 "description"
             )
         return models.Qualification.objects.order_by("description")
+
+    def create_object(self, text):
+        return self.get_queryset().get_or_create(is_nzqf=False, **{self.create_field: text})[0]
 
 
 class FosAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
