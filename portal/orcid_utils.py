@@ -117,11 +117,12 @@ class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
     model = models.AcademicRecord
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
-        qualification = 94
-        for key, value in dict(models.QUALIFICATION_LEVEL).items():
-            if orcid_data.get("role-title") == value:
-                qualification = key
-        academic_obj, status = self.model.objects.get_or_create(
+        qualification, _ = models.Qualification.objects.get_or_create(
+            description=orcid_data.get("role-title")
+        )
+        qualification.save()
+
+        academic_obj, _ = self.model.objects.get_or_create(
             profile=current_user.profile,
             awarded_by=org,
             put_code=orcid_data.get("put-code"),

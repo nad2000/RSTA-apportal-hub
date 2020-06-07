@@ -174,7 +174,6 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     template_name = "profile.html"
     orcid_data_helpers = [
         OrcidMembershipDataHelper(),
-        OrcidServiceDataHelper(),
         OrcidFundingDataHelper(),
         OrcidQualificationDataHelper(),
         OrcidEducationDataHelper(),
