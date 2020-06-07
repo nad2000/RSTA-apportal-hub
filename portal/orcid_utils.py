@@ -121,8 +121,9 @@ class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
     model = models.AcademicRecord
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
+        # Role-title is empty for ORCID vanilla record.
         qualification, _ = models.Qualification.objects.get_or_create(
-            description=orcid_data.get("role-title")
+            description=orcid_data.get("role-title") if orcid_data.get("role-title") else "Don't Know"
         )
         qualification.save()
         try:
@@ -166,7 +167,7 @@ class OrcidRecognitionDataHelper(OrcidDataHelperView):
                 rec_obj.awarded_by = org
                 rec_obj.award = award
             except self.model.DoesNotExist:
-                rec_obj, status = self.model.objects.get_or_create(
+                rec_obj, status = self.model.objects.create(
                     profile=current_user.profile,
                     award=award,
                     awarded_by=org,
