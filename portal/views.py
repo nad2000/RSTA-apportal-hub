@@ -28,9 +28,9 @@ from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .orcid_utils import (
     OrcidEducationDataHelper,
     OrcidEmploymentDataHelper,
-    OrcidFundingDataHelper,
     OrcidMembershipDataHelper,
     OrcidQualificationDataHelper,
+    OrcidRecognitionDataHelper,
     OrcidServiceDataHelper,
 )
 from .tables import SubscriptionTable
@@ -174,7 +174,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     template_name = "profile.html"
     orcid_data_helpers = [
         OrcidMembershipDataHelper(),
-        OrcidFundingDataHelper(),
+        OrcidRecognitionDataHelper(),
         OrcidQualificationDataHelper(),
         OrcidEducationDataHelper(),
         OrcidEmploymentDataHelper(),
@@ -687,7 +687,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
     model = models.Recognition
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
-    orcid_data_helpers = [OrcidFundingDataHelper()]
+    orcid_data_helpers = [OrcidRecognitionDataHelper()]
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

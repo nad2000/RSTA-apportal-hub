@@ -66,14 +66,18 @@ class OrcidDataHelperView(ABC):
 
 
 class OrcidAffiliationDataHelper(OrcidDataHelperView):
-    orcid_data_identifier = {"employment": "EMP", "education": "EDU"}
+    orcid_data_identifier = None
     model = models.Affiliation
     affiliation_type = None
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
-        affiliation_obj, status = self.model.objects.get_or_create(
-            profile=current_user.profile, org=org, put_code=orcid_data.get("put-code")
-        )
+        try:
+            affiliation_obj = self.model.objects.get(put_code=orcid_data.get("put-code"))
+            affiliation_obj.org = org
+        except self.model.DoesNotExist:
+            affiliation_obj = self.model.objects.create(
+                profile=current_user.profile, org=org, put_code=orcid_data.get("put-code")
+            )
         affiliation_obj.type = self.affiliation_type
         affiliation_obj.role = orcid_data.get("role-title")
         if orcid_data.get("start-date"):
@@ -121,13 +125,17 @@ class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
             description=orcid_data.get("role-title")
         )
         qualification.save()
-
-        academic_obj, _ = self.model.objects.get_or_create(
-            profile=current_user.profile,
-            awarded_by=org,
-            put_code=orcid_data.get("put-code"),
-            qualification=qualification,
-        )
+        try:
+            academic_obj = self.model.objects.get(put_code=orcid_data.get("put-code"))
+            academic_obj.awarded_by = org
+            academic_obj.qualification = qualification
+        except self.model.DoesNotExist:
+            academic_obj = self.model.objects.create(
+                profile=current_user.profile,
+                awarded_by=org,
+                put_code=orcid_data.get("put-code"),
+                qualification=qualification,
+            )
         if orcid_data.get("start-date"):
             academic_obj.start_year = PartialDate.create(orcid_data.get("start-date")).year
         if orcid_data.get("end-date"):
@@ -140,7 +148,7 @@ class OrcidQualificationDataHelper(OrcidEducationDataHelper):
     orcid_data_identifier = {"qualification": "QUA"}
 
 
-class OrcidFundingDataHelper(OrcidDataHelperView):
+class OrcidRecognitionDataHelper(OrcidDataHelperView):
     orcid_data_identifier = {"funding": "FUN"}
     model = models.Recognition
 
@@ -153,12 +161,17 @@ class OrcidFundingDataHelper(OrcidDataHelperView):
                 name=orcid_data.get("title").get("title").get("value")
             )
             award.save()
-            rec_obj, status = self.model.objects.get_or_create(
-                profile=current_user.profile,
-                award=award,
-                awarded_by=org,
-                put_code=orcid_data.get("put-code"),
-            )
+            try:
+                rec_obj = self.model.objects.get(put_code=orcid_data.get("put-code"))
+                rec_obj.awarded_by = org
+                rec_obj.award = award
+            except self.model.DoesNotExist:
+                rec_obj, status = self.model.objects.get_or_create(
+                    profile=current_user.profile,
+                    award=award,
+                    awarded_by=org,
+                    put_code=orcid_data.get("put-code"),
+                )
             if orcid_data.get("start-date"):
                 rec_obj.recognized_in = PartialDate.create(orcid_data.get("start-date")).year
             if orcid_data.get("amount"):
