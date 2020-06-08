@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
-from django.forms import DateInput, HiddenInput
+from django.forms import DateInput, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import HttpResponseRedirect
@@ -492,8 +492,21 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
 class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
 
     model = models.ProfilePersonIdentifier
-    formset_class = forms.ProfilePersonIdentifierFormSet
+    # formset_class = forms.ProfilePersonIdentifierFormSet
     orcid_data_helpers = [OrcidExternalIdDataHelper()]
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            {
+                "widgets": {
+                    "profile": HiddenInput(),
+                    "code": autocomplete.ModelSelect2("person-identifier-autocomplete"),
+                    "value": TextInput(),
+                },
+            }
+        )
+        return kwargs
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
@@ -605,6 +618,20 @@ class QualificationAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySet
 
     def create_object(self, text):
         return self.get_queryset().get_or_create(is_nzqf=False, **{self.create_field: text})[0]
+
+
+class PersonIdentifierAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return True  # request.user.is_authenticated
+
+    def get_queryset(self):
+
+        if self.q:
+            return models.PersonIdentifierType.where(description__icontains=self.q).order_by(
+                "description"
+            )
+        return models.PersonIdentifierType.objects.order_by("description")
 
 
 class FosAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
