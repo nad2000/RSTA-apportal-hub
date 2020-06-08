@@ -41,7 +41,14 @@ class OrcidDataHelperView(ABC):
                     return (extra_data, True)
         return (None, False)
 
-    def fetch_and_load_affiliation_data(self, current_user):
+    def org_from_orcid_data(self, orcid_data):
+        org, _ = models.Organisation.objects.get_or_create(
+            name=orcid_data.get("organization").get("name")
+        )
+        org.save()
+        return org
+
+    def fetch_and_load_orcid_data(self, current_user):
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
         extra_data, user_has_linked_orcid = self.get_orcid_profile_data(current_user)
         if user_has_linked_orcid:
@@ -49,10 +56,7 @@ class OrcidDataHelperView(ABC):
             count = 0
             for affiliation_type in self.get_orcid_data_identifier().keys():
                 for orcid_data in orcid_objs.get(affiliation_type):
-                    org, _ = models.Organisation.objects.get_or_create(
-                        name=orcid_data.get("organization").get("name")
-                    )
-                    org.save()
+                    org = self.org_from_orcid_data(orcid_data)
                     status = self.create_and_save_record_from_orcid_data(
                         current_user, org, orcid_data
                     )
@@ -123,7 +127,9 @@ class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
         # Role-title is empty for ORCID vanilla record.
         qualification, _ = models.Qualification.objects.get_or_create(
-            description=orcid_data.get("role-title") if orcid_data.get("role-title") else "Don't Know"
+            description=orcid_data.get("role-title")
+            if orcid_data.get("role-title")
+            else "Don't Know"
         )
         qualification.save()
         try:
@@ -167,7 +173,7 @@ class OrcidRecognitionDataHelper(OrcidDataHelperView):
                 rec_obj.awarded_by = org
                 rec_obj.award = award
             except self.model.DoesNotExist:
-                rec_obj, status = self.model.objects.create(
+                rec_obj = self.model.objects.create(
                     profile=current_user.profile,
                     award=award,
                     awarded_by=org,
@@ -190,3 +196,43 @@ class OrcidRecognitionDataHelper(OrcidDataHelperView):
             ]
         }
         return orcid_objs
+
+
+class OrcidExternalIdDataHelper(OrcidDataHelperView):
+    orcid_data_identifier = {"externalid": "EXT"}
+    model = models.ProfilePersonIdentifier
+
+    def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
+        code, _ = models.PersonIdentifierType.objects.get_or_create(
+            description=orcid_data.get("external-id-type")
+        )
+        code.save()
+        value = orcid_data.get("external-id-value")
+        try:
+            ext_obj = self.model.objects.get(put_code=orcid_data.get("put-code"))
+            ext_obj.code = code
+            ext_obj.value = value
+        except self.model.DoesNotExist:
+            ext_obj = self.model.objects.create(
+                profile=current_user.profile,
+                code=code,
+                value=value,
+                put_code=orcid_data.get("put-code"),
+            )
+        ext_obj.save()
+        return True
+
+    def extract_orcid_data_from_profile_data(self, raw_data):
+        orcid_objs = {
+            "externalid": [
+                g
+                for g in raw_data.get("person")
+                .get("external-identifiers")
+                .get("external-identifier", [])
+            ]
+        }
+        return orcid_objs
+
+    def org_from_orcid_data(self, orcid_data):
+        """org info is not needed at the moment for external ids"""
+        return None

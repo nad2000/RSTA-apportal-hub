@@ -28,6 +28,7 @@ from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .orcid_utils import (
     OrcidEducationDataHelper,
     OrcidEmploymentDataHelper,
+    OrcidExternalIdDataHelper,
     OrcidMembershipDataHelper,
     OrcidQualificationDataHelper,
     OrcidRecognitionDataHelper,
@@ -179,6 +180,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
         OrcidEducationDataHelper(),
         OrcidEmploymentDataHelper(),
         OrcidServiceDataHelper(),
+        OrcidExternalIdDataHelper(),
     ]
 
     def post(self, request, *args, **kwargs):
@@ -186,9 +188,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
         if "load_from_orcid" in request.POST:
             total_records_fetched = 0
             for orcidhelper in self.orcid_data_helpers:
-                count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
-                    request.user
-                )
+                count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
                 total_records_fetched += count
             if user_has_linked_orcid:
                 messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
@@ -409,9 +409,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         if "load_from_orcid" in request.POST:
             total_records_fetched = 0
             for orcidhelper in self.orcid_data_helpers:
-                count, user_has_linked_orcid = orcidhelper.fetch_and_load_affiliation_data(
-                    request.user
-                )
+                count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
                 total_records_fetched += count
             if user_has_linked_orcid:
                 messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
@@ -495,9 +493,18 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
 
     model = models.ProfilePersonIdentifier
     formset_class = forms.ProfilePersonIdentifierFormSet
+    orcid_data_helpers = [OrcidExternalIdDataHelper()]
 
     def get_queryset(self):
         return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
+
+    def get_context_data(self, **kwargs):
+        """Get the context data"""
+        context = super().get_context_data(**kwargs)
+        context.get("helper").add_input(
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+        )
+        return context
 
 
 class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
