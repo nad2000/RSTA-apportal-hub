@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             """
-            CREATE VIEW IF NOT EXISTS protection_pattern_profile_view AS
+            CREATE VIEW protection_pattern_profile_view AS
             SELECT
                 pp.description,
                 pp.pattern,
