@@ -409,7 +409,7 @@ class Profile(Model):
 
     @property
     def protection_patterns(self):
-        return ProtectionPatternProfile.objects.filter(code__in=[1, 2, 3]).filter(
+        return ProtectionPatternProfile.objects.filter(code__in=[3, 4, 5, 6, 7, 8, 9]).filter(
             Q(profile=self) | Q(profile_id__isnull=True)
         )
 
