@@ -1,11 +1,18 @@
 from modeltranslation.translator import TranslationOptions, register
 
-from .models import Scheme
+from . import models
 
 
-@register(Scheme)
+@register(models.Scheme)
 class SchemeTranslationOptions(TranslationOptions):
     fields = (
         "title",
+        "description",
+    )
+
+
+@register(models.ProtectionPattern)
+class ProtectionPatternOptions(TranslationOptions):
+    fields = (
         "description",
     )

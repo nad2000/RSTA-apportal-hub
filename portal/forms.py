@@ -49,8 +49,6 @@ class ProfileForm(forms.ModelForm):
             "employment_status",
             "primary_language_spoken",
             "iwi_groups",
-            "protection_pattern",
-            "protection_pattern_expires_on",
             "is_accepted",
         ]
         widgets = dict(
@@ -66,7 +64,7 @@ class ProfileForm(forms.ModelForm):
             iwi_groups=ModelSelect2MultipleWidget(
                 model=models.IwiGroup, search_fields=["description__icontains"],
             ),
-            protection_pattern_expires_on=DateInput(),
+            # protection_pattern_expires_on=DateInput(),
             is_acceted=forms.CheckboxInput(),
         )
         labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
