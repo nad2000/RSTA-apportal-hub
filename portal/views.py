@@ -40,9 +40,10 @@ from .tasks import notify_user
 
 def shoud_be_onboarded(function):
     """
-    Check if the authentication user has a profile.
-    If it is misssing, the user gets redirected to
-    'onboard' to create a profile.
+    Check if the authentication user has a profile.  If it is misssing,
+    the user gets redirected to 'onboard' to create a profile.
+
+    If the user is onboarded, add the profile to the request object.
     """
 
     @wraps(function)
@@ -229,6 +230,13 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
                 messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
             else:
+                messages.warning(
+                    self.request,
+                    _(
+                        "In order to imort ORCID profile, please, "
+                        "link your ORCID account to your portal account."
+                    ),
+                )
                 return redirect("socialaccount_connections")
 
 

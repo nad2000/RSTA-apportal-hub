@@ -1,25 +1,33 @@
-from abc import ABC, abstractmethod
+from urllib.parse import urljoin
 
 import requests
 from allauth.socialaccount.models import SocialToken
+from django.conf import settings
 
 from . import models
 from .utils.date_utils import PartialDate
 
 
-class OrcidDataHelperView(ABC):
+class OrcidDataHelperView:
     """Main class to fetch ORCID record"""
 
-    @abstractmethod
+    orcid_data_identifier = None
+    model = None
+    affiliation_type = None
+
+    def __init__(self, model=None, orcid_data_identifier=None, affiliation_type=None):
+        if orcid_data_identifier:
+            self.orcid_data_identifier = orcid_data_identifier
+        if affiliation_type:
+            self.affiliation_type = affiliation_type
+        if model:
+            self.model = model
+
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
-        pass
+        raise NotImplementedError()
 
-    def get_orcid_data_identifier(self):
-        return self.orcid_data_identifier
-
-    @abstractmethod
     def extract_orcid_data_from_profile_data(self, raw_data):
-        pass
+        raise NotImplementedError()
 
     def get_orcid_profile_data(self, current_user):
         social_accounts = current_user.socialaccount_set.all()
@@ -29,7 +37,7 @@ class OrcidDataHelperView(ABC):
                 access_token = SocialToken.objects.get(
                     account__user=current_user, account__provider=sa.provider
                 )
-                url = f"https://pub.sandbox.orcid.org/v3.0/{orcid_id}"
+                url = urljoin(settings.ORCID_API_BASE, orcid_id)
                 headers = {
                     "Accept": "application/json",
                     "Authorization": f"Bearer {access_token.token}",
@@ -54,14 +62,11 @@ class OrcidDataHelperView(ABC):
         if user_has_linked_orcid:
             orcid_objs = self.extract_orcid_data_from_profile_data(extra_data)
             count = 0
-            for affiliation_type in self.get_orcid_data_identifier().keys():
-                for orcid_data in orcid_objs.get(affiliation_type):
-                    org = self.org_from_orcid_data(orcid_data)
-                    status = self.create_and_save_record_from_orcid_data(
-                        current_user, org, orcid_data
-                    )
-                    if status:
-                        count += 1
+            for orcid_data in orcid_objs.get(self.orcid_data_identifier):
+                org = self.org_from_orcid_data(orcid_data)
+                status = self.create_and_save_record_from_orcid_data(current_user, org, orcid_data)
+                if status:
+                    count += 1
             return (count, user_has_linked_orcid)
         else:
             return (-1, user_has_linked_orcid)
@@ -70,9 +75,8 @@ class OrcidDataHelperView(ABC):
 
 
 class OrcidAffiliationDataHelper(OrcidDataHelperView):
-    orcid_data_identifier = None
+
     model = models.Affiliation
-    affiliation_type = None
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
         try:
@@ -93,35 +97,35 @@ class OrcidAffiliationDataHelper(OrcidDataHelperView):
 
     def extract_orcid_data_from_profile_data(self, raw_data):
         orcid_objs = {
-            at: [
-                s.get(f"{at}-summary")
+            self.orcid_data_identifier: [
+                s.get(f"{self.orcid_data_identifier}-summary")
                 for ag in raw_data.get("activities-summary")
-                .get(f"{at}s")
+                .get(f"{self.orcid_data_identifier}s")
                 .get("affiliation-group", [])
                 for s in ag.get("summaries", [])
             ]
-            for at in self.orcid_data_identifier.keys()
         }
         return orcid_objs
 
 
 class OrcidEmploymentDataHelper(OrcidAffiliationDataHelper):
-    orcid_data_identifier = {"employment": "EMP"}
+    orcid_data_identifier = "employment"
     affiliation_type = "EMP"
 
 
 class OrcidMembershipDataHelper(OrcidAffiliationDataHelper):
-    orcid_data_identifier = {"membership": "MEM"}
+    orcid_data_identifier = "membership"
     affiliation_type = "MEM"
 
 
 class OrcidServiceDataHelper(OrcidAffiliationDataHelper):
-    orcid_data_identifier = {"service": "SER"}
+    orcid_data_identifier = "service"
     affiliation_type = "SER"
 
 
 class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
-    orcid_data_identifier = {"education": "EDU"}
+    orcid_data_identifier = "education"
+    affiliation_type = "EDU"
     model = models.AcademicRecord
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
@@ -152,11 +156,13 @@ class OrcidEducationDataHelper(OrcidAffiliationDataHelper):
 
 
 class OrcidQualificationDataHelper(OrcidEducationDataHelper):
-    orcid_data_identifier = {"qualification": "QUA"}
+    orcid_data_identifier = "qualification"
+    affiliation_type = "QUA"
 
 
 class OrcidRecognitionDataHelper(OrcidDataHelperView):
-    orcid_data_identifier = {"funding": "FUN"}
+    orcid_data_identifier = "funding"
+    affiliation_type = "FUN"
     model = models.Recognition
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
@@ -199,7 +205,9 @@ class OrcidRecognitionDataHelper(OrcidDataHelperView):
 
 
 class OrcidExternalIdDataHelper(OrcidDataHelperView):
-    orcid_data_identifier = {"externalid": "EXT"}
+
+    orcid_data_identifier = "externalid"
+    affiliation_type = "EXT"
     model = models.ProfilePersonIdentifier
 
     def create_and_save_record_from_orcid_data(self, current_user, org, orcid_data):
