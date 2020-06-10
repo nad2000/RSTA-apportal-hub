@@ -20,6 +20,7 @@ from django.db.models import (
     OneToOneField,
     PositiveIntegerField,
     PositiveSmallIntegerField,
+    Q,
     TextField,
 )
 from django.urls import reverse
@@ -53,24 +54,24 @@ ETHNICITIES = Choices(
 )
 
 QUALIFICATION_LEVEL = Choices(
-    (0, "No Qualification"),
-    (1, "Level 1 Certificate"),
-    (2, "Level 2 Certificate"),
-    (3, "Level 3 Certificate"),
-    (4, "Level 4 Certificate"),
-    (5, "Level 5 Diploma/Certificate"),
-    (6, "Level 6 Graduate Certificate, Level 6 Diploma/Certificate"),
-    (7, "Bachelor Degree, Level 7 Graduate Diploma/Certificate, Level 7 Diploma/ Certificate"),
-    (8, "Postgraduate Diploma/Certificate, Bachelor Honours"),
-    (9, "Masters Degree"),
-    (10, "Doctorate Degree"),
-    (23, "Overseas Secondary School Qualification"),
-    (94, "Don't Know"),
-    (95, "Refused to Answer"),
-    (96, "Repeated Value"),
-    (97, "Response Unidentifiable"),
-    (98, "Response Outside Scope"),
-    (99, "Not Stated"),
+    (0, _("No Qualification")),
+    (1, _("Level 1 Certificate")),
+    (2, _("Level 2 Certificate")),
+    (3, _("Level 3 Certificate")),
+    (4, _("Level 4 Certificate")),
+    (5, _("Level 5 Diploma/Certificate")),
+    (6, _("Level 6 Graduate Certificate, Level 6 Diploma/Certificate")),
+    (7, _("Bachelor Degree, Level 7 Graduate Diploma/Certificate, Level 7 Diploma/ Certificate")),
+    (8, _("Postgraduate Diploma/Certificate, Bachelor Honours")),
+    (9, _("Masters Degree")),
+    (10, _("Doctorate Degree")),
+    (23, _("Overseas Secondary School Qualification")),
+    (94, _("Don't Know")),
+    (95, _("Refused to Answer")),
+    (96, _("Repeated Value")),
+    (97, _("Response Unidentifiable")),
+    (98, _("Response Outside Scope")),
+    (99, _("Not Stated")),
 )
 
 EMPLOYMENT_STATUS = Choices(
@@ -214,7 +215,7 @@ class IwiGroup(Model):
 
 
 class ProtectionPattern(Model):
-    code = CharField(max_length=2, primary_key=True)
+    code = PositiveSmallIntegerField(primary_key=True)
     description = CharField(max_length=80)
     pattern = CharField(max_length=80)
 
@@ -385,12 +386,10 @@ class Profile(Model):
     )
     affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
 
-    protection_pattern = ForeignKey(ProtectionPattern, null=True, blank=True, on_delete=DO_NOTHING)
-    protection_pattern_expires_on = DateField(null=True, blank=True)
-
     is_external_ids_completed = BooleanField(default=False)
 
     history = HistoricalRecords(table_name="profile_history")
+    has_protection_patterns = BooleanField(default=False)
 
     @property
     def employments(self):
@@ -408,6 +407,12 @@ class Profile(Model):
     is_recognitions_completed = BooleanField(default=False)
     # is_professional_memeberships_completed = BooleanField(default=False)
     is_cvs_completed = BooleanField(default=False)
+
+    @property
+    def protection_patterns(self):
+        return ProtectionPatternProfile.objects.filter(code__in=[3, 4, 5, 6, 7, 8, 9]).filter(
+            Q(profile=self) | Q(profile_id__isnull=True)
+        )
 
     def __str__(self):
 
@@ -455,8 +460,31 @@ class Profile(Model):
         db_table = "profile"
 
 
-# class ProfessionalMembership(Model):
-#     org = ForeignKey(Organisation, on_delete=CASCADE)
+class ProfileProtectionPattern(Model):
+
+    profile = ForeignKey(Profile, on_delete=CASCADE, related_name="profile_protection_patterns")
+    protection_pattern = ForeignKey(
+        ProtectionPattern, on_delete=CASCADE, related_name="profile_protection_patterns"
+    )
+    expires_on = DateField(null=True, blank=True)
+
+    class Meta:
+        db_table = "profile_protection_pattern"
+        unique_together = ("profile", "protection_pattern")
+
+
+class ProtectionPatternProfile(Model):
+
+    code = PositiveSmallIntegerField(primary_key=True)
+    description = CharField(max_length=80)
+    pattern = CharField(max_length=80)
+    profile = ForeignKey(Profile, null=True, on_delete=DO_NOTHING)
+    expires_on = DateField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = "protection_pattern_profile_view"
+        ordering = ["description"]
 
 
 class AcademicRecord(Model):
@@ -555,6 +583,7 @@ class StateField(StatusField, FSMField):
 class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "accepted", "expired")
+    TYPES = Choices(("A", "to apply"), ("J", "to sign up"))
 
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
     email = EmailField("email address")

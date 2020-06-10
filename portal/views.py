@@ -49,8 +49,10 @@ def shoud_be_onboarded(function):
     def wrap(request, *args, **kwargs):
 
         user = request.user
-        if not Profile.where(user=user).exists() or not user.profile.is_completed:
+        profile = Profile.where(user=user).first()
+        if not profile or not profile.is_completed:
             return redirect(reverse("onboard") + "?next=" + quote(request.get_full_path()))
+        request.profile = profile
         return function(request, *args, **kwargs)
 
     return wrap
@@ -168,6 +170,39 @@ class ProfileView:
             return self.form_invalid(form)
         form.save()
         return super().post(request, *args, **kwargs)
+
+
+@login_required
+@shoud_be_onboarded
+def profile_protection_patterns(request):
+    profile = request.profile
+    if request.method == "POST":
+        has_protection_patterns = "has_protection_patterns" in request.POST
+        profile.has_protection_patterns = has_protection_patterns
+        profile.save()
+
+        if has_protection_patterns:
+            rp = request.POST
+            pp_codes = rp.getlist("pp_code")
+            expires_on_dates = rp.getlist("expires_on")
+            pp_flags = {ppc: f"pp_enabled:{ppc}" in rp.keys() for ppc in pp_codes}
+            for idx, ppc in enumerate(pp_codes):
+                if pp_flags[ppc]:
+                    ppp, _ = models.ProfileProtectionPattern.objects.get_or_create(
+                        protection_pattern_id=ppc, profile=profile
+                    )
+                    expires_on = expires_on_dates[idx]
+                    if expires_on:
+                        ppp.expires_on = expires_on
+                        ppp.save()
+
+                else:
+                    models.ProfileProtectionPattern.objects.filter(
+                        protection_pattern_id=ppc, profile=profile
+                    ).delete()
+
+    protection_patterns = profile.protection_patterns
+    return render(request, "profile_protection_patterns.html", locals())
 
 
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):

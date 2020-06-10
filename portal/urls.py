@@ -58,6 +58,11 @@ urlpatterns = [
         views.ProfileRecognitionFormSetView.as_view(),
         name="profile-recognitions",
     ),
+    path(
+        "profile/protection-patterns/",
+        views.profile_protection_patterns,
+        name="profile-protection-patterns",
+    ),
     path("profile/cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",),
     path("start", views.index, name="home"),
     path("index", views.index, name="index"),
