@@ -1,28 +1,22 @@
 from urllib.parse import urljoin
 
 import requests
-from allauth.socialaccount.models import SocialToken
 from django.conf import settings
 
 from .. import models
 from ..models import AFFILIATION_TYPES
 from ..utils.date_utils import PartialDate
 
-######
-# 1) Merged into a single object class
-# 2) Reduced calls to ORCID to a single one
-
 
 class OrcidHelper:
     """ORCID Data immport helper."""
-
-    affiliation_type = None
 
     user = None
     profile = None
 
     # The list of the ORCDI section that will be imported
     sections = None
+
     AFFILIATION_SECTION_MAP = {
         "employment": AFFILIATION_TYPES.EMP,
         "membership": AFFILIATION_TYPES.MEM,
