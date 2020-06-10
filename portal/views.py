@@ -25,17 +25,9 @@ from extra_views import ModelFormSetView
 from . import forms, models
 from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSetHelper
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
-from .orcid_utils import (
-    OrcidEducationDataHelper,
-    OrcidEmploymentDataHelper,
-    OrcidExternalIdDataHelper,
-    OrcidMembershipDataHelper,
-    OrcidQualificationDataHelper,
-    OrcidRecognitionDataHelper,
-    OrcidServiceDataHelper,
-)
 from .tables import SubscriptionTable
 from .tasks import notify_user
+from .utils.orcid import OrcidHelper
 
 
 def shoud_be_onboarded(function):
@@ -209,25 +201,17 @@ def profile_protection_patterns(request):
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
-    orcid_data_helpers = [
-        OrcidMembershipDataHelper(),
-        OrcidRecognitionDataHelper(),
-        OrcidQualificationDataHelper(),
-        OrcidEducationDataHelper(),
-        OrcidEmploymentDataHelper(),
-        OrcidServiceDataHelper(),
-        OrcidExternalIdDataHelper(),
-    ]
 
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
-            total_records_fetched = 0
-            for orcidhelper in self.orcid_data_helpers:
-                count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
-                total_records_fetched += count
+            # for orcidhelper in self.orcid_data_helpers:
+            #     count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
+            #     total_records_fetched += count
+            orcidhelper = OrcidHelper(request.user)
+            total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
+                messages.success(self.request, f" {total_records_fetched} ORCID profile records imported")
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 messages.warning(
@@ -450,10 +434,8 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
-            total_records_fetched = 0
-            for orcidhelper in self.orcid_data_helpers:
-                count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
-                total_records_fetched += count
+            orcidhelper = OrcidHelper(request.user, self.orcid_sections)
+            total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
                 messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
                 return HttpResponseRedirect(self.request.path_info)
@@ -536,7 +518,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
 
     model = models.ProfilePersonIdentifier
     # formset_class = forms.ProfilePersonIdentifierFormSet
-    orcid_data_helpers = [OrcidExternalIdDataHelper()]
+    orcid_sections = ["externalid"]
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -607,7 +589,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
 class ProfileEmploymentsFormSetView(ProfileAffiliationsFormSetView):
 
-    orcid_data_helpers = [OrcidEmploymentDataHelper()]
+    orcid_sections = ["employment"]
     affiliation_type = {"employment": "EMP"}
 
 
@@ -618,7 +600,7 @@ class ProfileEducationsFormSetView(ProfileAffiliationsFormSetView):
 
 class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
 
-    orcid_data_helpers = [OrcidMembershipDataHelper(), OrcidServiceDataHelper()]
+    orcid_sections = ["membership", "service"]
     affiliation_type = {"membership": "MEM", "service": "SER"}
 
 
@@ -722,8 +704,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
 
     model = models.AcademicRecord
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
-
-    orcid_data_helpers = [OrcidEducationDataHelper(), OrcidQualificationDataHelper()]
+    orcid_sections = ["education", "qualification"]
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -764,7 +745,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
     model = models.Recognition
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
-    orcid_data_helpers = [OrcidRecognitionDataHelper()]
+    orcid_sections = ["funding"]
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

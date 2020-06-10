@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialToken
 from common.models import HelperMixin
 from django.contrib.auth.models import AbstractUser
 from django.db.models import CharField
@@ -34,3 +35,24 @@ class User(HelperMixin, AbstractUser):
     @property
     def is_nominator(self):
         return self.in_group("NOMINATOR")
+
+    @property
+    def orcid_access_token(self):
+        """
+        Get the user ORCID token and if ORCID ID is not set or
+        is different update it.
+        """
+        social_accounts = self.socialaccount_set.all()
+        for sa in social_accounts:
+            if sa.provider == "orcid":
+                orcid_id = sa.uid
+                access_token = SocialToken.objects.get(
+                    account__user=self, account__provider=sa.provider
+                )
+                if not access_token:
+                    return
+                if not self.orcid or self.orcid != orcid_id:
+                    self.orcid = orcid_id
+                    self.save()
+
+                return access_token

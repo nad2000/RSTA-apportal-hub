@@ -36,7 +36,10 @@ GENDERS = Choices(
 )
 
 AFFILIATION_TYPES = Choices(
-    ("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),
+    ("EDU", _("Education")),
+    ("EMP", _("Employment")),
+    ("MEM", _("Membership")),
+    ("SER", _("service")),
 )
 
 ETHNICITIES = Choices(
