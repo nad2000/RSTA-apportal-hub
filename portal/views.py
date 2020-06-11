@@ -1,7 +1,8 @@
 from functools import wraps
 from urllib.parse import quote
 
-from crispy_forms.layout import Submit
+import crispy_forms
+
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
@@ -28,6 +29,15 @@ from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
+
+
+class Submit(crispy_forms.layout.BaseInput):
+
+    input_type = "submit"
+
+    def __init__(self, *args, **kwargs):
+        self.field_classes = "btn"
+        super().__init__(*args, **kwargs)
 
 
 def shoud_be_onboarded(function):
@@ -540,7 +550,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         """Get the context data"""
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid", )
         )
         return context
 
@@ -582,7 +592,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
         )
         return context
 
@@ -736,7 +746,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
         )
         return context
 
@@ -771,6 +781,6 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn btn-orcid")
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
         )
         return context
