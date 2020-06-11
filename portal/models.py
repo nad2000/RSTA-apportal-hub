@@ -36,7 +36,10 @@ GENDERS = Choices(
 )
 
 AFFILIATION_TYPES = Choices(
-    ("EDU", "Education"), ("EMP", "Employment"), ("MEM", "Membership"), ("SER", "service"),
+    ("EDU", _("Education")),
+    ("EMP", _("Employment")),
+    ("MEM", _("Membership")),
+    ("SER", _("service")),
 )
 
 ETHNICITIES = Choices(
@@ -187,16 +190,16 @@ class CareerStage(Model):
 
 
 class PersonIdentifierType(Model):
-    code = CharField(max_length=2, primary_key=True)
+    code = CharField(max_length=2, null=True, blank=True)
     description = CharField(max_length=40)
-    definition = TextField(max_length=200)
+    definition = TextField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.description
 
     class Meta:
         db_table = "person_identifier_type"
-        ordering = ["code"]
+        ordering = ["description"]
 
 
 class IwiGroup(Model):
@@ -286,8 +289,9 @@ class ProfileCareerStage(Model):
 
 class ProfilePersonIdentifier(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE,)
-    code = ForeignKey(PersonIdentifierType, on_delete=CASCADE, verbose_name="type")
+    code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name="type")
     value = CharField(max_length=20)
+    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     class Meta:
         db_table = "profile_person_identifier"

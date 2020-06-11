@@ -45,7 +45,7 @@ class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 class CodeResource(ModelResource):
     class Meta:
-        exclude = ["created_at", "updated_at"]
+        exclude = ["created_at", "updated_at", "id"]
         import_id_fields = ["code"]
         skip_unchanged = True
         report_skipped = True
@@ -100,6 +100,7 @@ class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
             model = models.PersonIdentifierType
 
     search_fields = ["description", "definition"]
+    list_display = ["code", "description", "definition"]
     resource_class = PersonIdentifierTypeResource
 
 

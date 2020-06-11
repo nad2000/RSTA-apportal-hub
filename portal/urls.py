@@ -99,6 +99,13 @@ urlpatterns = [
         ),
         name="qualification-autocomplete",
     ),
+    path(
+        "person-identifier-autocomplete/",
+        views.PersonIdentifierAutocomplete.as_view(
+            model=models.PersonIdentifierType, create_field="description"
+        ),
+        name="person-identifier-autocomplete",
+    ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("", views.subscribe, name="comingsoon"),
     path(

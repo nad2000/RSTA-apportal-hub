@@ -32,47 +32,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             """
-            CREATE VIEW IF NOT EXISTS protection_pattern_profile_view AS
-            SELECT
-                pp.description,
-                pp.pattern,
-                pp.description_en,
-                pp.description_mi,
-                pp.code,
-                ppp.expires_on,
-                ppp.profile_id,
-                ppp.created_at,
-                ppp.updated_at
-            FROM protection_pattern AS pp
-            LEFT JOIN profile_protection_pattern AS ppp ON ppp.protection_pattern_id=pp.code;
-            """,
-            "DROP VIEW IF EXISTS protection_pattern_profile_view;",
-            state_operations=[
-                migrations.CreateModel(
-                    name="ProtectionPatternProfie",
-                    fields=[
-                        ("created_at", models.DateTimeField(auto_now_add=True, null=True)),
-                        ("updated_at", models.DateTimeField(auto_now=True, null=True)),
-                        (
-                            "code",
-                            models.PositiveSmallIntegerField(primary_key=True, serialize=False),
-                        ),
-                        ("description", models.CharField(max_length=80)),
-                        ("pattern", models.CharField(max_length=80)),
-                        ("expires_on", models.DateField(blank=True, null=True)),
-                    ],
-                    options={
-                        "db_table": "protection_pattern_profile_view",
-                        "ordering": ["description"],
-                        "managed": False,
-                    },
-                    bases=(common.models.HelperMixin, models.Model),
-                )
-            ],
-        ),
-        migrations.RunSQL(
-            """
-            CREATE VIEW IF NOT EXISTS protection_pattern_profile_view AS
+            CREATE VIEW protection_pattern_profile_view AS
             SELECT
                 pp.description,
                 pp.pattern,
