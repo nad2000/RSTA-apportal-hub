@@ -11971,6 +11971,7 @@ html, body {
 .asteriskField {
   color: #a0270f;
   font-weight: bold;
+  margin-left: 1.6px;
 }
 
 .alert-debug {

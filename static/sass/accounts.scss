@@ -1,23 +1,30 @@
 /*
- * NB! DO NOT EDIT login.css DIRECTLY! IT IS GENERATED FROM login.scss.
- * USE: sass sass/login.scss css/login.css
+ * NB! DO NOT EDIT account.css DIRECTLY! IT IS GENERATED FROM account.scss.
+ * USE: sass sass/account.scss css/account.css
  * READ MORE AT: https://sass-lang.com/guide
  */
+
+// project specific CSS goes here
+@import "variables";
+
+//
+
+////////////////////////////////
 :root {
   --input-padding-x: 1.5rem;
   --input-padding-y: .75rem;
 }
 
 body {
-  background: #9e9e9e;
+		background: #9e9e9e;
 }
 
 .card-signin {
   border: 0;
   border-radius: 0.5rem;
   box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem !important;
-  margin-top: 6rem !important;
+  margin-bottom: 2rem!important;
+  margin-top: 6rem!important;
 }
 
 .card-signin .card-title {
@@ -37,7 +44,7 @@ body {
 .form-signin .btn {
   font-size: 80%;
   /* border-radius: 5rem; */
-  letter-spacing: 0.1rem;
+  letter-spacing: .1rem;
   font-weight: bold;
   padding: 1rem;
   transition: all 0.2s;
@@ -53,12 +60,12 @@ body {
   /*border-radius: 2rem; */
 }
 
-.form-label-group > input,
-.form-label-group > label {
+.form-label-group>input,
+.form-label-group>label {
   padding: var(--input-padding-y) var(--input-padding-x);
 }
 
-.form-label-group > label {
+.form-label-group>label {
   position: absolute;
   top: 0;
   left: 0;
@@ -69,8 +76,8 @@ body {
   line-height: 1.5;
   color: lightgray;
   border: 1px solid transparent;
-  border-radius: 0.25rem;
-  transition: all 0.1s ease-in-out;
+  border-radius: .25rem;
+  transition: all .1s ease-in-out;
 }
 
 .form-label-group input::-webkit-input-placeholder {
@@ -98,7 +105,7 @@ body {
   padding-bottom: calc(var(--input-padding-y) / 3);
 }
 
-.form-label-group input:not(:placeholder-shown) ~ label {
+.form-label-group input:not(:placeholder-shown)~label {
   padding-top: calc(var(--input-padding-y) / 3);
   padding-bottom: calc(var(--input-padding-y) / 3);
   font-size: 12px;
@@ -125,7 +132,7 @@ body {
   font-size: 24px;
   color: #454959;
   margin: 45px 0 25px;
-  font-family: "Francois One", sans-serif;
+  font-family: 'Francois One', sans-serif;
 }
 
 .login-form .avatar {
@@ -157,6 +164,7 @@ body {
   text-decoration: none;
   transition: all 0.4s;
   line-height: normal;
+  // border: none;
 }
 
 .login-btn {
@@ -171,7 +179,7 @@ body {
 }
 
 .tuakiri:hover {
-  background-color: lightgray;
+  background-color: lightgray
 }
 
 .login-btn:hover, .login-btn:active {
@@ -242,11 +250,11 @@ body {
 }
 
 .account .note {
-  color: #fff;
+  color: #{$white};
 }
 
 .account .note a, .note a:hover, .note {
-  color: #fff;
+  color: #{$white};
 }
 
 .login-form a:hover, .login-form form a:hover {
@@ -259,28 +267,36 @@ body {
 
 /* Fallback for Edge
 -------------------------------------------------- */
+
 @supports (-ms-ime-align: auto) {
-  .form-label-group > label {
+  .form-label-group>label {
     display: none;
   }
-
   .form-label-group input::-ms-input-placeholder {
     color: #777;
   }
 }
+
 /* Fallback for IE
 -------------------------------------------------- */
-@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  .form-label-group > label {
+@media all and (-ms-high-contrast: none),
+(-ms-high-contrast: active) {
+  .form-label-group>label {
     display: none;
   }
-
   .form-label-group input:-ms-input-placeholder {
     color: #777;
   }
 }
+
+// Adjusted ORCID button for login
 .btn-orcid {
+  // color: white;
   text-align: left;
+  // background-color: #a6ce39;
 }
 
-/*# sourceMappingURL=login.css.map */
+// .btn-orcid:hover {
+//   // color: white;
+//   // background-color: #88aa2a;
+// }
