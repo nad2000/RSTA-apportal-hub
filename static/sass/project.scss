@@ -8,13 +8,26 @@
 @import "variables";
 
 ////////////////////////////////
-		//Variables//
+// Bootstrap
 ////////////////////////////////
 
-// Alert colors
+// READ MORE AT: https://getbootstrap.com/docs/4.1/getting-started/theming/
 
-$mint-green: #d6e9c6;
-$dark-pink: #eed3d7;
+@import "variables";
+@import "../bootstrap/scss/bootstrap";
+
+// Required
+@import "../bootstrap/scss/functions";
+@import "../bootstrap/scss/variables";
+@import "../bootstrap/scss/mixins";
+
+// Optional
+@import "../bootstrap/scss/reboot";
+@import "../bootstrap/scss/type";
+@import "../bootstrap/scss/images";
+@import "../bootstrap/scss/code";
+@import "../bootstrap/scss/grid";
+
 
 // Styles
 
