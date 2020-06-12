@@ -1,3 +1,8 @@
+/*
+ * NB! DO NOT EDIT login.css DIRECTLY! IT IS GENERATED FROM login.scss.
+ * USE: sass sass/login.scss css/login.css
+ * READ MORE AT: https://sass-lang.com/guide
+ */
 :root {
   --input-padding-x: 1.5rem;
   --input-padding-y: .75rem;
@@ -273,6 +278,9 @@ body {
   .form-label-group input:-ms-input-placeholder {
     color: #777;
   }
+}
+.btn-orcid {
+  text-align: left;
 }
 
 /*# sourceMappingURL=login.css.map */
