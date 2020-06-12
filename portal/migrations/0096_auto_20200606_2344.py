@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portal', '0095_auto_20200606_0055'),
+        ("portal", "0095_auto_20200606_0055"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='protectionpattern',
-            name='description_en',
+            model_name="protectionpattern",
+            name="description_en",
             field=models.CharField(max_length=80, null=True),
         ),
         migrations.AddField(
-            model_name='protectionpattern',
-            name='description_mi',
+            model_name="protectionpattern",
+            name="description_mi",
             field=models.CharField(max_length=80, null=True),
         ),
     ]
