@@ -164,7 +164,7 @@ class Ethnicity(Model):
 
 class Language(Model):
 
-    code = CharField(max_length=3, primary_key=True)
+    code = CharField(max_length=7, primary_key=True)
     description = CharField(max_length=100)
     definition = CharField(max_length=120, null=True, blank=True)
 
@@ -700,6 +700,8 @@ class Round(Model):
             raise ValidationError(_("the round cannot close before it opens."))
         if not self.title:
             self.title = self.scheme.title
+            if self.opens_on:
+                self.title = f"{self.title} {self.opens_on.year}"
 
     def __str__(self):
         return self.title or self.scheme.title

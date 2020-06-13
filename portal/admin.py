@@ -151,6 +151,7 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
         class Meta:
             fields = ["code", "description", "definition"]
             model = models.Qualification
+            import_id_fields = ["description"]
 
     search_fields = ["description", "definition"]
     list_display = ["code", "description", "definition"]

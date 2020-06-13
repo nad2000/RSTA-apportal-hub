@@ -2,7 +2,6 @@ from functools import wraps
 from urllib.parse import quote
 
 import crispy_forms
-
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages

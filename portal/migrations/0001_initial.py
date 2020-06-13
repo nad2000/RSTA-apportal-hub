@@ -187,7 +187,7 @@ class Migration(migrations.Migration):
             fields=[
                 ("created_at", models.DateTimeField(auto_now_add=True, null=True)),
                 ("updated_at", models.DateTimeField(auto_now=True, null=True)),
-                ("code", models.CharField(max_length=3, primary_key=True, serialize=False)),
+                ("code", models.CharField(max_length=7, primary_key=True, serialize=False)),
                 ("description", models.CharField(max_length=100)),
                 ("definition", models.CharField(blank=True, max_length=120, null=True)),
             ],
