@@ -105,12 +105,13 @@ def subscribe(request):
 def index(request):
     schemes = (
         models.SchemeApplication
-        .where(
+        .where(groups__in=request.user.groups.all())
+        .filter(
             Q(application__isnull=True)
             | Q(application__submitted_by=request.user)
         )
         # .filter(groups__in=request.user.groups.all())
-        .distinct()
+        # .distinct()
     )
     return render(request, "index.html", locals())
 

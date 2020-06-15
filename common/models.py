@@ -1,5 +1,5 @@
 from django.db.models import DateTimeField
-from django.db.models import Model as _Model
+from django.db.models import Model as Base
 from model_utils import Choices
 from simple_history.models import HistoricalRecords
 
@@ -20,7 +20,7 @@ ETHNICITY_COICES = Choices(
 )
 
 
-class TimeStampMixin(_Model):
+class TimeStampMixin(Base):
     created_at = DateTimeField(auto_now_add=True, null=True)
     updated_at = DateTimeField(auto_now=True, null=True)
 
@@ -54,7 +54,7 @@ class HelperMixin:
         return cls.objects.filter(*args, **kwargs)
 
 
-class Model(TimeStampMixin, HelperMixin, _Model):
+class Model(TimeStampMixin, HelperMixin, Base):
 
     # TODO: figure out how to make generic table naming:
     # history = HistoricalRecords(inherit=True)

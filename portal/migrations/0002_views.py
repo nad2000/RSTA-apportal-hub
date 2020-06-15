@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # migrations.RunSQL(
+        #     "CREATE VIEW scheme_group_view AS SELECT * FROM scheme_group;",
+        #     "DROP VIEW IF EXISTS scheme_group_view;",
+        # ),
         migrations.RunSQL(
             """
             CREATE VIEW protection_pattern_profile_view AS

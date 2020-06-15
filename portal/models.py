@@ -1,7 +1,7 @@
 import secrets
 from datetime import date
 
-from common.models import Model
+from common.models import Base, Model
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -718,8 +718,21 @@ class Round(Model):
         db_table = "round"
 
 
+class SchemeApplicationGroup(Base):
+    scheme = ForeignKey("SchemeApplication", on_delete=CASCADE, db_column="scheme_id")
+    group = ForeignKey(Group, on_delete=CASCADE)
+
+    class Meta:
+        managed = False
+        db_table = "scheme_group"
+
+
 class SchemeApplication(Model):
     title = CharField(max_length=100)
+    groups = ManyToManyField(
+        Group, blank=True, verbose_name=_("who starts"),
+        through=SchemeApplicationGroup,
+    )
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
     current_round = OneToOneField(
