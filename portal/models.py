@@ -536,7 +536,7 @@ class Recognition(Model):
 class Application(Model):
 
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
-    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING)
+    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="applications")
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
     title = CharField(max_length=512)
@@ -562,6 +562,9 @@ class Application(Model):
     email = EmailField("email address", blank=True)
 
     history = HistoricalRecords(table_name="application_history")
+
+    def __str__(self):
+        return self.title or self.round.title
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
@@ -713,3 +716,20 @@ class Round(Model):
 
     class Meta:
         db_table = "round"
+
+
+class SchemeApplication(Model):
+    title = CharField(max_length=100)
+    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    description = TextField(_("short description"), max_length=1000, null=True, blank=True)
+    current_round = OneToOneField(
+        "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
+    )
+    application = ForeignKey(Application, null=True, on_delete=DO_NOTHING)
+    can_be_applied_to = BooleanField(null=True, blank=True)
+    can_be_nominated_to = BooleanField(null=True, blank=True)
+
+    class Meta:
+        managed = False
+        db_table = "scheme_application_view"
+        ordering = ["title"]

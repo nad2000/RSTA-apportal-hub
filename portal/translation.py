@@ -11,6 +11,14 @@ class SchemeTranslationOptions(TranslationOptions):
     )
 
 
+@register(models.SchemeApplication)
+class SchemeApplicationTranslationOptions(TranslationOptions):
+    fields = (
+        "title",
+        "description",
+    )
+
+
 @register(models.ProtectionPattern)
 class ProtectionPatternOptions(TranslationOptions):
     fields = (

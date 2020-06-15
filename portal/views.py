@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.forms import DateInput, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -102,7 +103,15 @@ def subscribe(request):
 @login_required
 @shoud_be_onboarded
 def index(request):
-    schemes = models.Scheme.where(groups__in=request.user.groups.all()).distinct()
+    schemes = (
+        models.SchemeApplication
+        .where(
+            Q(application__isnull=True)
+            | Q(application__submitted_by=request.user)
+        )
+        # .filter(groups__in=request.user.groups.all())
+        .distinct()
+    )
     return render(request, "index.html", locals())
 
 
@@ -220,7 +229,9 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
             orcidhelper = OrcidHelper(request.user)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, f" {total_records_fetched} ORCID profile records imported")
+                messages.success(
+                    self.request, f" {total_records_fetched} ORCID profile records imported"
+                )
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 messages.warning(
@@ -549,7 +560,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         """Get the context data"""
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid", )
+            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid",)
         )
         return context
 
