@@ -167,6 +167,7 @@
 
       {% endif %}
 
+      {% block page %}
       <div class="row">
         <div class="col-md-3">
           {% block sidebar %}
@@ -261,6 +262,7 @@
           {% endblock content %}
         </div>
       </div>
+      {% endblock page %}
 
     </div> <!-- /container-fluid -->
 
