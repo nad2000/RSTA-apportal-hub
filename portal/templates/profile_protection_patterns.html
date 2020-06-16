@@ -5,37 +5,62 @@
 
 {% block css %}
   {{block.super }}
-  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block section %}
-  <form method="post">{% csrf_token %}
+  <form method="post" style="max-width: 440px;">{% csrf_token %}
     <div class="checkbox">
-      <label>
-        <input
-          type="checkbox" {% if profile.has_protection_patterns %}checked{% endif %}
-          data-toggle="toggle" name="has_protection_patterns">{% trans 'Enable protection patterns' %}
+      <input
+        type="checkbox" {% if profile.has_protection_patterns %}checked{% endif %}
+        data-toggle="toggle" name="has_protection_patterns" id="has_protection_patterns">
+      <label for="has_protection_patterns">
+        {% trans 'Enable protection patterns' %}
       </label>
     </div>
     <hr />
-    {% for pp in protection_patterns %}
-      <div class="form-check">
-        <input type="hidden" value="{{ pp.code }}" name="pp_code">
-        <input type="checkbox" class="form-check-input" id="ppEnabled-{{ pp.code }}" name="pp_enabled:{{ pp.code }}"
-          {% if pp.profile %}checked{% endif %}
-        >
-        <label class="form-check-label" for="exampleCheck1">{{ pp.description }}</label>
-      </div>
-      <input type="text"
-        value="{{ pp.expires_on|date:"Y-m-d"|default_if_none:"" }}"
-        name="expires_on" class="form-control datepicker dateinput form-control">
-    {% endfor %}
-    <input class="btn btn-primary" type="submit" name="save" value="{% trans 'Save' %}">
+    <table class="table pb-3" id="patterns">
+      <tbody>
+      {% for pp in protection_patterns %}
+        <tr>
+          <td>
+            <div class="input-group">
+              <div class="form-check">
+                <input type="hidden" value="{{ pp.code }}" name="pp_code">
+                <input type="checkbox" class="form-check-input" id="ppEnabled-{{ pp.code }}" name="pp_enabled:{{ pp.code }}"
+                  {% if pp.profile %}checked{% endif %}
+                >
+                <label class="form-check-label" for="exampleCheck1">{{ pp.description }}</label>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="input-group" style="max-width: 100px;">
+              <input type="text"
+                value="{{ pp.expires_on|date:"Y-m-d"|default_if_none:"" }}"
+                name="expires_on" class="form-control datepicker dateinput form-control">
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="input-group">
+      <input class="btn btn-primary" type="submit" name="save" value="{% trans 'Save' %}">
+    </dev>
   </from>
 {% endblock %}
 
 {% block javascript %}
   {{block.super }}
-  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script>
+  $(function() {
+    {% if not profile.has_protection_patterns %}$("#patterns input").prop('disabled', true);{% endif %}
+    $('#has_protection_patterns').change(function() {
+      $("#patterns input").prop('disabled', !($(this).prop('checked')));
+    })
+  })
+  </script>
 {% endblock %}
-
