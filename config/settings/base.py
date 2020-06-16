@@ -100,6 +100,7 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "captcha",
     "simple_history",
     "background_task",
     "crispy_forms",
