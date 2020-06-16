@@ -1349,6 +1349,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         editable=False,
                         on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="applications",
                         to="portal.Round",
                     ),
                 ),
