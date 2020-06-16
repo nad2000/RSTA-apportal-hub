@@ -11,107 +11,107 @@
 {% block sidebar %}{% endblock sidebar %}
 {% block title %}{% block head_title %}{% endblock head_title %}{% endblock title %}
 
-{% block content %}
+{% block page %}
 
-<div class="row">
-<div class="col-sm-9 col-md-7 col-lg-5 mx-auto" style="max-width: 480px;">
-<div class="card card-signin my-5">
-  <div class="card-body">
-    <!-- h5 class="card-title text-center">Sign In</h5 -->
-    <form action="{% url 'set_language' %}" method="post">
-      {% csrf_token %}
-      <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
-      {% get_current_language as LANGUAGE_CODE %}
-      {% get_available_languages as LANGUAGES %}
-      {% get_language_info_list for LANGUAGES as languages %}
+  <div class="row">
+    <div class="col-sm-9 col-md-7 col-lg-5 mx-auto" style="max-width: 480px;">
+      <div class="card card-signin my-5">
+        <div class="card-body">
+          <!-- h5 class="card-title text-center">Sign In</h5 -->
+          <form action="{% url 'set_language' %}" method="post">
+            {% csrf_token %}
+            <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
 
-      <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle pull-right" type="button" id="langDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <strong>{{ LANGUAGE_CODE }}</strong>
-        </button>
-        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="langDropdownMenuButton">
-
-            {% for language in languages %}
-              <button type="submit"
-                      name="language"
-                      value="{{ language.code }}"
-                      class="dropdown-item {% if language.code == LANGUAGE_CODE %}selected{% endif %}">
-                <strong>{{ language.code }}</strong>: {{ language.name_local }}
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle pull-right" type="button" id="langDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <strong>{{ LANGUAGE_CODE }}</strong>
               </button>
-            {% endfor %}
+              <div class="dropdown-menu dropdown-menu-left" aria-labelledby="langDropdownMenuButton">
 
-        </div>
+                {% for language in languages %}
+                  <button type="submit"
+                          name="language"
+                          value="{{ language.code }}"
+                          class="dropdown-item {% if language.code == LANGUAGE_CODE %}selected{% endif %}">
+                    <strong>{{ language.code }}</strong>: {{ language.name_local }}
+                  </button>
+                {% endfor %}
+
+              </div>
+            </div>
+          </form>
+
+          <form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}">
+
+            {% csrf_token %}
+
+            <input type="hidden"
+                   name="{{ redirect_field_name }}"
+                   value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
+
+            <div class="avatar">
+              <img src="{% static 'images/avatar.png' %}" alt="Avatar" />
+            </div>
+
+            <a title="Google"
+               class="btn btn-lg btn-google btn-block"
+               href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
+              <i class="fab fa-google mr-2"></i>
+              {% trans 'Sign in with' %} <strong>Google</strong>
+            </a>
+
+            <a title="ORCID"
+               class="btn btn-lg btn-orcid btn-block btn-orcid"
+               href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
+              <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+              {% trans 'Sign in with' %} <strong>ORCID iD</strong>
+            </a>
+
+            <!-- a title="Facebook"
+              class="btn btn-lg btn-facebook btn-block"
+              href="#">
+              <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
+              style="border-color: #3e3f3a; border-bottom-width: 1px;"
+              </a -->
+
+              <a
+                title="Tuakiri"
+                class="btn btn-outline-secondary btn-lg btn-block tuakiri"
+                href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
+                <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
+              </a>
+
+              <hr class="my-4">
+              <!-- div class="or-seperator"><b>or</b></div -->
+
+              <div class="form-label-group">
+                <input name="login" id="inputEmail" class="form-control" placeholder="Email address or username" required autofocus>
+                <label for="inputEmail">{% trans 'Email address or username' %}</label>
+              </div>
+
+              <div class="form-label-group">
+                <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                <label for="inputPassword">{% trans 'Password' %}</label>
+              </div>
+
+              <div class="custom-control custom-checkbox mb-3">
+                <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
+                <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
+              </div>
+
+              <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
+          </form>
+
+          <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
+
+
       </div>
-    </form>
-
-    <form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}">
-
-      {% csrf_token %}
-
-      <input type="hidden"
-              name="{{ redirect_field_name }}"
-              value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
-
-      <div class="avatar">
-        <img src="{% static 'images/avatar.png' %}" alt="Avatar" />
-      </div>
-
-      <a title="Google"
-          class="btn btn-lg btn-google btn-block"
-          href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
-        <i class="fab fa-google mr-2"></i>
-        {% trans 'Sign in with' %} <strong>Google</strong>
-      </a>
-
-      <a title="ORCID"
-          class="btn btn-lg btn-orcid btn-block btn-orcid"
-          href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
-        <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
-        {% trans 'Sign in with' %} <strong>ORCID iD</strong>
-      </a>
-
-      <!-- a title="Facebook"
-         class="btn btn-lg btn-facebook btn-block"
-         href="#">
-        <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
-           style="border-color: #3e3f3a; border-bottom-width: 1px;"
-      </a -->
-
-      <a
-           title="Tuakiri"
-           class="btn btn-outline-secondary btn-lg btn-block tuakiri"
-           href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
-        <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
-      </a>
-
-      <hr class="my-4">
-      <!-- div class="or-seperator"><b>or</b></div -->
-
-      <div class="form-label-group">
-        <input name="login" id="inputEmail" class="form-control" placeholder="Email address or username" required autofocus>
-        <label for="inputEmail">{% trans 'Email address or username' %}</label>
-      </div>
-
-      <div class="form-label-group">
-        <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-        <label for="inputPassword">{% trans 'Password' %}</label>
-      </div>
-
-      <div class="custom-control custom-checkbox mb-3">
-        <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
-        <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
-      </div>
-
-      <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
-    </form>
-
-    <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
-
+    </div>
+    <p class="text-center small note">{% trans "Don't have an account or any other social network account?" %} <a class="note" href="{{ signup_url }}">{% trans "Sign&nbsp;up&nbsp;here!" %}</a></p>
+  </div>
 
   </div>
-</div>
-<p class="text-center small note">{% trans "Don't have an account or any other social network account?" %} <a class="note" href="{{ signup_url }}">{% trans "Sign&nbsp;up&nbsp;here!" %}</a></p>
-</div>
-
-</div>
 {% endblock %}
