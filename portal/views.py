@@ -64,6 +64,12 @@ def shoud_be_onboarded(function):
 class DetailView(_DetailView):
     template_name = "detail.html"
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["exclude"] = ["id", "created_at", "updated_at"]
+        context["update_view_name"] = "application-update"
+        return context
+
 
 class CreateView(_CreateView):
     def get_success_url(self):
@@ -104,11 +110,8 @@ def subscribe(request):
 @shoud_be_onboarded
 def index(request):
     schemes = (
-        models.SchemeApplication
-        .where(groups__in=request.user.groups.all())
-        .filter(
-            Q(application__isnull=True)
-            | Q(application__submitted_by=request.user)
+        models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
+            Q(application__isnull=True) | Q(application__submitted_by=request.user)
         )
         # .filter(groups__in=request.user.groups.all())
         # .distinct()
