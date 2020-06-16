@@ -35,5 +35,6 @@ class UserSignupForm(django_forms.Form):
     captcha = ReCaptchaField()
 
     def signup(self, request, user):
+        user.is_approved = False
         user.save()
         return user
