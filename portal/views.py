@@ -66,7 +66,7 @@ class DetailView(_DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["exclude"] = ["id", "created_at", "updated_at"]
+        context["exclude"] = ["id", "created_at", "updated_at", "org"]
         context["update_view_name"] = "application-update"
         return context
 
