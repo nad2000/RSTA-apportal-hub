@@ -16,7 +16,8 @@ class AccountAdapter(DefaultAccountAdapter):
         try:
             request.user.profile
         except ObjectDoesNotExist:
-            messages.add_message(request, messages.INFO, _("Please complete your profile."))
+            if request.user.is_approved:
+                messages.add_message(request, messages.INFO, _("Please complete your profile."))
             return resolve_url("profile-create")
         return url
 

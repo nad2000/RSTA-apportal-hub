@@ -61,7 +61,7 @@ def approve_user(request, user_id=None):
         u.email_user(
             subject=f"[Prime Minister's Science Prizes] Confirmation of {u.email} Signup",
             message="You have been approved by schema administrators, "
-            "now start submitting an application to the Portal",
+            f"now start submitting an application to the Portal: {request.build_absolute_uri(reverse('my-profile'))}",
             from_email=settings.DEFAULT_FROM_EMAIL,
         )
         messages.success(request, f"You have just approved self signed user {u.email}")
