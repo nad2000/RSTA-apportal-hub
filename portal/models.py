@@ -573,6 +573,30 @@ class Application(Model):
         db_table = "application"
 
 
+class Member(Model):
+    """Application team memeber."""
+
+    application = ForeignKey(
+        Application, editable=False, on_delete=CASCADE, related_name="members"
+    )
+    email = EmailField(max_length=120)
+    first_name = CharField(max_length=30, null=True, blank=True)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150, null=True, blank=True)
+    has_authorized = BooleanField(default=False)
+    authorized_at = DateField(null=True, blank=True)
+    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    class Meta:
+        db_table = "member"
+
+
 def get_unique_invitation_token():
 
     while True:
@@ -730,8 +754,7 @@ class SchemeApplicationGroup(Base):
 class SchemeApplication(Model):
     title = CharField(max_length=100)
     groups = ManyToManyField(
-        Group, blank=True, verbose_name=_("who starts"),
-        through=SchemeApplicationGroup,
+        Group, blank=True, verbose_name=_("who starts"), through=SchemeApplicationGroup,
     )
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)

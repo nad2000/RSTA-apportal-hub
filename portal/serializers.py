@@ -10,3 +10,10 @@ class AffiliationSerializer(serializers.ModelSerializer):
         # fields = ["username", "email", "name", "url"]
 
         # extra_kwargs = {"url": {"view_name": "api:user-detail", "lookup_field": "username"}}
+
+
+class GeneralSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = None
+        fields = "__all__"
