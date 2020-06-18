@@ -16,7 +16,8 @@ class AccountAdapter(DefaultAccountAdapter):
         try:
             request.user.profile
         except ObjectDoesNotExist:
-            messages.add_message(request, messages.INFO, _("Please complete your profile."))
+            if request.user.is_approved:
+                messages.add_message(request, messages.INFO, _("Please complete your profile."))
             return resolve_url("profile-create")
         return url
 
@@ -72,6 +73,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         user = super().populate_user(request, sociallogin, data)
         user.name = data.get("name")
         user.orcid = data.get("orcid")
+        user.is_approved = True
         self.handle_invitation(request, sociallogin)
         if not user.email and self.invitation:
             user.email = self.invitation.email

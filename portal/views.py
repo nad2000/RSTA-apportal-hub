@@ -61,6 +61,27 @@ def shoud_be_onboarded(function):
     return wrap
 
 
+def should_be_approved(function):
+    """
+    Check if the authentication user is approved.  If not then display a
+    message to wait for approval.
+    """
+
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        user = request.user
+        if not user.is_approved:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Your profile has not been approved, Admin is looking into your request",
+            )
+            return render(request, "blank_page.html", locals())
+        return function(request, *args, **kwargs)
+
+    return wrap
+
+
 class DetailView(_DetailView):
     template_name = "detail.html"
 
@@ -108,6 +129,7 @@ def subscribe(request):
 
 @login_required
 @shoud_be_onboarded
+@should_be_approved
 def index(request):
     schemes = (
         models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
@@ -127,6 +149,7 @@ def test_task(req, message):
 
 
 @login_required
+@should_be_approved
 def check_profile(request, token=None):
     next_url = request.GET.get("next")
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
@@ -144,6 +167,7 @@ def check_profile(request, token=None):
 
 
 @login_required
+@should_be_approved
 def user_profile(request, pk=None):
     u = User.objects.get(pk=pk) if pk else request.user
     try:
@@ -185,6 +209,16 @@ class ProfileView:
             return self.form_invalid(form)
         form.save()
         return super().post(request, *args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and not request.user.is_approved:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Your profile has not been approved, Admin is looking into your request",
+            )
+            return render(request, "blank_page.html", locals())
+        return super().dispatch(request, *args, **kwargs)
 
 
 @login_required

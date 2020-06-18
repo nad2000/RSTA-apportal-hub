@@ -1,7 +1,7 @@
 from allauth.socialaccount.models import SocialToken
 from common.models import HelperMixin
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField
+from django.db.models import BooleanField, CharField
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -21,6 +21,7 @@ class User(HelperMixin, AbstractUser):
     name = CharField(_("Name of User"), blank=True, null=True, max_length=255)
     orcid = CharField("ORCID iD", blank=True, null=True, max_length=80)
     history = HistoricalRecords()
+    is_approved = BooleanField("Is Approved", default=True)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
