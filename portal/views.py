@@ -1,7 +1,6 @@
 from functools import wraps
 from urllib.parse import quote
 
-import crispy_forms
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
@@ -21,23 +20,19 @@ from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
-from extra_views import ModelFormSetView
+from extra_views import (
+    CreateWithInlinesView,
+    InlineFormSetFactory,
+    ModelFormSetView,
+    UpdateWithInlinesView,
+)
 
 from . import forms, models
-from .forms import ProfileCareerStageFormSet, ProfileForm, ProfileSectionFormSetHelper
+from .forms import ProfileForm, Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tables import SubscriptionTable
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
-
-
-class Submit(crispy_forms.layout.BaseInput):
-
-    input_type = "submit"
-
-    def __init__(self, *args, **kwargs):
-        self.field_classes = "btn"
-        super().__init__(*args, **kwargs)
 
 
 def shoud_be_onboarded(function):
@@ -74,9 +69,9 @@ def should_be_approved(function):
             messages.add_message(
                 request,
                 messages.ERROR,
-                f"Your profile has not been approved, Admin is looking into your request",
+                _("Your profile has not been approved, Admin is looking into your request"),
             )
-            return render(request, "blank_page.html", locals())
+            return redirect("index")
         return function(request, *args, **kwargs)
 
     return wrap
@@ -129,15 +124,11 @@ def subscribe(request):
 
 @login_required
 @shoud_be_onboarded
-@should_be_approved
 def index(request):
-    schemes = (
-        models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
+    if request.user.is_approved:
+        schemes = models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
             Q(application__isnull=True) | Q(application__submitted_by=request.user)
         )
-        # .filter(groups__in=request.user.groups.all())
-        # .distinct()
-    )
     return render(request, "index.html", locals())
 
 
@@ -215,9 +206,9 @@ class ProfileView:
             messages.add_message(
                 request,
                 messages.ERROR,
-                f"Your profile has not been approved, Admin is looking into your request",
+                _("Your profile has not been approved, Admin is looking into your request"),
             )
-            return render(request, "blank_page.html", locals())
+            return redirect("index")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -376,12 +367,19 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
 #     )
 
 
+class MemberInline(InlineFormSetFactory):
+    model = models.Member
+    fields = ["first_name", "middle_names", "last_name", "email"]
+
+
 class ApplicationDetail(LoginRequiredMixin, DetailView):
     model = Application
 
 
 class ApplicationUpdate(LoginRequiredMixin, UpdateView):
+    # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
     model = Application
+    # inlines = [MemberInline]
     template_name = "form.html"
     form_class = forms.ApplicationForm
 
@@ -389,9 +387,20 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         form.instance.organisation = form.instance.org.name
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["helper"] = forms.MemberFormSetHelper()
+        if self.request.POST:
+            context["members"] = forms.MemberFormSet(self.request.POST)
+        else:
+            context["members"] = forms.MemberFormSet()
+        return context
+
 
 class ApplicationCreate(LoginRequiredMixin, CreateView):
+    # class ApplicationCreate(LoginRequiredMixin, CreateWithInlinesView):
     model = Application
+    # inlines = [MemberInline]
     template_name = "form.html"
     form_class = forms.ApplicationForm
 
@@ -429,6 +438,122 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
                 }
             )
         return kwargs
+
+
+# class ApplicationTeamMembersStageFormSetView(LoginRequiredMixin, ModelFormSetView):
+
+#     model = models.Member
+#     # formset_class = ProfileCareerStageFormSet
+
+#     def get_queryset(self):
+#         return self.model.objects.filter(application=self.application)
+
+#     template_name = "profile_section.html"
+#     exclude = ()
+#     section_views = [
+#         "profile-employments",
+#         "profile-career-stages",
+#         "profile-external-ids",
+#         "profile-cvs",
+#         "profile-academic-records",
+#         "profile-recognitions",
+#         "profile-professional-records",
+#     ]
+
+#     def dispatch(self, request, *args, **kwargs):
+#         if request.user.is_authenticated and not Profile.where(user=self.request.user).exists():
+#             return redirect("onboard")
+#         return super().dispatch(request, *args, **kwargs)
+
+#     def get_defaults(self):
+#         """Default values for a form."""
+#         return dict(
+#                 profile=self.request.profile,
+#                 application=self.application
+#         )
+
+#     def get_formset(self):
+
+#         klass = super().get_formset()
+#         defaults = self.get_defaults()
+
+#         class Klass(klass):
+#             def get_form_kwargs(self, index):
+#                 kwargs = super().get_form_kwargs(index)
+#                 if "initial" not in kwargs:
+#                     kwargs["initial"] = defaults
+#                 else:
+#                     kwargs["initial"].update(defaults)
+#                 return kwargs
+
+#         return Klass
+
+#     def get_factory_kwargs(self):
+#         kwargs = super().get_factory_kwargs()
+#         widgets = kwargs.get("widgets", {})
+#         widgets.update({"profile": HiddenInput()})
+#         widgets.update({"application": HiddenInput()})
+#         kwargs["widgets"] = widgets
+#         kwargs["can_delete"] = True
+#         return kwargs
+
+#     # def get_initial(self):
+#     #     defaults = self.get_defaults()
+#     #     initial = super().get_initial()
+#     #     if not initial:
+#     #         initial = [dict()]
+#     #         if self.request.method != "GET":
+#     #             initial = initial * int(self.request.POST["form-TOTAL_FORMS"])
+#     #     for row in initial:
+#     #         row.update(defaults)
+#     #     return initial
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         previous_step = next_step = None
+#         if not self.request.user.profile.is_completed:
+#             view_idx = self.section_views.index(self.request.resolver_match.url_name)
+#             if view_idx > 0:
+#                 previous_step = self.section_views[view_idx - 1]
+#                 context["previous_step"] = previous_step
+#             if view_idx < len(self.section_views) - 1:
+#                 next_step = self.section_views[view_idx - 1]
+#                 context["next_step"] = next_step
+#             context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
+#         context["helper"] = ProfileSectionFormSetHelper(
+#             previous_step=previous_step, next_step=next_step
+#         )
+#         return context
+
+#     def get_success_url(self):
+#         if not self.request.user.profile.is_completed:
+#             view_idx = self.section_views.index(self.request.resolver_match.url_name)
+#             if "previous" in self.request.POST:
+#                 return reverse(self.section_views[view_idx - 1])
+#             if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
+#                 return reverse(self.section_views[view_idx + 1])
+#             return reverse("profile", kwargs={"pk": self.request.user.profile.id})
+#         return super().get_success_url()
+
+#     def formset_valid(self, formset):
+#         url_name = self.request.resolver_match.url_name
+#         profile = self.request.user.profile
+#         if url_name == "profile-employments":
+#             profile.is_employments_completed = True
+#         if url_name == "profile-professional-records":
+#             profile.is_professional_bodies_completed = True
+#         if url_name == "profile-career-stages":
+#             profile.is_career_stages_completed = True
+#         if url_name == "profile-external-ids":
+#             profile.is_external_ids_completed = True
+#         if url_name == "profile-cvs":
+#             profile.is_cvs_completed = True
+#         if url_name == "profile-academic-records":
+#             profile.is_academic_records_completed = True
+#         if url_name == "profile-recognitions":
+#             profile.is_recognitions_completed = True
+#         profile.save()
+#         return super().formset_valid(formset)
 
 
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
@@ -513,7 +638,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 next_step = self.section_views[view_idx - 1]
                 context["next_step"] = next_step
             context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
-        context["helper"] = ProfileSectionFormSetHelper(
+        context["helper"] = forms.ProfileSectionFormSetHelper(
             previous_step=previous_step, next_step=next_step
         )
         return context
@@ -561,7 +686,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
 
     model = ProfileCareerStage
-    formset_class = ProfileCareerStageFormSet
+    formset_class = forms.ProfileCareerStageFormSet
     factory_kwargs = {
         "widgets": {"year_achieved": widgets.DateInput(attrs={"class": "yearpicker"})}
     }

@@ -43,7 +43,6 @@ class Migration(migrations.Migration):
                 (
                     "application",
                     models.ForeignKey(
-                        editable=False,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="members",
                         to="portal.Application",

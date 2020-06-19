@@ -11,27 +11,34 @@
 
 {% block content %}
 
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
 
-      <h1>
-        {{ object|title }}
-      </h1>
+        <h1>
+          {{ object|title }}
+        </h1>
 
-      <form method="post">{% csrf_token %}
-        {{ form|crispy }}
-        {% if object.id %}
-          <input class="btn btn-primary" type="submit" value="Update">
-        {% else %}
-          <input class="btn btn-primary" type="submit" value="Create">
-        {% endif %}
-        <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
-      </form>
+        <form method="post">{% csrf_token %}
+          {% crispy form %}
+          {% if inlines %}
+            <hr />
+            {% for formset in inlines %}
+              {% crispy formset helper %}
+            {% endfor %}
+          {% endif %}
 
+          {% if object.id %}
+            <input class="btn btn-primary" type="submit" value="Update">
+          {% else %}
+            <input class="btn btn-primary" type="submit" value="Create">
+          {% endif %}
+          <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+        </form>
+
+      </div>
     </div>
   </div>
-</div>
 
 {% endblock %}
 
@@ -42,10 +49,10 @@
   <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
   <script src="{% static 'admin/js/SelectFilter2.js' %}"></script -->
   <!-- script>
-  $(".custom-file-input").on("change", function() {
+    $(".custom-file-input").on("change", function() {
     var fileName = $(this).val().split("\\").pop();
     $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-  });
-  </script -->
+    });
+    </script -->
 
-{% endblock %}
+  {% endblock %}

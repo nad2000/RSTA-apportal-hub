@@ -576,9 +576,7 @@ class Application(Model):
 class Member(Model):
     """Application team memeber."""
 
-    application = ForeignKey(
-        Application, editable=False, on_delete=CASCADE, related_name="members"
-    )
+    application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
     middle_names = CharField(

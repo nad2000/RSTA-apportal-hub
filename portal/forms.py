@@ -1,11 +1,22 @@
 from functools import partial
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Button, Submit
+from crispy_forms.layout import (
+    TEMPLATE_PACK,
+    BaseInput,
+    Button,
+    ButtonHolder,
+    Column,
+    Fieldset,
+    Layout,
+    LayoutObject,
+    Row,
+)
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput
+from django.forms import HiddenInput, inlineformset_factory
 from django.forms.models import modelformset_factory
+from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
 
@@ -18,6 +29,31 @@ DateInput = partial(
 YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", "type": "text"})
 # FileInput = partial(FileInput, attrs={"class": "custom-file-input", "type": "file"})
 # FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
+
+
+class Submit(BaseInput):
+    """Submit button."""
+
+    input_type = "submit"
+
+    def __init__(self, *args, **kwargs):
+        self.field_classes = "btn btn-primary"
+        super().__init__(*args, **kwargs)
+
+
+class TableInlineFormset(LayoutObject):
+    # template = "mycollections/formset.html"
+    template = "portal/table_inline_formset.html"
+
+    def __init__(self, formset_name_in_context, template=None):
+        self.formset_name_in_context = formset_name_in_context
+        self.fields = []
+        if template:
+            self.template = template
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK):
+        formset = context[self.formset_name_in_context]
+        return render_to_string(self.template, {"formset": formset})
 
 
 class SubscriptionForm(forms.ModelForm):
@@ -71,6 +107,37 @@ class ProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                _("Individual applicant or team representative"),
+                Row(
+                    Column("title", css_class='form-group col-1 mb-0'),
+                    Column("first_name", css_class='form-group col-3 mb-0'),
+                    Column("middle_names", css_class='form-group col-5 mb-0'),
+                    Column("last_name", css_class='form-group col-3 mb-0'),
+                ),
+                "email",
+            ),
+            TableInlineFormset("members"),
+            # last_name = CharField(max_length=150)
+            # org = ForeignKey(
+            #     Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
+            # )
+            # organisation = CharField(max_length=200)
+            # position = CharField(max_length=80)
+            # postal_address = CharField(max_length=120)
+            # city = CharField(max_length=80)
+            # postcode = CharField(max_length=4)
+            # daytime_phone = CharField("daytime phone numbrer", max_length=12)
+            # mobile_phone = CharField("mobild phone number", max_length=12)
+            # email = EmailField("email address", blank=True)
+            # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
+            ButtonHolder(Submit("submit", _("Save"), css_class="btn btn-primary")),
+        )
+
     class Meta:
         model = models.Application
         exclude = ["organisation"]
@@ -80,6 +147,17 @@ class ApplicationForm(forms.ModelForm):
                 attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
             ),
         )
+
+
+class MemberForm(forms.ModelForm):
+    class Meta:
+        model = models.Member
+        exclude = ["has_authorized", "authorized_at", "user"]
+
+
+MemberFormSet = inlineformset_factory(
+    models.Application, models.Member, form=MemberForm, extra=1, can_delete=True
+)
 
 
 class ProfileCareerStageForm(forms.ModelForm):
@@ -106,6 +184,37 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
     can_delete=True,
     widgets=dict(profile=HiddenInput()),
 )
+
+
+class MemberFormSetHelper(FormHelper):
+
+    template = "portal/table_inline_formset.html"
+
+    def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        add_more_button = Button(
+            "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
+        )
+        # if previous_step or next_step:
+        #     previous_button = Button(
+        #         "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
+        #     )
+        #     previous_button.input_type = "submit"
+        #     self.add_input(previous_button)
+        #     self.add_input(add_more_button)
+        #     if next_step:
+        #         next_button = Button(
+        #             "next", _("Next") + " »", css_class="btn btn-primary float-right"
+        #         )
+        #         next_button.input_type = "submit"
+        #         self.add_input(next_button)
+        #     else:
+        #         self.add_input(Submit("save", _("Save"), css_class="float-right"))
+        # else:
+        #     self.add_input(add_more_button)
+        #     self.add_input(Submit("save", _("Save")))
+        #     self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+        self.add_input(add_more_button)
 
 
 class ProfileSectionFormSetHelper(FormHelper):
