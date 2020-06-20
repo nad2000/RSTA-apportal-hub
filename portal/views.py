@@ -598,7 +598,10 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
-        widgets.update({"profile": HiddenInput()})
+        widgets.update({
+            "profile": HiddenInput(),
+            "DELETE": Submit("submit", "DELETE"),
+        })
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
         return kwargs
