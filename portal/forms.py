@@ -122,7 +122,6 @@ class ApplicationForm(forms.ModelForm):
                 "email",
             ),
             TableInlineFormset("members"),
-            # last_name = CharField(max_length=150)
             # org = ForeignKey(
             #     Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
             # )
@@ -190,31 +189,31 @@ class MemberFormSetHelper(FormHelper):
 
     template = "portal/table_inline_formset.html"
 
-    def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        add_more_button = Button(
-            "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
-        )
-        # if previous_step or next_step:
-        #     previous_button = Button(
-        #         "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
-        #     )
-        #     previous_button.input_type = "submit"
-        #     self.add_input(previous_button)
-        #     self.add_input(add_more_button)
-        #     if next_step:
-        #         next_button = Button(
-        #             "next", _("Next") + " »", css_class="btn btn-primary float-right"
-        #         )
-        #         next_button.input_type = "submit"
-        #         self.add_input(next_button)
-        #     else:
-        #         self.add_input(Submit("save", _("Save"), css_class="float-right"))
-        # else:
-        #     self.add_input(add_more_button)
-        #     self.add_input(Submit("save", _("Save")))
-        #     self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
-        self.add_input(add_more_button)
+    # def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     add_more_button = Button(
+    #         "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
+    #     )
+    #     # if previous_step or next_step:
+    #     #     previous_button = Button(
+    #     #         "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
+    #     #     )
+    #     #     previous_button.input_type = "submit"
+    #     #     self.add_input(previous_button)
+    #     #     self.add_input(add_more_button)
+    #     #     if next_step:
+    #     #         next_button = Button(
+    #     #             "next", _("Next") + " »", css_class="btn btn-primary float-right"
+    #     #         )
+    #     #         next_button.input_type = "submit"
+    #     #         self.add_input(next_button)
+    #     #     else:
+    #     #         self.add_input(Submit("save", _("Save"), css_class="float-right"))
+    #     # else:
+    #     #     self.add_input(add_more_button)
+    #     #     self.add_input(Submit("save", _("Save")))
+    #     #     self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+    #     self.add_input(add_more_button)
 
 
 class ProfileSectionFormSetHelper(FormHelper):
@@ -223,16 +222,16 @@ class ProfileSectionFormSetHelper(FormHelper):
 
     def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        add_more_button = Button(
-            "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
-        )
+        # add_more_button = Button(
+        #     "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
+        # )
         if previous_step or next_step:
             previous_button = Button(
                 "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
             )
             previous_button.input_type = "submit"
             self.add_input(previous_button)
-            self.add_input(add_more_button)
+            # self.add_input(add_more_button)
             if next_step:
                 next_button = Button(
                     "next", _("Next") + " »", css_class="btn btn-primary float-right"
@@ -242,6 +241,6 @@ class ProfileSectionFormSetHelper(FormHelper):
             else:
                 self.add_input(Submit("save", _("Save"), css_class="float-right"))
         else:
-            self.add_input(add_more_button)
+            # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
             self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
