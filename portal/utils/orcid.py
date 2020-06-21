@@ -213,9 +213,10 @@ class OrcidHelper:
         for ei in external_ids:
             self.create_and_save_externa_identifier_record(self.user, ei)
             count += 1
+        person_identifier_orcid, _ = models.PersonIdentifierType.objects.get_or_create(description="ORCID ID")
         _, created = models.ProfilePersonIdentifier.objects.get_or_create(
             profile=self.profile,
-            code=models.PersonIdentifierType.get(code="02"),
+            code=person_identifier_orcid,
             value=self.user.orcid,
         )
         if created:
