@@ -37,17 +37,16 @@ class OrcidHelper:
         self.profile = user.profile
         self.sections = sections or self.DEFAULT_SECTIONS
 
-    def get_orcid_profile(self):
+    def get_orcid_profile(self, orcid_api_url):
         """Retrieve the user ORCID profile."""
         access_token = self.user.orcid_access_token
         if access_token:
-            url = urljoin(settings.ORCID_API_BASE, self.user.orcid)
             headers = {
                 "Accept": "application/json",
                 "Authorization": f"Bearer {access_token.token}",
                 "Content-Length": "0",
             }
-            resp = requests.get(url, headers=headers)
+            resp = requests.get(orcid_api_url, headers=headers)
             if resp.status_code == 200:
                 extra_data = resp.json()
                 return (extra_data, True)
@@ -62,8 +61,8 @@ class OrcidHelper:
 
     def fetch_and_load_orcid_data(self):
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
-
-        orcid_profile, user_has_linked_orcid = self.get_orcid_profile()
+        url = urljoin(settings.ORCID_API_BASE, self.user.orcid)
+        orcid_profile, user_has_linked_orcid = self.get_orcid_profile(url)
 
         if user_has_linked_orcid:
 
@@ -165,9 +164,14 @@ class OrcidHelper:
             for w in g.get("funding-summary")
         ]
         for funding in fundings:
-            org = self.org_from_orcid_data(funding)
-            self.create_and_save_recognition_record(org, funding)
-            count += 1
+            url = urljoin(settings.ORCID_API_BASE, self.user.orcid) + "/funding/{}".format(
+                funding.get("put-code")
+            )
+            funding_record, _ = self.get_orcid_profile(url)
+            funding_record = funding_record if funding_record else funding
+            org = self.org_from_orcid_data(funding_record)
+            if self.create_and_save_recognition_record(org, funding_record):
+                count += 1
         return count
 
     def create_and_save_recognition_record(self, org, orcid_data):
@@ -192,7 +196,8 @@ class OrcidHelper:
             if orcid_data.get("start-date"):
                 rec_obj.recognized_in = PartialDate.create(orcid_data.get("start-date")).year
             if orcid_data.get("amount"):
-                rec_obj.amount = orcid_data.get("amount")
+                rec_obj.amount = float(orcid_data.get("amount").get("value"))
+                rec_obj.currency = orcid_data.get("amount").get("currency-code")
             rec_obj.save()
             return True
         return False

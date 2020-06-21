@@ -524,6 +524,7 @@ class Recognition(Model):
     amount = DecimalField(
         max_digits=9, decimal_places=2, null=True, blank=True, verbose_name=_("amount")
     )
+    currency = CharField(_("Currency code"), null=True, blank=True, max_length=3)
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     def __str__(self):
