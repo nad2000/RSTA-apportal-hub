@@ -2,7 +2,7 @@
 
 {% if field.is_hidden %}
     {{ field }}
-{% elif field.name == "DELETE" %}
+{% elif formset and field.name == "DELETE" %}
   <td>
     <div class="input-group">
         <input type="hidden" name="{{ field.html_name }}" id="{{ field.auto_id }}">
@@ -11,7 +11,7 @@
                   onclick='$("#{{ form.DELETE.auto_id }}").val("on");'
             ><i class="fa fa-times" style="width: 12px;"></i></button>
         {% else %}
-          <button  type="button" class="btn btn-success" onclick="formset_add_a_row(this);"><i class="fa fa-plus" style="width: 12px;"></i></button>
+          <button  type="button" class="btn btn-success" onclick="formset_add_a_row(this, '{{ formset.prefix }}');"><i class="fa fa-plus" style="width: 12px;"></i></button>
         {% endif %}
     </div>
   </td>
