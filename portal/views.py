@@ -380,7 +380,7 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
     model = Application
     # inlines = [MemberInline]
-    template_name = "form.html"
+    template_name = "application.html"
     form_class = forms.ApplicationForm
 
     def form_valid(self, form):
@@ -389,11 +389,12 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["helper"] = forms.MemberFormSetHelper()
-        if self.request.POST:
-            context["members"] = forms.MemberFormSet(self.request.POST)
-        else:
-            context["members"] = forms.MemberFormSet()
+        if self.object.round.scheme.team_can_apply:
+            context["helper"] = forms.MemberFormSetHelper()
+            if self.request.POST:
+                context["members"] = forms.MemberFormSet(self.request.POST)
+            else:
+                context["members"] = forms.MemberFormSet()
         return context
 
 
@@ -401,7 +402,7 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
     # class ApplicationCreate(LoginRequiredMixin, CreateWithInlinesView):
     model = Application
     # inlines = [MemberInline]
-    template_name = "form.html"
+    template_name = "application.html"
     form_class = forms.ApplicationForm
 
     def get(self, request, *args, **kwargs):
@@ -416,6 +417,16 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             )
             return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["helper"] = forms.MemberFormSetHelper()
+        if self.object.is_team_application:
+            if self.request.POST:
+                context["members"] = forms.MemberFormSet(self.request.POST)
+            else:
+                context["members"] = forms.MemberFormSet()
+        return context
 
     def form_valid(self, form):
         form.instance.organisation = form.instance.org.name

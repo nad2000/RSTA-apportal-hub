@@ -7,7 +7,9 @@ from crispy_forms.layout import (
     Button,
     ButtonHolder,
     Column,
+    Div,
     Fieldset,
+    Field,
     Layout,
     LayoutObject,
     Row,
@@ -101,7 +103,7 @@ class ProfileForm(forms.ModelForm):
                 model=models.IwiGroup, search_fields=["description__icontains"],
             ),
             # protection_pattern_expires_on=DateInput(),
-            is_acceted=forms.CheckboxInput(),
+            is_accepted=forms.CheckboxInput(),
         )
         labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
 
@@ -110,7 +112,7 @@ class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.layout = Layout(
+        fields = [
             Fieldset(
                 _("Individual applicant or team representative"),
                 Row(
@@ -120,22 +122,29 @@ class ApplicationForm(forms.ModelForm):
                     Column("last_name", css_class='form-group col-3 mb-0'),
                 ),
                 "email",
-            ),
-            TableInlineFormset("members"),
-            # org = ForeignKey(
-            #     Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
-            # )
-            # organisation = CharField(max_length=200)
-            # position = CharField(max_length=80)
-            # postal_address = CharField(max_length=120)
-            # city = CharField(max_length=80)
-            # postcode = CharField(max_length=4)
-            # daytime_phone = CharField("daytime phone numbrer", max_length=12)
-            # mobile_phone = CharField("mobild phone number", max_length=12)
-            # email = EmailField("email address", blank=True)
-            # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
-            ButtonHolder(Submit("submit", _("Save"), css_class="btn btn-primary")),
-        )
+            )]
+        if self.instance.round.scheme.team_can_apply:
+            fields.extend([
+                Field("is_team_application", data_toggle="toggle", template="portal/toggle.html"),
+                Div(
+                    TableInlineFormset("members"),
+                    css_id="members"
+                )
+            ])
+        # org = ForeignKey(
+        #     Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
+        # )
+        # organisation = CharField(max_length=200)
+        # position = CharField(max_length=80)
+        # postal_address = CharField(max_length=120)
+        # city = CharField(max_length=80)
+        # postcode = CharField(max_length=4)
+        # daytime_phone = CharField("daytime phone numbrer", max_length=12)
+        # mobile_phone = CharField("mobild phone number", max_length=12)
+        # email = EmailField("email address", blank=True)
+        # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
+        fields.append(ButtonHolder(Submit("submit", _("Save"), css_class="btn btn-primary")))
+        self.helper.layout = Layout(*fields)
 
     class Meta:
         model = models.Application

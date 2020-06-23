@@ -1,0 +1,67 @@
+{% extends "form.html" %}
+
+{% load crispy_forms_tags static %}
+
+{% block head_title %}{{ object }}{% endblock %}
+
+{% block css %}
+  {{ form.media.css }}
+  {{ block.super }}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+
+        <h1>
+          {{ object|title }}
+        </h1>
+
+        <form method="post">{% csrf_token %}
+          {% crispy form %}
+          {% if inlines %}
+            <hr />
+            {% for formset in inlines %}
+              {% crispy formset helper %}
+            {% endfor %}
+          {% endif %}
+
+          {% if object.id %}
+            <input class="btn btn-primary" type="submit" value="Update">
+          {% else %}
+            <input class="btn btn-primary" type="submit" value="Create">
+          {% endif %}
+          <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <!-- JS -->
+  {{ form.media.js }}
+  <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
+  <script src="{% static 'admin/js/SelectFilter2.js' %}"></script -->
+  <!-- script>
+    $(".custom-file-input").on("change", function() {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+    });
+    </script -->
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <script>
+      $(function() {
+        {% if not object.is_team_application %}$("#members").hide();{% endif %}
+        $('#id_is_team_application').change(function() {
+          if (!($(this).prop('checked'))) $("#members").hide(); else $("#members").show();
+        })
+      })
+    </script>
+{% endblock %}
