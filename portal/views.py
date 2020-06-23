@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Q
 from django.forms import DateInput, HiddenInput, TextInput
 from django.forms import models as model_forms
@@ -384,17 +385,24 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     form_class = forms.ApplicationForm
 
     def form_valid(self, form):
-        form.instance.organisation = form.instance.org.name
-        return super().form_valid(form)
+        context = self.get_context_data()
+        members = context["members"]
+        with transaction.atomic():
+            form.instance.organisation = form.instance.org.name
+            resp = super().form_valid(form)
+            if members.is_valid():
+                members.instance = self.object
+                members.save()
+        return resp
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.object.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
             if self.request.POST:
-                context["members"] = forms.MemberFormSet(self.request.POST)
+                context["members"] = forms.MemberFormSet(self.request.POST, instance=self.object)
             else:
-                context["members"] = forms.MemberFormSet()
+                context["members"] = forms.MemberFormSet(instance=self.object)
         return context
 
 
@@ -634,7 +642,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             orcidhelper = OrcidHelper(request.user, self.orcid_sections)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, f" {total_records_fetched} ORCID records loaded!!")
+                messages.success(self.request, f" {total_records_fetched} ORCID records imported")
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 return redirect("socialaccount_connections")

@@ -8,8 +8,9 @@ from crispy_forms.layout import (
     ButtonHolder,
     Column,
     Div,
-    Fieldset,
+    HTML,
     Field,
+    Fieldset,
     Layout,
     LayoutObject,
     Row,
@@ -131,19 +132,17 @@ class ApplicationForm(forms.ModelForm):
                     css_id="members"
                 )
             ])
-        # org = ForeignKey(
-        #     Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
-        # )
-        # organisation = CharField(max_length=200)
-        # position = CharField(max_length=80)
-        # postal_address = CharField(max_length=120)
-        # city = CharField(max_length=80)
-        # postcode = CharField(max_length=4)
-        # daytime_phone = CharField("daytime phone numbrer", max_length=12)
-        # mobile_phone = CharField("mobild phone number", max_length=12)
-        # email = EmailField("email address", blank=True)
-        # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
-        fields.append(ButtonHolder(Submit("submit", _("Save"), css_class="btn btn-primary")))
+        fields.extend([
+            Row(Column("position"), Column("org")),
+            "postal_address",
+            Row(Column("city"), Column("postcode")),
+            Row(Column("daytime_phone"), Column("mobile_phone")),
+            # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
+            ButtonHolder(
+                Submit("submit", _("Update" if self.instance.id else "Save"), css_class="btn btn-primary"),
+                HTML("""<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>""" % _('Cancel')),
+            )
+        ])
         self.helper.layout = Layout(*fields)
 
     class Meta:

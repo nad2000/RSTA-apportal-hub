@@ -185,7 +185,15 @@ class ProfileAdmin(SimpleHistoryAdmin):
     ]
 
 
-admin.site.register(models.Application)
+@admin.register(models.Application)
+class ApplicationAdmin(SimpleHistoryAdmin):
+    class MemberInline(admin.StackedInline):
+        extra = 0
+        model = models.Member
+
+    inlines = [MemberInline]
+
+
 admin.site.register(models.Award)
 
 
