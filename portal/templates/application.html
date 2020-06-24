@@ -20,7 +20,7 @@
         </h1>
 
         <form method="post">{% csrf_token %}
-          {% crispy form %}
+          {% crispy form form.helper %}
           {% if inlines %}
             <hr />
             {% for formset in inlines %}
@@ -39,22 +39,13 @@
 {% block javascript %}
   {{ block.super }}
   <!-- JS -->
-  {{ form.media.js }}
-  <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
-  <script src="{% static 'admin/js/SelectFilter2.js' %}"></script -->
-  <!-- script>
-    $(".custom-file-input").on("change", function() {
-    var fileName = $(this).val().split("\\").pop();
-    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-    });
-    </script -->
-    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
-    <script>
-      $(function() {
-        {% if not object.is_team_application %}$("#members").hide();{% endif %}
-        $('#id_is_team_application').change(function() {
-          if (!($(this).prop('checked'))) $("#members").hide(); else $("#members").show();
-        })
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script>
+    $(function() {
+      {% if not object.is_team_application %}$("#members").hide();{% endif %}
+      $('#id_is_team_application').change(function() {
+        if (!($(this).prop('checked'))) $("#members").hide(); else $("#members").show();
       })
-    </script>
+    })
+  </script>
 {% endblock %}

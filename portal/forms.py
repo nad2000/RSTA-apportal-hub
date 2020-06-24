@@ -110,9 +110,12 @@ class ProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
         fields = [
             Fieldset(
                 _("Individual applicant or team representative"),
