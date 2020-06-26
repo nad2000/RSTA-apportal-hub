@@ -1,11 +1,8 @@
-from rest_framework import routers, status
-from rest_framework.decorators import action
+from rest_framework import routers
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
-from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from . import models, serializers
-
 
 # class GeneralViewSet(ModelViewSet):
 #     def get_queryset(self):

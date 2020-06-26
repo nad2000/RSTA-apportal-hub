@@ -44,7 +44,13 @@
     $(function() {
       {% if not object.is_team_application %}$("#members").hide();{% endif %}
       $('#id_is_team_application').change(function() {
-        if (!($(this).prop('checked'))) $("#members").hide(); else $("#members").show();
+        if (!($(this).prop('checked'))) {
+          $("#members").hide();
+          $("#submitter legend").text("{% trans 'Individual applicant' %}");
+        } else {
+          $("#members").show()
+          $("#submitter legend").text("{% trans 'Team representative' %}");
+        };
       })
     })
   </script>

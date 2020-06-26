@@ -21,12 +21,7 @@ from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_tables2 import SingleTableView
-from extra_views import (
-    CreateWithInlinesView,
-    InlineFormSetFactory,
-    ModelFormSetView,
-    UpdateWithInlinesView,
-)
+from extra_views import InlineFormSetFactory, ModelFormSetView
 
 from . import forms, models
 from .forms import ProfileForm, Submit

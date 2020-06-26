@@ -2,13 +2,13 @@ from functools import partial
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
+    HTML,
     TEMPLATE_PACK,
     BaseInput,
     Button,
     ButtonHolder,
     Column,
     Div,
-    HTML,
     Field,
     Fieldset,
     Layout,
@@ -110,7 +110,6 @@ class ProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -118,34 +117,50 @@ class ApplicationForm(forms.ModelForm):
         self.helper.include_media = False
         fields = [
             Fieldset(
-                _("Individual applicant or team representative"),
+                _(
+                    "Team representative"
+                    if self.instance.is_team_application
+                    else "Individual applicant"
+                ),
                 Row(
-                    Column("title", css_class='form-group col-1 mb-0'),
-                    Column("first_name", css_class='form-group col-3 mb-0'),
-                    Column("middle_names", css_class='form-group col-5 mb-0'),
-                    Column("last_name", css_class='form-group col-3 mb-0'),
+                    Column("title", css_class="form-group col-1 mb-0"),
+                    Column("first_name", css_class="form-group col-3 mb-0"),
+                    Column("middle_names", css_class="form-group col-5 mb-0"),
+                    Column("last_name", css_class="form-group col-3 mb-0"),
                 ),
                 "email",
-            )]
-        if self.instance.round.scheme.team_can_apply:
-            fields.extend([
-                Field("is_team_application", data_toggle="toggle", template="portal/toggle.html"),
-                Div(
-                    TableInlineFormset("members"),
-                    css_id="members"
-                )
-            ])
-        fields.extend([
-            Row(Column("position"), Column("org")),
-            "postal_address",
-            Row(Column("city"), Column("postcode")),
-            Row(Column("daytime_phone"), Column("mobile_phone")),
-            # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
-            ButtonHolder(
-                Submit("submit", _("Update" if self.instance.id else "Save"), css_class="btn btn-primary"),
-                HTML("""<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>""" % _('Cancel')),
+                css_id="submitter",
             )
-        ])
+        ]
+        if self.instance.round.scheme.team_can_apply:
+            fields.extend(
+                [
+                    Field(
+                        "is_team_application", data_toggle="toggle", template="portal/toggle.html"
+                    ),
+                    Div(TableInlineFormset("members"), css_id="members"),
+                ]
+            )
+        fields.extend(
+            [
+                Row(Column("position"), Column("org")),
+                "postal_address",
+                Row(Column("city"), Column("postcode")),
+                Row(Column("daytime_phone"), Column("mobile_phone")),
+                # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
+                ButtonHolder(
+                    Submit(
+                        "submit",
+                        _("Update" if self.instance.id else "Save"),
+                        css_class="btn btn-primary",
+                    ),
+                    HTML(
+                        """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                        % _("Cancel")
+                    ),
+                ),
+            ]
+        )
         self.helper.layout = Layout(*fields)
 
     class Meta:
