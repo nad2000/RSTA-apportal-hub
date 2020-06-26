@@ -9,6 +9,7 @@ from simple_history.models import HistoricalRecords
 
 class User(HelperMixin, AbstractUser):
 
+    title = CharField(max_length=40, null=True, blank=True)
     middle_names = CharField(
         _("middle names"),
         blank=True,

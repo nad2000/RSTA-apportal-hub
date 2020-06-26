@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portal', '0004_member'),
+        ("portal", "0004_member"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recognition',
-            name='currency',
-            field=models.CharField(blank=True, max_length=3, null=True, verbose_name='Currency code'),
+            model_name="recognition",
+            name="currency",
+            field=models.CharField(
+                blank=True, max_length=3, null=True, verbose_name="Currency code"
+            ),
         ),
     ]

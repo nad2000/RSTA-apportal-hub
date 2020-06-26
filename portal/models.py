@@ -534,13 +534,41 @@ class Recognition(Model):
         db_table = "recognition"
 
 
+class Nominee(Model):
+
+    title = CharField(max_length=40, null=True, blank=True)
+    # email = EmailField(max_length=119)
+    email = EmailField("email address")
+    title = CharField(max_length=80, null=True, blank=True)
+    first_name = CharField(max_length=30)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150)
+
+    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    class Meta:
+        db_table = "nominee"
+
+
 class Application(Model):
 
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
+    application_tite = CharField(max_length=200, null=True, blank=True)
+
+    nominee = ForeignKey(Nominee, null=True, blank=True, on_delete=SET_NULL)
     round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="applications")
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
-    title = CharField(max_length=512)
+    team_name = CharField(max_length=200, null=True, blank=True)
+
+    # Applicant or nominator:
+    title = CharField(max_length=40, null=True, blank=True)
     first_name = CharField(max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -565,7 +593,7 @@ class Application(Model):
     history = HistoricalRecords(table_name="application_history")
 
     def __str__(self):
-        return self.title or self.round.title
+        return self.application_tite or self.round.title
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
@@ -760,7 +788,9 @@ class SchemeApplication(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
-    application = ForeignKey(Application, null=True, on_delete=DO_NOTHING)
+    application = ForeignKey(
+        Application, null=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False,
+    )
     can_be_applied_to = BooleanField(null=True, blank=True)
     can_be_nominated_to = BooleanField(null=True, blank=True)
 

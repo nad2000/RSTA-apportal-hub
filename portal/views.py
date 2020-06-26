@@ -437,9 +437,11 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.organisation = form.instance.org.name
-        form.instance.submitted_by = self.request.user
-        form.instance.round_id = self.kwargs["round"]
+        a = form.instance
+        a.organisation = a.org.name
+        a.submitted_by = self.request.user
+        a.round_id = self.kwargs["round"]
+        a.scheme = a.round.scheme
         return super().form_valid(form)
 
     def get_form_kwargs(self):
