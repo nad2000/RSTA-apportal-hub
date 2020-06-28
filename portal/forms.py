@@ -23,6 +23,7 @@ from django.forms.models import modelformset_factory
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
+from django_summernote.widgets import SummernoteWidget  # , SummernoteInplaceWidget
 
 from . import models
 from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
@@ -151,17 +152,6 @@ class ApplicationForm(forms.ModelForm):
                 Row(Column("city"), Column("postcode")),
                 Row(Column("daytime_phone"), Column("mobile_phone")),
                 # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
-                ButtonHolder(
-                    Submit(
-                        "submit",
-                        _("Update" if self.instance.id else "Save"),
-                        css_class="btn btn-primary",
-                    ),
-                    HTML(
-                        """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
-                        % _("Cancel")
-                    ),
-                ),
             ]
         )
         self.helper.layout = Layout(
@@ -178,7 +168,19 @@ class ApplicationForm(forms.ModelForm):
                     _("Referee"),
                     Div(TableInlineFormset("referees"), css_id="referees"),
                 ),
-            )
+                Tab(_("Summary"), Field("summary")),
+            ),
+            ButtonHolder(
+                Submit(
+                    "submit",
+                    _("Update" if self.instance.id else "Save"),
+                    css_class="btn btn-primary",
+                ),
+                HTML(
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    % _("Cancel")
+                ),
+            ),
         )
 
     class Meta:
@@ -189,6 +191,7 @@ class ApplicationForm(forms.ModelForm):
                 "org-autocomplete",
                 attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
             ),
+            summary=SummernoteWidget(),
         )
 
 

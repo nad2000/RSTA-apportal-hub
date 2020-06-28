@@ -39,7 +39,7 @@ AFFILIATION_TYPES = Choices(
     ("EDU", _("Education")),
     ("EMP", _("Employment")),
     ("MEM", _("Membership")),
-    ("SER", _("service")),
+    ("SER", _("Service")),
 )
 
 ETHNICITIES = Choices(
@@ -589,6 +589,8 @@ class Application(Model):
     daytime_phone = CharField("daytime phone numbrer", max_length=12)
     mobile_phone = CharField("mobild phone number", max_length=12)
     email = EmailField("email address", blank=True)
+
+    summary = TextField(blank=True, null=True)
 
     history = HistoricalRecords(table_name="application_history")
 
