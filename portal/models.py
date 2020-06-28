@@ -624,6 +624,28 @@ class Member(Model):
         db_table = "member"
 
 
+class Referee(Model):
+    """Application referee."""
+
+    application = ForeignKey(Application, on_delete=CASCADE, related_name="referees")
+    email = EmailField(max_length=120)
+    first_name = CharField(max_length=30, null=True, blank=True)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150, null=True, blank=True)
+    has_testifed = BooleanField(default=False)
+    testified_at = DateField(null=True, blank=True)
+    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    class Meta:
+        db_table = "referee"
+
+
 def get_unique_invitation_token():
 
     while True:

@@ -382,12 +382,16 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         members = context["members"]
+        referees = context["referees"]
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
             if members.is_valid():
                 members.instance = self.object
                 members.save()
+            if referees.is_valid():
+                referees.instance = self.object
+                referees.save()
         return resp
 
     def get_context_data(self, **kwargs):
@@ -398,6 +402,10 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
                 context["members"] = forms.MemberFormSet(self.request.POST, instance=self.object)
             else:
                 context["members"] = forms.MemberFormSet(instance=self.object)
+        if self.request.POST:
+            context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
+        else:
+            context["referees"] = forms.RefereeFormSet(instance=self.object)
         return context
 
 

@@ -1,5 +1,6 @@
 from functools import partial
 
+from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
     HTML,
@@ -116,6 +117,8 @@ class ApplicationForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         fields = [
+
+
             Fieldset(
                 _(
                     "Team representative"
@@ -161,7 +164,22 @@ class ApplicationForm(forms.ModelForm):
                 ),
             ]
         )
-        self.helper.layout = Layout(*fields)
+        self.helper.layout = Layout(
+            TabHolder(
+                Tab(
+                    _(
+                        "Team"
+                        if self.instance.is_team_application
+                        else "Applicant"
+                    ),
+                    *fields
+                ),
+                Tab(
+                    _("Referee"),
+                    Div(TableInlineFormset("referees"), css_id="referees"),
+                ),
+            )
+        )
 
     class Meta:
         model = models.Application
@@ -182,6 +200,17 @@ class MemberForm(forms.ModelForm):
 
 MemberFormSet = inlineformset_factory(
     models.Application, models.Member, form=MemberForm, extra=1, can_delete=True
+)
+
+
+class RefereeForm(forms.ModelForm):
+    class Meta:
+        model = models.Referee
+        exclude = ["has_testifed", "testified_at", "user"]
+
+
+RefereeFormSet = inlineformset_factory(
+    models.Application, models.Referee, form=RefereeForm, extra=1, can_delete=True
 )
 
 
