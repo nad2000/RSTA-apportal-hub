@@ -1,6 +1,7 @@
 /* Project specific Javascript goes here. */
 function formset_add_a_row(btn, prefix="form") {
-  var root = btn.form;
+  // var root = $(btn).closest("#form_set")[0];
+  var root = document.getElementById(prefix);;
   // var form_idx = $('form #id_form-TOTAL_FORMS').val();
   var total = root.querySelector("#id_" + prefix + "-TOTAL_FORMS");
   var form_idx = total.value;
