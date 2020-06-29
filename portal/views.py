@@ -20,6 +20,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
+from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 
@@ -983,4 +984,33 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         context.get("helper").add_input(
             Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
         )
+        return context
+
+
+class ProfileSummaryView(LoginRequiredMixin, ListView):
+    """Profile summary view"""
+
+    template_name = 'profile_summary.html'
+    model = models.User
+
+    def get_queryset(self):
+        return self.model.objects.filter(id=self.request.user.id)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileSummaryView, self).get_context_data(**kwargs)
+        context['user_data'] = self.model.objects.get(id=self.request.user.id)
+        context['qualification'] = models.Affiliation.objects.filter(
+            profile=self.request.user.profile, type__in=["EMP"]
+        ).order_by("start_date", "end_date",)
+        context['professional_records'] = models.Affiliation.objects.filter(
+            profile=self.request.user.profile, type__in=["MEM", "SER"]
+        ).order_by("start_date", "end_date", )
+        context['external_id_records'] = models.ProfilePersonIdentifier.objects.filter(
+            profile=self.request.user.profile).order_by("code")
+        context['academic_records'] = models.AcademicRecord.objects.filter(
+            profile=self.request.user.profile).order_by("-start_year")
+        context['recognitions'] = models.Recognition.objects.filter(
+            profile=self.request.user.profile).order_by(
+            "-recognized_in")
+
         return context

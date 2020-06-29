@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% load static i18n %}
+
+{% block title %}User: {{ object.username }}{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha256-siyOpF/pBWUPgIcQi17TLBkjvNgNQArcmwJB8YvkAgg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block content %}
+  {% block section %}
+
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">User Details</p>
+    </div>
+    <table class=" table searchable no-border">
+      <tbody>
+        <tr>
+          <td><b> UserName: </b></td>
+          <td>{{ user_data.username|default_if_none:"" }}</td>
+        </tr>
+        <tr>
+          <td><b> OrcidId: </b></td>
+          <td>{{ user_data.orcid|default_if_none:"" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    {% if qualification%}
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">Organisation Affiliations</p>
+    </div>
+    <table class=" table searchable no-border">
+      <tbody>
+      <tr>
+        <td><b> Organisation </b></td>
+        <td><b> Role</b></td>
+        <td><b> Start Date</b></td>
+        <td><b> End Date</b></td>
+      </tr>
+
+      {% for o in qualification %}
+        <tr>
+           <td> {{ o.org|default_if_none:"" }}</td>
+           <td> {{ o.role|default_if_none:"" }}</td>
+           <td> {{ o.start_date|default_if_none:"" }}</td>
+           <td> {{ o.end_date|default_if_none:"" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if external_id_records%}
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">External IDs</p>
+    </div>
+    <table class="table no-border">
+      <tbody>
+      <tr>
+        <td><b>Type</b></td>
+        <td><b>Value</b></td>
+      </tr>
+
+      {% for o in external_id_records %}
+        <tr>
+           <td> {{ o.code|default_if_none:"" }}</td>
+           <td> {{ o.value|default_if_none:"" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+  {% if academic_records%}
+  <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">Academic Records</p>
+    </div>
+    <table class="table no-border">
+      <tbody>
+      <tr>
+        <td><b>Start Year</b></td>
+        <td><b>Qualification</b></td>
+        <td><b>Conferred On</b></td>
+        <td><b>Discipline</b></td>
+        <td><b>Awarded By</b></td>
+        <td><b>Research Topic</b></td>
+
+      </tr>
+      {% for o in academic_records %}
+        <tr>
+           <td> {{ o.start_year|default_if_none:"" }}</td>
+           <td> {{ o.qualification|default_if_none:"" }}</td>
+           <td> {{ o.conferred_on|default_if_none:"" }}</td>
+           <td> {{ o.discipline|default_if_none:"" }}</td>
+           <td> {{ o.awarded_by|default_if_none:"" }}</td>
+           <td> {{ o.research_topic|default_if_none:"" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if recognitions%}
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">Prizes and/or Medals</p>
+    </div>
+    <table class="table no-border">
+      <tbody>
+      <tr>
+        <td><b>Year Of Recognition</b></td>
+        <td><b>Award</b></td>
+        <td><b>Awarded By</b></td>
+        <td><b>Amount</b></td>
+        <td><b>Currency code</b></td>
+      </tr>
+
+      {% for o in recognitions %}
+        <tr>
+           <td> {{ o.recognized_in|default_if_none:"" }}</td>
+           <td> {{ o.award|default_if_none:"" }}</td>
+           <td> {{ o.awarded_by|default_if_none:"" }}</td>
+           <td> {{ o.amount|default_if_none:"" }}</td>
+           <td> {{ o.currency|default_if_none:"" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if professional_records%}
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">Professional Bodies</p>
+    </div>
+    <table class="table no-border">
+      <tbody>
+      <tr>
+        <td><b>Organisation</b></td>
+        <td><b>Position</b></td>
+        <td><b>Start Date</b></td>
+        <td><b>End Date</b></td>
+      </tr>
+
+      {% for o in professional_records %}
+        <tr>
+           <td> {{ o.org|default_if_none:"" }}</td>
+           <td> {{ o.role|default_if_none:"" }}</td>
+           <td> {{ o.start_date|default_if_none:"" }}</td>
+           <td> {{ o.end_date|default_if_none:"" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  {% endblock %}
+
+{% endblock %}
