@@ -23,7 +23,7 @@ from django.forms.models import modelformset_factory
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
-from django_summernote.widgets import SummernoteWidget  # , SummernoteInplaceWidget
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
 from . import models
 from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
@@ -118,8 +118,6 @@ class ApplicationForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         fields = [
-
-
             Fieldset(
                 _(
                     "Team representative"
@@ -136,7 +134,12 @@ class ApplicationForm(forms.ModelForm):
                 css_id="submitter",
             )
         ]
-        if self.instance.round.scheme.team_can_apply:
+        round = (
+            models.Round.get(self.initial["round"])
+            if "round" in self.initial
+            else self.instance.round
+        )
+        if round.scheme.team_can_apply:
             fields.extend(
                 [
                     Field(
@@ -156,18 +159,8 @@ class ApplicationForm(forms.ModelForm):
         )
         self.helper.layout = Layout(
             TabHolder(
-                Tab(
-                    _(
-                        "Team"
-                        if self.instance.is_team_application
-                        else "Applicant"
-                    ),
-                    *fields
-                ),
-                Tab(
-                    _("Referee"),
-                    Div(TableInlineFormset("referees"), css_id="referees"),
-                ),
+                Tab(_("Team" if self.instance.is_team_application else "Applicant"), *fields),
+                Tab(_("Referee"), Div(TableInlineFormset("referees"), css_id="referees"),),
                 Tab(_("Summary"), Field("summary")),
             ),
             ButtonHolder(
@@ -191,7 +184,8 @@ class ApplicationForm(forms.ModelForm):
                 "org-autocomplete",
                 attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
             ),
-            summary=SummernoteWidget(),
+            # summary=SummernoteWidget(),
+            summary=SummernoteInplaceWidget(),
         )
 
 
