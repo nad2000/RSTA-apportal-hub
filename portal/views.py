@@ -372,12 +372,20 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
     model = Application
 
 
-class ApplicationUpdate(LoginRequiredMixin, UpdateView):
+class ApplicationView(LoginRequiredMixin):
     # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
     model = Application
     # inlines = [MemberInline]
     template_name = "application.html"
     form_class = forms.ApplicationForm
+
+    @property
+    def round(self):
+        return (
+            models.Round.get(self.kwargs["round"])
+            if "round" in self.kwargs
+            else self.object.round
+        )
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -396,12 +404,20 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.object.round.scheme.team_can_apply:
+        if self.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
             if self.request.POST:
-                context["members"] = forms.MemberFormSet(self.request.POST, instance=self.object)
+                context["members"] = (
+                    forms.MemberFormSet(self.request.POST, instance=self.object)
+                    if self.object
+                    else forms.MemberFormSet(self.request.POST)
+                )
             else:
-                context["members"] = forms.MemberFormSet(instance=self.object)
+                context["members"] = (
+                    forms.MemberFormSet(instance=self.object)
+                    if self.object
+                    else forms.MemberFormSet()
+                )
         if self.request.POST:
             context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
         else:
@@ -409,12 +425,50 @@ class ApplicationUpdate(LoginRequiredMixin, UpdateView):
         return context
 
 
-class ApplicationCreate(LoginRequiredMixin, CreateView):
+class ApplicationUpdate(ApplicationView, UpdateView):
+    # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
+    pass
+    # model = Application
+    # # inlines = [MemberInline]
+    # template_name = "application.html"
+    # form_class = forms.ApplicationForm
+
+    # def form_valid(self, form):
+    #     context = self.get_context_data()
+    #     members = context["members"]
+    #     referees = context["referees"]
+    #     with transaction.atomic():
+    #         form.instance.organisation = form.instance.org.name
+    #         resp = super().form_valid(form)
+    #         if members.is_valid():
+    #             members.instance = self.object
+    #             members.save()
+    #         if referees.is_valid():
+    #             referees.instance = self.object
+    #             referees.save()
+    #     return resp
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.object.round.scheme.team_can_apply:
+    #         context["helper"] = forms.MemberFormSetHelper()
+    #         if self.request.POST:
+    #             context["members"] = forms.MemberFormSet(self.request.POST, instance=self.object)
+    #         else:
+    #             context["members"] = forms.MemberFormSet(instance=self.object)
+    #     if self.request.POST:
+    #         context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
+    #     else:
+    #         context["referees"] = forms.RefereeFormSet(instance=self.object)
+    #     return context
+
+
+class ApplicationCreate(ApplicationView, CreateView):
     # class ApplicationCreate(LoginRequiredMixin, CreateWithInlinesView):
-    model = Application
-    # inlines = [MemberInline]
-    template_name = "application.html"
-    form_class = forms.ApplicationForm
+    # model = Application
+    # # inlines = [MemberInline]
+    # template_name = "application.html"
+    # form_class = forms.ApplicationForm
 
     def get(self, request, *args, **kwargs):
         a = (
@@ -429,21 +483,21 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["helper"] = forms.MemberFormSetHelper()
-        if self.object.is_team_application:
-            if self.request.POST:
-                context["members"] = forms.MemberFormSet(self.request.POST)
-            else:
-                context["members"] = forms.MemberFormSet()
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context["helper"] = forms.MemberFormSetHelper()
+    #     if self.object.is_team_application:
+    #         if self.request.POST:
+    #             context["members"] = forms.MemberFormSet(self.request.POST)
+    #         else:
+    #             context["members"] = forms.MemberFormSet()
+    #     return context
 
     def form_valid(self, form):
         a = form.instance
         a.organisation = a.org.name
         a.submitted_by = self.request.user
-        a.round_id = self.kwargs["round"]
+        a.round = self.round
         a.scheme = a.round.scheme
         return super().form_valid(form)
 
@@ -454,11 +508,13 @@ class ApplicationCreate(LoginRequiredMixin, CreateView):
             user = self.request.user
             kwargs["initial"].update(
                 {
-                    "first_name": user.first_name,
-                    "middle_names": user.middle_names,
-                    "last_name": user.last_name,
+                    "application_title": models.Round.get(self.kwargs["round"]).title,
                     "email": user.email,
-                    # "title": models.Round.get(self.kwargs["round"]).title,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "middle_names": user.middle_names,
+                    "title": user.title,
+                    "round": self.kwargs["round"],
                 }
             )
         return kwargs
@@ -622,10 +678,9 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
-        widgets.update({
-            "profile": HiddenInput(),
-            "DELETE": Submit("submit", "DELETE"),
-        })
+        widgets.update(
+            {"profile": HiddenInput(), "DELETE": Submit("submit", "DELETE"),}
+        )
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
         return kwargs

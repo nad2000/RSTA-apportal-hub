@@ -262,6 +262,7 @@ FIXTURE_DIRS = (str(APPS_DIR / "fixtures"),)
 SESSION_COOKIE_HTTPONLY = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-cookie-httponly
 CSRF_COOKIE_HTTPONLY = True
+# CSRF_COOKIE_HTTPONLY = False
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-browser-xss-filter
 SECURE_BROWSER_XSS_FILTER = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#x-frame-options
@@ -352,6 +353,10 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 }
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+# https://github.com/summernote/django-summernote
+SUMMERNOTE_THEME = "bs4"
+SUMMERNOTE_THEME = "bs4"
+SUMMERNOTE_CONFIG = {"iframe": False}
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 
