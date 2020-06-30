@@ -88,7 +88,7 @@
       </tbody>
     </table>
     <form method="post">
-      <a class="btn btn-primary" href="{% url 'profile-update' pk=object.pk %}">{% trans 'Edit' %}</a>
+      <a class="btn btn-primary" href="{% url 'profile-update' %}">{% trans 'Edit' %}</a>
     {% if object.user == request.user %}
       <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">{% trans 'My Info' %}</a>
       <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">{% trans 'E-Mail' %}</a>

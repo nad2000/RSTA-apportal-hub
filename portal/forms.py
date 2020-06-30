@@ -23,7 +23,7 @@ from django.forms.models import modelformset_factory
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from django_summernote.widgets import SummernoteInplaceWidget
 
 from . import models
 from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
@@ -70,7 +70,7 @@ class SubscriptionForm(forms.ModelForm):
 class UserForm(forms.ModelForm):
     class Meta:
         model = models.User
-        fields = ["first_name", "middle_names", "last_name"]
+        fields = ["title", "first_name", "middle_names", "last_name"]
 
 
 class ProfileForm(forms.ModelForm):

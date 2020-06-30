@@ -431,7 +431,7 @@ class Profile(Model):
         )
 
     def get_absolute_url(self):
-        return reverse("profile", kwargs={"pk": self.pk})
+        return reverse("profile-instance", kwargs={"pk": self.pk})
 
     @property
     def is_completed(self):

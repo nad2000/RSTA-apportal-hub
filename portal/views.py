@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
@@ -143,10 +143,9 @@ def check_profile(request, token=None):
         return redirect(next_url or "home")
     else:
         messages.add_message(request, messages.INFO, "Please complete your profile.")
-        profile = Profile.where(user=request.user).first()
         return redirect(
-            reverse("profile-update", kwargs=dict(pk=profile.id))
-            if profile
+            reverse("profile-update")
+            if Profile.where(user=request.user).exists()
             else reverse("profile-create")
             + "?next="
             + (quote(next_url) if next_url else reverse("home"))
@@ -156,11 +155,11 @@ def check_profile(request, token=None):
 @login_required
 def user_profile(request, pk=None):
     u = User.objects.get(pk=pk) if pk else request.user
-    try:
-        p = u.profile
-        return redirect("profile", pk=p.pk)
-    except ObjectDoesNotExist:
-        return redirect("profile-create")
+    return (
+        redirect("profile")
+        if models.Profile.where(user=u).exists()
+        else redirect("profile-create")
+    )
 
 
 class ProfileView:
@@ -233,6 +232,7 @@ def profile_protection_patterns(request):
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     model = Profile
     template_name = "profile.html"
+    raise_exception = True
 
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
@@ -257,11 +257,23 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
                 )
                 return redirect("socialaccount_connections")
 
+    def get_object(self):
+        if "pk" in self.kwargs:
+            p = super().get_object()
+            u = self.request.user
+            if u.is_staff or u.is_superuser or p.user == u:
+                return p
+            raise PermissionDenied
+        return self.request.user.profile
+
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
     model = Profile
     template_name = "profile_form.html"
     form_class = ProfileForm
+
+    def get_object(self):
+        return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
@@ -371,9 +383,7 @@ class ApplicationView(LoginRequiredMixin):
     @property
     def round(self):
         return (
-            models.Round.get(self.kwargs["round"])
-            if "round" in self.kwargs
-            else self.object.round
+            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
         )
 
     def form_valid(self, form):
@@ -1033,27 +1043,26 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 class ProfileSummaryView(LoginRequiredMixin, ListView):
     """Profile summary view"""
 
-    template_name = 'profile_summary.html'
+    template_name = "profile_summary.html"
     model = models.User
-
-    def get_queryset(self):
-        return self.model.objects.filter(id=self.request.user.id)
 
     def get_context_data(self, **kwargs):
         context = super(ProfileSummaryView, self).get_context_data(**kwargs)
-        context['user_data'] = self.model.objects.get(id=self.request.user.id)
-        context['qualification'] = models.Affiliation.objects.filter(
+        context["user_data"] = self.model.objects.get(id=self.request.user.id)
+        context["qualification"] = models.Affiliation.objects.filter(
             profile=self.request.user.profile, type__in=["EMP"]
         ).order_by("start_date", "end_date",)
-        context['professional_records'] = models.Affiliation.objects.filter(
+        context["professional_records"] = models.Affiliation.objects.filter(
             profile=self.request.user.profile, type__in=["MEM", "SER"]
-        ).order_by("start_date", "end_date", )
-        context['external_id_records'] = models.ProfilePersonIdentifier.objects.filter(
-            profile=self.request.user.profile).order_by("code")
-        context['academic_records'] = models.AcademicRecord.objects.filter(
-            profile=self.request.user.profile).order_by("-start_year")
-        context['recognitions'] = models.Recognition.objects.filter(
-            profile=self.request.user.profile).order_by(
-            "-recognized_in")
+        ).order_by("start_date", "end_date",)
+        context["external_id_records"] = models.ProfilePersonIdentifier.objects.filter(
+            profile=self.request.user.profile
+        ).order_by("code")
+        context["academic_records"] = models.AcademicRecord.objects.filter(
+            profile=self.request.user.profile
+        ).order_by("-start_year")
+        context["recognitions"] = models.Recognition.objects.filter(
+            profile=self.request.user.profile
+        ).order_by("-recognized_in")
 
         return context
