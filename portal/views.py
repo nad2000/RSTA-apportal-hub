@@ -444,18 +444,18 @@ class ApplicationView(LoginRequiredMixin):
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
-            if members.is_valid():
+            if self.object.is_team_application and members.is_valid():
                 members.instance = self.object
                 members.save()
-            if referees.is_valid():
-                referees.instance = self.object
-                referees.save()
                 count = invite_team_members(self.request, self.object)
                 if count > 0:
                     messages.success(
                         self.request,
                         _("%d invitation(s) to authorize the team representative sent.") % count,
                     )
+            if referees.is_valid():
+                referees.instance = self.object
+                referees.save()
         return resp
 
     def get_context_data(self, **kwargs):
