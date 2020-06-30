@@ -13,7 +13,7 @@ from django.db.models import Q
 from django.forms import DateInput, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -1086,5 +1086,8 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
 
     def get_queryset(self):
         """Get query set"""
-        self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
+        try:
+            self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
+        except:
+            raise Http404("No Profile summary found")
         return self.user
