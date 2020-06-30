@@ -439,20 +439,21 @@ class ApplicationView(LoginRequiredMixin):
 
     def form_valid(self, form):
         context = self.get_context_data()
-        members = context["members"]
         referees = context["referees"]
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
-            if self.object.is_team_application and members.is_valid():
-                members.instance = self.object
-                members.save()
-                count = invite_team_members(self.request, self.object)
-                if count > 0:
-                    messages.success(
-                        self.request,
-                        _("%d invitation(s) to authorize the team representative sent.") % count,
-                    )
+            if self.object.is_team_application:
+                members = context["members"]
+                if members.is_valid():
+                    members.instance = self.object
+                    members.save()
+                    count = invite_team_members(self.request, self.object)
+                    if count > 0:
+                        messages.success(
+                            self.request,
+                            _("%d invitation(s) to authorize the team representative sent.") % count,
+                        )
             if referees.is_valid():
                 referees.instance = self.object
                 referees.save()
@@ -560,6 +561,7 @@ class ApplicationCreate(ApplicationView, CreateView):
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
+        kwargs["initial"]["round"] = self.kwargs["round"]
         if self.request.method == "GET" and "initial" in kwargs:
             user = self.request.user
             kwargs["initial"].update(
@@ -570,7 +572,6 @@ class ApplicationCreate(ApplicationView, CreateView):
                     "last_name": user.last_name,
                     "middle_names": user.middle_names,
                     "title": user.title,
-                    "round": self.kwargs["round"],
                 }
             )
         return kwargs
