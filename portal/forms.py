@@ -132,7 +132,12 @@ class ApplicationForm(forms.ModelForm):
                 ),
                 "email",
                 css_id="submitter",
-            )
+            ),
+            Row(Column("position"), Column("org")),
+            "postal_address",
+            Row(Column("city"), Column("postcode")),
+            Row(Column("daytime_phone"), Column("mobile_phone")),
+            # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
         round = (
             models.Round.get(self.initial["round"])
@@ -148,19 +153,14 @@ class ApplicationForm(forms.ModelForm):
                     Div(TableInlineFormset("members"), css_id="members"),
                 ]
             )
-        fields.extend(
-            [
-                Row(Column("position"), Column("org")),
-                "postal_address",
-                Row(Column("city"), Column("postcode")),
-                Row(Column("daytime_phone"), Column("mobile_phone")),
-                # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
-            ]
-        )
         self.helper.layout = Layout(
             TabHolder(
-                Tab(_("Team" if self.instance.is_team_application else "Applicant"), *fields),
-                Tab(_("Referee"), Div(TableInlineFormset("referees"), css_id="referees"),),
+                Tab(
+                    _("Team" if self.instance.is_team_application else "Applicant"),
+                    css_id="applicant",
+                    *fields
+                ),
+                Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
                 Tab(_("Summary"), Field("summary")),
             ),
             ButtonHolder(

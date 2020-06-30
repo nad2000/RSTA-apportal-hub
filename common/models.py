@@ -50,6 +50,10 @@ class HelperMixin:
         return cls.objects.create(*args, **kwargs)
 
     @classmethod
+    def get_or_create(cls, defaults=None, **kwargs):
+        return cls.objects.get_or_create(defaults, **kwargs)
+
+    @classmethod
     def where(cls, *args, **kwargs):
         return cls.objects.filter(*args, **kwargs)
 

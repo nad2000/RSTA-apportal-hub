@@ -1,13 +1,12 @@
 from functools import wraps
 from urllib.parse import quote
 
+from allauth.account.models import EmailAddress
 from dal import autocomplete
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
 from django.forms import DateInput, HiddenInput, TextInput
@@ -123,8 +122,10 @@ def subscribe(request):
 @shoud_be_onboarded
 def index(request):
     if request.user.is_approved:
-        schemes = models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
-            Q(application__isnull=True) | Q(application__submitted_by=request.user)
+        schemes = (
+            models.SchemeApplication.where(groups__in=request.user.groups.all())
+            .filter(Q(application__isnull=True) | Q(application__submitted_by=request.user))
+            .distinct()
         )
     return render(request, "index.html", locals())
 
@@ -138,7 +139,28 @@ def test_task(req, message):
 
 @login_required
 def check_profile(request, token=None):
+
     next_url = request.GET.get("next")
+    # TODO: refactor and move to the model the invitation handling:
+    if token:
+        i = models.Invitation.get(token=token)
+        u = request.user
+        if i.first_name and not u.first_name:
+            u.first_name = i.first_name
+        if i.middle_names and not u.middle_names:
+            u.middle_names = i.middle_names
+        if i.last_name and not u.last_name:
+            u.last_name = i.last_name
+        u.save()
+        if i.email and u.email != i.email:
+            ea, created = EmailAddress.objects.get_or_create(
+                email=i.email, defaults=dict(user=request.user, verified=True)
+            )
+            if not created and ea.user != request.user:
+                messages.error(
+                    request, _("there is already user with this email address: ") + i.email
+                )
+
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
     else:
@@ -304,12 +326,49 @@ class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
 #     email_message.send()
 
 
+def invite_team_members(request, application):
+    """Send invitations to all team members to authorized_at the representative."""
+    # members that don't have invitations
+    count = 0
+    members = list(models.Member.where(application=application, invitation__isnull=True))
+    for m in members:
+        get_or_create_team_member_invitation(m)
+
+    # send 'yet unsent' invitations:
+    invitations = list(
+        models.Invitation.where(application=application, type="T", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
+def get_or_create_team_member_invitation(member):
+
+    i, created = models.Invitation.get_or_create(
+        type=models.INVITATION_TYPES.T,
+        member=member,
+        application=member.application,
+        email=member.email,
+        defaults=dict(
+            first_name=member.first_name,
+            middle_names=member.middle_names,
+            last_name=member.last_name,
+        ),
+    )
+    if not created:
+        return (i, False)
+    return (i, True)
+
+
 class InvitationCreate(LoginRequiredMixin, CreateView):
     model = models.Invitation
     template_name = "form.html"
     # form_class = ProfileForm
     # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
-    fields = ["email", "first_name", "last_name", "org"]
+    fields = ["email", "first_name", "middle_names", "last_name", "org"]
     widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
     labels = {"org": _("organisation")}
 
@@ -318,18 +377,10 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
         if form.instance.org:
             form.instance.organisation = form.instance.org.name
         self.object = form.save()
-        url = self.request.build_absolute_uri(
-            reverse("onboard-with-token", kwargs=dict(token=self.object.token))
-        )
-        send_mail(
-            _("You are invited to join the portal"),
-            _("You are invited to join the portal. Please follow the link: ") + url,
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[form.instance.email],
-            fail_silently=False,
-        )
-        messages.success(self.request, _("An invitation was sent to ") + form.instance.email)
+        self.object.send(self.request)
+        self.object.save()
 
+        messages.success(self.request, _("An invitation was sent to ") + form.instance.email)
         return redirect(self.get_success_url())
 
     def get_form_class(self):
@@ -399,6 +450,12 @@ class ApplicationView(LoginRequiredMixin):
             if referees.is_valid():
                 referees.instance = self.object
                 referees.save()
+                count = invite_team_members(self.request, self.object)
+                if count > 0:
+                    messages.success(
+                        self.request,
+                        _("%d invitation(s) to authorize the team representative sent.") % count,
+                    )
         return resp
 
     def get_context_data(self, **kwargs):
