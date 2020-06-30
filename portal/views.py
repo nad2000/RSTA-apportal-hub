@@ -5,7 +5,7 @@ from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction
@@ -1040,29 +1040,51 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         return context
 
 
-class ProfileSummaryView(LoginRequiredMixin, ListView):
+class AdminstaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """only Admin staff can access"""
+
+    def test_func(self):
+        return self.request.user.is_superuser or self.request.user.is_staff
+
+
+class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
     """Profile summary view"""
 
     template_name = "profile_summary.html"
     model = models.User
+    user = None
 
     def get_context_data(self, **kwargs):
+        """Get the profile summary of user"""
+
         context = super(ProfileSummaryView, self).get_context_data(**kwargs)
-        context["user_data"] = self.model.objects.get(id=self.request.user.id)
-        context["qualification"] = models.Affiliation.objects.filter(
-            profile=self.request.user.profile, type__in=["EMP"]
-        ).order_by("start_date", "end_date",)
-        context["professional_records"] = models.Affiliation.objects.filter(
-            profile=self.request.user.profile, type__in=["MEM", "SER"]
-        ).order_by("start_date", "end_date",)
-        context["external_id_records"] = models.ProfilePersonIdentifier.objects.filter(
-            profile=self.request.user.profile
-        ).order_by("code")
-        context["academic_records"] = models.AcademicRecord.objects.filter(
-            profile=self.request.user.profile
-        ).order_by("-start_year")
-        context["recognitions"] = models.Recognition.objects.filter(
-            profile=self.request.user.profile
-        ).order_by("-recognized_in")
+        context["user_data"] = self.model.objects.get(id=self.user.id)
+        if not self.user.is_approved:
+            context["approval_url"] = self.request.build_absolute_uri(
+                reverse("users:approve-user", kwargs=dict(user_id=self.user.id))
+            )
+        try:
+            context["qualification"] = models.Affiliation.objects.filter(
+                profile=self.user.profile, type__in=["EMP"]
+            ).order_by("start_date", "end_date",)
+            context["professional_records"] = models.Affiliation.objects.filter(
+                profile=self.user.profile, type__in=["MEM", "SER"]
+            ).order_by("start_date", "end_date",)
+            context["external_id_records"] = models.ProfilePersonIdentifier.objects.filter(
+                profile=self.user.profile
+            ).order_by("code")
+            context["academic_records"] = models.AcademicRecord.objects.filter(
+                profile=self.user.profile
+            ).order_by("-start_year")
+            context["recognitions"] = models.Recognition.objects.filter(
+                profile=self.user.profile
+            ).order_by("-recognized_in")
+        except:
+            pass
 
         return context
+
+    def get_queryset(self):
+        """Get query set"""
+        self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
+        return self.user

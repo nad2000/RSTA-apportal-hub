@@ -1,0 +1,14 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account %}
+
+{% block head_title %}{% trans "Approve User" %}{% endblock %}
+
+
+{% block inner %}
+<h3>Hello from Prime Minister's Science Prizes!</h3>
+<p>You are receiving this email because you are Admin for Prime Minister's Science Prizes</p>
+<p>Please click on the link to approve {{ user.email }} user <a href='{{ approval_url }}'> click here </a> </p>
+{% endblock %}
+

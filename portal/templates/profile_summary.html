@@ -29,7 +29,7 @@
       </tbody>
     </table>
 
-    {% if qualification%}
+    {% if qualification %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">Organisation Affiliations</p>
@@ -55,7 +55,7 @@
     </table>
     {% endif %}
 
-    {% if external_id_records%}
+    {% if external_id_records %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">External IDs</p>
@@ -77,7 +77,7 @@
     </table>
     {% endif %}
 
-  {% if academic_records%}
+  {% if academic_records %}
   <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">Academic Records</p>
@@ -107,7 +107,7 @@
     </table>
     {% endif %}
 
-    {% if recognitions%}
+    {% if recognitions %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">Prizes and/or Medals</p>
@@ -135,7 +135,7 @@
     </table>
     {% endif %}
 
-    {% if professional_records%}
+    {% if professional_records %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">Professional Bodies</p>
@@ -160,6 +160,9 @@
       </tbody>
     </table>
     {% endif %}
+  {% if approval_url %}
+    <a class="btn btn-primary" href="{{ approval_url }}" role="button">Approve</a>
+  {% endif %}
   {% endblock %}
 
 {% endblock %}
