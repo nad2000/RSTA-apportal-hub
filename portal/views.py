@@ -1,7 +1,9 @@
+from datetime import datetime
 from functools import wraps
 from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
+from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
-from django.forms import DateInput, HiddenInput, TextInput
+from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import HttpResponseRedirect
@@ -62,9 +64,8 @@ def should_be_approved(function):
     def wrap(request, *args, **kwargs):
         user = request.user
         if not user.is_approved:
-            messages.add_message(
+            messages.error(
                 request,
-                messages.ERROR,
                 _("Your profile has not been approved, Admin is looking into your request"),
             )
             return redirect("index")
@@ -133,7 +134,7 @@ def index(request):
 @login_required
 def test_task(req, message):
     notify_user(req.user.id, message)
-    messages.add_message(req, messages.INFO, f"Task submitted with a message '{message}'")
+    messages.info(req, f"Task submitted with a message '{message}'")
     return render(req, "index.html", locals())
 
 
@@ -160,11 +161,13 @@ def check_profile(request, token=None):
                 messages.error(
                     request, _("there is already user with this email address: ") + i.email
                 )
+        i.accept(by=request.user)
+        i.save()
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
     else:
-        messages.add_message(request, messages.INFO, "Please complete your profile.")
+        messages.info(request, _("Please complete your profile."))
         return redirect(
             reverse("profile-update")
             if Profile.where(user=request.user).exists()
@@ -420,8 +423,51 @@ class MemberInline(InlineFormSetFactory):
     fields = ["first_name", "middle_names", "last_name", "email"]
 
 
+class AuthorizationForm(Form):
+
+    authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_group_wrapper_class = "row"
+        self.helper.include_media = False
+        # self.helper.label_class = "offset-md-1 col-md-1"
+        # self.helper.field_class = "col-md-8"
+        self.helper.add_input(Submit("submit", _("Authorize")))
+
+    # def clean_is_accepted(self):
+    #     """Allow only 'True'"""
+    #     if not self.cleaned_data["is_accepted"]:
+    #         raise forms.ValidationError("Please read and consent to the Privacy Policy")
+    #     return True
+
+
 class ApplicationDetail(LoginRequiredMixin, DetailView):
+
     model = Application
+    template_name = "application_detail.html"
+
+    def post(self, request, *args, **kwargs):
+
+        if "authorize_team_lead" in request.POST:
+            self.object = self.get_object()
+            member = self.object.members.filter(user=self.request.user, has_authorized=False).first()
+            member.has_authorized = True
+            member.authorized_at = datetime.now()
+            member.save()
+
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object.members.filter(user=self.request.user, has_authorized=False).exists():
+            messages.info(
+                self.request,
+                _("Please review the application and authorize your team representative."),
+            )
+            context["form"] = AuthorizationForm()
+        return context
 
 
 class ApplicationView(LoginRequiredMixin):
@@ -452,7 +498,8 @@ class ApplicationView(LoginRequiredMixin):
                     if count > 0:
                         messages.success(
                             self.request,
-                            _("%d invitation(s) to authorize the team representative sent.") % count,
+                            _("%d invitation(s) to authorize the team representative sent.")
+                            % count,
                         )
             if referees.is_valid():
                 referees.instance = self.object

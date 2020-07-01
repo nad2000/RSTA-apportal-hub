@@ -192,7 +192,8 @@ class ApplicationForm(forms.ModelForm):
 class MemberForm(forms.ModelForm):
     class Meta:
         model = models.Member
-        exclude = ["has_authorized", "authorized_at", "user"]
+        fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]
+        widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True, disabled=True)))
 
 
 MemberFormSet = inlineformset_factory(

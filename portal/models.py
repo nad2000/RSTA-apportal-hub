@@ -620,6 +620,7 @@ class Member(Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150, null=True, blank=True)
+    role = CharField(max_length=200, null=True, blank=True)
     has_authorized = BooleanField(default=False)
     authorized_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
@@ -753,8 +754,6 @@ class Invitation(Model):
             by = request.user
         if self.type == INVITATION_TYPES.T:
             m = self.member
-            # m.has_authorized = True
-            # m.authorized_at = datetime.now()
             m.user = by
             m.save()
 

@@ -195,6 +195,7 @@ class ApplicationAdmin(SimpleHistoryAdmin):
 
 
 admin.site.register(models.Award)
+admin.site.register(models.Member)
 
 
 @admin.register(models.Organisation)
