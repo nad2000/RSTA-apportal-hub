@@ -47,9 +47,11 @@
         if (!($(this).prop('checked'))) {
           $("#members").hide();
           $("#submitter legend").text("{% trans 'Individual applicant' %}");
+          $("a[href='#applicant']").text("{% trans 'Applicant' %}");
         } else {
           $("#members").show()
           $("#submitter legend").text("{% trans 'Team representative' %}");
+          $("a[href='#applicant']").text("{% trans 'Team' %}");
         };
       })
     })

@@ -1,16 +1,17 @@
+from datetime import datetime
 from functools import wraps
 from urllib.parse import quote
 
+from allauth.account.models import EmailAddress
+from crispy_forms.helper import FormHelper
 from dal import autocomplete
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q
-from django.forms import DateInput, HiddenInput, TextInput
+from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponseRedirect
@@ -63,9 +64,8 @@ def should_be_approved(function):
     def wrap(request, *args, **kwargs):
         user = request.user
         if not user.is_approved:
-            messages.add_message(
+            messages.error(
                 request,
-                messages.ERROR,
                 _("Your profile has not been approved, Admin is looking into your request"),
             )
             return redirect("index")
@@ -123,8 +123,10 @@ def subscribe(request):
 @shoud_be_onboarded
 def index(request):
     if request.user.is_approved:
-        schemes = models.SchemeApplication.where(groups__in=request.user.groups.all()).filter(
-            Q(application__isnull=True) | Q(application__submitted_by=request.user)
+        schemes = (
+            models.SchemeApplication.where(groups__in=request.user.groups.all())
+            .filter(Q(application__isnull=True) | Q(application__submitted_by=request.user))
+            .distinct()
         )
     return render(request, "index.html", locals())
 
@@ -132,17 +134,40 @@ def index(request):
 @login_required
 def test_task(req, message):
     notify_user(req.user.id, message)
-    messages.add_message(req, messages.INFO, f"Task submitted with a message '{message}'")
+    messages.info(req, f"Task submitted with a message '{message}'")
     return render(req, "index.html", locals())
 
 
 @login_required
 def check_profile(request, token=None):
+
     next_url = request.GET.get("next")
+    # TODO: refactor and move to the model the invitation handling:
+    if token:
+        i = models.Invitation.get(token=token)
+        u = request.user
+        if i.first_name and not u.first_name:
+            u.first_name = i.first_name
+        if i.middle_names and not u.middle_names:
+            u.middle_names = i.middle_names
+        if i.last_name and not u.last_name:
+            u.last_name = i.last_name
+        u.save()
+        if i.email and u.email != i.email:
+            ea, created = EmailAddress.objects.get_or_create(
+                email=i.email, defaults=dict(user=request.user, verified=True)
+            )
+            if not created and ea.user != request.user:
+                messages.error(
+                    request, _("there is already user with this email address: ") + i.email
+                )
+        i.accept(by=request.user)
+        i.save()
+
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
     else:
-        messages.add_message(request, messages.INFO, "Please complete your profile.")
+        messages.info(request, _("Please complete your profile."))
         return redirect(
             reverse("profile-update")
             if Profile.where(user=request.user).exists()
@@ -304,12 +329,49 @@ class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
 #     email_message.send()
 
 
+def invite_team_members(request, application):
+    """Send invitations to all team members to authorized_at the representative."""
+    # members that don't have invitations
+    count = 0
+    members = list(models.Member.where(application=application, invitation__isnull=True))
+    for m in members:
+        get_or_create_team_member_invitation(m)
+
+    # send 'yet unsent' invitations:
+    invitations = list(
+        models.Invitation.where(application=application, type="T", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
+def get_or_create_team_member_invitation(member):
+
+    i, created = models.Invitation.get_or_create(
+        type=models.INVITATION_TYPES.T,
+        member=member,
+        application=member.application,
+        email=member.email,
+        defaults=dict(
+            first_name=member.first_name,
+            middle_names=member.middle_names,
+            last_name=member.last_name,
+        ),
+    )
+    if not created:
+        return (i, False)
+    return (i, True)
+
+
 class InvitationCreate(LoginRequiredMixin, CreateView):
     model = models.Invitation
     template_name = "form.html"
     # form_class = ProfileForm
     # exclude = ["organisation", "status", "submitted_at", "accepted_at", "expired_at"]
-    fields = ["email", "first_name", "last_name", "org"]
+    fields = ["email", "first_name", "middle_names", "last_name", "org"]
     widgets = {"org": autocomplete.ModelSelect2("org-autocomplete")}
     labels = {"org": _("organisation")}
 
@@ -318,18 +380,10 @@ class InvitationCreate(LoginRequiredMixin, CreateView):
         if form.instance.org:
             form.instance.organisation = form.instance.org.name
         self.object = form.save()
-        url = self.request.build_absolute_uri(
-            reverse("onboard-with-token", kwargs=dict(token=self.object.token))
-        )
-        send_mail(
-            _("You are invited to join the portal"),
-            _("You are invited to join the portal. Please follow the link: ") + url,
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[form.instance.email],
-            fail_silently=False,
-        )
-        messages.success(self.request, _("An invitation was sent to ") + form.instance.email)
+        self.object.send(self.request)
+        self.object.save()
 
+        messages.success(self.request, _("An invitation was sent to ") + form.instance.email)
         return redirect(self.get_success_url())
 
     def get_form_class(self):
@@ -369,8 +423,51 @@ class MemberInline(InlineFormSetFactory):
     fields = ["first_name", "middle_names", "last_name", "email"]
 
 
+class AuthorizationForm(Form):
+
+    authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_group_wrapper_class = "row"
+        self.helper.include_media = False
+        # self.helper.label_class = "offset-md-1 col-md-1"
+        # self.helper.field_class = "col-md-8"
+        self.helper.add_input(Submit("submit", _("Authorize")))
+
+    # def clean_is_accepted(self):
+    #     """Allow only 'True'"""
+    #     if not self.cleaned_data["is_accepted"]:
+    #         raise forms.ValidationError("Please read and consent to the Privacy Policy")
+    #     return True
+
+
 class ApplicationDetail(LoginRequiredMixin, DetailView):
+
     model = Application
+    template_name = "application_detail.html"
+
+    def post(self, request, *args, **kwargs):
+
+        if "authorize_team_lead" in request.POST:
+            self.object = self.get_object()
+            member = self.object.members.filter(user=self.request.user, has_authorized=False).first()
+            member.has_authorized = True
+            member.authorized_at = datetime.now()
+            member.save()
+
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object.members.filter(user=self.request.user, has_authorized=False).exists():
+            messages.info(
+                self.request,
+                _("Please review the application and authorize your team representative."),
+            )
+            context["form"] = AuthorizationForm()
+        return context
 
 
 class ApplicationView(LoginRequiredMixin):
@@ -388,14 +485,22 @@ class ApplicationView(LoginRequiredMixin):
 
     def form_valid(self, form):
         context = self.get_context_data()
-        members = context["members"]
         referees = context["referees"]
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
-            if members.is_valid():
-                members.instance = self.object
-                members.save()
+            if self.object.is_team_application:
+                members = context["members"]
+                if members.is_valid():
+                    members.instance = self.object
+                    members.save()
+                    count = invite_team_members(self.request, self.object)
+                    if count > 0:
+                        messages.success(
+                            self.request,
+                            _("%d invitation(s) to authorize the team representative sent.")
+                            % count,
+                        )
             if referees.is_valid():
                 referees.instance = self.object
                 referees.save()
@@ -503,6 +608,7 @@ class ApplicationCreate(ApplicationView, CreateView):
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
+        kwargs["initial"]["round"] = self.kwargs["round"]
         if self.request.method == "GET" and "initial" in kwargs:
             user = self.request.user
             kwargs["initial"].update(
@@ -513,7 +619,6 @@ class ApplicationCreate(ApplicationView, CreateView):
                     "last_name": user.last_name,
                     "middle_names": user.middle_names,
                     "title": user.title,
-                    "round": self.kwargs["round"],
                 }
             )
         return kwargs

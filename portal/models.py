@@ -2,9 +2,11 @@ import secrets
 from datetime import date
 
 from common.models import Base, Model
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -25,7 +27,7 @@ from django.db.models import (
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django_fsm import FSMField
+from django_fsm import FSMField, transition
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
@@ -618,9 +620,13 @@ class Member(Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150, null=True, blank=True)
+    role = CharField(max_length=200, null=True, blank=True)
     has_authorized = BooleanField(default=False)
     authorized_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.email})"
 
     class Meta:
         db_table = "member"
@@ -661,25 +667,46 @@ class StateField(StatusField, FSMField):
     pass
 
 
+INVITATION_TYPES = Choices(("A", "apply"), ("J", "join"), ("R", "testify"), ("T", "authorize"),)
+
+
 class Invitation(Model):
 
-    STATUS = Choices("draft", "submitted", "accepted", "expired")
-    TYPES = Choices(("A", "to apply"), ("J", "to sign up"))
-
+    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
-    email = EmailField("email address")
+    type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
+    email = EmailField(_("email address"))
     first_name = CharField(max_length=30)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
     last_name = CharField(max_length=150)
     organisation = CharField("organisation", max_length=200, null=True, blank=True)  # entered name
     org = ForeignKey(
         Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
     )  # the org matched with the entered name
+    application = ForeignKey(
+        Application, null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+    )
+    member = OneToOneField(
+        Member, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+    )
+    referee = OneToOneField(
+        Referee, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+    )
 
     # TODO: take a look FSM ... as an alternative. might be more appropriate...
     # status = StatusField()
     status = StateField()
     submitted_at = MonitorField(
         monitor="status", when=[STATUS.submitted], null=True, blank=True, default=None
+    )
+    sent_at = MonitorField(
+        monitor="status", when=[STATUS.sent], null=True, blank=True, default=None
     )
     accepted_at = MonitorField(
         monitor="status", when=[STATUS.accepted], null=True, blank=True, default=None
@@ -690,6 +717,45 @@ class Invitation(Model):
 
     # TODO: need to figure out how to propaged STATUS to the historycal rec model:
     # history = HistoricalRecords(table_name="invitation_history")
+
+    @transition(field=status, source=[STATUS.draft, STATUS.submitted], target=STATUS.sent)
+    def send(self, request, by=None):
+        if not by:
+            by = request.user
+        url = request.build_absolute_uri(
+            reverse("onboard-with-token", kwargs=dict(token=self.token))
+        )
+        # TODO: handle the rest of types
+        if self.type == INVITATION_TYPES.T:
+            subject = _("You are invited to authorize your team representative")
+            body = (
+                _(
+                    "You are invited to authorize your team representative. Please follow the link: "
+                )
+                + url
+            )
+        else:
+            subject = _("You are invited to join the portal")
+            body = _("You are invited to join the portal. Please follow the link: ") + url
+
+        send_mail(
+            subject,
+            body,
+            by.email if by else settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[self.email],
+            fail_silently=False,
+        )
+
+    @transition(field=status, source=STATUS.sent, target=STATUS.accepted)
+    def accept(self, request=None, by=None):
+        if not by:
+            if not request or not request.user:
+                raise Exception("User unknown!")
+            by = request.user
+        if self.type == INVITATION_TYPES.T:
+            m = self.member
+            m.user = by
+            m.save()
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"

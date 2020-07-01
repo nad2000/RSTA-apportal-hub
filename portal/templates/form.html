@@ -20,7 +20,8 @@
         </h1>
 
         <form method="post">{% csrf_token %}
-          {% crispy form %}
+          {#% crispy form %#}
+          {{ form|crispy }}
           {% if inlines %}
             <hr />
             {% for formset in inlines %}
@@ -54,5 +55,4 @@
     $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
     });
     </script -->
-
-  {% endblock %}
+{% endblock %}
