@@ -452,7 +452,9 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
 
         if "authorize_team_lead" in request.POST:
             self.object = self.get_object()
-            member = self.object.members.filter(user=self.request.user, has_authorized=False).first()
+            member = self.object.members.filter(
+                Q(has_authorized=False) | Q(has_authorized__isnull=True), user=self.request.user
+            ).first()
             member.has_authorized = True
             member.authorized_at = datetime.now()
             member.save()
@@ -530,41 +532,8 @@ class ApplicationView(LoginRequiredMixin):
 
 
 class ApplicationUpdate(ApplicationView, UpdateView):
-    # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
+
     pass
-    # model = Application
-    # # inlines = [MemberInline]
-    # template_name = "application.html"
-    # form_class = forms.ApplicationForm
-
-    # def form_valid(self, form):
-    #     context = self.get_context_data()
-    #     members = context["members"]
-    #     referees = context["referees"]
-    #     with transaction.atomic():
-    #         form.instance.organisation = form.instance.org.name
-    #         resp = super().form_valid(form)
-    #         if members.is_valid():
-    #             members.instance = self.object
-    #             members.save()
-    #         if referees.is_valid():
-    #             referees.instance = self.object
-    #             referees.save()
-    #     return resp
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.object.round.scheme.team_can_apply:
-    #         context["helper"] = forms.MemberFormSetHelper()
-    #         if self.request.POST:
-    #             context["members"] = forms.MemberFormSet(self.request.POST, instance=self.object)
-    #         else:
-    #             context["members"] = forms.MemberFormSet(instance=self.object)
-    #     if self.request.POST:
-    #         context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
-    #     else:
-    #         context["referees"] = forms.RefereeFormSet(instance=self.object)
-    #     return context
 
 
 class ApplicationCreate(ApplicationView, CreateView):
