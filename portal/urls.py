@@ -124,7 +124,11 @@ urlpatterns = [
         views.ProfileProfessionalFormSetView.as_view(),
         name="profile-professional-records",
     ),
-    path("profile/profile-summary/", views.ProfileSummaryView.as_view(), name="profile-summary",),
+    path(
+        "profile/profile-summary/<user_id>",
+        views.ProfileSummaryView.as_view(),
+        name="profile-summary",
+    ),
     # path(
     #     "subscription/update/<int:pk>",
     #     views.SubscriptionUpdate.as_view(),

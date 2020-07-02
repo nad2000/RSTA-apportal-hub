@@ -5,6 +5,7 @@ from django.contrib.auth import forms, get_user_model
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.shortcuts import reverse
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 User = get_user_model()
@@ -40,20 +41,20 @@ class UserSignupForm(django_forms.Form):
     def signup(self, request, user):
         user.is_approved = False
         user.save()
-
-        url = request.build_absolute_uri(
-            reverse("users:approve-user", kwargs=dict(user_id=user.id))
+        url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
+        html_body = render_to_string(
+            "account/email_approve_user.html", {"approval_url": url, "user": user}
         )
-
         admin_users = User.where(is_staff=True)
         admin_emails = []
         for u in admin_users:
             admin_emails.append(u.email)
         send_mail(
             _("[Prime Minister's Science Prizes] New User Signed up to join the portal"),
-            _(f"Please click on the link to approve user {user.email}: ") + url,
+            "",
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=admin_emails,
             fail_silently=False,
+            html_message=html_body,
         )
         return user
