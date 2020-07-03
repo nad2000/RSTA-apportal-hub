@@ -460,6 +460,7 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
         member = self.object.members.filter(
             has_authorized__isnull=True, user=self.request.user
         ).first()
+        breakpoint()
         if "authorize_team_lead" in request.POST:
             member.has_authorized = True
             member.authorized_at = datetime.now()
@@ -491,9 +492,8 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
 
 
 class ApplicationView(LoginRequiredMixin):
-    # class ApplicationUpdate(LoginRequiredMixin, UpdateWithInlinesView):
+
     model = Application
-    # inlines = [MemberInline]
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
@@ -504,8 +504,10 @@ class ApplicationView(LoginRequiredMixin):
         )
 
     def form_valid(self, form):
+
         context = self.get_context_data()
         referees = context["referees"]
+
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)

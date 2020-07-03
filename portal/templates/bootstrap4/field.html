@@ -17,6 +17,7 @@
   </td>
 {% elif field|is_disabled_readonly_checkbox %}
     <{% if tag %}{{ tag }}{% else %}div{% endif %} id="div_{{ field.auto_id }}" class="{% if not field|is_checkbox %}form-group{% if 'form-horizontal' in form_class %} row{% endif %}{% else %}{%if use_custom_control%}custom-control custom-checkbox{% endif %}{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %} align-middle text-center">
+      <input type="hidden" name="{{ field.html_name }}" id="{{ field.auto_id }}">
       {% if field.value == True %}
         <i class="fa fa-check-circle text-success text-center" aria-hidden="true"></i>
       {% elif field.value == False %}
