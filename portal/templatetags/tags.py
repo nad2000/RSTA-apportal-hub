@@ -1,4 +1,4 @@
-from django import template
+from django import forms, template
 from django.db import models
 from django.utils.translation import gettext as _
 
@@ -18,3 +18,19 @@ def field_value(value, name):
 @register.filter()
 def fields(value):
     return value._meta.fields
+
+
+@register.filter()
+def disabled_readonly(value):
+    attrs = value.field.widget.attrs
+    return attrs.get("readonly") and attrs.get("disabled")
+
+
+@register.filter()
+def is_disabled_readonly_checkbox(value):
+    attrs = value.field.widget.attrs
+    return (
+        isinstance(value.field.widget, forms.CheckboxInput)
+        and attrs.get("readonly")
+        and attrs.get("disabled")
+    )

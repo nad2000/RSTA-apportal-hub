@@ -190,6 +190,7 @@ class ApplicationForm(forms.ModelForm):
 
 
 class MemberForm(forms.ModelForm):
+
     class Meta:
         model = models.Member
         fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]

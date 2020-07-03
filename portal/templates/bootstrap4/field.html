@@ -1,4 +1,4 @@
-{% load crispy_forms_field %}
+{% load crispy_forms_field tags %}
 
 {% if field.is_hidden %}
     {{ field }}
@@ -15,6 +15,14 @@
         {% endif %}
     </div>
   </td>
+{% elif field|is_disabled_readonly_checkbox %}
+    <{% if tag %}{{ tag }}{% else %}div{% endif %} id="div_{{ field.auto_id }}" class="{% if not field|is_checkbox %}form-group{% if 'form-horizontal' in form_class %} row{% endif %}{% else %}{%if use_custom_control%}custom-control custom-checkbox{% endif %}{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %} align-middle text-center">
+      {% if field.value == True %}
+        <i class="fa fa-check-circle text-success text-center" aria-hidden="true"></i>
+      {% elif field.value == False %}
+        <i class="fa fa-ban text-danger text-center" aria-hidden="true"></i>
+      {% endif %}
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
 {% else %}
     {% if field|is_checkbox %}
         <div class="form-group{% if 'form-horizontal' in form_class %} row{% endif %}">
@@ -47,13 +55,30 @@
                 <label for="{{ field.id_for_label }}" class="{%if use_custom_control%}custom-control-label{% else %}form-check-label{% endif %}{% if field.field.required %} requiredField{% endif %}">
                     {{ field.label|safe }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
                 </label>
-                {% include 'bootstrap4/layout/help_text_and_errors.html' %}
+                {% if not tag and tag != 'td' %}
+                  {% include 'bootstrap4/layout/help_text_and_errors.html' %}
+                {% else %}
+                  {% if error_text_inline %}
+                      {% include 'bootstrap4/layout/field_errors.html' %}
+                  {% else %}
+                      {% include 'bootstrap4/layout/field_errors_block.html' %}
+                  {% endif %}
+                {% endif %}
             {% elif field|is_file and use_custom_control  %}
                 {% include 'bootstrap4/layout/field_file.html' %}
+
             {% else %}
                 <div class="{{ field_class }}">
                     {% crispy_field field %}
-                    {% include 'bootstrap4/layout/help_text_and_errors.html' %}
+                    {% if not tag and tag != 'td' %}
+                      {% include 'bootstrap4/layout/help_text_and_errors.html' %}
+                    {% else %}
+                      {% if error_text_inline %}
+                          {% include 'bootstrap4/layout/field_errors.html' %}
+                      {% else %}
+                          {% include 'bootstrap4/layout/field_errors_block.html' %}
+                      {% endif %}
+                    {% endif %}
                 </div>
             {% endif %}
         {% endif %}
