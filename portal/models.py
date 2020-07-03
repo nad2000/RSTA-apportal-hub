@@ -646,7 +646,7 @@ class Member(Model):
     )
     last_name = CharField(max_length=150, null=True, blank=True)
     role = CharField(max_length=200, null=True, blank=True)
-    has_authorized = BooleanField(default=False)
+    has_authorized = BooleanField(null=True, blank=True)
     authorized_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 

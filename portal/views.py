@@ -2,6 +2,8 @@ from datetime import datetime
 from functools import wraps
 from urllib.parse import quote
 
+from django.core.mail import send_mail
+from django.conf import settings
 from allauth.account.models import EmailAddress
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
@@ -435,7 +437,9 @@ class AuthorizationForm(Form):
         # self.helper.label_class = "offset-md-1 col-md-1"
         # self.helper.field_class = "col-md-8"
         self.helper.add_input(Submit("submit", _("Authorize")))
-        self.helper.add_input(Submit("reject", _("I don't wish to join the team"), css_class="btn-outline-danger"))
+        self.helper.add_input(
+            Submit("turn_down", _("I don't wish to join the team"), css_class="btn-outline-danger")
+        )
         # Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid",)
 
     # def clean_is_accepted(self):
@@ -452,14 +456,24 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
 
+        self.object = self.get_object()
+        member = self.object.members.filter(
+            has_authorized__isnull=True, user=self.request.user
+        ).first()
         if "authorize_team_lead" in request.POST:
-            self.object = self.get_object()
-            member = self.object.members.filter(
-                Q(has_authorized=False) | Q(has_authorized__isnull=True), user=self.request.user
-            ).first()
             member.has_authorized = True
             member.authorized_at = datetime.now()
             member.save()
+        elif "turn_down" in request.POST:
+            member.has_authorized = False
+            member.save()
+            send_mail(
+                _("A team member opted out of application"),
+                _("Your team member %s has opted out of application") % member,
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[self.object.submitted_by.email],
+                fail_silently=False,
+            )
 
         return self.get(request, *args, **kwargs)
 
