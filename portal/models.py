@@ -575,7 +575,9 @@ class Nomination(Model):
     nominator = ForeignKey(User, on_delete=CASCADE, related_name="naminations")
     summary = TextField(blank=True, null=True)
 
-    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL, related_name="naminations_to_apply")
+    user = ForeignKey(
+        User, null=True, blank=True, on_delete=SET_NULL, related_name="naminations_to_apply"
+    )
 
     class Meta:
         db_table = "nomination"

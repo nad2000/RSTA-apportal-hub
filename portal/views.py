@@ -435,6 +435,8 @@ class AuthorizationForm(Form):
         # self.helper.label_class = "offset-md-1 col-md-1"
         # self.helper.field_class = "col-md-8"
         self.helper.add_input(Submit("submit", _("Authorize")))
+        self.helper.add_input(Submit("reject", _("I don't wish to join the team"), css_class="btn-outline-danger"))
+        # Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid",)
 
     # def clean_is_accepted(self):
     #     """Allow only 'True'"""

@@ -42,7 +42,7 @@ class Submit(BaseInput):
     input_type = "submit"
 
     def __init__(self, *args, **kwargs):
-        self.field_classes = "btn btn-primary"
+        self.field_classes = "btn" if "css_class" in kwargs else "btn btn-primary"
         super().__init__(*args, **kwargs)
 
 
