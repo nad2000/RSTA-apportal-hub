@@ -355,7 +355,8 @@ SOCIALACCOUNT_PROVIDERS = {
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 # https://github.com/summernote/django-summernote
 SUMMERNOTE_THEME = "bs4"
-SUMMERNOTE_CONFIG = {"iframe": False}
+# SUMMERNOTE_CONFIG = {"iframe": False}
+SUMMERNOTE_CONFIG = {"iframe": True}
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 

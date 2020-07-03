@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
+from django_summernote.admin import SummernoteModelAdmin
 from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
@@ -9,8 +11,8 @@ from simple_history.admin import SimpleHistoryAdmin
 from . import models
 
 admin.site.site_url = "/start"
-admin.site.site_header = "Portal Administration"
-admin.site.site_title = "Portal Administration"
+admin.site.site_header = _("Portal Administration")
+admin.site.site_title = _("Portal Administration")
 
 
 @admin.register(models.Subscription)
@@ -186,16 +188,29 @@ class ProfileAdmin(SimpleHistoryAdmin):
 
 
 @admin.register(models.Application)
-class ApplicationAdmin(SimpleHistoryAdmin):
-    class MemberInline(admin.StackedInline):
+class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
+
+    summernote_fields = ["summary"]
+
+    class MemberInline(admin.TabularInline):
         extra = 0
         model = models.Member
 
-    inlines = [MemberInline]
+    class RefereeInline(admin.TabularInline):
+        extra = 0
+        model = models.Referee
+
+    inlines = [MemberInline, RefereeInline]
 
 
 admin.site.register(models.Award)
 admin.site.register(models.Member)
+
+
+@admin.register(models.Nomination)
+class NominationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
+
+    summernote_fields = ["summary"]
 
 
 @admin.register(models.Organisation)
