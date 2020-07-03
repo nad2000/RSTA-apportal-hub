@@ -541,7 +541,6 @@ class Nominee(Model):
     title = CharField(max_length=40, null=True, blank=True)
     # email = EmailField(max_length=119)
     email = EmailField("email address")
-    title = CharField(max_length=80, null=True, blank=True)
     first_name = CharField(max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -556,6 +555,30 @@ class Nominee(Model):
 
     class Meta:
         db_table = "nominee"
+
+
+class Nomination(Model):
+
+    # Nominee personal data
+    title = CharField(max_length=40, null=True, blank=True)
+    email = EmailField("email address")
+    first_name = CharField(max_length=30)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150)
+
+    nominator = ForeignKey(User, on_delete=CASCADE, related_name="naminations")
+    summary = TextField(blank=True, null=True)
+
+    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL, related_name="naminations_to_apply")
+
+    class Meta:
+        db_table = "nomination"
 
 
 class Application(Model):
