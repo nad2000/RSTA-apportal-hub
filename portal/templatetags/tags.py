@@ -1,5 +1,6 @@
 from django import forms, template
 from django.db import models
+from django.forms.widgets import NullBooleanSelect
 from django.utils.translation import gettext as _
 
 register = template.Library()
@@ -34,3 +35,9 @@ def is_disabled_readonly_checkbox(value):
         and attrs.get("readonly")
         and attrs.get("disabled")
     )
+
+
+@register.filter()
+def is_readonly_nullbooleanfield(value):
+    attrs = value.field.widget.attrs
+    return isinstance(value.field.widget, NullBooleanSelect) and attrs.get("readonly")

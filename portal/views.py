@@ -460,7 +460,6 @@ class ApplicationDetail(LoginRequiredMixin, DetailView):
         member = self.object.members.filter(
             has_authorized__isnull=True, user=self.request.user
         ).first()
-        breakpoint()
         if "authorize_team_lead" in request.POST:
             member.has_authorized = True
             member.authorized_at = datetime.now()

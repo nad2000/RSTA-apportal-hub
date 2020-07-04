@@ -20,6 +20,7 @@ from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput, inlineformset_factory
 from django.forms.models import modelformset_factory
+from django.forms.widgets import NullBooleanSelect
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
@@ -194,7 +195,10 @@ class MemberForm(forms.ModelForm):
     class Meta:
         model = models.Member
         fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]
-        widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True, disabled=True)))
+        widgets = dict(has_authorized=NullBooleanSelect(attrs=dict(readonly=True)))
+        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True, disabled=True)))
+        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(disabled=True)))
+        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True)))
 
 
 MemberFormSet = inlineformset_factory(
