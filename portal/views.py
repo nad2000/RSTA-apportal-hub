@@ -510,8 +510,10 @@ class ApplicationView(LoginRequiredMixin):
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
+            has_deleted = False
             if self.object.is_team_application:
                 members = context["members"]
+                has_deleted = bool(members.deleted_forms)
                 if members.is_valid():
                     members.instance = self.object
                     members.save()
@@ -524,7 +526,10 @@ class ApplicationView(LoginRequiredMixin):
                         )
             if referees.is_valid():
                 referees.instance = self.object
+                has_deleted = bool(has_deleted or referees.deleted_forms)
                 referees.save()
+        if has_deleted:  # keep editing
+            return HttpResponseRedirect(self.request.path_info)
         return resp
 
     def get_context_data(self, **kwargs):
