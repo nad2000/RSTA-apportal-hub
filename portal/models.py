@@ -574,6 +574,9 @@ class Nomination(Model):
 
     nominator = ForeignKey(User, on_delete=CASCADE, related_name="naminations")
     summary = TextField(blank=True, null=True)
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
+    )
 
     user = ForeignKey(
         User, null=True, blank=True, on_delete=SET_NULL, related_name="naminations_to_apply"
@@ -677,6 +680,15 @@ class Referee(Model):
 
     class Meta:
         db_table = "referee"
+
+
+class Testimony(Model):
+    """A Testimony/feedback given by a referee."""
+    referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
+    summary = TextField(blank=True, null=True)
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
+    )
 
 
 def get_unique_invitation_token():
