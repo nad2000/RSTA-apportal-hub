@@ -118,6 +118,7 @@ THIRD_PARTY_APPS = [
     "private_storage",
     "django_fsm_log",
     "fsm_admin",
+    "django_fsm",
     "django_summernote",
 ]
 
