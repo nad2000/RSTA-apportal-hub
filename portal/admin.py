@@ -232,6 +232,15 @@ class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
     inlines = [StateLogInline]
 
 
+@admin.register(models.Testimony)
+class TestimonyAdmin(FSMTransitionMixin, SummernoteModelAdmin):
+    fsm_field = ["state"]
+    summernote_fields = ["summary"]
+    list_display = ["referee"]
+    date_hierarchy = "created_at"
+    inlines = [StateLogInline]
+
+
 class SchemeResource(ModelResource):
     class Meta:
         exclude = ["created_at", "updated_at", "groups", "id", "current_round"]

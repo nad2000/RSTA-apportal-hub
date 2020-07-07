@@ -798,9 +798,17 @@ class Testimony(Model):
     referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
-        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
+        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.referee.application.id)[2:]}"
     )
     state = FSMField(default="new")
+
+    @transition(field=state, source="new", target="draft")
+    def save_draft(self, request=None, by=None):
+        pass
+
+    @transition(field=state, source=["new", "draft"], target="submitted")
+    def submit(self, request=None, by=None):
+        pass
 
 
 FILE_TYPE = Choices("CV")
