@@ -682,15 +682,6 @@ class Referee(Model):
         db_table = "referee"
 
 
-class Testimony(Model):
-    """A Testimony/feedback given by a referee."""
-    referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
-    summary = TextField(blank=True, null=True)
-    file = PrivateFileField(
-        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
-    )
-
-
 def get_unique_invitation_token():
 
     while True:
@@ -799,6 +790,17 @@ class Invitation(Model):
 
     class Meta:
         db_table = "invitation"
+
+
+class Testimony(Model):
+    """A Testimony/feedback given by a referee."""
+
+    referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
+    summary = TextField(blank=True, null=True)
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
+    )
+    state = FSMField(default="new")
 
 
 FILE_TYPE = Choices("CV")
