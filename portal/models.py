@@ -557,35 +557,6 @@ class Nominee(Model):
         db_table = "nominee"
 
 
-class Nomination(Model):
-
-    # Nominee personal data
-    title = CharField(max_length=40, null=True, blank=True)
-    email = EmailField("email address")
-    first_name = CharField(max_length=30)
-    middle_names = CharField(
-        _("middle names"),
-        blank=True,
-        null=True,
-        max_length=280,
-        help_text=_("Comma separated list of middle names"),
-    )
-    last_name = CharField(max_length=150)
-
-    nominator = ForeignKey(User, on_delete=CASCADE, related_name="naminations")
-    summary = TextField(blank=True, null=True)
-    file = PrivateFileField(
-        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.id)[2:]}"
-    )
-
-    user = ForeignKey(
-        User, null=True, blank=True, on_delete=SET_NULL, related_name="naminations_to_apply"
-    )
-
-    class Meta:
-        db_table = "nomination"
-
-
 class Application(Model):
 
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
@@ -935,3 +906,45 @@ class SchemeApplication(Model):
         managed = False
         db_table = "scheme_application_view"
         ordering = ["title"]
+
+
+class Nomination(Model):
+
+    # Nominee personal data
+    title = CharField(max_length=40, null=True, blank=True)
+    email = EmailField("email address")
+    first_name = CharField(max_length=30)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150)
+
+    nominator = ForeignKey(User, on_delete=CASCADE, related_name="nominations")
+    summary = TextField(blank=True, null=True)
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: f"nominations/{hex(instance.nominator.id)[2:]}"
+    )
+
+    user = ForeignKey(
+        User, null=True, blank=True, on_delete=SET_NULL, related_name="nominations_to_apply"
+    )
+    application = OneToOneField(
+        Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
+    )
+
+    state = FSMField(default="new")
+
+    @transition(field=state, source="new", target="draft")
+    def save_draft(self, *args, **kwargs):
+        pass
+
+    @transition(field=state, source=["new", "draft"], target="submitted")
+    def submit(self, *args, **kwargs):
+        pass
+
+    class Meta:
+        db_table = "nomination"
