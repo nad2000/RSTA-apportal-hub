@@ -302,3 +302,58 @@ class ProfileSectionFormSetHelper(FormHelper):
             # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
             self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+
+
+class NominationForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        fields = [
+            Fieldset(
+                _("Nominee"),
+                Row(
+                    Column("title", css_class="form-group col-1 mb-0"),
+                    Column("first_name", css_class="form-group col-3 mb-0"),
+                    Column("middle_names", css_class="form-group col-5 mb-0"),
+                    Column("last_name", css_class="form-group col-3 mb-0"),
+                ),
+                "email",
+                css_id="nominee",
+            ),
+            "org",
+            "summary",
+            "file",
+        ]
+        self.helper.layout = Layout(
+            *fields,
+            ButtonHolder(
+                Submit(
+                    "save",
+                    _("Save Draft"),
+                    css_class="btn btn-primary",
+                ),
+                Submit(
+                    "submit",
+                    _("Submit"),
+                    css_class="btn btn-outline-primary",
+                ),
+                HTML(
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    % _("Cancel")
+                ),
+            ),
+        )
+
+    class Meta:
+        model = models.Nomination
+        fields = ["title", "first_name", "middle_names", "last_name", "email", "org", "summary", "file"]
+        widgets = dict(
+            org=autocomplete.ModelSelect2(
+                "org-autocomplete",
+                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+            ),
+            summary=SummernoteInplaceWidget(),
+        )

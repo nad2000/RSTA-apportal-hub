@@ -1216,4 +1216,5 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
 class NominationView(CreateUpdateView):
 
     model = models.Nomination
-    fields = ["title", "first_name", "middle_names", "last_name", "email", "summary", "file"]
+    form_class = forms.NominationForm
+    template_name = "nomination.html"

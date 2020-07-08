@@ -16,26 +16,37 @@
       <div class="col-sm-12">
 
         <h1>
+        {% block content_header %}
           {{ object|title }}
+        {% endblock %}
         </h1>
 
-        <form method="post">{% csrf_token %}
-          {#% crispy form %#}
-          {{ form|crispy }}
-          {% if inlines %}
-            <hr />
-            {% for formset in inlines %}
-              {% crispy formset helper %}
-            {% endfor %}
-          {% endif %}
 
-          {% if object.id %}
-            <input class="btn btn-primary" type="submit" value="Update">
+        {% if helper or form.helper %}
+          {% if helper %}
+            {% crispy form helper %}
           {% else %}
-            <input class="btn btn-primary" type="submit" value="Create">
+            {% crispy form form.helper %}
           {% endif %}
-          <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
-        </form>
+        {% else %}
+          <form method="post">{% csrf_token %}
+            {#% crispy form %#}
+            {{ form|crispy }}
+            {% if inlines %}
+              <hr />
+              {% for formset in inlines %}
+                {% crispy formset helper %}
+              {% endfor %}
+            {% endif %}
+
+            {% if object.id %}
+              <input class="btn btn-primary" type="submit" value="Update">
+            {% else %}
+              <input class="btn btn-primary" type="submit" value="Create">
+            {% endif %}
+            <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+          </form>
+        {% endif %}
 
       </div>
     </div>
