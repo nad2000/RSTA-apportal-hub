@@ -1225,9 +1225,8 @@ class NominationView(CreateUpdateView):
             models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
         )
 
-    def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
-        kwargs = super().get_form_kwargs()
-        if self.request.method == "GET" and "initial" in kwargs:
-            kwargs["initial"]["round"] = self.kwargs["round"]
-        return kwargs
+    def form_valid(self, form):
+        n = form.instance
+        n.nominator = self.request.user
+        n.round = self.round
+        return super().form_valid(form)
