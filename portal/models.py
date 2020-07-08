@@ -929,9 +929,11 @@ class Nomination(Model):
     nominator = ForeignKey(User, on_delete=CASCADE, related_name="nominations")
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
+        null=True,
+        blank=True,
         upload_subfolder=lambda instance: f"nominations/{hex(instance.nominator.id)[2:]}",
         verbose_name=_("Nominator form"),
-        help_text=_("Upload filled-in nominator form")
+        help_text=_("Upload filled-in nominator form"),
     )
 
     user = ForeignKey(

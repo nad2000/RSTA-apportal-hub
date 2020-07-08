@@ -1218,3 +1218,16 @@ class NominationView(CreateUpdateView):
     model = models.Nomination
     form_class = forms.NominationForm
     template_name = "nomination.html"
+
+    @property
+    def round(self):
+        return (
+            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
+        )
+
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = super().get_form_kwargs()
+        if self.request.method == "GET" and "initial" in kwargs:
+            kwargs["initial"]["round"] = self.kwargs["round"]
+        return kwargs
