@@ -40,8 +40,8 @@
             {% endif %}
           {% endif %}
           {% if request.user.is_nominator and scheme.can_be_nominated_to %}
-            <a href="{% url 'invitation-create' %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Invite to" %} <b>{% trans "Apply" %}</b>
+            <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+              > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
             </a>
           {% endif %}
         {% endif %}

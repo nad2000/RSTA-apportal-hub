@@ -76,6 +76,28 @@ def should_be_approved(function):
     return wrap
 
 
+class CreateUpdateView(UpdateView):
+    """A trick to make create and update view in a single view."""
+
+    template_name = "form.html"
+
+    def get_object(self, queryset=None):
+        try:
+            return super().get_object(queryset)
+        except AttributeError:
+            return None
+
+    def get_success_url(self):
+        try:
+            return super().get_success_url()
+        except:
+            return (
+                self.request.GET.get("next")
+                or self.request.META.get("HTTP_REFERER")
+                or reverse("home")
+            )
+
+
 class DetailView(_DetailView):
     template_name = "detail.html"
 
@@ -1189,3 +1211,9 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         except:
             raise Http404("No Profile summary found")
         return self.user
+
+
+class NominationView(CreateUpdateView):
+
+    model = models.Nomination
+    fields = ["title", "first_name", "middle_names", "last_name", "email", "summary", "file"]

@@ -922,6 +922,9 @@ class Nomination(Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150)
+    org = ForeignKey(
+        Organisation, null=True, blank=True, on_delete=CASCADE, verbose_name=_("organisation")
+    )
 
     nominator = ForeignKey(User, on_delete=CASCADE, related_name="nominations")
     summary = TextField(blank=True, null=True)
@@ -945,6 +948,9 @@ class Nomination(Model):
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, *args, **kwargs):
         pass
+
+    def get_absolute_url(self):
+        return reverse("nomination-update", kwargs={"pk": self.pk})
 
     class Meta:
         db_table = "nomination"
