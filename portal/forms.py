@@ -324,8 +324,8 @@ class NominationForm(forms.ModelForm):
                 css_id="nominee",
             ),
             "org",
-            "summary",
             "file",
+            "summary",
         ]
         self.helper.layout = Layout(
             *fields,
