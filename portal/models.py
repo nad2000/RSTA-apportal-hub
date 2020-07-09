@@ -1,6 +1,9 @@
+import hashlib
 import secrets
 from datetime import date
+from urllib.parse import urljoin
 
+from django.contrib.sites.models import Site
 from common.models import Base, Model
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -127,6 +130,10 @@ LANGUAGES = Choices(
     "Yue Chinese (Cantonese)",
     "Other",
 )
+
+
+def hash_int(value):
+    return hashlib.shake_256(bytes(value)).hexdigest(5)
 
 
 User = get_user_model()
@@ -596,6 +603,16 @@ class Application(Model):
 
     history = HistoricalRecords(table_name="application_history")
 
+    state = FSMField(default="new")
+
+    @transition(field=state, source="new", target="draft")
+    def save_draft(self, *args, **kwargs):
+        pass
+
+    @transition(field=state, source=["new", "draft"], target="submitted")
+    def submit(self, *args, **kwargs):
+        pass
+
     def __str__(self):
         return self.application_tite or self.round.title
 
@@ -674,6 +691,7 @@ class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
+    invitee = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
     first_name = CharField(max_length=30)
@@ -691,6 +709,9 @@ class Invitation(Model):
     )  # the org matched with the entered name
     application = ForeignKey(
         Application, null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+    )
+    nomination = ForeignKey(
+        "Nomination", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
     )
     member = OneToOneField(
         Member, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
@@ -719,24 +740,34 @@ class Invitation(Model):
     # history = HistoricalRecords(table_name="invitation_history")
 
     @transition(field=status, source=[STATUS.draft, STATUS.submitted], target=STATUS.sent)
-    def send(self, request, by=None):
+    def send(self, request=None, by=None):
         if not by:
-            by = request.user
-        url = request.build_absolute_uri(
-            reverse("onboard-with-token", kwargs=dict(token=self.token))
-        )
+            by = request.user if request else self.invitee
+        url = reverse("onboard-with-token", kwargs=dict(token=self.token))
+        if request:
+            url = request.build_absolute_uri(url)
+        else:
+            url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
             subject = _("You are invited to authorize your team representative")
             body = (
                 _(
-                    "You are invited to authorize your team representative. Please follow the link: "
+                    "You are invited to authorize your team representative. Please follow the link: %s"
                 )
-                + url
+                % url
+            )
+        if self.type == INVITATION_TYPES.A:
+            subject = _("You were nominated for %s") % self.nomination.round
+            body = _("You were nominated for %s by %s. Please follow the link: %s") % (
+                self.nomination.round,
+                self.invitee,
+                url,
             )
         else:
             subject = _("You are invited to join the portal")
-            body = _("You are invited to join the portal. Please follow the link: ") + url
+            body = _("You are invited to join the portal. Please follow the link: %s") % url
 
         send_mail(
             subject,
@@ -934,7 +965,7 @@ class Nomination(Model):
     file = PrivateFileField(
         null=True,
         blank=True,
-        upload_subfolder=lambda instance: f"nominations/{hex(instance.nominator.id)[2:]}",
+        upload_subfolder=lambda instance: ["nominations", hash_int(instance.nominator.id)],
         verbose_name=_("Nominator form"),
         help_text=_("Upload filled-in nominator form"),
     )
@@ -954,7 +985,24 @@ class Nomination(Model):
 
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, *args, **kwargs):
-        pass
+        i, created = Invitation.get_or_create(
+            type=INVITATION_TYPES.A,
+            nomination=self,
+            email=self.email,
+            defaults=dict(
+                first_name=self.first_name,
+                middle_names=self.middle_names,
+                last_name=self.last_name,
+                org=self.org,
+                organisation=self.org.name,
+                invitee=self.nominator,
+            ),
+        )
+        i.send(*args, **kwargs)
+        i.save()
+        if not created:
+            return (i, False)
+        return (i, True)
 
     def get_absolute_url(self):
         return reverse("nomination-update", kwargs={"pk": self.pk})

@@ -1,0 +1,55 @@
+{% load static i18n %}
+
+<div class="card mb-2">
+    <div class="card-header">
+      <a href="{% url 'applications' %}">
+        {% trans 'Applications' %}
+      </a>
+    </div>
+    <div class="card-body">
+
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item" id="nominations-draft">
+          <a
+            class="nav-link"
+            href="{% url 'applications-draft' %}"
+            title="{% trans 'Saved application drafts' %}"
+            data-toggle="tooltip"
+            >{% trans 'Drafts' %}</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{% url 'applications-submitted' %}"
+            title="{% trans 'Submitted and previous applications' %}"
+            data-toggle="tooltip"
+            >{% trans 'Submitted' %}</a>
+        </li>
+      </ul>
+
+    </div>
+</div>
+
+<div class="card mb-2">
+  <div class="card-header">
+    <a href="{% url 'my-profile' %}" id="profile">
+      Profile
+    </a>
+  </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header">
+      <a href="{% url 'nominations' %}">
+        {% trans 'Nominations' %}
+      </a>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header">
+    <a href="{% url 'my-profile' %}">
+      {% trans 'Account' %}
+    </a>
+  </div>
+</div>

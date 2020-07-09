@@ -39,6 +39,10 @@ urlpatterns = [
         name="application-update",
     ),
     path("application/<int:pk>", views.ApplicationDetail.as_view(), name="application"),
+    path("applications/draft", views.ApplicationList.as_view(), name="applications-draft"),
+    path("applications/submitted", views.ApplicationList.as_view(), name="applications-submitted"),
+    path("applications", views.ApplicationList.as_view(), name="applications"),
+
     path(
         "profile/career-stages/",
         views.ProfileCareerStageFormSetView.as_view(),

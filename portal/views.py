@@ -754,6 +754,25 @@ class ApplicationCreate(ApplicationView, CreateView):
 #         return super().formset_valid(formset)
 
 
+class ApplicationList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Application
+    table_class = tables.ApplicationTable
+    template_name = "applications.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        if not u.is_superuser or not u.is_staff:
+            queryset = queryset.filter(nominator=u)
+        state = self.request.path.split("/")[-1]
+        if state == "draft":
+            queryset = queryset.filter(state__in=[state, "new"])
+        elif state == "submitted":
+            queryset = queryset.filter(state=state)
+        return queryset
+
+
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     template_name = "profile_section.html"
@@ -1229,13 +1248,25 @@ class NominationView(CreateUpdateView):
         if not n.id:
             n.nominator = self.request.user
             n.round = self.round
+
+        if "submit" in self.request.POST:
+            if not n.id:
+                n.save()
+            n.submit(request=self.request)
+        elif "save_draft" in self.request.POST:
+            n.save_draft()
+
         return super().form_valid(form)
 
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
         if self.request.method == "GET" and "initial" in kwargs:
-            a = self.request.user.profile.affiliations.filter(type="EMP", end_date__isnull=True).order_by("-id").first()
+            a = (
+                self.request.user.profile.affiliations.filter(type="EMP", end_date__isnull=True)
+                .order_by("-id")
+                .first()
+            )
             if a:
                 kwargs["initial"]["org"] = a.org
         return kwargs
@@ -1257,7 +1288,7 @@ class NominationList(LoginRequiredMixin, SingleTableView):
         u = self.request.user
         if not u.is_superuser or not u.is_staff:
             queryset = queryset.filter(nominator=u)
-        state = self.request.path.split('/')[-1]
+        state = self.request.path.split("/")[-1]
         if state == "draft":
             queryset = queryset.filter(state__in=[state, "new"])
         elif state == "submitted":
