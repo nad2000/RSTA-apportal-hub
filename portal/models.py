@@ -346,7 +346,7 @@ class Organisation(Model):
 
 class Affiliation(Model):
 
-    profile = ForeignKey("Profile", on_delete=CASCADE)
+    profile = ForeignKey("Profile", on_delete=CASCADE, related_name="affiliations")
     org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name="organisation")
     type = CharField(max_length=10, choices=AFFILIATION_TYPES)
     role = CharField(max_length=100, null=True, blank=True)  # , help_text="position or degree")
@@ -389,7 +389,7 @@ class Profile(Model):
     external_ids = ManyToManyField(
         PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
     )
-    affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
+    # affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
 
     is_external_ids_completed = BooleanField(default=False)
 
@@ -398,13 +398,13 @@ class Profile(Model):
 
     @property
     def employments(self):
-        return self.affiliations.fiter(type="EMP")
+        return self.affiliations.filter(type="EMP")
 
     is_employments_completed = BooleanField(default=False)
 
     @property
     def educations(self):
-        return self.affiliations.fiter(type="EDU")
+        return self.affiliations.filter(type="EDU")
 
     is_professional_bodies_completed = BooleanField(default=False)
 
@@ -519,6 +519,7 @@ class Award(Model):
 
 
 class Recognition(Model):
+
     profile = ForeignKey(Profile, related_name="recognitions", on_delete=CASCADE)
     recognized_in = PositiveSmallIntegerField(_("year of recognition"), null=True, blank=True)
     award = ForeignKey(Award, on_delete=CASCADE, verbose_name=_("award"))

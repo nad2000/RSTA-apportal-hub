@@ -10,17 +10,17 @@
 
 <div class="card mb-2">
     <div class="card-header">
-      <a href="#">
+      <a href="{% url 'nominations' %}">
         {% trans 'Nominations' %}
       </a>
     </div>
     <div class="card-body">
 
       <ul class="nav nav-pills flex-column">
-        <li class="nav-item">
+        <li class="nav-item" id="nominations-draft">
           <a
             class="nav-link"
-            href="#"
+            href="{% url 'nominations-draft' %}"
             title="{% trans 'Saved nomination drafts' %}"
             data-toggle="tooltip"
             >{% trans 'Drafts' %}</a>
@@ -28,7 +28,7 @@
         <li class="nav-item">
           <a
             class="nav-link"
-            href="#"
+            href="{% url 'nominations-submitted' %}"
             title="{% trans 'Submitted and previous nominations' %}"
             data-toggle="tooltip"
             >{% trans 'Submitted' %}</a>

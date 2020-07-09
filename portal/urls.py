@@ -120,6 +120,9 @@ urlpatterns = [
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path("nomination/<int:round>/~create",views.NominationView.as_view(), name="nomination-create"),
     path("nomination/<int:pk>/~update", views.NominationView.as_view(), name="nomination-update"),
+    path("nominations/draft", views.NominationList.as_view(), name="nominations-draft"),
+    path("nominations/submitted", views.NominationList.as_view(), name="nominations-submitted"),
+    path("nominations", views.NominationList.as_view(), name="nominations"),
     path("", views.subscribe, name="comingsoon"),
     path(
         "profile/professional/",

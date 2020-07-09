@@ -27,10 +27,9 @@ from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 
-from . import forms, models
+from . import forms, models, tables
 from .forms import ProfileForm, Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
-from .tables import SubscriptionTable
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
 
@@ -122,7 +121,7 @@ class CreateView(_CreateView):
 
 class SubscriptionList(LoginRequiredMixin, SingleTableView):
     model = Subscription
-    table_class = SubscriptionTable
+    table_class = tables.SubscriptionTable
     template_name = "table.html"
 
 
@@ -1227,6 +1226,40 @@ class NominationView(CreateUpdateView):
 
     def form_valid(self, form):
         n = form.instance
-        n.nominator = self.request.user
-        n.round = self.round
+        if not n.id:
+            n.nominator = self.request.user
+            n.round = self.round
         return super().form_valid(form)
+
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = super().get_form_kwargs()
+        if self.request.method == "GET" and "initial" in kwargs:
+            a = self.request.user.profile.affiliations.filter(type="EMP", end_date__isnull=True).order_by("-id").first()
+            if a:
+                kwargs["initial"]["org"] = a.org
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["round"] = self.round
+        return context
+
+
+class NominationList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Nomination
+    table_class = tables.NominationTable
+    template_name = "nominations.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        if not u.is_superuser or not u.is_staff:
+            queryset = queryset.filter(nominator=u)
+        state = self.request.path.split('/')[-1]
+        if state == "draft":
+            queryset = queryset.filter(state__in=[state, "new"])
+        elif state == "submitted":
+            queryset = queryset.filter(state=state)
+        return queryset
