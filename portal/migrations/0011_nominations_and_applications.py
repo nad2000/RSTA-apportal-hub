@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
             """
             ALTER TABLE application ADD COLUMN state varchar(50) DEFAULT 'new'  NULL;
             ALTER TABLE application_history ADD COLUMN state COLUMN(50) DEFAULT 'new' NULL;
+            ALTER TABLE application ADD COLUMN "file" varchar(100) NULL;
+            ALTER TABLE application_history ADD COLUMN "file" varchar(100) NULL;
             """,
             "",
             state_operations=[
@@ -34,6 +36,21 @@ class Migration(migrations.Migration):
                     model_name="historicalapplication",
                     name="state",
                     field=django_fsm.FSMField(default="new", max_length=50),
+                ),
+                migrations.AddField(
+                    model_name="application",
+                    name="file",
+                    field=private_storage.fields.PrivateFileField(
+                        blank=True,
+                        null=True,
+                        storage=private_storage.storage.files.PrivateFileSystemStorage(),
+                        upload_to="",
+                    ),
+                ),
+                migrations.AddField(
+                    model_name="historicalapplication",
+                    name="file",
+                    field=models.TextField(blank=True, max_length=100, null=True),
                 ),
             ],
         ),

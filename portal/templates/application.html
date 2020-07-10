@@ -43,7 +43,7 @@
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script>
     $(function() {
-      {% if not object.is_team_application %}$("#members").hide();{% endif %}
+      {% if not field.is_team_application %}$("#members").hide();{% endif %}
       $('#id_is_team_application').change(function() {
         if (!($(this).prop('checked'))) {
           $("#members").hide();
@@ -55,6 +55,20 @@
           $("a[href='#applicant']").text("{% trans 'Team' %}");
         };
       })
-    })
+    });
+    // Focus on the first tab with invalid input:
+    $('#submit-id-save,#submit-id-submit').click(function () {
+        $('input:invalid').each(function () {
+            // Find the tab-pane that this element is inside, and get the id
+            var $closest = $(this).closest('.tab-pane');
+            var id = $closest.attr('id');
+
+            // Find the link that corresponds to the pane and have it show
+            $('.nav a[href="#' + id + '"]').tab('show');
+
+            // Only want to do it once
+            return false;
+        });
+    });
   </script>
 {% endblock %}

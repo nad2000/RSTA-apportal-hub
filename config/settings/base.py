@@ -353,7 +353,6 @@ SOCIALACCOUNT_PROVIDERS = {
         "BASE_URL": "https://rapidconnect.staging.tuakiri.ac.nz/jwt/authnrequest/research/",
     },
 }
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 # https://github.com/summernote/django-summernote
 SUMMERNOTE_THEME = "bs4"
 # SUMMERNOTE_CONFIG = {"iframe": False}

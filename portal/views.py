@@ -588,6 +588,10 @@ class ApplicationCreate(ApplicationView, CreateView):
     # template_name = "application.html"
     # form_class = forms.ApplicationForm
 
+    # def form_invalid(self, form):
+    #     breakpoint()
+    #     return super().form_invalid(form)
+
     def get(self, request, *args, **kwargs):
         a = (
             models.Application.where(submitted_by=request.user, round_id=kwargs["round"])

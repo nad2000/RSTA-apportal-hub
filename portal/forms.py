@@ -118,6 +118,8 @@ class ApplicationForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
+        # self.helper.help_text_inline = True
+        # self.helper.html5_required = True
         fields = [
             Fieldset(
                 _(
@@ -159,17 +161,14 @@ class ApplicationForm(forms.ModelForm):
                 Tab(
                     _("Team" if self.instance.is_team_application else "Applicant"),
                     css_id="applicant",
-                    *fields
+                    *fields,
                 ),
                 Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
-                Tab(_("Summary"), Field("summary")),
+                Tab(_("Summary"), "file", Field("summary")),
             ),
             ButtonHolder(
-                Submit(
-                    "submit",
-                    _("Update" if self.instance.id else "Save"),
-                    css_class="btn btn-primary",
-                ),
+                Submit("save", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Cancel")
@@ -179,7 +178,7 @@ class ApplicationForm(forms.ModelForm):
 
     class Meta:
         model = models.Application
-        exclude = ["organisation"]
+        exclude = ["organisation", "state"]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
@@ -191,7 +190,6 @@ class ApplicationForm(forms.ModelForm):
 
 
 class MemberForm(forms.ModelForm):
-
     class Meta:
         model = models.Member
         fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]
@@ -305,7 +303,6 @@ class ProfileSectionFormSetHelper(FormHelper):
 
 
 class NominationForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -330,26 +327,27 @@ class NominationForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
-                Submit(
-                    "save",
-                    _("Save Draft"),
-                    css_class="btn btn-primary",
-                ),
-                Submit(
-                    "submit",
-                    _("Submit"),
-                    css_class="btn btn-outline-primary",
-                ),
+                Submit("save", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
-                    % _("Cancel")
+                    % _("Close")
                 ),
             ),
         )
 
     class Meta:
         model = models.Nomination
-        fields = ["title", "first_name", "middle_names", "last_name", "email", "org", "summary", "file"]
+        fields = [
+            "title",
+            "first_name",
+            "middle_names",
+            "last_name",
+            "email",
+            "org",
+            "summary",
+            "file",
+        ]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",

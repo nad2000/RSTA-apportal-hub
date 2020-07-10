@@ -600,6 +600,11 @@ class Application(Model):
     email = EmailField("email address", blank=True)
 
     summary = TextField(blank=True, null=True)
+    file = PrivateFileField(
+        blank=True,
+        null=True,
+        upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
+    )
 
     history = HistoricalRecords(table_name="application_history")
 
@@ -801,7 +806,10 @@ class Testimony(Model):
     referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
-        upload_subfolder=lambda instance: f"testimonies/{hex(instance.referee.id*instance.referee.application.id)[2:]}"
+        upload_subfolder=lambda instance: [
+            "testimonies",
+            hash_int(instance.referee.id * instance.referee.application.id),
+        ]
     )
     state = FSMField(default="new")
 
