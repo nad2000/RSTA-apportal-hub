@@ -22,26 +22,34 @@ urlpatterns = [
     ),
     path("subscriptions/", views.SubscriptionList.as_view(), name="subscriptions"),
     path("users/<int:pk>/profile", views.user_profile, name="user-profile"),
+    path(
+        "applications/",
+        include(
+            [
+                path(
+                    "<int:round>/~create",
+                    views.ApplicationCreate.as_view(),
+                    name="application-create",
+                ),
+                path(
+                    "<int:pk>/~update",
+                    views.ApplicationUpdate.as_view(),
+                    name="application-update",
+                ),
+                path("<int:pk>", views.ApplicationDetail.as_view(), name="application"),
+                path("draft", views.ApplicationList.as_view(), name="applications-draft"),
+                path("submitted", views.ApplicationList.as_view(), name="applications-submitted"),
+                path("", views.ApplicationList.as_view(), name="applications"),
+            ]
+        ),
+    ),
+
     path("myprofile/", views.user_profile, name="my-profile"),
     path("profiles/<int:pk>", views.ProfileDetail.as_view(), name="profile-instance"),
     path("profile/", views.ProfileDetail.as_view(), name="profile"),
     path("profile/~create", views.ProfileCreate.as_view(), name="profile-create"),
     # path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
     path("profile/~update", views.ProfileUpdate.as_view(), name="profile-update"),
-    path(
-        "application/<int:round>/~create",
-        views.ApplicationCreate.as_view(),
-        name="application-create",
-    ),
-    path(
-        "application/<int:pk>/~update",
-        views.ApplicationUpdate.as_view(),
-        name="application-update",
-    ),
-    path("application/<int:pk>", views.ApplicationDetail.as_view(), name="application"),
-    path("applications/draft", views.ApplicationList.as_view(), name="applications-draft"),
-    path("applications/submitted", views.ApplicationList.as_view(), name="applications-submitted"),
-    path("applications", views.ApplicationList.as_view(), name="applications"),
 
     path(
         "profile/career-stages/",
@@ -122,7 +130,9 @@ urlpatterns = [
         name="person-identifier-autocomplete",
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
-    path("nomination/<int:round>/~create",views.NominationView.as_view(), name="nomination-create"),
+    path(
+        "nomination/<int:round>/~create", views.NominationView.as_view(), name="nomination-create"
+    ),
     path("nomination/<int:pk>/~update", views.NominationView.as_view(), name="nomination-update"),
     path("nominations/draft", views.NominationList.as_view(), name="nominations-draft"),
     path("nominations/submitted", views.NominationList.as_view(), name="nominations-submitted"),

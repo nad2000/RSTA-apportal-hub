@@ -1,8 +1,6 @@
 {% extends "form.html" %}
 
-{% block sidebar %}
-  {% include "sidebars/nominations.html" %}
-{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="nominations" %}{% endblock sidebar %}
 
 {% block content_header %}
   {{ round|title }}

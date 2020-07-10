@@ -3,11 +3,11 @@ import secrets
 from datetime import date
 from urllib.parse import urljoin
 
-from django.contrib.sites.models import Site
 from common.models import Base, Model
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.validators import MaxValueValidator, MinValueValidator

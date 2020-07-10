@@ -3,9 +3,7 @@
 {% load static i18n %}
 {% load render_table from django_tables2 %}
 
-{% block sidebar %}
-  {% include "sidebars/applications.html" %}
-{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="applications" %}{% endblock sidebar %}
 
 {% block content %}
   {% render_table table %}
