@@ -356,7 +356,12 @@ def invite_team_members(request, application):
     """Send invitations to all team members to authorized_at the representative."""
     # members that don't have invitations
     count = 0
-    members = list(models.Member.where(application=application, invitation__isnull=True))
+    members = list(
+        models.Member.objects.select_related("invitation").extra(
+            tables=["invitation"],
+            where=["invitation.id IS NULL or member.email != invitation.email"],
+        )
+    )
     for m in members:
         get_or_create_team_member_invitation(m)
 
@@ -373,20 +378,29 @@ def invite_team_members(request, application):
 
 def get_or_create_team_member_invitation(member):
 
-    i, created = models.Invitation.get_or_create(
-        type=models.INVITATION_TYPES.T,
-        member=member,
-        application=member.application,
-        email=member.email,
-        defaults=dict(
-            first_name=member.first_name,
-            middle_names=member.middle_names,
-            last_name=member.last_name,
-        ),
-    )
-    if not created:
+    if hasattr(member, "invitation"):
+        i = member.invitation
+        if member.email != i.email:
+            i.email = member.email
+            i.first_name = member.first_name
+            i.middle_names = member.middle_names
+            i.last_name = member.last_name
+            i.sent_at = None
+            i.status = models.Invitation.STATUS.submitted
+            i.save()
         return (i, False)
-    return (i, True)
+    else:
+        return models.Invitation.get_or_create(
+            type=models.INVITATION_TYPES.T,
+            member=member,
+            email=member.email,
+            defaults=dict(
+                application=member.application,
+                first_name=member.first_name,
+                middle_names=member.middle_names,
+                last_name=member.last_name,
+            ),
+        )
 
 
 class InvitationCreate(LoginRequiredMixin, CreateView):

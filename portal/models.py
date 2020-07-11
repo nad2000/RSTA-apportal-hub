@@ -746,7 +746,7 @@ class Invitation(Model):
     # TODO: need to figure out how to propaged STATUS to the historycal rec model:
     # history = HistoricalRecords(table_name="invitation_history")
 
-    @transition(field=status, source=[STATUS.draft, STATUS.submitted], target=STATUS.sent)
+    @transition(field=status, source=[STATUS.draft, STATUS.sent, STATUS.submitted], target=STATUS.sent)
     def send(self, request=None, by=None):
         if not by:
             by = request.user if request else self.invitee
