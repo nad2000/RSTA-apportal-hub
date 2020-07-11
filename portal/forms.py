@@ -153,7 +153,7 @@ class ApplicationForm(forms.ModelForm):
                     Field(
                         "is_team_application", data_toggle="toggle", template="portal/toggle.html"
                     ),
-                    Div(TableInlineFormset("members"), css_id="members"),
+                    Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
             )
         self.helper.layout = Layout(
@@ -164,7 +164,11 @@ class ApplicationForm(forms.ModelForm):
                     *fields,
                 ),
                 Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
-                Tab(_("Summary"), "file", Field("summary")),
+                Tab(
+                    _("Summary"),
+                    Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+                    Field("summary"),
+                ),
             ),
             ButtonHolder(
                 Submit("save", _("Save Draft"), css_class="btn btn-primary",),

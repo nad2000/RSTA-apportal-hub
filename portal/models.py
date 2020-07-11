@@ -603,6 +603,8 @@ class Application(Model):
     file = PrivateFileField(
         blank=True,
         null=True,
+        verbose_name=_("filled-in entry form"),
+        help_text=_("Please uploade filled-in entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
 
@@ -801,11 +803,13 @@ class Invitation(Model):
 
 
 class Testimony(Model):
-    """A Testimony/feedback given by a referee."""
+    """A Testimony/endorsement/feedback given by a referee."""
 
     referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
+        verbose_name=_("endorsement, testimony, or feedback"),
+        help_text=_("endorsement, testimony, or feedback"),
         upload_subfolder=lambda instance: [
             "testimonies",
             hash_int(instance.referee.id * instance.referee.application.id),
@@ -864,6 +868,7 @@ class Scheme(Model):
     cv_required = BooleanField(_("CVs required"), default=True)
     pid_required = BooleanField(_("photo ID required"), default=True)
     animal_ethics_required = BooleanField(default=False)
+    # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
 
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
