@@ -37,9 +37,8 @@ class OrcidHelper:
         self.profile = user.profile
         self.sections = sections or self.DEFAULT_SECTIONS
 
-    def get_orcid_profile(self, orcid_api_url):
+    def get_orcid_profile(self, orcid_api_url, access_token):
         """Retrieve the user ORCID profile."""
-        access_token = self.user.orcid_access_token
         if access_token:
             headers = {
                 "Accept": "application/json",
@@ -61,8 +60,9 @@ class OrcidHelper:
 
     def fetch_and_load_orcid_data(self):
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
+        access_token = self.user.orcid_access_token
         url = urljoin(settings.ORCID_API_BASE, self.user.orcid)
-        orcid_profile, user_has_linked_orcid = self.get_orcid_profile(url)
+        orcid_profile, user_has_linked_orcid = self.get_orcid_profile(url, access_token)
 
         if user_has_linked_orcid:
 
@@ -163,11 +163,12 @@ class OrcidHelper:
             for g in orcid_profile.get("activities-summary").get("fundings").get("group", [])
             for w in g.get("funding-summary")
         ]
+        access_token = self.user.orcid_access_token
         for funding in fundings:
             url = urljoin(settings.ORCID_API_BASE, self.user.orcid) + "/funding/{}".format(
                 funding.get("put-code")
             )
-            funding_record, _ = self.get_orcid_profile(url)
+            funding_record, _ = self.get_orcid_profile(url, access_token)
             funding_record = funding_record if funding_record else funding
             org = self.org_from_orcid_data(funding_record)
             if self.create_and_save_recognition_record(org, funding_record):
