@@ -43,14 +43,12 @@ urlpatterns = [
             ]
         ),
     ),
-
     path("myprofile/", views.user_profile, name="my-profile"),
     path("profiles/<int:pk>", views.ProfileDetail.as_view(), name="profile-instance"),
     path("profile/", views.ProfileDetail.as_view(), name="profile"),
     path("profile/~create", views.ProfileCreate.as_view(), name="profile-create"),
     # path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
     path("profile/~update", views.ProfileUpdate.as_view(), name="profile-update"),
-
     path(
         "profile/career-stages/",
         views.ProfileCareerStageFormSetView.as_view(),
@@ -131,12 +129,25 @@ urlpatterns = [
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path(
-        "nomination/<int:round>/~create", views.NominationView.as_view(), name="nomination-create"
+        "nominations/",
+        include(
+            [
+                path(
+                    "<int:nomination>/application/~create",
+                    views.ApplicationCreate.as_view(),
+                    name="nomination-application-create",
+                ),
+                path(
+                    "<int:round>/~create", views.NominationView.as_view(), name="nomination-create"
+                ),
+                path("<int:pk>/~update", views.NominationView.as_view(), name="nomination-update"),
+                path("<int:pk>", views.NominationDetail.as_view(), name="nomination-detail"),
+                path("draft", views.NominationList.as_view(), name="nominations-draft"),
+                path("submitted", views.NominationList.as_view(), name="nominations-submitted"),
+                path("", views.NominationList.as_view(), name="nominations"),
+            ]
+        ),
     ),
-    path("nomination/<int:pk>/~update", views.NominationView.as_view(), name="nomination-update"),
-    path("nominations/draft", views.NominationList.as_view(), name="nominations-draft"),
-    path("nominations/submitted", views.NominationList.as_view(), name="nominations-submitted"),
-    path("nominations", views.NominationList.as_view(), name="nominations"),
     path("", views.subscribe, name="comingsoon"),
     path(
         "profile/professional/",

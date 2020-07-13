@@ -103,7 +103,7 @@ class DetailView(_DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["exclude"] = ["id", "created_at", "updated_at", "org"]
-        context["update_view_name"] = "application-update"
+        context["update_view_name"] = f"{self.model.__name__.lower()}-update"
         return context
 
 
@@ -168,7 +168,7 @@ def check_profile(request, token=None):
     # TODO: refactor and move to the model the invitation handling:
     if token:
         i = models.Invitation.get(token=token)
-        u = request.user
+        u = User.get(request.user.id)
         if i.first_name and not u.first_name:
             u.first_name = i.first_name
         if i.middle_names and not u.middle_names:
@@ -186,6 +186,8 @@ def check_profile(request, token=None):
                 )
         i.accept(by=request.user)
         i.save()
+        if i.type == models.INVITATION_TYPES.A:
+            next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
@@ -533,9 +535,16 @@ class ApplicationView(LoginRequiredMixin):
 
     @property
     def round(self):
+        if "nomination" in self.kwargs:
+            return self.nomination.round
         return (
             models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
         )
+
+    @property
+    def nomination(self):
+        if "nomination" in self.kwargs:
+            return models.Nomination.get(self.kwargs["nomination"])
 
     def form_valid(self, form):
 
@@ -607,16 +616,17 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
-        a = (
-            models.Application.where(submitted_by=request.user, round_id=kwargs["round"])
-            .order_by("-id")
-            .first()
-        )
-        if a:
-            messages.warning(
-                self.request, _("You have aleady created an application. Please update it.")
+        if "nomination" not in kwargs:
+            a = (
+                models.Application.where(submitted_by=request.user, round_id=kwargs["round"])
+                .order_by("-id")
+                .first()
             )
-            return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
+            if a:
+                messages.warning(
+                    self.request, _("You have aleady created an application. Please update it.")
+                )
+                return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
 
     # def get_context_data(self, **kwargs):
@@ -635,17 +645,28 @@ class ApplicationCreate(ApplicationView, CreateView):
         a.submitted_by = self.request.user
         a.round = self.round
         a.scheme = a.round.scheme
-        return super().form_valid(form)
+        breakpoint()
+        resp = super().form_valid(form)
+        n = self.nomination
+        if n:
+            n.application = self.object
+            n.save()
+        return resp
 
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
-        kwargs["initial"]["round"] = self.kwargs["round"]
+        if "nomination" in self.kwargs:
+            kwargs["initial"]["nomination"] = self.kwargs["nomination"]
+            kwargs["initial"]["round"] = self.round.id
+        elif "round" in self.kwargs:
+            kwargs["initial"]["round"] = self.kwargs["round"]
+
         if self.request.method == "GET" and "initial" in kwargs:
             user = self.request.user
             kwargs["initial"].update(
                 {
-                    "application_title": models.Round.get(self.kwargs["round"]).title,
+                    "application_title": self.round.title,  # models.Round.get(self.kwargs["round"]).title,
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
@@ -653,6 +674,9 @@ class ApplicationCreate(ApplicationView, CreateView):
                     "title": user.title,
                 }
             )
+            if "nomination" in self.kwargs:
+                kwargs["initial"]["org"] = self.nomination.org.id
+
         return kwargs
 
 
@@ -782,7 +806,7 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
         if not u.is_superuser or not u.is_staff:
-            queryset = queryset.filter(nominator=u)
+            queryset = queryset.filter(Q(submitted_by=u))
         state = self.request.path.split("/")[-1]
         if state == "draft":
             queryset = queryset.filter(state__in=[state, "new"])
@@ -1312,3 +1336,60 @@ class NominationList(LoginRequiredMixin, SingleTableView):
         elif state == "submitted":
             queryset = queryset.filter(state=state)
         return queryset
+
+
+class NominationDetail(LoginRequiredMixin, DetailView):
+
+    model = models.Nomination
+    template_name = "nomination_detail.html"
+
+    @property
+    def can_start_applying(self):
+        return self.object.user == self.request.user and not hasattr(self.object, "application")
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.can_start_applying:
+            nominator = self.object.nominator
+            messages.info(
+                request,
+                _("You have been invited by %s to apply for %s")
+                % (nominator.full_name_with_email, self.object.round),
+            )
+        return super().get(request, *args, **kwargs)
+
+    # def post(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     member = self.object.members.filter(
+    #         has_authorized__isnull=True, user=self.request.user
+    #     ).first()
+    #     if "authorize_team_lead" in request.POST:
+    #         member.has_authorized = True
+    #         member.authorized_at = datetime.now()
+    #         member.save()
+    #     elif "turn_down" in request.POST:
+    #         member.has_authorized = False
+    #         member.save()
+    #         send_mail(
+    #             _("A team member opted out of application"),
+    #             _("Your team member %s has opted out of application") % member,
+    #             settings.DEFAULT_FROM_EMAIL,
+    #             recipient_list=[self.object.submitted_by.email],
+    #             fail_silently=False,
+    #         )
+    #     return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.can_start_applying:
+            context["start_applying"] = reverse(
+                    "nomination-application-create", kwargs=dict(nomination=self.object.id))
+    #     if self.object.members.filter(
+    #         user=self.request.user, has_authorized__isnull=True
+    #     ).exists():
+    #         messages.info(
+    #             self.request,
+    #             _("Please review the application and authorize your team representative."),
+    #         )
+    #         context["form"] = AuthorizationForm()
+        return context
