@@ -31,6 +31,14 @@ class User(HelperMixin, AbstractUser):
         return self.groups.filter(name=group_name).exists()
 
     @property
+    def full_name(self):
+        return self.get_full_name()
+
+    @property
+    def full_name_with_email(self):
+        return f"{self.full_name} ({self.email})"
+
+    @property
     def is_applicant(self):
         return self.in_group("APPLICANT")
 

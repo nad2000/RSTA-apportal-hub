@@ -570,7 +570,6 @@ class Application(Model):
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
     application_tite = CharField(max_length=200, null=True, blank=True)
 
-    nominee = ForeignKey(Nominee, null=True, blank=True, on_delete=SET_NULL)
     round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="applications")
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
@@ -784,7 +783,7 @@ class Invitation(Model):
             fail_silently=False,
         )
 
-    @transition(field=status, source=STATUS.sent, target=STATUS.accepted)
+    @transition(field=status, source=[STATUS.sent, STATUS.accepted], target=STATUS.accepted)
     def accept(self, request=None, by=None):
         if not by:
             if not request or not request.user:
@@ -794,6 +793,10 @@ class Invitation(Model):
             m = self.member
             m.user = by
             m.save()
+        elif self.type == INVITATION_TYPES.A:
+            n = self.nomination
+            n.user = by
+            n.save()
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
@@ -910,6 +913,13 @@ class Round(Model):
             if self.opens_on:
                 self.title = f"{self.title} {self.opens_on.year}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        scheme = self.scheme
+        if not scheme.current_round:
+            scheme.current_round = self
+            scheme.save(update_fields=["current_round"])
+
     def __str__(self):
         return self.title or self.scheme.title
 
@@ -1019,6 +1029,9 @@ class Nomination(Model):
 
     def get_absolute_url(self):
         return reverse("nomination-update", kwargs={"pk": self.pk})
+
+    def __str__(self):
+        return _("Nomination for \"%s\"") % self.round
 
     class Meta:
         db_table = "nomination"
