@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block sidebar %}{% include 'sidebar.html' with categrory="account" %}{% endblock sidebar %}
+{% block title %}User: {{ object.username }}{% endblock %}
+
+{% block content %}
+
+  <h1>
+    {% if object.user and object.user == request.user %}
+      Your Profile
+    {% else %}
+      {{ object|title }}
+    {% endif %}
+  </h1>
+
+  <div class="row">
+
+    <div class="col-9">
+
+
+      <table class="table table-bordered searchable">
+        <tbody>
+          <tr>
+            <th style="width: 21%; min-width: 160px; max-width: 180px;">Sex</th>
+            <td>{{ object.get_sex_display|default_if_none:"" }}</td>
+          </tr>
+          <tr>
+            <th>Year of birth</th>
+            <td>{{ object.year_of_birth|default_if_none:"" }}</td>
+          </tr>
+          <tr>
+            <th>Ethnicity</th>
+            <td>
+              <ul>
+              {% for o in object.ethnicities.all %}
+                <li>
+                  {{ o |default_if_none:"" }}
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <th>Education Level</th>
+            <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
+          </tr>
+          <tr>
+            <th>Employment status</th>
+            <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
+          </tr>
+          <tr>
+            <th>Primary language spoken</th>
+            <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
+          </tr>
+          <tr>
+            <th>Lanuages spoken</th>
+            <td>
+              <ul>
+              {% for o in object.languages_spoken.all %}
+                <li>
+                  {{ o |default_if_none:"" }}
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <a class="btn btn-primary" href="{% url 'profile-update' %}">Edit</a>
+      {% if object.user == request.user %}
+        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
+        <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
+        <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
+      {% endif %}
+
+    </div>
+  </div>
+
+{% endblock %}
+

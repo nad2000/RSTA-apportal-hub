@@ -24,6 +24,7 @@ from django.views.generic import DetailView as _DetailView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from django.views.generic.base import TemplateView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 
@@ -73,6 +74,16 @@ def should_be_approved(function):
         return function(request, *args, **kwargs)
 
     return wrap
+
+
+class AccountView(TemplateView):
+
+    template_name = "account.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
 
 
 class CreateUpdateView(UpdateView):
@@ -213,6 +224,10 @@ def user_profile(request, pk=None):
 
 
 class ProfileView:
+    model = models.Profile
+    template_name = "profile_form.html"
+    form_class = forms.ProfileForm
+
     def get_user_form(self):
         u = self.request.user
         if self.request.method == "POST":
@@ -280,7 +295,7 @@ def profile_protection_patterns(request):
 
 
 class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
-    model = Profile
+
     template_name = "profile.html"
     raise_exception = True
 
@@ -294,7 +309,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
                 messages.success(
-                    self.request, f" {total_records_fetched} ORCID profile records imported"
+                    self.request, f"{total_records_fetched} ORCID profile records imported"
                 )
                 return HttpResponseRedirect(self.request.path_info)
             else:
@@ -318,18 +333,12 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
-    model = Profile
-    template_name = "profile_form.html"
-    form_class = ProfileForm
 
     def get_object(self):
         return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
-    model = Profile
-    template_name = "profile_form.html"
-    form_class = ProfileForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user

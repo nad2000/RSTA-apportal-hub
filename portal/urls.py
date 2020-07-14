@@ -44,47 +44,68 @@ urlpatterns = [
         ),
     ),
     path("myprofile/", views.user_profile, name="my-profile"),
+    path("account/", views.AccountView.as_view(), name="account"),
     path("profiles/<int:pk>", views.ProfileDetail.as_view(), name="profile-instance"),
-    path("profile/", views.ProfileDetail.as_view(), name="profile"),
-    path("profile/~create", views.ProfileCreate.as_view(), name="profile-create"),
-    # path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
-    path("profile/~update", views.ProfileUpdate.as_view(), name="profile-update"),
     path(
-        "profile/career-stages/",
-        views.ProfileCareerStageFormSetView.as_view(),
-        name="profile-career-stages",
+        "profile/",
+        include(
+            [
+                path("~create", views.ProfileCreate.as_view(), name="profile-create"),
+                # path("profiles/<int:pk>/~update", views.ProfileUpdate.as_view(), name="profile-update"),
+                path("~update", views.ProfileUpdate.as_view(), name="profile-update"),
+                path(
+                    "career-stages/",
+                    views.ProfileCareerStageFormSetView.as_view(),
+                    name="profile-career-stages",
+                ),
+                path(
+                    "external-ids/",
+                    views.ProfilePersonIdentifierFormSetView.as_view(),
+                    name="profile-external-ids",
+                ),
+                path(
+                    "employments/",
+                    views.ProfileEmploymentsFormSetView.as_view(),
+                    name="profile-employments",
+                ),
+                path(
+                    "educations/",
+                    views.ProfileEducationsFormSetView.as_view(),
+                    name="profile-educations",
+                ),
+                path(
+                    "academic-records/",
+                    views.ProfileAcademicRecordFormSetView.as_view(),
+                    name="profile-academic-records",
+                ),
+                path(
+                    "recognitions/",
+                    views.ProfileRecognitionFormSetView.as_view(),
+                    name="profile-recognitions",
+                ),
+                path(
+                    "protection-patterns/",
+                    views.profile_protection_patterns,
+                    name="profile-protection-patterns",
+                ),
+                path(
+                    "cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",
+                ),
+                path("~check", views.check_profile, name="check-profile"),
+                path(
+                    "professional/",
+                    views.ProfileProfessionalFormSetView.as_view(),
+                    name="profile-professional-records",
+                ),
+                path(
+                    "summary/<user_id>",
+                    views.ProfileSummaryView.as_view(),
+                    name="profile-summary",
+                ),
+                path("", views.ProfileDetail.as_view(), name="profile"),
+            ]
+        ),
     ),
-    path(
-        "profile/external-ids/",
-        views.ProfilePersonIdentifierFormSetView.as_view(),
-        name="profile-external-ids",
-    ),
-    path(
-        "profile/employments/",
-        views.ProfileEmploymentsFormSetView.as_view(),
-        name="profile-employments",
-    ),
-    path(
-        "profile/educations/",
-        views.ProfileEducationsFormSetView.as_view(),
-        name="profile-educations",
-    ),
-    path(
-        "profile/academic-records/",
-        views.ProfileAcademicRecordFormSetView.as_view(),
-        name="profile-academic-records",
-    ),
-    path(
-        "profile/recognitions/",
-        views.ProfileRecognitionFormSetView.as_view(),
-        name="profile-recognitions",
-    ),
-    path(
-        "profile/protection-patterns/",
-        views.profile_protection_patterns,
-        name="profile-protection-patterns",
-    ),
-    path("profile/cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",),
     path("start", views.index, name="home"),
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),
@@ -92,40 +113,46 @@ urlpatterns = [
     path("test_task/<message>", views.test_task),
     path("onboard/<token>", views.check_profile, name="onboard-with-token"),
     path("onboard", views.check_profile, name="onboard"),
-    path("profile/~check", views.check_profile, name="check-profile"),
     # path("profile/career-stages", views.profile_career_stages, name="profile-career-stages"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
     path("subscription/<int:pk>", views.SubscriptionDetail.as_view(), name="subscription-detail"),
     path("ui_kit", TemplateView.as_view(template_name="pages/ui_kit.html"), name="ui_kit"),
     path(
-        "org-autocomplete/",
-        views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
-        name="org-autocomplete",
-    ),
-    path(
-        "fos-autocomplete/",
-        views.FosAutocomplete.as_view(model=models.FieldOfStudy),
-        name="fos-autocomplete",
-    ),
-    path(
-        "award-autocomplete/",
-        views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
-        name="award-autocomplete",
-    ),
-    path(
-        "qualification-autocomplete/",
-        views.QualificationAutocomplete.as_view(
-            model=models.Qualification, create_field="description"
+        "autocomplete/",
+        include(
+            [
+                path(
+                    "org/",
+                    views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
+                    name="org-autocomplete",
+                ),
+                path(
+                    "fos/",
+                    views.FosAutocomplete.as_view(model=models.FieldOfStudy),
+                    name="fos-autocomplete",
+                ),
+                path(
+                    "award/",
+                    views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
+                    name="award-autocomplete",
+                ),
+                path(
+                    "qualification/",
+                    views.QualificationAutocomplete.as_view(
+                        model=models.Qualification, create_field="description"
+                    ),
+                    name="qualification-autocomplete",
+                ),
+                path(
+                    "person-identifier/",
+                    views.PersonIdentifierAutocomplete.as_view(
+                        model=models.PersonIdentifierType, create_field="description"
+                    ),
+                    name="person-identifier-autocomplete",
+                ),
+            ]
         ),
-        name="qualification-autocomplete",
-    ),
-    path(
-        "person-identifier-autocomplete/",
-        views.PersonIdentifierAutocomplete.as_view(
-            model=models.PersonIdentifierType, create_field="description"
-        ),
-        name="person-identifier-autocomplete",
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
     path(
@@ -149,16 +176,6 @@ urlpatterns = [
         ),
     ),
     path("", views.subscribe, name="comingsoon"),
-    path(
-        "profile/professional/",
-        views.ProfileProfessionalFormSetView.as_view(),
-        name="profile-professional-records",
-    ),
-    path(
-        "profile/profile-summary/<user_id>",
-        views.ProfileSummaryView.as_view(),
-        name="profile-summary",
-    ),
     # path(
     #     "subscription/update/<int:pk>",
     #     views.SubscriptionUpdate.as_view(),

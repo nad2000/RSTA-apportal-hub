@@ -1,6 +1,7 @@
 {% extends 'profile.html' %}
 
 {% load static i18n %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="profile" %}{% endblock sidebar %}
 
 {% block title %}User: {{ object.username }}{% endblock %}
 
