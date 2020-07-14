@@ -76,7 +76,7 @@ def should_be_approved(function):
     return wrap
 
 
-class AccountView(TemplateView):
+class AccountView(LoginRequiredMixin, TemplateView):
 
     template_name = "account.html"
 
@@ -86,7 +86,7 @@ class AccountView(TemplateView):
         return context
 
 
-class CreateUpdateView(UpdateView):
+class CreateUpdateView(LoginRequiredMixin, UpdateView):
     """A trick to make create and update view in a single view."""
 
     template_name = "form.html"
@@ -108,7 +108,7 @@ class CreateUpdateView(UpdateView):
             )
 
 
-class DetailView(_DetailView):
+class DetailView(LoginRequiredMixin, _DetailView):
     template_name = "detail.html"
 
     def get_context_data(self, *args, **kwargs):
@@ -118,7 +118,7 @@ class DetailView(_DetailView):
         return context
 
 
-class CreateView(_CreateView):
+class CreateView(LoginRequiredMixin, _CreateView):
     def get_success_url(self):
         try:
             return super().get_success_url()
@@ -136,7 +136,7 @@ class SubscriptionList(LoginRequiredMixin, SingleTableView):
     template_name = "table.html"
 
 
-class SubscriptionDetail(LoginRequiredMixin, DetailView):
+class SubscriptionDetail(DetailView):
 
     model = Subscription
 
@@ -338,7 +338,7 @@ class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
         return self.request.user.profile
 
 
-class ProfileCreate(ProfileView, LoginRequiredMixin, CreateView):
+class ProfileCreate(ProfileView, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -414,7 +414,7 @@ def get_or_create_team_member_invitation(member):
         )
 
 
-class InvitationCreate(LoginRequiredMixin, CreateView):
+class InvitationCreate(CreateView):
     model = models.Invitation
     template_name = "form.html"
     # form_class = ProfileForm
@@ -495,7 +495,7 @@ class AuthorizationForm(Form):
     #     return True
 
 
-class ApplicationDetail(LoginRequiredMixin, DetailView):
+class ApplicationDetail(DetailView):
 
     model = Application
     template_name = "application_detail.html"
@@ -1347,7 +1347,7 @@ class NominationList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
-class NominationDetail(LoginRequiredMixin, DetailView):
+class NominationDetail(DetailView):
 
     model = models.Nomination
     template_name = "nomination_detail.html"
