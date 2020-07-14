@@ -163,13 +163,14 @@ def index(request):
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())
-            .filter(
-                Q(application__isnull=True)
-                | Q(application__submitted_by=request.user)
-                | Q(member_user=request.user)
-            )
+            # .filter(
+            #     Q(application__isnull=True)
+            #     | Q(application__submitted_by=request.user)
+            #     | Q(member_user=request.user)
+            # )
             .distinct()
         )
+    # breakpoint()
     return render(request, "index.html", locals())
 
 
@@ -660,7 +661,6 @@ class ApplicationCreate(ApplicationView, CreateView):
         a.submitted_by = self.request.user
         a.round = self.round
         a.scheme = a.round.scheme
-        breakpoint()
         resp = super().form_valid(form)
         n = self.nomination
         if n:
