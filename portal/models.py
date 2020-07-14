@@ -913,6 +913,13 @@ class Round(Model):
             if self.opens_on:
                 self.title = f"{self.title} {self.opens_on.year}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        scheme = self.scheme
+        if not scheme.current_round:
+            scheme.current_round = self
+            scheme.save(update_fields=["current_round"])
+
     def __str__(self):
         return self.title or self.scheme.title
 
