@@ -84,7 +84,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         u = self.request.user
-        context['user'] = u
+        context["user"] = u
         context["emails"] = list(EmailAddress.objects.filter(~Q(email=u.email), user=u))
         context["accounts"] = list(SocialAccount.objects.filter(user=u))
         return context
@@ -163,7 +163,11 @@ def index(request):
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())
-            .filter(Q(application__isnull=True) | Q(application__submitted_by=request.user))
+            .filter(
+                Q(application__isnull=True)
+                | Q(application__submitted_by=request.user)
+                | Q(member_user=request.user)
+            )
             .distinct()
         )
     return render(request, "index.html", locals())
@@ -337,13 +341,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
-
     def get_object(self):
         return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, CreateView):
-
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -1358,7 +1360,7 @@ class NominationDetail(DetailView):
 
     @property
     def can_start_applying(self):
-        return self.object.user == self.request.user and not hasattr(self.object, "application")
+        return self.object.user == self.request.user and not self.object.application
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -1396,13 +1398,14 @@ class NominationDetail(DetailView):
         context = super().get_context_data(**kwargs)
         if self.can_start_applying:
             context["start_applying"] = reverse(
-                    "nomination-application-create", kwargs=dict(nomination=self.object.id))
-    #     if self.object.members.filter(
-    #         user=self.request.user, has_authorized__isnull=True
-    #     ).exists():
-    #         messages.info(
-    #             self.request,
-    #             _("Please review the application and authorize your team representative."),
-    #         )
-    #         context["form"] = AuthorizationForm()
+                "nomination-application-create", kwargs=dict(nomination=self.object.id)
+            )
+        #     if self.object.members.filter(
+        #         user=self.request.user, has_authorized__isnull=True
+        #     ).exists():
+        #         messages.info(
+        #             self.request,
+        #             _("Please review the application and authorize your team representative."),
+        #         )
+        #         context["form"] = AuthorizationForm()
         return context
