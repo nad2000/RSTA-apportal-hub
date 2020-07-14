@@ -378,7 +378,7 @@ class TestimonyForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
-                Submit("save", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""

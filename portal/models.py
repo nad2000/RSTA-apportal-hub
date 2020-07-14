@@ -837,7 +837,7 @@ class Testimony(Model):
     )
     state = FSMField(default="new")
 
-    @transition(field=state, source="new", target="draft")
+    @transition(field=state, source=["new", "draft"], target="draft")
     def save_draft(self, request=None, by=None):
         pass
 

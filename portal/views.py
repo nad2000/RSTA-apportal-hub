@@ -1404,14 +1404,13 @@ class TestimonyView(CreateUpdateView):
         n = form.instance
         if not n.id:
             n.referee = models.Referee.get(user=self.request.user)
-
+            n.save()
         if "submit" in self.request.POST:
-            if not n.id:
-                n.save()
             n.submit(request=self.request)
+            n.save()
         elif "save_draft" in self.request.POST:
-            n.save_draft()
-
+            n.save_draft(request=self.request)
+            n.save()
         return super().form_valid(form)
 
 
