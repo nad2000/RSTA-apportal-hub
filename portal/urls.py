@@ -176,6 +176,26 @@ urlpatterns = [
             ]
         ),
     ),
+    path(
+        "testimonies/",
+        include(
+            [
+                path(
+                    "<int:testimony>/application/~create",
+                    views.ApplicationCreate.as_view(),
+                    name="testimony-application-create",
+                ),
+                path(
+                    "<int:round>/~create", views.NominationView.as_view(), name="testimony-create"
+                ),
+                path("<int:pk>/~update", views.NominationView.as_view(), name="testimony-update"),
+                path("<int:pk>", views.NominationDetail.as_view(), name="testimony-detail"),
+                path("draft", views.NominationList.as_view(), name="testimonies-draft"),
+                path("submitted", views.NominationList.as_view(), name="testimonies-submitted"),
+                path("", views.NominationList.as_view(), name="testimonies"),
+            ]
+        ),
+    ),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",

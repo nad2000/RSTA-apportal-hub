@@ -673,6 +673,9 @@ class Referee(Model):
     testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
+    def __str__(self):
+        return _("Referee for \"%s\"") % self.round
+
     class Meta:
         db_table = "referee"
 
@@ -761,6 +764,14 @@ class Invitation(Model):
             body = (
                 _(
                     "You are invited to authorize your team representative. Please follow the link: %s"
+                )
+                % url
+            )
+        if self.type == INVITATION_TYPES.R:
+            subject = _("You are invited to authorize as a Referee")
+            body = (
+                _(
+                    "You are invited to authorize to testify an application. Please follow the link: %s"
                 )
                 % url
             )

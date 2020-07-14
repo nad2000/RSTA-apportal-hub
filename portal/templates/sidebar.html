@@ -70,6 +70,36 @@
 
 <div class="card mb-2">
   <div class="card-header">
+    <a href="{% url 'testimonies' %}">
+      {% trans 'Testimonies' %}
+    </a>
+  </div>
+  {% if categrory == "testimonies" %}
+    <div class="card-body">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item" id="testimonies-draft">
+          <a
+            class="nav-link"
+            href="{% url 'testimonies-draft' %}"
+            title="{% trans 'Saved testimonie drafts' %}"
+            data-toggle="tooltip"
+            >{% trans 'Drafts' %}</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{% url 'testimonies-submitted' %}"
+            title="{% trans 'Submitted and previous testimonies' %}"
+            data-toggle="tooltip"
+            >{% trans 'Submitted' %}</a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
+<div class="card mb-2">
+  <div class="card-header">
     <a href="{% url 'my-profile' %}" id="profile">
       {% trans 'Profile' %}
     </a>
