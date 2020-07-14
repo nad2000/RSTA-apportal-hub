@@ -33,6 +33,22 @@ class NominationTable(tables.Table):
         )
 
 
+class TestimonyTable(tables.Table):
+
+    round = tables.Column(
+        linkify=lambda record: reverse("testimony-create", kwargs=dict(application=record.id)))
+
+    class Meta:
+        model = models.Application
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped"}
+        fields = (
+            "round",
+            "application_tite",
+            "submitted_by"
+        )
+
+
 class ApplicationTable(tables.Table):
 
     round = tables.Column(

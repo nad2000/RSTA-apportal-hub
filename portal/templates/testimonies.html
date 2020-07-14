@@ -1,7 +1,10 @@
-{% extends "form.html" %}
+{% extends "base.html" %}
+
+{% load static i18n %}
+{% load render_table from django_tables2 %}
 
 {% block sidebar %}{% include 'sidebar.html' with categrory="testimonies" %}{% endblock sidebar %}
 
-{% block content_header %}
-  {{ round|title }}
+{% block content %}
+  {% render_table table %}
 {% endblock %}

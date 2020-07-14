@@ -674,7 +674,7 @@ class Referee(Model):
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
     def __str__(self):
-        return _("Referee for \"%s\"") % self.round
+        return str(self.user)
 
     class Meta:
         db_table = "referee"
@@ -844,6 +844,9 @@ class Testimony(Model):
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, request=None, by=None):
         pass
+
+    def __str__(self):
+        return "Testimony By Referee {0} For Application {1}".format(self.referee, self.referee.application)
 
 
 FILE_TYPE = Choices("CV")

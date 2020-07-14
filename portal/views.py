@@ -31,7 +31,7 @@ from extra_views import InlineFormSetFactory, ModelFormSetView
 
 from . import forms, models, tables
 from .forms import Submit
-from .models import Application, Profile, ProfileCareerStage, Subscription, User
+from .models import Application, Profile, ProfileCareerStage, Subscription, Testimony, User
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
 
@@ -526,7 +526,7 @@ class MemberInline(InlineFormSetFactory):
 
 class AuthorizationForm(Form):
 
-    authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
+    authorize_team_lead = BooleanField(label=_("I authorize."), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -879,12 +879,6 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
             queryset = queryset.filter(state__in=[state, "new"])
         elif state == "submitted":
             queryset = queryset.filter(state=state)
-        elif state == "testify":
-            if u.is_referee:
-                referee_applications = models.Referee.objects.filter(user=u).values("application")
-                queryset = self.model.objects.filter(
-                    id__in=Subquery(referee_applications.values("application_id"))
-                )
         return queryset
 
 
@@ -1392,6 +1386,35 @@ class NominationView(CreateUpdateView):
         return context
 
 
+class TestimonyView(CreateUpdateView):
+
+    model = models.Testimony
+    form_class = forms.TestimonyForm
+    template_name = "testimony.html"
+
+    @property
+    def application(self):
+        return (
+            models.Application.get(self.kwargs["application"])
+            if "application" in self.kwargs
+            else self.object.referee.application
+        )
+
+    def form_valid(self, form):
+        n = form.instance
+        if not n.id:
+            n.referee = models.Referee.get(user=self.request.user)
+
+        if "submit" in self.request.POST:
+            if not n.id:
+                n.save()
+            n.submit(request=self.request)
+        elif "save_draft" in self.request.POST:
+            n.save_draft()
+
+        return super().form_valid(form)
+
+
 class NominationList(LoginRequiredMixin, SingleTableView):
 
     model = models.Nomination
@@ -1466,4 +1489,62 @@ class NominationDetail(DetailView):
         #             _("Please review the application and authorize your team representative."),
         #         )
         #         context["form"] = AuthorizationForm()
+        return context
+
+
+class TestimonyList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Application
+    table_class = tables.TestimonyTable
+    template_name = "testimonies.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        referee_applications = models.Referee.objects.filter(user=u).values("application")
+        queryset = self.model.objects.filter(
+            id__in=Subquery(referee_applications.values("application_id"))
+        )
+
+        state = self.request.path.split("/")[-1]
+        if state == "draft":
+            queryset = queryset.filter(state__in=[state, "new"])
+        elif state == "submitted":
+            queryset = queryset.filter(state=state)
+        return queryset
+
+
+class TestimonyDetail(DetailView):
+
+    model = Testimony
+    template_name = "testimony_detail.html"
+
+    def post(self, request, *args, **kwargs):
+
+        self.object = self.get_object()
+        referee = self.object.referee
+        if "authorize_team_lead" in request.POST:
+            referee.has_testifed = True
+            referee.testified_at = datetime.now()
+            referee.save()
+        elif "turn_down" in request.POST:
+            referee.has_testifed = False
+            referee.save()
+            send_mail(
+                _("A team member opted out of Testimony"),
+                _("Your team member %s has opted out of Testimony") % referee,
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[self.object.email],
+                fail_silently=False,
+            )
+
+        return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.object.referee.has_testifed:
+            messages.info(
+                self.request, _("Please review the application and provide testimony."),
+            )
+            context["form"] = AuthorizationForm()
         return context

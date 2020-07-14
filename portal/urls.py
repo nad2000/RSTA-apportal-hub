@@ -39,7 +39,6 @@ urlpatterns = [
                 path("<int:pk>", views.ApplicationDetail.as_view(), name="application"),
                 path("draft", views.ApplicationList.as_view(), name="applications-draft"),
                 path("submitted", views.ApplicationList.as_view(), name="applications-submitted"),
-                path("testify", views.ApplicationList.as_view(), name="applications-testify"),
                 path("", views.ApplicationList.as_view(), name="applications"),
             ]
         ),
@@ -186,13 +185,13 @@ urlpatterns = [
                     name="testimony-application-create",
                 ),
                 path(
-                    "<int:round>/~create", views.NominationView.as_view(), name="testimony-create"
+                    "application/<int:application>/~create", views.TestimonyView.as_view(), name="testimony-create"
                 ),
-                path("<int:pk>/~update", views.NominationView.as_view(), name="testimony-update"),
-                path("<int:pk>", views.NominationDetail.as_view(), name="testimony-detail"),
-                path("draft", views.NominationList.as_view(), name="testimonies-draft"),
-                path("submitted", views.NominationList.as_view(), name="testimonies-submitted"),
-                path("", views.NominationList.as_view(), name="testimonies"),
+                path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),
+                path("<int:pk>", views.TestimonyDetail.as_view(), name="testimony-detail"),
+                path("draft", views.TestimonyList.as_view(), name="testimonies-draft"),
+                path("submitted", views.TestimonyList.as_view(), name="testimonies-submitted"),
+                path("", views.TestimonyList.as_view(), name="testimonies"),
             ]
         ),
     ),
