@@ -39,6 +39,7 @@ urlpatterns = [
                 path("<int:pk>", views.ApplicationDetail.as_view(), name="application"),
                 path("draft", views.ApplicationList.as_view(), name="applications-draft"),
                 path("submitted", views.ApplicationList.as_view(), name="applications-submitted"),
+                path("testify", views.ApplicationList.as_view(), name="applications-testify"),
                 path("", views.ApplicationList.as_view(), name="applications"),
             ]
         ),

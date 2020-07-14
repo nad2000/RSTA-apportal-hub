@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -879,6 +879,12 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
             queryset = queryset.filter(state__in=[state, "new"])
         elif state == "submitted":
             queryset = queryset.filter(state=state)
+        elif state == "testify":
+            if u.is_referee:
+                referee_applications = models.Referee.objects.filter(user=u).values("application")
+                queryset = self.model.objects.filter(
+                    id__in=Subquery(referee_applications.values("application_id"))
+                )
         return queryset
 
 

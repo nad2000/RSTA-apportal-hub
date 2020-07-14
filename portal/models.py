@@ -800,6 +800,8 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.R:
             n = self.referee
             n.user = by
+            referee_group, created = Group.objects.get_or_create(name='REFEREE')
+            by.groups.add(referee_group)
             n.save()
 
     def __str__(self):

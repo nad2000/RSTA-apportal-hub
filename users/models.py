@@ -47,6 +47,10 @@ class User(HelperMixin, AbstractUser):
         return self.in_group("NOMINATOR")
 
     @property
+    def is_referee(self):
+        return self.in_group("REFEREE")
+
+    @property
     def orcid_access_token(self):
         """
         Get the user ORCID token and if ORCID ID is not set or
