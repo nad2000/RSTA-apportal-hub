@@ -185,7 +185,7 @@ urlpatterns = [
                     name="testimony-application-create",
                 ),
                 path(
-                    "application/<int:application>/~create", views.TestimonyView.as_view(), name="testimony-create"
+                    "<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"
                 ),
                 path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),
                 path("<int:pk>", views.TestimonyDetail.as_view(), name="testimony-detail"),

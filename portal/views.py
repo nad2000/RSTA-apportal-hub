@@ -1411,7 +1411,7 @@ class TestimonyView(CreateUpdateView):
         elif "save_draft" in self.request.POST:
             n.save_draft(request=self.request)
             n.save()
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=n.id)))
 
 
 class NominationList(LoginRequiredMixin, SingleTableView):
@@ -1493,17 +1493,15 @@ class NominationDetail(DetailView):
 
 class TestimonyList(LoginRequiredMixin, SingleTableView):
 
-    model = models.Application
+    model = models.Testimony
     table_class = tables.TestimonyTable
     template_name = "testimonies.html"
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
-        referee_applications = models.Referee.objects.filter(user=u).values("application")
-        queryset = self.model.objects.filter(
-            id__in=Subquery(referee_applications.values("application_id"))
-        )
+        referee = models.Referee.objects.filter(user=u).values("id")
+        queryset = queryset.filter(referee__in=Subquery(referee))
 
         state = self.request.path.split("/")[-1]
         if state == "draft":

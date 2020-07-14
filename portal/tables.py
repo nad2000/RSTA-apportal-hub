@@ -35,17 +35,19 @@ class NominationTable(tables.Table):
 
 class TestimonyTable(tables.Table):
 
-    round = tables.Column(
-        linkify=lambda record: reverse("testimony-create", kwargs=dict(application=record.id)))
+    id = tables.Column(
+        linkify=lambda record: reverse("testimony-create", kwargs=dict(pk=record.id))
+        if record.state == "new" else reverse("testimony-detail", kwargs=dict(pk=record.id)))
 
     class Meta:
-        model = models.Application
+        model = models.Testimony
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped"}
         fields = (
-            "round",
-            "application_tite",
-            "submitted_by"
+            "id",
+            "referee.application.round",
+            "referee.application.application_tite",
+            "referee.application.submitted_by"
         )
 
 

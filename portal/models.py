@@ -811,9 +811,11 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.R:
             n = self.referee
             n.user = by
+            n.save()
+            t = Testimony.objects.create(referee=n)
+            t.save()
             referee_group, created = Group.objects.get_or_create(name='REFEREE')
             by.groups.add(referee_group)
-            n.save()
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
@@ -833,7 +835,7 @@ class Testimony(Model):
         upload_subfolder=lambda instance: [
             "testimonies",
             hash_int(instance.referee.id * instance.referee.application.id),
-        ]
+        ], blank=True, null=True
     )
     state = FSMField(default="new")
 
