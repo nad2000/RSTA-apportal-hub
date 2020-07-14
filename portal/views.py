@@ -208,6 +208,8 @@ def check_profile(request, token=None):
         i.save()
         if i.type == models.INVITATION_TYPES.A:
             next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
+        if i.type == models.INVITATION_TYPES.T:
+            return redirect(reverse("application", kwargs=dict(pk=i.member.application.id)))
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
