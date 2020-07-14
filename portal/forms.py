@@ -211,7 +211,7 @@ MemberFormSet = inlineformset_factory(
 class RefereeForm(forms.ModelForm):
     class Meta:
         model = models.Referee
-        exclude = ["has_testifed", "testified_at", "user"]
+        exclude = ["testified_at", "user"]
 
 
 RefereeFormSet = inlineformset_factory(

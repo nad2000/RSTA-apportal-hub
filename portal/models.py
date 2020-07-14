@@ -797,6 +797,10 @@ class Invitation(Model):
             n = self.nomination
             n.user = by
             n.save()
+        elif self.type == INVITATION_TYPES.R:
+            n = self.referee
+            n.user = by
+            n.save()
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"

@@ -84,7 +84,7 @@ class AccountView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         u = self.request.user
-        context['user'] = u
+        context["user"] = u
         context["emails"] = list(EmailAddress.objects.filter(~Q(email=u.email), user=u))
         context["accounts"] = list(SocialAccount.objects.filter(user=u))
         return context
@@ -337,13 +337,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
-
     def get_object(self):
         return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, CreateView):
-
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -391,6 +389,30 @@ def invite_team_members(request, application):
     return count
 
 
+def invite_referee(request, application):
+    """Send invitations to all referee members to authorized_at the representative."""
+    # members that don't have invitations
+    count = 0
+    referees = list(
+        models.Referee.objects.select_related("invitation").extra(
+            tables=["invitation"],
+            where=["invitation.id IS NULL or referee.email != invitation.email"],
+        )
+    )
+    for r in referees:
+        get_or_create_referee_invitation(r)
+
+    # send 'yet unsent' invitations:
+    invitations = list(
+        models.Invitation.where(application=application, type="R", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
 def get_or_create_team_member_invitation(member):
 
     if hasattr(member, "invitation"):
@@ -414,6 +436,33 @@ def get_or_create_team_member_invitation(member):
                 first_name=member.first_name,
                 middle_names=member.middle_names,
                 last_name=member.last_name,
+            ),
+        )
+
+
+def get_or_create_referee_invitation(referee):
+
+    if hasattr(referee, "invitation"):
+        i = referee.invitation
+        if referee.email != i.email:
+            i.email = referee.email
+            i.first_name = referee.first_name
+            i.middle_names = referee.middle_names
+            i.last_name = referee.last_name
+            i.sent_at = None
+            i.status = models.Invitation.STATUS.submitted
+            i.save()
+        return (i, False)
+    else:
+        return models.Invitation.get_or_create(
+            type=models.INVITATION_TYPES.R,
+            referee=referee,
+            email=referee.email,
+            defaults=dict(
+                application=referee.application,
+                first_name=referee.first_name,
+                middle_names=referee.middle_names,
+                last_name=referee.last_name,
             ),
         )
 
@@ -585,6 +634,11 @@ class ApplicationView(LoginRequiredMixin):
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
                 referees.save()
+                count = invite_referee(self.request, self.object)
+                if count > 0:
+                    messages.success(
+                        self.request, _("%d invitation(s) to authorize the referee sent.") % count,
+                    )
         if has_deleted:  # keep editing
             return HttpResponseRedirect(self.request.path_info)
         return resp
@@ -1396,13 +1450,14 @@ class NominationDetail(DetailView):
         context = super().get_context_data(**kwargs)
         if self.can_start_applying:
             context["start_applying"] = reverse(
-                    "nomination-application-create", kwargs=dict(nomination=self.object.id))
-    #     if self.object.members.filter(
-    #         user=self.request.user, has_authorized__isnull=True
-    #     ).exists():
-    #         messages.info(
-    #             self.request,
-    #             _("Please review the application and authorize your team representative."),
-    #         )
-    #         context["form"] = AuthorizationForm()
+                "nomination-application-create", kwargs=dict(nomination=self.object.id)
+            )
+        #     if self.object.members.filter(
+        #         user=self.request.user, has_authorized__isnull=True
+        #     ).exists():
+        #         messages.info(
+        #             self.request,
+        #             _("Please review the application and authorize your team representative."),
+        #         )
+        #         context["form"] = AuthorizationForm()
         return context
