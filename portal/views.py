@@ -3,6 +3,7 @@ from functools import wraps
 from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -21,15 +22,15 @@ from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 
 from . import forms, models, tables
-from .forms import ProfileForm, Submit
+from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
@@ -82,7 +83,10 @@ class AccountView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
+        u = self.request.user
+        context['user'] = u
+        context["emails"] = list(EmailAddress.objects.filter(~Q(email=u.email), user=u))
+        context["accounts"] = list(SocialAccount.objects.filter(user=u))
         return context
 
 

@@ -2,6 +2,7 @@
 {% load crispy_forms_tags socialaccount static %}
 
 {% block title %}{{ user.username }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="account" %}{% endblock sidebar %}
 
 {% block content %}
 <div class="container">

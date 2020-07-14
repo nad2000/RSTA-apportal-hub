@@ -90,18 +90,18 @@
     </table>
     <form method="post">
       <a class="btn btn-primary" href="{% url 'profile-update' %}">{% trans 'Edit' %}</a>
-    {% if object.user == request.user %}
-      <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">{% trans 'My Info' %}</a>
-      <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">{% trans 'E-Mail' %}</a>
-      <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">{% trans 'Linked Accounts' %}</a>
-      <form method="POST">
-        <input type="Submit" class="btn btn-orcid"
-            name="load_from_orcid" value="{% trans 'Import From ORCID' %}"
-            title="{% trans 'Fetch all profile data from ORCID' %}"
-            data-toggle="tooltip"
-        />{% csrf_token %}
-      </form>
-    {% endif %}
+      {% if object.user == request.user %}
+        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">{% trans 'My Info' %}</a>
+        <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">{% trans 'E-Mail Addresses' %}</a>
+        <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">{% trans 'Linked Accounts' %}</a>
+        <form method="POST">
+          <input type="Submit" class="btn btn-orcid"
+              name="load_from_orcid" value="{% trans 'Import From ORCID' %}"
+              title="{% trans 'Fetch all profile data from ORCID' %}"
+              data-toggle="tooltip"
+          />{% csrf_token %}
+        </form>
+      {% endif %}
     </form>
 
   {% endblock %}
