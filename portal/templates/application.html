@@ -44,6 +44,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
   <script>
     $(function() {
+      bootbox.addLocale('mi', {
+        OK      : 'Pai',
+        CANCEL  : 'Whakakore',
+        CONFIRM : 'Whakaū'
+      });
+      bootbox.setDefaults({
+        locale: "{{ LANGUAGE_CODE }}"
+      });
       {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
       $('#id_is_team_application').change(function() {
         if (!($(this).prop('checked'))) {
