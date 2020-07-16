@@ -35,33 +35,13 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="confirm-close" tabindex="-1" role="dialog" aria-labelledby="confirm-close-label" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <!-- div class="modal-header">
-          <h5 class="modal-title" id="confirm-close-label">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div -->
-        <div class="modal-body">
-          {% trans 'Do you want to close the form without saving it?' %}
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Cancel' %}</button>
-          <a id="confirm-close-btn-ok" class="btn btn-outline-danger" role="button">{% trans 'Close without saving' %}</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
 {% endblock %}
 
 {% block javascript %}
   {{ block.super }}
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
   <script>
     $(function() {
       {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
@@ -91,8 +71,18 @@
             return false;
         });
     });
-      $('#confirm-close').on('show.bs.modal', function(e) {
-        $(this).find('#confirm-close-btn-ok').attr('href', $(e.relatedTarget).data('href'));
-      });
+    // Track the changes in the form fields
+    $("form :input").change(function() {
+      $(this.form).data("changed", true);
+    });
+    $(document).on("click", "#cancel", function(e) {
+        if (!$(e.toElement).closest("form").data("changed")) return;
+        e.preventDefault();  // need for a link
+        href = $(this).attr('href');
+        return bootbox.confirm("{% trans 'Do you want to close the form without saving it?' %}", function(result) {
+              // console.log("Result: ", result);
+              if (result) window.location = href;
+        });
+    });
   </script>
 {% endblock %}

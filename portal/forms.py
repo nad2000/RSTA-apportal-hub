@@ -179,8 +179,7 @@ class ApplicationForm(forms.ModelForm):
                        type="button"
                        role="button"
                        class="btn btn-secondary"
-                       data-toggle="modal"
-                       data-target="#confirm-close">
+                       id="cancel">
                         %s
                     </a>"""
                     % _("Cancel")
