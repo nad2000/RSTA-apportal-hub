@@ -956,6 +956,7 @@ class SchemeApplication(Model):
     )
     can_be_applied_to = BooleanField(null=True, blank=True)
     can_be_nominated_to = BooleanField(null=True, blank=True)
+    member_user = ForeignKey(User, null=True, blank=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False)
 
     class Meta:
         managed = False

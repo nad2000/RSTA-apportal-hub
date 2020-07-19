@@ -41,8 +41,17 @@
   {{ block.super }}
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
   <script>
     $(function() {
+      bootbox.addLocale('mi', {
+        OK      : 'Pai',
+        CANCEL  : 'Whakakore',
+        CONFIRM : 'Whakaū'
+      });
+      bootbox.setDefaults({
+        locale: "{{ LANGUAGE_CODE }}"
+      });
       {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
       $('#id_is_team_application').change(function() {
         if (!($(this).prop('checked'))) {
@@ -68,6 +77,19 @@
 
             // Only want to do it once
             return false;
+        });
+    });
+    // Track the changes in the form fields
+    $("form :input").change(function() {
+      $(this.form).data("changed", true);
+    });
+    $(document).on("click", "#cancel", function(e) {
+        if (!$(e.toElement).closest("form").data("changed")) return;
+        e.preventDefault();  // need for a link
+        href = $(this).attr('href');
+        return bootbox.confirm("{% trans 'Do you want to close the form without saving it?' %}", function(result) {
+              // console.log("Result: ", result);
+              if (result) window.location = href;
         });
     });
   </script>

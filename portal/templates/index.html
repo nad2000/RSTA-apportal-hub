@@ -24,7 +24,7 @@
         </a>
         {% if scheme.current_round %}
           {% if request.user.is_applicant and scheme.can_be_applied_to %}
-            {% if scheme.application %}
+            {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
               <a href="{% url 'application-update' pk=scheme.application.id %}" class="btn btn-primary"
                 style="text-transform: uppercase;"> {% trans "Continue" %} <b>{% trans "Application" %}</b>
               </a>
