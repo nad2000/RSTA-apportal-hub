@@ -59,6 +59,7 @@ class Migration(migrations.Migration):
         # SchemeApplication:
         migrations.RunSQL(
             """
+            -- DROP VIEW IF EXISTS scheme_application_view;
             CREATE VIEW scheme_application_view AS
             SELECT
                 s.id,
@@ -78,9 +79,19 @@ class Migration(migrations.Migration):
                 a.created_at,
                 a.updated_at,
                 a.id AS application_id,
-                s.current_round_id
+                s.current_round_id,
+                m.user_id AS member_user_id
             FROM scheme AS s LEFT JOIN round AS r ON r.id = s.current_round_id
-            LEFT JOIN application AS a ON a.round_id = r.id;
+            LEFT JOIN application AS a ON a.round_id = r.id
+            LEFT JOIN member AS m 
+                ON m.application_id = a.id AND (m.user_id IS NULL OR m.user_id != a.submitted_by_id)
+            LEFT JOIN (
+                SELECT max(a.id) AS id, a.round_id FROM application AS a LEFT JOIN member AS m
+                    ON m.application_id = a.id
+                WHERE m.user_id IS NULL OR m.user_id != a.submitted_by_id
+                GROUP BY a.round_id, a.submitted_by_id, m.id) AS la
+                ON la.round_id = r.id AND la.id = a.id
+            WHERE m.id IS NULL OR m.user_id IS NOT NULL;
             """,
             "DROP VIEW IF EXISTS scheme_application_view;",
             state_operations=[

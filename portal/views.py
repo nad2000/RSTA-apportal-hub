@@ -31,7 +31,14 @@ from extra_views import InlineFormSetFactory, ModelFormSetView
 
 from . import forms, models, tables
 from .forms import Submit
-from .models import Application, Profile, ProfileCareerStage, Subscription, Testimony, User
+from .models import (
+    Application,
+    Profile,
+    ProfileCareerStage,
+    Subscription,
+    Testimony,
+    User,
+)
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
 
@@ -163,9 +170,14 @@ def index(request):
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())
-            .filter(Q(application__isnull=True) | Q(application__submitted_by=request.user))
+            # .filter(
+            #     Q(application__isnull=True)
+            #     | Q(application__submitted_by=request.user)
+            #     | Q(member_user=request.user)
+            # )
             .distinct()
         )
+    # breakpoint()
     return render(request, "index.html", locals())
 
 
@@ -203,6 +215,8 @@ def check_profile(request, token=None):
         i.save()
         if i.type == models.INVITATION_TYPES.A:
             next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
+        if i.type == models.INVITATION_TYPES.T:
+            return redirect(reverse("application", kwargs=dict(pk=i.member.application.id)))
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
@@ -712,7 +726,6 @@ class ApplicationCreate(ApplicationView, CreateView):
         a.submitted_by = self.request.user
         a.round = self.round
         a.scheme = a.round.scheme
-        breakpoint()
         resp = super().form_valid(form)
         n = self.nomination
         if n:
@@ -1440,7 +1453,7 @@ class NominationDetail(DetailView):
 
     @property
     def can_start_applying(self):
-        return self.object.user == self.request.user and not hasattr(self.object, "application")
+        return self.object.user == self.request.user and not self.object.application
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

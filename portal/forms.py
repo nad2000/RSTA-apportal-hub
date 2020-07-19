@@ -174,7 +174,14 @@ class ApplicationForm(forms.ModelForm):
                 Submit("save", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
-                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    """
+                    <a href="{{ view.get_success_url }}"
+                       type="button"
+                       role="button"
+                       class="btn btn-secondary"
+                       id="cancel">
+                        %s
+                    </a>"""
                     % _("Cancel")
                 ),
             ),
@@ -356,7 +363,7 @@ class NominationForm(forms.ModelForm):
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
-                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+                attrs={"data-placeholder": _("Choose an organisation or or create a new one ...")},
             ),
             summary=SummernoteInplaceWidget(),
         )
@@ -393,3 +400,7 @@ class TestimonyForm(forms.ModelForm):
             "summary",
             "file",
         ]
+
+        widgets = dict(
+            summary=SummernoteInplaceWidget(),
+        )
