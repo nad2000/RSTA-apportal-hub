@@ -180,11 +180,6 @@ urlpatterns = [
         include(
             [
                 path(
-                    "<int:testimony>/application/~create",
-                    views.ApplicationCreate.as_view(),
-                    name="testimony-application-create",
-                ),
-                path(
                     "<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"
                 ),
                 path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),

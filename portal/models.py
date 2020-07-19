@@ -1,6 +1,6 @@
 import hashlib
 import secrets
-from datetime import date
+from datetime import date, datetime
 from urllib.parse import urljoin
 
 from common.models import Base, Model
@@ -669,7 +669,7 @@ class Referee(Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150, null=True, blank=True)
-    has_testifed = BooleanField(default=False)
+    has_testifed = BooleanField(null=True, blank=True)
     testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
@@ -812,10 +812,11 @@ class Invitation(Model):
             n = self.referee
             n.user = by
             n.save()
-            t = Testimony.objects.create(referee=n)
-            t.save()
-            referee_group, created = Group.objects.get_or_create(name='REFEREE')
-            by.groups.add(referee_group)
+            if self.status != self.STATUS.accepted:
+                t = Testimony.objects.create(referee=n)
+                t.save()
+                referee_group, created = Group.objects.get_or_create(name='REFEREE')
+                by.groups.add(referee_group)
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
@@ -845,6 +846,9 @@ class Testimony(Model):
 
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, request=None, by=None):
+        self.referee.has_testifed = True
+        self.referee.testified_at = datetime.now()
+        self.referee.save()
         pass
 
     def __str__(self):

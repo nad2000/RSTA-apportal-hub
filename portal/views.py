@@ -540,7 +540,7 @@ class MemberInline(InlineFormSetFactory):
 
 class AuthorizationForm(Form):
 
-    authorize_team_lead = BooleanField(label=_("I authorize."), required=False)
+    authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1418,13 +1418,42 @@ class TestimonyView(CreateUpdateView):
         if not n.id:
             n.referee = models.Referee.get(user=self.request.user)
             n.save()
-        if "submit" in self.request.POST:
-            n.submit(request=self.request)
-            n.save()
-        elif "save_draft" in self.request.POST:
-            n.save_draft(request=self.request)
-            n.save()
+
+        if n.state != 'submitted':
+            if "submit" in self.request.POST:
+                n.submit(request=self.request)
+                n.save()
+            elif "save_draft" in self.request.POST:
+                n.save_draft(request=self.request)
+                n.save()
+            elif "turn_down" in self.request.POST:
+                n.referee.has_testifed = False
+                n.referee.save()
+                self.model.objects.filter(id=n.id).delete()
+                send_mail(
+                    _("A Referee opted out of Testimony"),
+                    _("Your Referee %s has opted out of Testimony") % n.referee,
+                    settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[n.referee.application.submitted_by.email],
+                    fail_silently=False,
+                )
+                messages.info(
+                    self.request, _("You opted out of Testimony."),
+                )
+                return HttpResponseRedirect(reverse("testimonies"))
+        else:
+            messages.warning(
+                self.request, _("Testimony is already submitted."),
+            )
         return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=n.id)))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.object.referee.has_testifed:
+            messages.info(
+                self.request, _("Please submit testimony."),
+            )
+        return context
 
 
 class NominationList(LoginRequiredMixin, SingleTableView):
@@ -1528,33 +1557,3 @@ class TestimonyDetail(DetailView):
 
     model = Testimony
     template_name = "testimony_detail.html"
-
-    def post(self, request, *args, **kwargs):
-
-        self.object = self.get_object()
-        referee = self.object.referee
-        if "authorize_team_lead" in request.POST:
-            referee.has_testifed = True
-            referee.testified_at = datetime.now()
-            referee.save()
-        elif "turn_down" in request.POST:
-            referee.has_testifed = False
-            referee.save()
-            send_mail(
-                _("A team member opted out of Testimony"),
-                _("Your team member %s has opted out of Testimony") % referee,
-                settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[self.object.email],
-                fail_silently=False,
-            )
-
-        return self.get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if not self.object.referee.has_testifed:
-            messages.info(
-                self.request, _("Please review the application and provide testimony."),
-            )
-            context["form"] = AuthorizationForm()
-        return context

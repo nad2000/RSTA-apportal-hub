@@ -387,6 +387,7 @@ class TestimonyForm(forms.ModelForm):
             ButtonHolder(
                 Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
+                Submit("turn_down", _("I don't wish to Testify"), css_class="btn-outline-danger"),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
