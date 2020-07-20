@@ -1,6 +1,6 @@
 import hashlib
 import secrets
-from datetime import date
+from datetime import date, datetime
 from urllib.parse import urljoin
 
 from common.models import Base, Model
@@ -669,9 +669,12 @@ class Referee(Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150, null=True, blank=True)
-    has_testifed = BooleanField(default=False)
+    has_testifed = BooleanField(null=True, blank=True)
     testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    def __str__(self):
+        return str(self.user)
 
     class Meta:
         db_table = "referee"
@@ -764,6 +767,14 @@ class Invitation(Model):
                 )
                 % url
             )
+        if self.type == INVITATION_TYPES.R:
+            subject = _("You are invited to authorize as a Referee")
+            body = (
+                _(
+                    "You are invited to authorize to testify an application. Please follow the link: %s"
+                )
+                % url
+            )
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _("You were nominated for %s by %s. Please follow the link: %s") % (
@@ -797,6 +808,15 @@ class Invitation(Model):
             n = self.nomination
             n.user = by
             n.save()
+        elif self.type == INVITATION_TYPES.R:
+            n = self.referee
+            n.user = by
+            n.save()
+            if self.status != self.STATUS.accepted:
+                t = Testimony.objects.create(referee=n)
+                t.save()
+                referee_group, created = Group.objects.get_or_create(name='REFEREE')
+                by.groups.add(referee_group)
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
@@ -816,17 +836,23 @@ class Testimony(Model):
         upload_subfolder=lambda instance: [
             "testimonies",
             hash_int(instance.referee.id * instance.referee.application.id),
-        ]
+        ], blank=True, null=True
     )
     state = FSMField(default="new")
 
-    @transition(field=state, source="new", target="draft")
+    @transition(field=state, source=["new", "draft"], target="draft")
     def save_draft(self, request=None, by=None):
         pass
 
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, request=None, by=None):
+        self.referee.has_testifed = True
+        self.referee.testified_at = datetime.now()
+        self.referee.save()
         pass
+
+    def __str__(self):
+        return "Testimony By Referee {0} For Application {1}".format(self.referee, self.referee.application)
 
 
 FILE_TYPE = Choices("CV")

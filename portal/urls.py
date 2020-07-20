@@ -175,6 +175,21 @@ urlpatterns = [
             ]
         ),
     ),
+    path(
+        "testimonies/",
+        include(
+            [
+                path(
+                    "<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"
+                ),
+                path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),
+                path("<int:pk>", views.TestimonyDetail.as_view(), name="testimony-detail"),
+                path("draft", views.TestimonyList.as_view(), name="testimonies-draft"),
+                path("submitted", views.TestimonyList.as_view(), name="testimonies-submitted"),
+                path("", views.TestimonyList.as_view(), name="testimonies"),
+            ]
+        ),
+    ),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",

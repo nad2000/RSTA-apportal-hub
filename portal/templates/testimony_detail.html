@@ -1,0 +1,29 @@
+{% extends 'detail.html' %}
+
+{% load i18n crispy_forms_tags tags %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="applications" %}{% endblock sidebar %}
+
+{% block content %}
+
+  {% if start_applying %}
+    <a class="btn btn-primary" href="{{ start_applying }}">
+      {% trans 'Start Applying' %}
+    </a>
+  {% endif %}
+
+  {% if form %}
+    {% block css %}
+      {{ form.media.css }}
+      {{ block.super }}
+    {% endblock %}
+    {% crispy form %}
+    {% block javascript %}
+      {{ block.super }}
+      {{ form.media.js }}
+    {% endblock %}
+  {% endif %}
+
+
+  {{ block.super }}
+
+{% endblock %}

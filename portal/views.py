@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -31,7 +31,14 @@ from extra_views import InlineFormSetFactory, ModelFormSetView
 
 from . import forms, models, tables
 from .forms import Submit
-from .models import Application, Profile, ProfileCareerStage, Subscription, User
+from .models import (
+    Application,
+    Profile,
+    ProfileCareerStage,
+    Subscription,
+    Testimony,
+    User,
+)
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
 
@@ -396,6 +403,30 @@ def invite_team_members(request, application):
     return count
 
 
+def invite_referee(request, application):
+    """Send invitations to all referee members to authorized_at the representative."""
+    # members that don't have invitations
+    count = 0
+    referees = list(
+        models.Referee.objects.select_related("invitation").extra(
+            tables=["invitation"],
+            where=["invitation.id IS NULL or referee.email != invitation.email"],
+        )
+    )
+    for r in referees:
+        get_or_create_referee_invitation(r)
+
+    # send 'yet unsent' invitations:
+    invitations = list(
+        models.Invitation.where(application=application, type="R", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
 def get_or_create_team_member_invitation(member):
 
     if hasattr(member, "invitation"):
@@ -419,6 +450,33 @@ def get_or_create_team_member_invitation(member):
                 first_name=member.first_name,
                 middle_names=member.middle_names,
                 last_name=member.last_name,
+            ),
+        )
+
+
+def get_or_create_referee_invitation(referee):
+
+    if hasattr(referee, "invitation"):
+        i = referee.invitation
+        if referee.email != i.email:
+            i.email = referee.email
+            i.first_name = referee.first_name
+            i.middle_names = referee.middle_names
+            i.last_name = referee.last_name
+            i.sent_at = None
+            i.status = models.Invitation.STATUS.submitted
+            i.save()
+        return (i, False)
+    else:
+        return models.Invitation.get_or_create(
+            type=models.INVITATION_TYPES.R,
+            referee=referee,
+            email=referee.email,
+            defaults=dict(
+                application=referee.application,
+                first_name=referee.first_name,
+                middle_names=referee.middle_names,
+                last_name=referee.last_name,
             ),
         )
 
@@ -590,6 +648,11 @@ class ApplicationView(LoginRequiredMixin):
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
                 referees.save()
+                count = invite_referee(self.request, self.object)
+                if count > 0:
+                    messages.success(
+                        self.request, _("%d invitation(s) to authorize the referee sent.") % count,
+                    )
         if has_deleted:  # keep editing
             return HttpResponseRedirect(self.request.path_info)
         return resp
@@ -1336,6 +1399,63 @@ class NominationView(CreateUpdateView):
         return context
 
 
+class TestimonyView(CreateUpdateView):
+
+    model = models.Testimony
+    form_class = forms.TestimonyForm
+    template_name = "testimony.html"
+
+    @property
+    def application(self):
+        return (
+            models.Application.get(self.kwargs["application"])
+            if "application" in self.kwargs
+            else self.object.referee.application
+        )
+
+    def form_valid(self, form):
+        n = form.instance
+        if not n.id:
+            n.referee = models.Referee.get(user=self.request.user)
+            n.save()
+
+        if n.state != 'submitted':
+            if "submit" in self.request.POST:
+                n.submit(request=self.request)
+                n.save()
+            elif "save_draft" in self.request.POST:
+                n.save_draft(request=self.request)
+                n.save()
+            elif "turn_down" in self.request.POST:
+                n.referee.has_testifed = False
+                n.referee.save()
+                self.model.objects.filter(id=n.id).delete()
+                send_mail(
+                    _("A Referee opted out of Testimony"),
+                    _("Your Referee %s has opted out of Testimony") % n.referee,
+                    settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[n.referee.application.submitted_by.email],
+                    fail_silently=False,
+                )
+                messages.info(
+                    self.request, _("You opted out of Testimony."),
+                )
+                return HttpResponseRedirect(reverse("testimonies"))
+        else:
+            messages.warning(
+                self.request, _("Testimony is already submitted."),
+            )
+        return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=n.id)))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.object.referee.has_testifed:
+            messages.info(
+                self.request, _("Please submit testimony."),
+            )
+        return context
+
+
 class NominationList(LoginRequiredMixin, SingleTableView):
 
     model = models.Nomination
@@ -1411,3 +1531,29 @@ class NominationDetail(DetailView):
         #         )
         #         context["form"] = AuthorizationForm()
         return context
+
+
+class TestimonyList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Testimony
+    table_class = tables.TestimonyTable
+    template_name = "testimonies.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        referee = models.Referee.objects.filter(user=u).values("id")
+        queryset = queryset.filter(referee__in=Subquery(referee))
+
+        state = self.request.path.split("/")[-1]
+        if state == "draft":
+            queryset = queryset.filter(state__in=[state, "new"])
+        elif state == "submitted":
+            queryset = queryset.filter(state=state)
+        return queryset
+
+
+class TestimonyDetail(DetailView):
+
+    model = Testimony
+    template_name = "testimony_detail.html"

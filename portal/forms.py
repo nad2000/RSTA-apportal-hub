@@ -218,7 +218,8 @@ MemberFormSet = inlineformset_factory(
 class RefereeForm(forms.ModelForm):
     class Meta:
         model = models.Referee
-        exclude = ["has_testifed", "testified_at", "user"]
+        fields = ["has_testifed", "email", "first_name", "middle_names", "last_name"]
+        widgets = dict(has_testifed=NullBooleanSelect(attrs=dict(readonly=True)))
 
 
 RefereeFormSet = inlineformset_factory(
@@ -362,7 +363,45 @@ class NominationForm(forms.ModelForm):
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
-                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+                attrs={"data-placeholder": _("Choose an organisation or or create a new one ...")},
             ),
+            summary=SummernoteInplaceWidget(),
+        )
+
+
+class TestimonyForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        fields = [
+            Fieldset(
+                _("Testimony"),
+                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+                Field("summary"),
+            ),
+        ]
+        self.helper.layout = Layout(
+            *fields,
+            ButtonHolder(
+                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
+                Submit("turn_down", _("I don't wish to Testify"), css_class="btn-outline-danger"),
+                HTML(
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    % _("Close")
+                ),
+            ),
+        )
+
+    class Meta:
+        model = models.Testimony
+        fields = [
+            "summary",
+            "file",
+        ]
+
+        widgets = dict(
             summary=SummernoteInplaceWidget(),
         )
