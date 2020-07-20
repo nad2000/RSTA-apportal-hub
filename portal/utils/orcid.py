@@ -33,6 +33,7 @@ class OrcidHelper:
     ]
 
     def __init__(self, user, sections=None):
+        # user = models.User.get(user.id)
         self.user = user
         self.profile = user.profile
         self.sections = sections or self.DEFAULT_SECTIONS
@@ -101,13 +102,9 @@ class OrcidHelper:
         return count
 
     def create_and_save_affiliation_record(self, org, orcid_data, section):
-        try:
-            affiliation_obj = models.Affiliation.objects.get(put_code=orcid_data.get("put-code"))
-            affiliation_obj.org = org
-        except models.Affiliation.DoesNotExist:
-            affiliation_obj = models.Affiliation.objects.create(
-                profile=self.profile, org=org, put_code=orcid_data.get("put-code")
-            )
+        affiliation_obj, _ = models.Affiliation.objects.get_or_create(
+            put_code=orcid_data.get("put-code"), profile=self.profile, org=org
+        )
         affiliation_obj.type = self.AFFILIATION_SECTION_MAP[section]
         affiliation_obj.role = orcid_data.get("role-title")
         if orcid_data.get("start-date"):
@@ -138,17 +135,12 @@ class OrcidHelper:
             if orcid_data.get("role-title")
             else "Don't Know"
         )
-        try:
-            academic_obj = models.AcademicRecord.get(put_code=orcid_data.get("put-code"))
-            academic_obj.awarded_by = org
-            academic_obj.qualification = qualification
-        except models.AcademicRecord.DoesNotExist:
-            academic_obj = models.AcademicRecord.create(
-                profile=self.profile,
-                awarded_by=org,
-                put_code=orcid_data.get("put-code"),
-                qualification=qualification,
-            )
+        academic_obj, _ = models.AcademicRecord.get_or_create(
+            put_code=orcid_data.get("put-code"), profile=self.profile,
+        )
+        academic_obj.awarded_by = org
+        academic_obj.qualification = qualification
+
         if orcid_data.get("start-date"):
             academic_obj.start_year = PartialDate.create(orcid_data.get("start-date")).year
         if orcid_data.get("end-date"):
@@ -183,17 +175,13 @@ class OrcidHelper:
             award, _ = models.Award.objects.get_or_create(
                 name=orcid_data.get("title").get("title").get("value")
             )
-            try:
-                rec_obj = models.Recognition.objects.get(put_code=orcid_data.get("put-code"))
-                rec_obj.awarded_by = org
-                rec_obj.award = award
-            except models.Recognition.DoesNotExist:
-                rec_obj = models.Recognition.objects.create(
-                    profile=self.profile,
-                    award=award,
-                    awarded_by=org,
-                    put_code=orcid_data.get("put-code"),
-                )
+            rec_obj, _ = models.Recognition.objects.get_or_create(
+                put_code=orcid_data.get("put-code"), profile=self.profile
+            )
+
+            rec_obj.awarded_by = org
+            rec_obj.award = award
+
             if orcid_data.get("start-date"):
                 rec_obj.recognized_in = PartialDate.create(orcid_data.get("start-date")).year
             if orcid_data.get("amount"):
@@ -229,12 +217,9 @@ class OrcidHelper:
             description=orcid_data.get("external-id-type")
         )
         value = orcid_data.get("external-id-value")
-        try:
-            ext_obj = models.ProfilePersonIdentifier.get(put_code=orcid_data.get("put-code"))
-            ext_obj.code = code
-            ext_obj.value = value
-        except models.ProfilePersonIdentifier.DoesNotExist:
-            ext_obj = models.ProfilePersonIdentifier.create(
-                profile=self.profile, code=code, value=value, put_code=orcid_data.get("put-code"),
-            )
+        ext_obj, _ = models.ProfilePersonIdentifier.get_or_create(
+            put_code=orcid_data.get("put-code")
+        )
+        ext_obj.code = code
+        ext_obj.value = value
         ext_obj.save()
