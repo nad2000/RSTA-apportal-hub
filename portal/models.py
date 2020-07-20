@@ -854,6 +854,9 @@ class Testimony(Model):
     def __str__(self):
         return "Testimony By Referee {0} For Application {1}".format(self.referee, self.referee.application)
 
+    class Meta:
+        db_table = "testimony"
+
 
 FILE_TYPE = Choices("CV")
 
