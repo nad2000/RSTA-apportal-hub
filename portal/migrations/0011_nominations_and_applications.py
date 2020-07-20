@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             """
             ALTER TABLE application ADD COLUMN state varchar(50) DEFAULT 'new'  NULL;
-            ALTER TABLE application_history ADD COLUMN state COLUMN(50) DEFAULT 'new' NULL;
+            ALTER TABLE application_history ADD COLUMN state varchar(50) DEFAULT 'new' NULL;
             ALTER TABLE application ADD COLUMN "file" varchar(100) NULL;
             ALTER TABLE application_history ADD COLUMN "file" varchar(100) NULL;
             """,
