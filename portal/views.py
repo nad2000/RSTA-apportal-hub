@@ -327,7 +327,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
                 messages.warning(
                     self.request,
                     _(
-                        "In order to imort ORCID profile, please, "
+                        "In order to import ORCID profile, please, "
                         "link your ORCID account to your portal account."
                     ),
                 )
@@ -928,7 +928,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 return reverse(self.section_views[view_idx - 1])
             if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
                 return reverse(self.section_views[view_idx + 1])
-            return reverse("profile", kwargs={"pk": self.request.user.profile.id})
+            return reverse("profile")
         return super().get_success_url()
 
     def formset_valid(self, formset):
