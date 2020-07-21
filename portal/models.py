@@ -748,7 +748,9 @@ class Invitation(Model):
     # TODO: need to figure out how to propaged STATUS to the historycal rec model:
     # history = HistoricalRecords(table_name="invitation_history")
 
-    @transition(field=status, source=[STATUS.draft, STATUS.sent, STATUS.submitted], target=STATUS.sent)
+    @transition(
+        field=status, source=[STATUS.draft, STATUS.sent, STATUS.submitted], target=STATUS.sent
+    )
     def send(self, request=None, by=None):
         if not by:
             by = request.user if request else self.invitee
@@ -815,8 +817,16 @@ class Invitation(Model):
             if self.status != self.STATUS.accepted:
                 t = Testimony.objects.create(referee=n)
                 t.save()
-                referee_group, created = Group.objects.get_or_create(name='REFEREE')
+                referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
+
+    @classmethod
+    def outstanding_user_invitations(cls, user):
+        return Invitation.objects.raw(
+            "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
+            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired')",
+            [user.id],
+        )
 
     def __str__(self):
         return f"Invitation for {self.first_name} {self.last_name} ({self.email})"
@@ -836,7 +846,9 @@ class Testimony(Model):
         upload_subfolder=lambda instance: [
             "testimonies",
             hash_int(instance.referee.id * instance.referee.application.id),
-        ], blank=True, null=True
+        ],
+        blank=True,
+        null=True,
     )
     state = FSMField(default="new")
 
@@ -852,7 +864,9 @@ class Testimony(Model):
         pass
 
     def __str__(self):
-        return "Testimony By Referee {0} For Application {1}".format(self.referee, self.referee.application)
+        return "Testimony By Referee {0} For Application {1}".format(
+            self.referee, self.referee.application
+        )
 
     class Meta:
         db_table = "testimony"
@@ -985,7 +999,23 @@ class SchemeApplication(Model):
     )
     can_be_applied_to = BooleanField(null=True, blank=True)
     can_be_nominated_to = BooleanField(null=True, blank=True)
-    member_user = ForeignKey(User, null=True, blank=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False)
+    application_submitted_by = ForeignKey(
+        User,
+        blank=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
+    )
+    member_user = ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
+    )
 
     class Meta:
         managed = False
@@ -1061,7 +1091,7 @@ class Nomination(Model):
         return reverse("nomination-update", kwargs={"pk": self.pk})
 
     def __str__(self):
-        return _("Nomination for \"%s\"") % self.round
+        return _('Nomination for "%s"') % self.round
 
     class Meta:
         db_table = "nomination"
