@@ -651,6 +651,14 @@ class Member(Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
 
+    @classmethod
+    def outstanding_requests(cls, user):
+        return Invitation.objects.raw(
+            "SELECT DISTINCT m.* FROM member AS m JOIN account_emailaddress AS ae ON ae.email = m.email "
+            "WHERE (m.user_id=%s OR ae.user_id=%s) AND has_authorized IS NULL",
+            [user.id, user.id],
+        )
+
     class Meta:
         db_table = "member"
 
@@ -675,6 +683,14 @@ class Referee(Model):
 
     def __str__(self):
         return str(self.user)
+
+    @classmethod
+    def outstanding_requests(cls, user):
+        return Invitation.objects.raw(
+            "SELECT DISTINCT r.* FROM referee AS r JOIN account_emailaddress AS ae ON ae.email = r.email "
+            "WHERE (r.user_id=%s OR ae.user_id=%s) AND has_testifed IS NULL",
+            [user.id, user.id],
+        )
 
     class Meta:
         db_table = "referee"
@@ -821,7 +837,7 @@ class Invitation(Model):
                 by.groups.add(referee_group)
 
     @classmethod
-    def outstanding_user_invitations(cls, user):
+    def outstanding_invitations(cls, user):
         return Invitation.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
             "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired')",

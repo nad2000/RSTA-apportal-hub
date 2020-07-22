@@ -165,6 +165,35 @@
           {% endfor %}
         {% endif %}
 
+        {% if outstanding_authorization_requests %}
+          {% for o in outstanding_authorization_requests %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% trans "You have a team representative authorization request that hasn't been accepted yet." %}
+              <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
+                {% trans 'Please click here to review the request' %}!
+              </a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if outstanding_testimony_requests %}
+          {% for o in outstanding_testimony_requests %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% trans "You have a request to review and endorse an application that hasn't been reviewed yet." %}
+              <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
+                {% trans 'Please click here to review the application' %}!
+              </a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+
         {% if messages %}
           {% for message in messages %}
             <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>

@@ -167,7 +167,9 @@ def subscribe(request):
 @login_required
 @shoud_be_onboarded
 def index(request):
-    outstanding_invitations = models.Invitation.outstanding_user_invitations(request.user)
+    outstanding_invitations = models.Invitation.outstanding_invitations(request.user)
+    outstanding_authorization_requests = models.Member.outstanding_requests(request.user)
+    outstanding_testimony_requests = models.Referee.outstanding_requests(request.user)
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())
