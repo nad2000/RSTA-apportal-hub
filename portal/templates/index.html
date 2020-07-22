@@ -7,12 +7,6 @@
 <div class="container">
 <!-- h1>{% trans "Apply for The Prime Minister’s Science Prize" %}</h1 -->
 
-  {% if outstanding_invitations %}
-    {% for oi in outstanding_invitations %}
-      <a href="{% url 'onboard-with-token' token=oi.token %}">INVITATION</a>
-    {% endfor %}
-  {% endif %}
-
   {% for scheme in schemes %}
 
   <div class="row">
