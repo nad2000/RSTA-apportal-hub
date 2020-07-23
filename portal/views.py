@@ -170,6 +170,8 @@ def index(request):
     outstanding_invitations = models.Invitation.outstanding_invitations(request.user)
     outstanding_authorization_requests = models.Member.outstanding_requests(request.user)
     outstanding_testimony_requests = models.Referee.outstanding_requests(request.user)
+    draft_applications = models.Application.user_draft_applications(request.user)
+    current_applications = models.Application.user_applications(request.user, ["submitted", "review", "accepted"])
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())

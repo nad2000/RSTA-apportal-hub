@@ -36,6 +36,11 @@ from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
+
+def is_sqlite(instance):
+    return "sqlite" in settings.DATABASES.get(instance._state.db)["ENGINE"]
+
+
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
@@ -624,6 +629,29 @@ class Application(Model):
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
+
+    @classmethod
+    def user_applications(cls, user, state=None):
+        params = [user.id, user.id, user.id, user.id]
+        sql = """
+            SELECT DISTINCT a.* FROM application AS a
+              LEFT JOIN member AS m ON m.application_id = a.id
+              LEFT JOIN referee AS r ON r.application_id = a.id
+              LEFT JOIN nomination AS n ON n.application_id = a.id
+            WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
+        if state:
+            if isinstance(state, (list, tuple)):
+                state_list = ",".join(f"'{s}'" for s in state)
+                sql += f" AND a.state IN ({state_list})"
+            else:
+                sql += " AND a.state=%s"
+                params.append(state)
+
+        return cls.objects.raw(sql, params)
+
+    @classmethod
+    def user_draft_applications(cls, user):
+        return cls.user_applications(user, ["draft", "new"])
 
     class Meta:
         db_table = "application"
