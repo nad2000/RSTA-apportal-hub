@@ -70,13 +70,14 @@
               </a -->
 
               <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
                 <ul class="navbar-nav mr-auto">
+                  {% if request.user.is_authenticated %}
                   <li class="nav-item" id="home">
                     <a class="nav-link" href="{% url 'home' %}">
                       <i class="fa fa-fw fa-home"></i> {% trans 'Home' %}<span class="sr-only">(current)</span>
                     </a>
                   </li>
-                  {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser or request.user.is_staff %}
                       <li class="nav-item" id="admin:index">
                         <a id="admin-link" class="nav-link" href="{% url 'admin:index' %}">
@@ -89,11 +90,12 @@
                         </a>
                       </li>
                     {% endif %}
-
+                  {% endif %}
                 </ul>
 
                 <ul class="navbar-nav ml-auto">
 
+                  {% if request.user.is_authenticated %}
                   <li class="nav-item dropdown" id="profile">
                     <a class="nav-link dropdown-toggle"
                        data-toggle="dropdown"
@@ -116,6 +118,7 @@
 
                     </div>
                   </li>
+                  {% endif %}
 
                   <form action="{% url 'set_language' %}" method="post">
                     {% csrf_token %}
@@ -143,7 +146,7 @@
                     </div>
                   </form>
 
-                {% endif %}
+
                 </ul>
               </div>
           </nav>

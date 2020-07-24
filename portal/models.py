@@ -37,10 +37,6 @@ from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
 
-def is_sqlite(instance):
-    return "sqlite" in settings.DATABASES.get(instance._state.db)["ENGINE"]
-
-
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
@@ -851,9 +847,10 @@ class Invitation(Model):
             m.user = by
             m.save()
         elif self.type == INVITATION_TYPES.A:
-            n = self.nomination
-            n.user = by
-            n.save()
+            if self.nomination:
+                n = self.nomination
+                n.user = by
+                n.save()
         elif self.type == INVITATION_TYPES.R:
             n = self.referee
             n.user = by

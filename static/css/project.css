@@ -12002,6 +12002,10 @@ html, body {
   width: auto;
 }
 
+.header {
+  background-color: #fff;
+}
+
 .btn-google {
   color: white;
   text-align: left;
