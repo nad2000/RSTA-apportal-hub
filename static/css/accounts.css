@@ -12,6 +12,14 @@ body {
   background: #9e9e9e;
 }
 
+.account-box {
+  border: 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 1rem 0.1rem #000000af;
+  margin-bottom: 2rem !important;
+  margin-top: 6rem !important;
+}
+
 .card-signin {
   border: 0;
   border-radius: 0.5rem;
