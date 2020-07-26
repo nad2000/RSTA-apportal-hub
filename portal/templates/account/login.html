@@ -36,86 +36,93 @@
         </div>
 
         <div class="card-body">
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
 
-          <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+              <form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}">
 
-            <form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}">
+                {% csrf_token %}
 
-              {% csrf_token %}
+                <input type="hidden"
+                      name="{{ redirect_field_name }}"
+                      value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
 
-              <input type="hidden"
-                    name="{{ redirect_field_name }}"
-                    value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
+                <!-- div class="avatar">
+                  <img src="{% static 'images/avatar.png' %}" alt="Avatar" />
+                </div -->
 
-              <!-- div class="avatar">
-                <img src="{% static 'images/avatar.png' %}" alt="Avatar" />
-              </div -->
-
-              <a title="Google"
-                class="btn btn-lg btn-google btn-block"
-                href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
-                <i class="fab fa-google mr-2"></i>
-                {% trans 'Sign in with' %} <strong>Google</strong>
-              </a>
-
-              <a title="ORCID"
-                class="btn btn-lg btn-orcid btn-block btn-orcid"
-                href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
-                <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
-                {% trans 'Sign in with' %} <strong>ORCID iD</strong>
-              </a>
-
-              <!-- a title="Facebook"
-                class="btn btn-lg btn-facebook btn-block"
-                href="#">
-                <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
-                style="border-color: #3e3f3a; border-bottom-width: 1px;"
-                </a -->
-
-                <a
-                  title="Tuakiri"
-                  class="btn btn-outline-secondary btn-lg btn-block tuakiri"
-                  href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
-                  <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
+                <a title="Google"
+                  class="btn btn-lg btn-google btn-block"
+                  href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
+                  <i class="fab fa-google mr-2"></i>
+                  {% trans 'Sign in with' %} <strong>Google</strong>
                 </a>
 
-                <hr class="my-4">
-                <!-- div class="or-seperator"><b>or</b></div -->
+                <a title="ORCID"
+                  class="btn btn-lg btn-orcid btn-block btn-orcid"
+                  href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
+                  <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+                  {% trans 'Sign in with' %} <strong>ORCID iD</strong>
+                </a>
 
-                <div class="form-label-group">
-                  <input name="login" id="inputEmail" class="form-control" placeholder="Email address or username" required autofocus>
-                  <label for="inputEmail">{% trans 'Email address or username' %}</label>
-                </div>
+                <!-- a title="Facebook"
+                  class="btn btn-lg btn-facebook btn-block"
+                  href="#">
+                  <i class="fab fa-facebook-f mr-2"></i> Sign in with <strong>Facebook</strong>
+                  style="border-color: #3e3f3a; border-bottom-width: 1px;"
+                  </a -->
 
-                <div class="form-label-group">
-                  <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                  <label for="inputPassword">{% trans 'Password' %}</label>
-                </div>
+                  <a
+                    title="Tuakiri"
+                    class="btn btn-outline-secondary btn-lg btn-block tuakiri"
+                    href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
+                    <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
+                  </a>
 
-                <div class="custom-control custom-checkbox mb-3">
-                  <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
-                  <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
-                </div>
+                  <hr class="my-4">
+                  <!-- div class="or-seperator"><b>or</b></div -->
 
-                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
-            </form>
+                  <div class="form-label-group">
+                    <!-- span class="input-group-prepend">
+                      <div class="input-group-text bg-transparent border-right-0"><i class="fa fa-user"></i></div>
+                    </span -->
+                    <input name="login" id="inputEmail" class="form-control"
+                                                        placeholder="{% trans 'Email address or username' %}" required autofocus>
+                    <label for="inputEmail">{% trans 'Email address or username' %}</label>
+                  </div>
 
-            <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
+                  <div class="form-label-group">
+                    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                    <label for="inputPassword">{% trans 'Password' %}</label>
+                  </div>
 
-          </div>
+                  <div class="custom-control custom-checkbox mb-3">
+                    <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
+                    <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
+                  </div>
 
-          <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
-            <h1>{% trans "Sign Up" %}</h1>
+                  <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
+              </form>
 
-            <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+              <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
 
-            <form id="signup_form" method="post" action="{% url 'account_signup' %}">
-              {% csrf_token %}
-              {% if redirect_field_value %}
-                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-              {% endif %}
-              <button class="btn btn-primary" type="submit">{% trans "Sign Up" %} &raquo;</button>
-            </form>
+            </div>
+
+            <div class="tab-pane fade" id="signup" role="tabpanel" aria-labelledby="signup-tab">
+              <h1>{% trans "Sign Up" %}</h1>
+              <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}</p>
+              <form id="signup_form" method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+
+
+
+
+                <button class="btn btn-primary" type="submit">{% trans "Sign Up" %} &raquo;</button>
+              </form>
+            </div>
           </div>
 
       </div>
