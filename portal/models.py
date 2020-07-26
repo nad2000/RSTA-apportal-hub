@@ -36,7 +36,6 @@ from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
-
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
