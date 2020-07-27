@@ -1442,7 +1442,8 @@ class TestimonyView(CreateUpdateView):
                     _("A Referee opted out of Testimony"),
                     _("Your Referee %s has opted out of Testimony") % n.referee,
                     settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[n.referee.application.submitted_by.email],
+                    recipient_list=[n.referee.application.submitted_by.email if n.referee.application.submitted_by
+                                    else n.referee.application.email],
                     fail_silently=False,
                 )
                 messages.info(
