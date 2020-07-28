@@ -185,6 +185,11 @@ def index(request):
             # )
             .distinct()
         )
+    else:
+        messages.info(
+            request,
+            _("Your profile has not been approved, Admin is looking into your request"),
+        )
     return render(request, "index.html", locals())
 
 
