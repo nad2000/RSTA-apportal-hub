@@ -64,6 +64,7 @@ class ApplicationTable(tables.Table):
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped"}
         fields = (
+            "number",
             "round",
             "email",
             "first_name",

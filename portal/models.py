@@ -567,6 +567,7 @@ class Nominee(Model):
 
 class Application(Model):
 
+    number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
     application_tite = CharField(max_length=200, null=True, blank=True)
 
@@ -615,9 +616,24 @@ class Application(Model):
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft"], target="submitted")
+    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
-        pass
+        # assign a unique number
+        if not self.number:
+            prefix = self.round.scheme.application_number_prefix or ""
+            year = f"{self.round.opens_on.year}"
+            if prefix:
+                last_number = Application.where(round=self.round, number__isnull=False)
+            else:
+                last_number = Application.where(number__contains=f"{year}-", number__isnull=False)
+            last_number = last_number.order_by("-number").values("number").first()
+            if last_number:
+                last_number = last_number["number"]
+                application_number = int(last_number.split("-")[-1]) + 1
+                application_number = f"{prefix}{year}-{application_number:05}"
+            else:
+                application_number = f"{prefix}{year}-00001"
+            self.number = application_number
 
     def __str__(self):
         return self.application_tite or self.round.title
@@ -956,6 +972,9 @@ class Scheme(Model):
     pid_required = BooleanField(_("photo ID required"), default=True)
     animal_ethics_required = BooleanField(default=False)
     # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
+    application_number_prefix = CharField(
+        _("Application Number Prefix"), max_length=10, null=True, blank=True
+    )
 
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
@@ -1035,11 +1054,12 @@ class SchemeApplication(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
+    can_be_applied_to = BooleanField(null=True, blank=True)
+    can_be_nominated_to = BooleanField(null=True, blank=True)
     application = ForeignKey(
         Application, null=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False,
     )
-    can_be_applied_to = BooleanField(null=True, blank=True)
-    can_be_nominated_to = BooleanField(null=True, blank=True)
+    application_number = CharField(max_length=24, null=True, blank=True)
     application_submitted_by = ForeignKey(
         User,
         blank=True,
@@ -1136,3 +1156,52 @@ class Nomination(Model):
 
     class Meta:
         db_table = "nomination"
+
+
+class IdentityVerification(Model):
+
+    file = PrivateFileField(
+        null=True,
+        blank=True,
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.user.id)],
+        verbose_name=_("Photo Identity"),
+        help_text=_("Pleaes upload a scanned copy of your pasport in PDF, JPG, or PNG format"),
+    )
+
+    user = ForeignKey(User, on_delete=CASCADE, related_name="identity_verifications")
+    resolution = TextField(blank=True, null=True)
+    state = FSMField(default="new")
+
+    @transition(field=state, source="new", target="draft")
+    def save_draft(self, *args, **kwargs):
+        pass
+
+    @transition(field=state, source=["new", "draft"], target="submitted")
+    def submit(self, *args, **kwargs):
+        i, created = Invitation.get_or_create(
+            type=INVITATION_TYPES.A,
+            nomination=self,
+            email=self.email,
+            defaults=dict(
+                first_name=self.first_name,
+                middle_names=self.middle_names,
+                last_name=self.last_name,
+                org=self.org,
+                organisation=self.org.name,
+                invitee=self.nominator,
+            ),
+        )
+        i.send(*args, **kwargs)
+        i.save()
+        if not created:
+            return (i, False)
+        return (i, True)
+
+    # def get_absolute_url(self):
+    #     return reverse("identity-verification", kwargs={"pk": self.pk})
+
+    def __str__(self):
+        return _('Verification of "%s"') % self.user
+
+    class Meta:
+        db_table = "identity_verification"

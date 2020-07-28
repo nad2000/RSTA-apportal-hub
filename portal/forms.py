@@ -62,6 +62,21 @@ class TableInlineFormset(LayoutObject):
         return render_to_string(self.template, {"formset": formset})
 
 
+class InlineSubform(LayoutObject):
+    # template = "mycollections/formset.html"
+    template = "portal/sub_form.html"
+
+    def __init__(self, form_name_in_context, template=None):
+        self.formset_name_in_context = form_name_in_context
+        self.fields = []
+        if template:
+            self.template = template
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK):
+        form = context[self.formset_name_in_context]
+        return render_to_string(self.template, {"form": form})
+
+
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
@@ -115,6 +130,7 @@ class ProfileForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        user = kwargs.get("initial", {}).get("user")
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
@@ -156,20 +172,29 @@ class ApplicationForm(forms.ModelForm):
                     Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
             )
-        self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    _("Team" if self.instance.is_team_application else "Applicant"),
-                    css_id="applicant",
-                    *fields,
-                ),
-                Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
-                Tab(
-                    _("Summary"),
-                    Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-                    Field("summary"),
-                ),
+        tabs = [
+            Tab(
+                _("Team" if self.instance.is_team_application else "Applicant"),
+                css_id="applicant",
+                *fields,
             ),
+            Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
+            Tab(
+                _("Summary"),
+                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+                Field("summary"),
+            ),
+        ]
+        if user and not user.is_identity_verified:
+            tabs.append(
+                Tab(
+                    _("Identity Verification"),
+                    Div(InlineSubform("identity_verification"), css_id="identity_verification"),
+                ),
+            )
+
+        self.helper.layout = Layout(
+            TabHolder(*tabs),
             ButtonHolder(
                 Submit("save", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
@@ -402,6 +427,25 @@ class TestimonyForm(forms.ModelForm):
             "file",
         ]
 
-        widgets = dict(
-            summary=SummernoteInplaceWidget(),
+        widgets = dict(summary=SummernoteInplaceWidget(),)
+
+
+class IdentityVerificationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        self.helper.layout = Layout(
+            [
+                Fieldset(
+                    _("Please upload a scanned copy of your photo ID"),
+                    Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+                ),
+            ]
         )
+
+    class Meta:
+        model = models.IdentityVerification
+        fields = ["file", "user"]
+        widgets = dict(user=HiddenInput())

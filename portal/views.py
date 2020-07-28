@@ -616,6 +616,11 @@ class ApplicationView(LoginRequiredMixin):
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["user"] = self.request.user
+        return initial
+
     @property
     def round(self):
         if "nomination" in self.kwargs:
@@ -651,6 +656,11 @@ class ApplicationView(LoginRequiredMixin):
                             _("%d invitation(s) to authorize the team representative sent.")
                             % count,
                         )
+            if not self.request.user.is_identity_verified and "identity_verification" in context:
+                identity_verification = context["identity_verification"]
+                if identity_verification.is_valid():
+                    identity_verification.save()
+
             if referees.is_valid():
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
@@ -660,6 +670,15 @@ class ApplicationView(LoginRequiredMixin):
                     messages.success(
                         self.request, _("%d invitation(s) to authorize the referee sent.") % count,
                     )
+        if not has_deleted:
+            a = self.object
+            if "submit" in self.request.POST:
+                a.submit(request=self.request)
+                a.save()
+            elif "save_draft" in self.request.POST:
+                a.save_draft(request=self.request)
+                a.save()
+
         if has_deleted:  # keep editing
             return HttpResponseRedirect(self.request.path_info)
         return resp
@@ -680,6 +699,34 @@ class ApplicationView(LoginRequiredMixin):
                     if self.object
                     else forms.MemberFormSet()
                 )
+
+        user = self.request.user
+        if not user.is_identity_verified:
+            iv = models.IdentityVerification.where(user=user).order_by("-id").first()
+            if self.request.POST:
+                context["identity_verification"] = (
+                    forms.IdentityVerificationForm(
+                        self.request.POST,
+                        instance=iv,
+                        initial={"user": user},
+                        prefix="verification",
+                    )
+                    if iv
+                    else forms.IdentityVerificationForm(
+                        self.request.POST, initial={"user": user}, prefix="verification"
+                    )
+                )
+            else:
+                context["identity_verification"] = (
+                    forms.IdentityVerificationForm(
+                        instance=iv, initial={"user": user}, prefix="verification"
+                    )
+                    if iv
+                    else forms.IdentityVerificationForm(
+                        initial={"user": user}, prefix="verification"
+                    )
+                )
+
         if self.request.POST:
             context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
         else:
