@@ -126,6 +126,7 @@ class DetailView(LoginRequiredMixin, _DetailView):
         context = super().get_context_data(*args, **kwargs)
         context["exclude"] = ["id", "created_at", "updated_at", "org"]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
+        context["update_button_name"] = "Edit"
         return context
 
 
@@ -171,7 +172,9 @@ def index(request):
     outstanding_authorization_requests = models.Member.outstanding_requests(request.user)
     outstanding_testimony_requests = models.Referee.outstanding_requests(request.user)
     draft_applications = models.Application.user_draft_applications(request.user)
-    current_applications = models.Application.user_applications(request.user, ["submitted", "review", "accepted"])
+    current_applications = models.Application.user_applications(
+        request.user, ["submitted", "review", "accepted"]
+    )
     if request.user.is_approved:
         schemes = (
             models.SchemeApplication.where(groups__in=request.user.groups.all())
@@ -1424,7 +1427,7 @@ class TestimonyView(CreateUpdateView):
             n.referee = models.Referee.get(user=self.request.user)
             n.save()
 
-        if n.state != 'submitted':
+        if n.state != "submitted":
             if "submit" in self.request.POST:
                 n.submit(request=self.request)
                 n.save()
@@ -1439,7 +1442,8 @@ class TestimonyView(CreateUpdateView):
                     _("A Referee opted out of Testimony"),
                     _("Your Referee %s has opted out of Testimony") % n.referee,
                     settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[n.referee.application.submitted_by.email],
+                    recipient_list=[n.referee.application.submitted_by.email if n.referee.application.submitted_by
+                                    else n.referee.application.email],
                     fail_silently=False,
                 )
                 messages.info(
@@ -1562,3 +1566,17 @@ class TestimonyDetail(DetailView):
 
     model = Testimony
     template_name = "testimony_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["extra_object"] = self.get_object().referee.application
+        if self.get_object().state == "new":
+            context["update_view_name"] = f"{self.model.__name__.lower()}-create"
+            context["update_button_name"] = "Add Testimony"
+        else:
+            context["update_button_name"] = "Edit Testimony"
+        if not self.object.referee.has_testifed:
+            messages.info(
+                self.request, _("Please Check the application details and submit testimony."),
+            )
+        return context
