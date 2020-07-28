@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% load i18n tags %}
+{% block headerjs %}
+<style>
+
+    @page {
+        size: a4 portrait;
+        @frame header_frame {           /* Static Frame */
+            -pdf-frame-content: header_content;
+            left: 50pt; width: 1024pt; top: 50pt; height: 40pt;
+        }
+        @frame content_frame {          /* Content Frame */
+            left: 50pt; width: 512pt; top: 90pt; height: 632pt;
+            -pdf-frame-border: 1;
+        }
+        @frame footer_frame {           /* Another static Frame */
+            -pdf-frame-content: footer_content;
+            left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+        }
+    }
+    table {  border-collapse: collapse;}
+    table, th, td {border: 1px solid black; text-align: left; padding: 1px;}
+    tr:hover {background-color: #f5f5f5;}
+    td {
+       height: 20px;
+
+    }
+
+</style>
+{% endblock %}
+
+{% block body %}
+  {% block sidebar %} {% endblock %}
+   {% block header %}
+        <div class="mb-0" id="header_content">
+
+          <header class="header">
+            <a href="#" style="margin-left: 24px;">
+              <img id="logo"
+                   src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
+            </a>
+          </header>
+        </div>
+      {% endblock header %}
+
+
+  <h1>
+    {{ object }}
+  </h1>
+
+  <table class="table table-bordered searchable">
+    <tbody>
+
+      {% for field in object|fields %}
+        {% if field.name != 'id' and exclude is None or field.name not in exclude %}
+          <tr>
+            <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ field.verbose_name|title }}</th>
+            <td>
+              {% if field.name == "summary" %}
+                {{ object|field_value:field.name|safe }}
+              {% else %}
+                {{ object|field_value:field.name }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+
+    </tbody>
+  </table>
+{% endblock %}
+</body>
+</html>

@@ -402,6 +402,4 @@ class TestimonyForm(forms.ModelForm):
             "file",
         ]
 
-        widgets = dict(
-            summary=SummernoteInplaceWidget(),
-        )
+        widgets = dict(summary=SummernoteInplaceWidget(),)

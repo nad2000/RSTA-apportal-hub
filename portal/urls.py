@@ -40,6 +40,11 @@ urlpatterns = [
                 path("draft", views.ApplicationList.as_view(), name="applications-draft"),
                 path("submitted", views.ApplicationList.as_view(), name="applications-submitted"),
                 path("", views.ApplicationList.as_view(), name="applications"),
+                path(
+                    "<int:pk>/~export",
+                    views.ApplicationExportView.as_view(),
+                    name="application-export",
+                ),
             ]
         ),
     ),
@@ -185,6 +190,11 @@ urlpatterns = [
                 path("draft", views.TestimonyList.as_view(), name="testimonies-draft"),
                 path("submitted", views.TestimonyList.as_view(), name="testimonies-submitted"),
                 path("", views.TestimonyList.as_view(), name="testimonies"),
+                path(
+                    "<int:pk>/~export",
+                    views.TestimonyExportView.as_view(),
+                    name="testimony-export",
+                ),
             ]
         ),
     ),

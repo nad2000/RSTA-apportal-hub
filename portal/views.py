@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import wraps
+from io import BytesIO
 from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
@@ -17,9 +18,11 @@ from django.db.models import Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
+from django.template.loader import get_template
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.base import TemplateView
@@ -28,6 +31,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
+from xhtml2pdf import pisa
 
 from . import forms, models, tables
 from .forms import Submit
@@ -187,8 +191,7 @@ def index(request):
         )
     else:
         messages.info(
-            request,
-            _("Your profile has not been approved, Admin is looking into your request"),
+            request, _("Your profile has not been approved, Admin is looking into your request"),
         )
     return render(request, "index.html", locals())
 
@@ -612,6 +615,7 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
+        context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
 
 
@@ -1586,4 +1590,34 @@ class TestimonyDetail(DetailView):
             messages.info(
                 self.request, _("Please Check the application details and submit testimony."),
             )
+        context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
+
+
+class ExportView(LoginRequiredMixin, View):
+    model = None
+    template = "pdf_export_template.html"
+
+    def get(self, request, pk):
+        template = get_template(self.template)
+        html = template.render({"object": self.model.objects.get(id=pk)})
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+        if not pdf.err:
+            return HttpResponse(result.getvalue(), content_type="application/pdf")
+        messages.warning(
+            self.request, _("Error while converting to pdf."),
+        )
+        return redirect(self.request.META.get("HTTP_REFERER"))
+
+
+class ApplicationExportView(ExportView):
+    """Application PDF export view"""
+
+    model = models.Application
+
+
+class TestimonyExportView(ExportView):
+    """Testimony PDF export view"""
+
+    model = models.Testimony
