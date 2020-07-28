@@ -7,6 +7,9 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
+from allauth.account import views as allauth_views
+
+from . import forms
 
 User = get_user_model()
 
@@ -75,3 +78,11 @@ def approve_user(request, user_id=None):
             args=(u.pk,),
         )
     )
+
+
+class LoginView(allauth_views.LoginView):
+
+    def get_context_data(self, **kwargs):
+        ret = super().get_context_data(**kwargs)
+        ret["signup_form"] = forms.UserSignupForm()
+        return ret

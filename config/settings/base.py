@@ -368,3 +368,9 @@ TIME_FORMAT = "%H:%M"
 DATETIME_FORMAT = f"{DATE_FORMAT} {TIME_FORMAT}"
 
 # FSM_ADMIN_FORCE_PERMIT = True
+# Captcha settings you will need to create new captcha app here https://www.google.com/recaptcha/admin/
+# Make suer RECAPTCHA_PUBLIC_KEY and RECAPTCHA_PRIVATE_KEY are set
+RECAPTCHA_USE_SSL = True
+ACCOUNT_FORMS = {
+        "signup": "users.forms.UserSignupForm",
+}

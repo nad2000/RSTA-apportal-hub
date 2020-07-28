@@ -7,6 +7,7 @@ from django.views import defaults as default_views
 from django.views.generic.base import RedirectView
 from rest_framework.authtoken.views import obtain_auth_token
 import private_storage.urls
+from users.views import LoginView
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
@@ -15,6 +16,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path("users/", include("users.urls", namespace="users")),
+    path("accounts/login/", view=LoginView.as_view(), name="account_login"),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path("", include("portal.urls")),
