@@ -636,7 +636,10 @@ class Application(Model):
             self.number = application_number
 
     def __str__(self):
-        return self.application_tite or self.round.title
+        title = self.application_tite or self.round.title
+        if self.number:
+            title = f"{title} ({self.number})"
+        return title
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
