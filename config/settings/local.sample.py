@@ -90,5 +90,6 @@ RECAPTCHA_PUBLIC_KEY = "<your captcha site key>"
 RECAPTCHA_PRIVATE_KEY = "<your captcha secret key>"
 RECAPTCHA_USE_SSL = True
 ACCOUNT_SIGNUP_FORM_CLASS = "users.forms.UserSignupForm"
+ACCOUNT_FORMS = {"login": "users.forms.UserLoginForm"}
 
 ORCID_API_BASE = "https://pub.sandbox.orcid.org/v3.0/"

@@ -1,3 +1,4 @@
+from allauth.account import forms as allauth_forms
 from captcha.fields import ReCaptchaField
 from django import forms as django_forms
 from django.conf import settings
@@ -35,10 +36,12 @@ class UserCreationForm(forms.UserCreationForm):
         raise ValidationError(self.error_messages["duplicate_username"])
 
 
-class UserSignupForm(django_forms.Form):
+class UserSignupForm(allauth_forms.SignupForm):
     captcha = ReCaptchaField()
 
-    def signup(self, request, user):
+    # def signup(self, request, user):
+    def custom_signup(self, request, user):
+
         user.is_approved = False
         user.save()
         url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
@@ -58,3 +61,7 @@ class UserSignupForm(django_forms.Form):
             html_message=html_body,
         )
         return user
+
+
+# class UserLoginForm(allauth_forms.LoginForm):
+#     captcha = ReCaptchaField()
