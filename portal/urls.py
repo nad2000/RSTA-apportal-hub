@@ -179,9 +179,7 @@ urlpatterns = [
         "testimonies/",
         include(
             [
-                path(
-                    "<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"
-                ),
+                path("<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"),
                 path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),
                 path("<int:pk>", views.TestimonyDetail.as_view(), name="testimony-detail"),
                 path("draft", views.TestimonyList.as_view(), name="testimonies-draft"),

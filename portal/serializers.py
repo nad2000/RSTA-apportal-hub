@@ -13,7 +13,6 @@ class AffiliationSerializer(serializers.ModelSerializer):
 
 
 class GeneralSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = None
         fields = "__all__"

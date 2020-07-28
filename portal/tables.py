@@ -37,9 +37,7 @@ class TestimonyTable(tables.Table):
 
     round = tables.Column(
         accessor="referee.application.round",
-        linkify=lambda record: reverse("testimony-create", kwargs=dict(pk=record.id))
-        if record.state == "new"
-        else reverse("testimony-detail", kwargs=dict(pk=record.id)),
+        linkify=lambda record: reverse("testimony-detail", kwargs=dict(pk=record.id)),
     )
 
     class Meta:

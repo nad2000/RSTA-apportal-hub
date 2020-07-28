@@ -15,9 +15,12 @@ class PartialDate(namedtuple("PartialDate", ["year", "month", "day"])):
         """Return ORCID dictionary representation of the partial date."""
         if self.is_null:
             return None
-        return dict(((f, None if v is None else {
-            "value": ("%04d" if f == "year" else "%02d") % v
-        }) for (f, v) in zip(self._fields, self)))
+        return dict(
+            (
+                (f, None if v is None else {"value": ("%04d" if f == "year" else "%02d") % v})
+                for (f, v) in zip(self._fields, self)
+            )
+        )
 
     @property
     def is_null(self):
@@ -53,16 +56,16 @@ class PartialDate(namedtuple("PartialDate", ["year", "month", "day"])):
             if not match:
                 raise Exception(f"Wrong partial date value '{value}'")
             value0 = match[0]
-            for sep in ['/', '.']:
+            for sep in ["/", "."]:
                 if sep in value0:
                     parts = value0.split(sep)
                     return cls(*[int(v) for v in (parts[::-1] if len(parts[-1]) > 2 else parts)])
 
-            return cls(*[int(v) for v in value0.split('-')])
+            return cls(*[int(v) for v in value0.split("-")])
 
         return cls(
-            **{k: int(v.get("value")) if v and v.get("value") else None
-               for k, v in value.items()})
+            **{k: int(v.get("value")) if v and v.get("value") else None for k, v in value.items()}
+        )
 
     def as_datetime(self):
         """Get 'datetime' data representation."""
@@ -71,7 +74,7 @@ class PartialDate(namedtuple("PartialDate", ["year", "month", "day"])):
     def __str__(self):
         """Get string representation."""
         if self.year is None:
-            return ''
+            return ""
         else:
             res = "%04d" % int(self.year)
             if self.month:

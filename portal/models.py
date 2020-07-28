@@ -36,7 +36,6 @@ from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
 
-
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
@@ -711,7 +710,8 @@ class Referee(Model):
     @classmethod
     def outstanding_requests(cls, user):
         return Invitation.objects.raw(
-            "SELECT DISTINCT r.* FROM referee AS r JOIN account_emailaddress AS ae ON ae.email = r.email "
+            "SELECT DISTINCT r.*, tm.id AS testimony_id FROM referee AS r JOIN account_emailaddress AS ae ON "
+            "ae.email = r.email LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
             "WHERE (r.user_id=%s OR ae.user_id=%s) AND has_testifed IS NULL",
             [user.id, user.id],
         )
