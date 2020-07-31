@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ["-id"], "abstract": False, "db_table": "nomination",},
+            options={"ordering": ["-id"], "abstract": False, "db_table": "testimony",},
             bases=(common.models.HelperMixin, models.Model),
         ),
         migrations.CreateModel(
