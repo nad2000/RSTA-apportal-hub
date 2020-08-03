@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 SELECT max(a.id) AS id, a.round_id FROM application AS a /* LEFT JOIN member AS m
                     ON m.application_id = a.id
                 WHERE m.user_id IS NULL OR m.user_id != a.submitted_by_id */
-                GROUP BY a.round_id, a.submitted_by_id, m.id) AS la
+                GROUP BY a.round_id, a.submitted_by_id/*, m.id*/) AS la
                 ON la.round_id = r.id AND la.id = a.id
             /* WHERE m.id IS NULL OR m.user_id IS NOT NULL */;
             """,
