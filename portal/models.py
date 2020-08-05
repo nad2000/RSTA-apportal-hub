@@ -614,10 +614,6 @@ class Application(Model):
 
     @transition(field=state, source="new", target="draft")
     def save_draft(self, *args, **kwargs):
-        pass
-
-    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
-    def submit(self, *args, **kwargs):
         # assign a unique number
         if not self.number:
             prefix = self.round.scheme.application_number_prefix or ""
@@ -634,6 +630,10 @@ class Application(Model):
             else:
                 application_number = f"{prefix}{year}-00001"
             self.number = application_number
+
+    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
+    def submit(self, *args, **kwargs):
+        pass
 
     def __str__(self):
         title = self.application_tite or self.round.title

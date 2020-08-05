@@ -1,7 +1,13 @@
 from allauth.socialaccount.models import SocialToken
 from common.models import HelperMixin
 from django.contrib.auth.models import AbstractUser
-from django.db.models import DateTimeField, BooleanField, CharField, ForeignKey, SET_NULL
+from django.db.models import (
+    SET_NULL,
+    BooleanField,
+    CharField,
+    DateTimeField,
+    ForeignKey,
+)
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
