@@ -19,6 +19,8 @@ ETHNICITY_COICES = Choices(
     "Other",
 )
 
+TITLES = Choices(("MR", "Mr"), ("MRS", "Mrs"), ("MS", "Ms"), ("DR", "Dr"), ("PROF", "Prof"),)
+
 
 class TimeStampMixin(Base):
     created_at = DateTimeField(auto_now_add=True, null=True)

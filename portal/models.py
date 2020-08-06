@@ -3,7 +3,7 @@ import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin
 
-from common.models import Base, Model
+from common.models import Base, Model, TITLES
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -341,11 +341,17 @@ class Organisation(Model):
     name = CharField(max_length=200)
     identifier_type = ForeignKey(OrgIdentifierType, null=True, blank=True, on_delete=SET_NULL)
     identifier = CharField(max_length=24, null=True, blank=True)
+    code = CharField(max_length=10, blank=True, default="")
 
     history = HistoricalRecords(table_name="organisation_history")
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = default_code(self.title)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = "organisation"
@@ -577,7 +583,7 @@ class Application(Model):
     team_name = CharField(max_length=200, null=True, blank=True)
 
     # Applicant or nominator:
-    title = CharField(max_length=40, null=True, blank=True)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     first_name = CharField(max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -598,7 +604,6 @@ class Application(Model):
     daytime_phone = CharField("daytime phone numbrer", max_length=12)
     mobile_phone = CharField("mobild phone number", max_length=12)
     email = EmailField("email address", blank=True)
-
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
         blank=True,
@@ -607,29 +612,28 @@ class Application(Model):
         help_text=_("Please uploade filled-in entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
-
     history = HistoricalRecords(table_name="application_history")
-
     state = FSMField(default="new")
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            code = self.round.scheme.code
+            year = f"{self.round.opens_on.year}"
+            last_number = (
+                Application.where(round=self.round, org=self.org, number__isnull=False)
+                .order_by("-number")
+                .values("number")
+                .first()
+            )
+            application_number = (
+                int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
+            )
+            self.number = f"{code}-{year}-{application_number:03}"
+        super().save(*args, **kwargs)
 
     @transition(field=state, source="new", target="draft")
     def save_draft(self, *args, **kwargs):
-        # assign a unique number
-        if not self.number:
-            prefix = self.round.scheme.application_number_prefix or ""
-            year = f"{self.round.opens_on.year}"
-            if prefix:
-                last_number = Application.where(round=self.round, number__isnull=False)
-            else:
-                last_number = Application.where(number__contains=f"{year}-", number__isnull=False)
-            last_number = last_number.order_by("-number").values("number").first()
-            if last_number:
-                last_number = last_number["number"]
-                application_number = int(last_number.split("-")[-1]) + 1
-                application_number = f"{prefix}{year}-{application_number:05}"
-            else:
-                application_number = f"{prefix}{year}-00001"
-            self.number = application_number
+        pass
 
     @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
@@ -961,6 +965,14 @@ class CurriculumVitae(Model):
         db_table = "curriculum_vitae"
 
 
+def default_code(title):
+    title = title.lower()
+    code = "".joint(w[0] for w in title.split() if w).upper()
+    # if not code.startswith("PM"):
+    #     code = "PM" + code
+    return code
+
+
 class Scheme(Model):
     title = CharField(max_length=100)
     groups = ManyToManyField(
@@ -975,13 +987,16 @@ class Scheme(Model):
     pid_required = BooleanField(_("photo ID required"), default=True)
     animal_ethics_required = BooleanField(default=False)
     # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
-    application_number_prefix = CharField(
-        _("Application Number Prefix"), max_length=10, null=True, blank=True
-    )
+    code = CharField(max_length=10, blank=True, default="")
 
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = default_code(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -1039,8 +1054,8 @@ class Round(Model):
 
 
 class SchemeApplicationGroup(Base):
-    scheme = ForeignKey("SchemeApplication", on_delete=CASCADE, db_column="scheme_id")
-    group = ForeignKey(Group, on_delete=CASCADE)
+    scheme = ForeignKey("SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+")
+    group = ForeignKey(Group, on_delete=CASCADE, related_name="+")
 
     class Meta:
         managed = False
@@ -1061,6 +1076,7 @@ class SchemeApplication(Model):
     can_be_nominated_to = BooleanField(null=True, blank=True)
     application = ForeignKey(
         Application, null=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False,
+        related_name="+"
     )
     application_number = CharField(max_length=24, null=True, blank=True)
     application_submitted_by = ForeignKey(

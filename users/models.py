@@ -1,5 +1,5 @@
 from allauth.socialaccount.models import SocialToken
-from common.models import HelperMixin
+from common.models import TITLES, HelperMixin
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (
     SET_NULL,
@@ -10,12 +10,13 @@ from django.db.models import (
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from model_utils import Choices
 from simple_history.models import HistoricalRecords
 
 
 class User(HelperMixin, AbstractUser):
 
-    title = CharField(max_length=40, null=True, blank=True)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     middle_names = CharField(
         _("middle names"),
         blank=True,
