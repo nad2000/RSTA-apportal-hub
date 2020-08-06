@@ -336,6 +336,12 @@ class Qualification(Model):
         ordering = ["definition"]
 
 
+def default_organisation_code(name):
+    name = name.lower()
+    code = "".join(w[0] for w in name.split() if w).upper()
+    return code
+
+
 class Organisation(Model):
 
     name = CharField(max_length=200)
@@ -350,7 +356,7 @@ class Organisation(Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = default_code(self.title)
+            self.code = default_organisation_code(self.name)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -618,9 +624,10 @@ class Application(Model):
     def save(self, *args, **kwargs):
         if not self.number:
             code = self.round.scheme.code
+            org_code = self.org.code
             year = f"{self.round.opens_on.year}"
             last_number = (
-                Application.where(round=self.round, org=self.org, number__isnull=False)
+                Application.where(round=self.round, number__isnull=False, number__istartswith=f"{code}-{org_code}-{year}")
                 .order_by("-number")
                 .values("number")
                 .first()
@@ -628,7 +635,7 @@ class Application(Model):
             application_number = (
                 int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
             )
-            self.number = f"{code}-{year}-{application_number:03}"
+            self.number = f"{code}-{org_code}-{year}-{application_number:03}"
         super().save(*args, **kwargs)
 
     @transition(field=state, source="new", target="draft")
@@ -965,11 +972,11 @@ class CurriculumVitae(Model):
         db_table = "curriculum_vitae"
 
 
-def default_code(title):
+def default_scheme_code(title):
     title = title.lower()
-    code = "".joint(w[0] for w in title.split() if w).upper()
-    # if not code.startswith("PM"):
-    #     code = "PM" + code
+    code = "".join(w[0] for w in title.split() if w).upper()
+    if not code.startswith("PM"):
+        code = "PM" + code
     return code
 
 
@@ -995,7 +1002,7 @@ class Scheme(Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = default_code(self.title)
+            self.code = default_scheme_code(self.title)
         super().save(*args, **kwargs)
 
     def __str__(self):
