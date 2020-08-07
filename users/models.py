@@ -10,7 +10,6 @@ from django.db.models import (
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from model_utils import Choices
 from simple_history.models import HistoricalRecords
 
 

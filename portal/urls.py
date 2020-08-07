@@ -124,30 +124,40 @@ urlpatterns = [
             [
                 path(
                     "org/",
-                    views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
+                    cache_page(180)(
+                        views.OrgAutocomplete.as_view(
+                            model=models.Organisation, create_field="name"
+                        )
+                    ),
                     name="org-autocomplete",
                 ),
                 path(
                     "fos/",
-                    views.FosAutocomplete.as_view(model=models.FieldOfStudy),
+                    cache_page(180)(views.FosAutocomplete.as_view(model=models.FieldOfStudy)),
                     name="fos-autocomplete",
                 ),
                 path(
                     "award/",
-                    views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
+                    cache_page(180)(
+                        views.AwardAutocomplete.as_view(model=models.Award, create_field="name")
+                    ),
                     name="award-autocomplete",
                 ),
                 path(
                     "qualification/",
-                    views.QualificationAutocomplete.as_view(
-                        model=models.Qualification, create_field="description"
+                    cache_page(180)(
+                        views.QualificationAutocomplete.as_view(
+                            model=models.Qualification, create_field="description"
+                        )
                     ),
                     name="qualification-autocomplete",
                 ),
                 path(
                     "person-identifier/",
-                    views.PersonIdentifierAutocomplete.as_view(
-                        model=models.PersonIdentifierType, create_field="description"
+                    cache_page(180)(
+                        views.PersonIdentifierAutocomplete.as_view(
+                            model=models.PersonIdentifierType, create_field="description"
+                        )
                     ),
                     name="person-identifier-autocomplete",
                 ),

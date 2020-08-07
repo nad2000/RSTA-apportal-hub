@@ -3,7 +3,7 @@ import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin
 
-from common.models import Base, Model, TITLES
+from common.models import TITLES, Base, Model
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -627,7 +627,11 @@ class Application(Model):
             org_code = self.org.code
             year = f"{self.round.opens_on.year}"
             last_number = (
-                Application.where(round=self.round, number__isnull=False, number__istartswith=f"{code}-{org_code}-{year}")
+                Application.where(
+                    round=self.round,
+                    number__isnull=False,
+                    number__istartswith=f"{code}-{org_code}-{year}",
+                )
                 .order_by("-number")
                 .values("number")
                 .first()
@@ -1061,7 +1065,9 @@ class Round(Model):
 
 
 class SchemeApplicationGroup(Base):
-    scheme = ForeignKey("SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+")
+    scheme = ForeignKey(
+        "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"
+    )
     group = ForeignKey(Group, on_delete=CASCADE, related_name="+")
 
     class Meta:
@@ -1082,8 +1088,12 @@ class SchemeApplication(Model):
     can_be_applied_to = BooleanField(null=True, blank=True)
     can_be_nominated_to = BooleanField(null=True, blank=True)
     application = ForeignKey(
-        Application, null=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False,
-        related_name="+"
+        Application,
+        null=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
     )
     application_number = CharField(max_length=24, null=True, blank=True)
     application_submitted_by = ForeignKey(
