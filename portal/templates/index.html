@@ -5,6 +5,18 @@
 
 {% block content %}
 <div class="container">
+  {% if not reluest.user.is_aproved %}
+
+    <div class="container">
+      <div class="jumbotron">
+        <h1>{% trans "Account Aproval Pending" %}</h1>
+        <p>{% blocktrans %}
+        Your profile has not been approved, Admin is looking into your request.
+        {% endblocktrans %}</p>
+      </div>
+    </div>
+
+  {% else %}
 <!-- h1>{% trans "Apply for The Prime Minister’s Science Prize" %}</h1 -->
 
   {% if draft_applications %}
@@ -85,6 +97,7 @@
 
   {% endfor %}
 
+  {% endif %}
 </div>
 
 {% endblock content %}

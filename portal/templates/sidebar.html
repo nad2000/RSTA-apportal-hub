@@ -1,5 +1,7 @@
 {% load static i18n %}
 
+{% if reluest.user.is_aproved %}
+
 <div class="card mb-2">
   <div class="card-header">
     <a href="{% url 'index' %}">
@@ -89,6 +91,8 @@
     </div>
   {% endif %}
 </div>
+
+{% endif %}
 
 <div class="card mb-2">
   <div class="card-header">

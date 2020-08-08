@@ -57,7 +57,24 @@ def shoud_be_onboarded(function):
         user = request.user
         profile = Profile.where(user=user).first()
         if not profile or not profile.is_completed:
-            return redirect(reverse("onboard") + "?next=" + quote(request.get_full_path()))
+            if not profile.is_employments_completed:
+                view_name = "profile-employments"
+            elif not profile.is_career_stages_completed:
+                view_name = "profile-career-stages"
+            elif not profile.is_external_ids_completed:
+                view_name = "profile-external-ids"
+            elif not profile.is_cvs_completed:
+                view_name = "profile-cvs"
+            elif not profile.is_academic_records_completed:
+                view_name = "profile-academic-records"
+            elif not profile.is_recognitions_completed:
+                view_name = "profile-recognitions"
+            elif not profile.is_professional_bodies_completed:
+                view_name = "profile-professional-records"
+            else:
+                view_name = "onboard"
+            messages.info(request, _("Your profile is not copleted yet. Please complete your profile."))
+            return redirect(reverse(view_name) + "?next=" + quote(request.get_full_path()))
         request.profile = profile
         return function(request, *args, **kwargs)
 
