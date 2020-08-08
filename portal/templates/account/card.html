@@ -3,7 +3,7 @@
 
   <div class="col-sm-9 col-md-7 col-lg-5 mx-auto my-3" style="max-width: 480px;">
 
-    <div class="card">
+    <div class="card card-account">
 
       <div class="card-header text-center">
         <ul class="nav nav-tabs card-header-tabs" role="tablist">
@@ -27,7 +27,7 @@
           <div class="tab-pane fade{% if active == 'login' %} in show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
 
             <!-- form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}" -->
-            <form autocomplete="on"  method="POST" action="{% url 'account_login' %}">
+            <form autocomplete="on" class="login-form" method="POST" action="{% url 'account_login' %}">
 
               {% csrf_token %}
 
@@ -99,7 +99,7 @@
       <div class="tab-pane fade{% if active == 'signup' %} in show active{% endif %}" id="signup" role="tabpanel" aria-labelledby="signup-tab">
 
         <!-- form class="login-form" id="signup_form" method="post" action="{% url 'account_signup' %}" -->
-        <form id="signup_form" method="post" action="{% url 'account_signup' %}">
+        <form id="signup_form" class="login-form" method="post" action="{% url 'account_signup' %}">
           {% csrf_token %}
           <input type="hidden" name="{{ redirect_field_name }}"
                                value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />

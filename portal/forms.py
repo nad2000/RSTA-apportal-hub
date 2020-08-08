@@ -332,7 +332,7 @@ class ProfileSectionFormSetHelper(FormHelper):
                 next_button.input_type = "submit"
                 self.add_input(next_button)
             else:
-                self.add_input(Submit("save", _("Save"), css_class="float-right"))
+                self.add_input(Submit("save", _("Save"), css_class="btn-primary float-right"))
         else:
             # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
