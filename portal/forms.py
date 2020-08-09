@@ -313,7 +313,7 @@ class ProfileSectionFormSetHelper(FormHelper):
 
     template = "portal/table_inline_formset.html"
 
-    def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
+    def __init__(self, profile=None, previous_step=None, next_step=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # add_more_button = Button(
         #     "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
@@ -332,7 +332,13 @@ class ProfileSectionFormSetHelper(FormHelper):
                 next_button.input_type = "submit"
                 self.add_input(next_button)
             else:
-                self.add_input(Submit("save", _("Save"), css_class="btn-primary float-right"))
+                self.add_input(
+                    Submit(
+                        "save",
+                        _("Save") if profile.is_completed else _("Finish and Save"),
+                        css_class="btn-primary float-right",
+                    )
+                )
         else:
             # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))

@@ -73,7 +73,9 @@ def shoud_be_onboarded(function):
                 view_name = "profile-professional-records"
             else:
                 view_name = "onboard"
-            messages.info(request, _("Your profile is not copleted yet. Please complete your profile."))
+            messages.info(
+                request, _("Your profile is not copleted yet. Please complete your profile.")
+            )
             return redirect(reverse(view_name) + "?next=" + quote(request.get_full_path()))
         request.profile = profile
         return function(request, *args, **kwargs)
@@ -204,8 +206,7 @@ def index(request):
         )
     else:
         messages.info(
-            request,
-            _("Your profile has not been approved, Admin is looking into your request"),
+            request, _("Your profile has not been approved, Admin is looking into your request"),
         )
     return render(request, "index.html", locals())
 
@@ -367,7 +368,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
                         "link your ORCID account to your portal account."
                     ),
                 )
-                return redirect("socialaccount_connections")
+                return redirect(
+                    reverse("socialaccount_connections")
+                    + "?next="
+                    + quote(request.get_full_path())
+                )
 
     def get_object(self):
         if "pk" in self.kwargs:
@@ -1020,17 +1025,6 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         kwargs["can_delete"] = True
         return kwargs
 
-    # def get_initial(self):
-    #     defaults = self.get_defaults()
-    #     initial = super().get_initial()
-    #     if not initial:
-    #         initial = [dict()]
-    #         if self.request.method != "GET":
-    #             initial = initial * int(self.request.POST["form-TOTAL_FORMS"])
-    #     for row in initial:
-    #         row.update(defaults)
-    #     return initial
-
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
@@ -1040,13 +1034,26 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 messages.success(self.request, f" {total_records_fetched} ORCID records imported")
                 return HttpResponseRedirect(self.request.path_info)
             else:
-                return redirect("socialaccount_connections")
-        return super(ProfileSectionFormSetView, self).post(request, *args, **kwargs)
+                messages.warning(
+                    self.request,
+                    _(
+                        "In order to import ORCID profile, please, "
+                        "link your ORCID account to your portal account."
+                    ),
+                )
+                return redirect(
+                    reverse("socialaccount_connections")
+                    + "?next="
+                    + quote(request.get_full_path())
+                )
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        profile = self.request.user.profile
+        context["profile"] = profile
         previous_step = next_step = None
-        if not self.request.user.profile.is_completed:
+        if not profile.is_completed:
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if view_idx > 0:
                 previous_step = self.section_views[view_idx - 1]
@@ -1056,7 +1063,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 context["next_step"] = next_step
             context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
         context["helper"] = forms.ProfileSectionFormSetHelper(
-            previous_step=previous_step, next_step=next_step
+            profile=profile, previous_step=previous_step, next_step=next_step
         )
         return context
 

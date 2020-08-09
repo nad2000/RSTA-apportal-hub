@@ -12006,6 +12006,14 @@ html, body {
   background-color: #fff;
 }
 
+#account-linking-div .btn {
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.4s;
+  line-height: normal;
+}
+
 .btn-google {
   color: white;
   text-align: left;

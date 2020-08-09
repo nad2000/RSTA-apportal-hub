@@ -163,7 +163,7 @@ body {
   font-weight: normal;
 }
 
-.login-form .btn {
+.login-form .btn, #account-linking-div .btn {
   color: #fff;
   border-radius: 4px;
   text-decoration: none;

@@ -1,7 +1,7 @@
 {% extends "profile.html" %}
 {#% extends "socialaccount/base.html" %#}
 
-{% load static %}
+{% load static i18n %}
 
 {% block head_title %}Account Connections{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with categrory="account" %}{% endblock sidebar %}
@@ -15,7 +15,6 @@
 
         {% if form.accounts %}
         <p>You can sign in to your account using any of the following third party accounts:</p>
-
 
         <form method="post" action="{% url 'socialaccount_connections' %}">
         {% csrf_token %}
@@ -54,8 +53,8 @@
         {% endif %}
 
       </div>
-      <div class="col-sm-6">
-        <h1>Add a 3rd Party Account</h1>
+      <div class="col-sm-6" id="account-linking-div">
+        <h1>{% trans 'Add a 3rd Party Account' %}</h1>
 
         {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
 
