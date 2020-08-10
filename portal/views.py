@@ -45,7 +45,12 @@ from .utils.orcid import OrcidHelper
 
 
 def handler500(request, *args, **argv):
-    return render(request, "500.html", {"sentry_event_id": last_event_id(),}, status=500)
+    return render(
+        request,
+        "500.html",
+        {"sentry_event_id": last_event_id(), "SENTRY_DSN": settings.SENTRY_DSN,},
+        status=500,
+    )
 
 
 def shoud_be_onboarded(function):
