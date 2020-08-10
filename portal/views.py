@@ -67,22 +67,22 @@ def shoud_be_onboarded(function):
         user = request.user
         profile = Profile.where(user=user).first()
         if not profile or not profile.is_completed:
-            if not profile.is_employments_completed:
-                view_name = "profile-employments"
-            elif not profile.is_career_stages_completed:
-                view_name = "profile-career-stages"
-            elif not profile.is_external_ids_completed:
-                view_name = "profile-external-ids"
-            elif not profile.is_cvs_completed:
-                view_name = "profile-cvs"
-            elif not profile.is_academic_records_completed:
-                view_name = "profile-academic-records"
-            elif not profile.is_recognitions_completed:
-                view_name = "profile-recognitions"
-            elif not profile.is_professional_bodies_completed:
-                view_name = "profile-professional-records"
-            else:
-                view_name = "onboard"
+            view_name = "profile-create"
+            if profile:
+                if not profile.is_employments_completed:
+                    view_name = "profile-employments"
+                elif not profile.is_career_stages_completed:
+                    view_name = "profile-career-stages"
+                elif not profile.is_external_ids_completed:
+                    view_name = "profile-external-ids"
+                elif not profile.is_cvs_completed:
+                    view_name = "profile-cvs"
+                elif not profile.is_academic_records_completed:
+                    view_name = "profile-academic-records"
+                elif not profile.is_recognitions_completed:
+                    view_name = "profile-recognitions"
+                elif not profile.is_professional_bodies_completed:
+                    view_name = "profile-professional-records"
             messages.info(
                 request, _("Your profile is not copleted yet. Please complete your profile.")
             )
