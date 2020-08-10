@@ -55,10 +55,10 @@ def handler500(request, *args, **argv):
 
 def shoud_be_onboarded(function):
     """
-    Check if the authentication user has a profile.  If it is misssing,
-    the user gets redirected to 'onboard' to create a profile.
+    Check if the authentication user has a profile.  If it is missing,
+    the user gets redirected to 'on-board' to create a profile.
 
-    If the user is onboarded, add the profile to the request object.
+    If the user is on-board, add the profile to the request object.
     """
 
     @wraps(function)
@@ -84,7 +84,7 @@ def shoud_be_onboarded(function):
                 elif not profile.is_professional_bodies_completed:
                     view_name = "profile-professional-records"
             messages.info(
-                request, _("Your profile is not copleted yet. Please complete your profile.")
+                request, _("Your profile is not completed yet. Please complete your profile.")
             )
             return redirect(reverse(view_name) + "?next=" + quote(request.get_full_path()))
         request.profile = profile
