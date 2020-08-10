@@ -130,7 +130,7 @@ class ProfileForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user = kwargs.get("initial", {}).get("user")
+        # user = kwargs.get("initial", {}).get("user")
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
@@ -185,13 +185,13 @@ class ApplicationForm(forms.ModelForm):
                 Field("summary"),
             ),
         ]
-        if user and not user.is_identity_verified:
-            tabs.append(
-                Tab(
-                    _("Identity Verification"),
-                    Div(InlineSubform("identity_verification"), css_id="identity_verification"),
-                ),
-            )
+        # if user and not user.is_identity_verified:
+        #     tabs.append(
+        #         Tab(
+        #             _("Identity Verification"),
+        #             Div(InlineSubform("identity_verification"), css_id="identity_verification"),
+        #         ),
+        #     )
 
         self.helper.layout = Layout(
             TabHolder(*tabs),

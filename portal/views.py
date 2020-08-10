@@ -206,7 +206,8 @@ def index(request):
             request.user, ["submitted", "review", "accepted"]
         )
         schemes = (
-            models.SchemeApplication.where(groups__in=request.user.groups.all())
+            # models.SchemeApplication.where(groups__in=request.user.groups.all())
+            models.SchemeApplication.where()
             # .filter(
             #     Q(application__isnull=True)
             #     | Q(application__submitted_by=request.user)
