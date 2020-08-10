@@ -253,24 +253,25 @@
       <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
-
       <!-- place project specific Javascript in this file -->
       {% compress js %}
-      <script src="{% static 'js/project.js' %}"></script>
-      <script>
-        $(document).ready(function(){
-          $("time").each(function () {
-            var el = $(this);
-            var dt = moment.utc(el.attr("datetime")).local();
-            el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
+        <script src="{% static 'js/project.js' %}"></script>
+        <script>
+          $(document).ready(function(){
+            $("time").each(function () {
+              var el = $(this);
+              var dt = moment.utc(el.attr("datetime")).local();
+              el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+            $("#{{request.resolver_match.view_name}}").addClass("active");
           });
-          $('[data-toggle="tooltip"]').tooltip();
-          $("#{{request.resolver_match.view_name}}").addClass("active");
-        });
-      </script>
+        </script>
       {% endcompress %}
 
     {% endblock javascript %}
+    {% lock compressedjs %}
+    {% endblock compressedjs %}
   {% endblock %}
   </body>
 </html>

@@ -28,6 +28,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
+from sentry_sdk import last_event_id
 
 from . import forms, models, tables
 from .forms import Submit
@@ -41,6 +42,10 @@ from .models import (
 )
 from .tasks import notify_user
 from .utils.orcid import OrcidHelper
+
+
+def handler500(request, *args, **argv):
+    return render(request, "500.html", {"sentry_event_id": last_event_id(),}, status=500)
 
 
 def shoud_be_onboarded(function):
