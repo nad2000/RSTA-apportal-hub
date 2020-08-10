@@ -607,8 +607,8 @@ class Application(Model):
     postal_address = CharField(max_length=120)
     city = CharField(max_length=80)
     postcode = CharField(max_length=4)
-    daytime_phone = CharField("daytime phone numbrer", max_length=12)
-    mobile_phone = CharField("mobild phone number", max_length=12)
+    daytime_phone = CharField("daytime phone number", max_length=12)
+    mobile_phone = CharField("mobile phone number", max_length=12)
     email = EmailField("email address", blank=True)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
@@ -642,7 +642,7 @@ class Application(Model):
             self.number = f"{code}-{org_code}-{year}-{application_number:03}"
         super().save(*args, **kwargs)
 
-    @transition(field=state, source="new", target="draft")
+    @transition(field=state, source=["draft","new"], target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
