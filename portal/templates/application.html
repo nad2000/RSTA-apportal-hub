@@ -20,7 +20,7 @@
           {{ object|title }}
         </h1>
 
-        <form method="post">{% csrf_token %}
+        <form method="post" enctype="multipart/form-data">
           {% crispy form form.helper %}
           {% if inlines %}
             <hr />
@@ -39,6 +39,7 @@
 
 {% block javascript %}
   {{ block.super }}
+    {{ form.media.js }}
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>

@@ -45,6 +45,23 @@ urlpatterns = [
     ),
     path("myprofile/", views.user_profile, name="my-profile"),
     path("account/", views.AccountView.as_view(), name="account"),
+    path(
+        "identity-verification/",
+        include(
+            [
+                path(
+                    "<int:pk>/file",
+                    views.IdentityVerificationFileView.as_view(),
+                    name="identity-verification-file",
+                ),
+                path(
+                    "<int:pk>",
+                    views.IdentityVerificationView.as_view(),
+                    name="identity-verification",
+                ),
+            ]
+        ),
+    ),
     path("profiles/<int:pk>", views.ProfileDetail.as_view(), name="profile-instance"),
     path(
         "profile/",

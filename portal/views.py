@@ -28,6 +28,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
+from private_storage.views import PrivateStorageDetailView
 from sentry_sdk import last_event_id
 
 from . import forms, models, tables
@@ -708,6 +709,15 @@ class ApplicationView(LoginRequiredMixin):
                     messages.success(
                         self.request, _("%d invitation(s) to authorize the referee sent.") % count,
                     )
+            if "photo_identity" in form.changed_data and form.instance.photo_identity:
+                iv, created = models.IdentityVerification.get_or_create(
+                    application=form.instance,
+                    user=self.request.user,
+                    defaults=dict(file=form.instance.photo_identity),
+                )
+                iv.send(self.request)
+                iv.save()
+
         if not has_deleted:
             a = self.object
             if "submit" in self.request.POST:
@@ -736,33 +746,6 @@ class ApplicationView(LoginRequiredMixin):
                     forms.MemberFormSet(instance=self.object)
                     if self.object
                     else forms.MemberFormSet()
-                )
-
-        user = self.request.user
-        if not user.is_identity_verified:
-            iv = models.IdentityVerification.where(user=user).order_by("-id").first()
-            if self.request.POST:
-                context["identity_verification"] = (
-                    forms.IdentityVerificationForm(
-                        self.request.POST,
-                        instance=iv,
-                        initial={"user": user},
-                        prefix="verification",
-                    )
-                    if iv
-                    else forms.IdentityVerificationForm(
-                        self.request.POST, initial={"user": user}, prefix="verification"
-                    )
-                )
-            else:
-                context["identity_verification"] = (
-                    forms.IdentityVerificationForm(
-                        instance=iv, initial={"user": user}, prefix="verification"
-                    )
-                    if iv
-                    else forms.IdentityVerificationForm(
-                        initial={"user": user}, prefix="verification"
-                    )
                 )
 
         if self.request.POST:
@@ -985,6 +968,28 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         elif state == "submitted":
             queryset = queryset.filter(state=state)
         return queryset
+
+
+class IdentityVerificationFileView(PrivateStorageDetailView):
+    model = models.IdentityVerification
+    model_file_field = "file"
+
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(...)
+
+    def can_access_file(self, private_file):
+        # When the object can be accessed, the file may be downloaded.
+        # This overrides PRIVATE_STORAGE_AUTH_FUNCTION
+        return True
+
+
+class IdentityVerificationView(UpdateView):
+    model = models.IdentityVerification
+    template_name = "form.html"
+    form_class = forms.IdentityVerificationForm
+
+    def get_success_url(self):
+        return reverse("index")
 
 
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):

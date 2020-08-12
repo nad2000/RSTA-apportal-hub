@@ -129,11 +129,13 @@ class ProfileForm(forms.ModelForm):
 
 class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
-        # user = kwargs.get("initial", {}).get("user")
+        user = kwargs.get("initial", {}).get("user")
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
+
         # self.helper.help_text_inline = True
         # self.helper.html5_required = True
         fields = [
@@ -185,13 +187,17 @@ class ApplicationForm(forms.ModelForm):
                 Field("summary"),
             ),
         ]
-        # if user and not user.is_identity_verified:
-        #     tabs.append(
-        #         Tab(
-        #             _("Identity Verification"),
-        #             Div(InlineSubform("identity_verification"), css_id="identity_verification"),
-        #         ),
-        #     )
+        if user and not user.is_identity_verified:
+            tabs.append(
+                Tab(
+                    _("Identity Verification"),
+                    Field(
+                        "photo_identity",
+                        data_toggle="tooltip",
+                        title=self.fields["photo_identity"].help_text,
+                    ),
+                ),
+            )
 
         self.helper.layout = Layout(
             TabHolder(*tabs),
@@ -443,15 +449,44 @@ class IdentityVerificationForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         self.helper.layout = Layout(
-            [
-                Fieldset(
-                    _("Please upload a scanned copy of your photo ID"),
-                    Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+            Div(
+                HTML(
+                    """
+                    <embed src="{% url 'identity-verification-file' pk=object.id %}"
+                        type="application/pdf"
+                        frameBorder="0"
+                        scrolling="auto"
+                        height="100%"
+                        width="100%"
+                        style="min-height: 30rem;">
+                    </embed>
+                    """
                 ),
-            ]
+                height="60%",
+            ),
+            ButtonHolder(
+                Submit("accept", _("Accept"), css_class="btn btn-primary",),
+                Submit("reject", _("Request Resubmission"), css_class="btn btn-outline-danger",),
+                HTML(
+                    """
+                    <a href="{{ view.get_success_url }}"
+                    type="button"
+                    role="button"
+                    class="btn btn-secondary"
+                    id="cancel">
+                        %s
+                    </a>"""
+                    % _("Cancel")
+                ),
+                css_class="mb-4",
+            ),
+            Field(
+                "resolution",
+                data_toggle="tooltip",
+                title=_("Please add a comment if you request a resubmission"),
+            ),
         )
 
     class Meta:
         model = models.IdentityVerification
-        fields = ["file", "user"]
-        widgets = dict(user=HiddenInput())
+        fields = ["file", "resolution"]

@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
+from django.core.mail import mail_admins, send_mail
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -618,6 +618,14 @@ class Application(Model):
         help_text=_("Please uploade filled-in entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
+    photo_identity = PrivateFileField(
+        null=True,
+        blank=True,
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
+        verbose_name=_("Photo Identity"),
+        help_text=_("Pleaes upload a scanned copy of your pasport in PDF, JPG, or PNG format"),
+    )
+
     history = HistoricalRecords(table_name="application_history")
     state = FSMField(default="new")
 
@@ -642,7 +650,7 @@ class Application(Model):
             self.number = f"{code}-{org_code}-{year}-{application_number:03}"
         super().save(*args, **kwargs)
 
-    @transition(field=state, source=["draft","new"], target="draft")
+    @transition(field=state, source=["draft", "new"], target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
@@ -1201,9 +1209,14 @@ class IdentityVerification(Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.user.id)],
         verbose_name=_("Photo Identity"),
-        help_text=_("Pleaes upload a scanned copy of your pasport in PDF, JPG, or PNG format"),
     )
-
+    application = OneToOneField(
+        Application,
+        on_delete=SET_NULL,
+        null=True,
+        blank=True,
+        related_name="identity_verification",
+    )
     user = ForeignKey(User, on_delete=CASCADE, related_name="identity_verifications")
     resolution = TextField(blank=True, null=True)
     state = FSMField(default="new")
@@ -1212,32 +1225,26 @@ class IdentityVerification(Model):
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft"], target="submitted")
-    def submit(self, *args, **kwargs):
-        i, created = Invitation.get_or_create(
-            type=INVITATION_TYPES.A,
-            nomination=self,
-            email=self.email,
-            defaults=dict(
-                first_name=self.first_name,
-                middle_names=self.middle_names,
-                last_name=self.last_name,
-                org=self.org,
-                organisation=self.org.name,
-                invitee=self.nominator,
-            ),
+    @transition(field=state, source=["new", "draft", "sent"], target="sent")
+    def send(self, request, *args, **kwargs):
+        url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
+        mail_admins(
+            _("User Identity Verification"),
+            _(
+                "User %s submitted a photo identity for verification. Plsease review the ID here: %s"
+            )
+            % (self.user, url),
         )
-        i.send(*args, **kwargs)
-        i.save()
-        if not created:
-            return (i, False)
-        return (i, True)
+
+    @transition(field=state, source=["new", "draft", "sent"], target="submitted")
+    def accept(self, *args, **kwargs):
+        pass
 
     # def get_absolute_url(self):
     #     return reverse("identity-verification", kwargs={"pk": self.pk})
 
     def __str__(self):
-        return _('Verification of "%s"') % self.user
+        return _('Identity Verification of "%s"') % self.user
 
     class Meta:
         db_table = "identity_verification"
