@@ -1,3 +1,7 @@
+from functools import cached_property
+from hashlib import md5
+from urllib.parse import urlencode
+
 from allauth.socialaccount.models import SocialToken
 from common.models import TITLES, HelperMixin
 from django.contrib.auth.models import AbstractUser
@@ -80,3 +84,17 @@ class User(HelperMixin, AbstractUser):
                     self.save()
 
                 return access_token
+
+    @cached_property
+    def avatar(self):
+        """Return user image link or Gravatar service user avatar URL."""
+        sa = self.socialaccount_set.filter(provider='google').first()
+        if not (sa and (url := sa.extra_data.get("picture"))):
+            # default = "https://www.example.com/default.jpg"
+            url = (
+                "https://www.gravatar.com/avatar/" + md5(self.email.lower().encode()).hexdigest() + "?"
+            )
+            size = 40
+            default = "identicon"
+            url += urlencode({"d": default, "s": str(size)})
+        return url

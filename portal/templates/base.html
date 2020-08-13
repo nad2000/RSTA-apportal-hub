@@ -96,13 +96,15 @@
                 <ul class="navbar-nav ml-auto">
 
                   {% if request.user.is_authenticated %}
+                  <img alt="GRAVATAR" src="{{ request.user.avatar }}" style="-webkit-border-radius: 12%; border-radius: 12%; max-width: 38px;">
                   <li class="nav-item dropdown" id="profile">
                     <a class="nav-link dropdown-toggle"
                        data-toggle="dropdown"
                        aria-haspopup="true"
                        aria-expanded="false"
                        id="navbarDropdownMenuLinkProfile">
-                      <i class="fas fa-user"></i> {{ request.user.username }}
+                       <!-- i class="fas fa-user"></i -->
+                      {{ request.user.username }}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-info"
                          aria-labelledby="navbarDropdownMenuLinkProfile">
