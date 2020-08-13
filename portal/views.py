@@ -397,11 +397,13 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
+
     def get_object(self):
         return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, CreateView):
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -984,12 +986,26 @@ class IdentityVerificationFileView(PrivateStorageDetailView):
 
 
 class IdentityVerificationView(UpdateView):
+
     model = models.IdentityVerification
     template_name = "form.html"
     form_class = forms.IdentityVerificationForm
 
     def get_success_url(self):
         return reverse("index")
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        iv = self.object
+        if "accept" in self.request.POST:
+            iv.accept(request=self.request)
+            iv.save()
+        elif "reject" in self.request.POST:
+            iv.request_resubmission(request=self.request)
+            iv.save()
+
+        form.instance.user = self.request.user
+        return resp
 
 
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):

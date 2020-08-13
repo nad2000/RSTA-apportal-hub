@@ -89,8 +89,8 @@
         e.preventDefault();  // need for a link
         href = $(this).attr('href');
         return bootbox.confirm("{% trans 'Do you want to close the form without saving it?' %}", function(result) {
-              // console.log("Result: ", result);
-              if (result) window.location = href;
+          // console.log("Result: ", result);
+          if (result) window.location = href;
         });
     });
   </script>

@@ -196,6 +196,7 @@ class ApplicationForm(forms.ModelForm):
                         data_toggle="tooltip",
                         title=self.fields["photo_identity"].help_text,
                     ),
+                    css_id="id-verification",
                 ),
             )
 

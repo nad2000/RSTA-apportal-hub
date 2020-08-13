@@ -1236,12 +1236,34 @@ class IdentityVerification(Model):
             % (self.user, url),
         )
 
-    @transition(field=state, source=["new", "draft", "sent"], target="submitted")
-    def accept(self, *args, **kwargs):
-        pass
+    @transition(field=state, source=["new", "draft", "sent", "submitted"], target="accepted")
+    def accept(self, *args, request=None, **kwargs):
+        self.user.is_identity_verified = True
+        if request:
+            self.identity_verified_by = request.user
+        self.identity_verified_at = datetime.datetime.now()
+        self.user.save()
 
-    # def get_absolute_url(self):
-    #     return reverse("identity-verification", kwargs={"pk": self.pk})
+    @transition(field=state, source=["new", "draft", "sent"], target="sent")
+    def request_resubmission(self, request, *args, **kwargs):
+        url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
+        subject = _("Your identity verification reqire your attention")
+        body = _("Please resubmit a new copy of your ID: %s") % url
+
+        send_mail(
+            subject,
+            body,
+            recipient_list=[self.email],
+            fail_silently=False,
+        )
+
+        send_mail(
+            _("User Identity Verification"),
+            _(
+                "User %s submitted a photo identity for verification. Plsease review the ID here: %s"
+            )
+            % (self.user, url),
+        )
 
     def __str__(self):
         return _('Identity Verification of "%s"') % self.user
