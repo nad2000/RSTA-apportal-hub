@@ -134,10 +134,9 @@ class ApplicationForm(forms.ModelForm):
         user = kwargs.get("initial", {}).get("user")
 
         self.helper = FormHelper(self)
-        self.helper.include_media = False
-
         # self.helper.help_text_inline = True
         # self.helper.html5_required = True
+
         fields = [
             Fieldset(
                 _(

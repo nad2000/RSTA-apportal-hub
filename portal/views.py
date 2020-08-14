@@ -397,13 +397,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
 
 
 class ProfileUpdate(ProfileView, LoginRequiredMixin, UpdateView):
-
     def get_object(self):
         return self.request.user.profile
 
 
 class ProfileCreate(ProfileView, CreateView):
-
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
@@ -972,7 +970,17 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
-class IdentityVerificationFileView(PrivateStorageDetailView):
+@login_required
+def photo_identity(request):
+    """Redirect to the application section for a photo identity resubmission."""
+    iv = models.IdentityVerification.where(~Q(state="accepted", user=request.user)).first()
+    url = request.build_absolute_uri(
+        reverse("application-update", kwargs=dict(pk=iv.application.id)) + "?verification=1"
+    )
+    return redirect(url)
+
+
+class IdentityVerificationFileView(LoginRequiredMixin, PrivateStorageDetailView):
     model = models.IdentityVerification
     model_file_field = "file"
 
@@ -985,11 +993,14 @@ class IdentityVerificationFileView(PrivateStorageDetailView):
         return True
 
 
-class IdentityVerificationView(UpdateView):
+class IdentityVerificationView(LoginRequiredMixin, UpdateView):
 
     model = models.IdentityVerification
     template_name = "form.html"
     form_class = forms.IdentityVerificationForm
+
+    def has_permission(self):
+        return self.request.user.is_staff and super().has_permission()
 
     def get_success_url(self):
         return reverse("index")
@@ -1003,8 +1014,6 @@ class IdentityVerificationView(UpdateView):
         elif "reject" in self.request.POST:
             iv.request_resubmission(request=self.request)
             iv.save()
-
-        form.instance.user = self.request.user
         return resp
 
 

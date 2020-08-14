@@ -1225,7 +1225,7 @@ class IdentityVerification(Model):
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft", "sent"], target="sent")
+    @transition(field=state, source=["new", "draft", "needs-resubmission", "sent"], target="sent")
     def send(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
         mail_admins(
@@ -1236,33 +1236,30 @@ class IdentityVerification(Model):
             % (self.user, url),
         )
 
-    @transition(field=state, source=["new", "draft", "sent", "submitted"], target="accepted")
+    @transition(
+        field=state, source=["new", "draft", "sent", "submitted", "accepted"], target="accepted"
+    )
     def accept(self, *args, request=None, **kwargs):
         self.user.is_identity_verified = True
         if request:
             self.identity_verified_by = request.user
-        self.identity_verified_at = datetime.datetime.now()
+        self.identity_verified_at = datetime.now()
         self.user.save()
 
-    @transition(field=state, source=["new", "draft", "sent"], target="sent")
+    @transition(
+        field=state, source=["new", "draft", "sent", "accepted"], target="needs-resubmission"
+    )
     def request_resubmission(self, request, *args, **kwargs):
-        url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
+        url = request.build_absolute_uri(reverse("photo-identity"))
         subject = _("Your identity verification reqire your attention")
         body = _("Please resubmit a new copy of your ID: %s") % url
 
         send_mail(
             subject,
             body,
-            recipient_list=[self.email],
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[self.user.email],
             fail_silently=False,
-        )
-
-        send_mail(
-            _("User Identity Verification"),
-            _(
-                "User %s submitted a photo identity for verification. Plsease review the ID here: %s"
-            )
-            % (self.user, url),
         )
 
     def __str__(self):

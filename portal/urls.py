@@ -127,6 +127,7 @@ urlpatterns = [
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),
     path("index.html", views.index, name="index.html"),
+    path("photo_identity", views.photo_identity, name="photo-identity"),
     path("test_task/<message>", views.test_task),
     path("onboard/<token>", views.check_profile, name="onboard-with-token"),
     path("onboard", views.check_profile, name="onboard"),

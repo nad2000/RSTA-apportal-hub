@@ -93,5 +93,6 @@
           if (result) window.location = href;
         });
     });
+    {% if "verification" in request.GET %}$('.nav a[href="#id-verification"]').tab('show');{% endif %}
   </script>
 {% endblock %}
