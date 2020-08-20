@@ -94,7 +94,7 @@ class User(HelperMixin, AbstractUser):
             url = (
                 "https://www.gravatar.com/avatar/" + md5(self.email.lower().encode()).hexdigest() + "?"
             )
-            size = 40
+            size = 38
             default = "identicon"
             url += urlencode({"d": default, "s": str(size)})
         return url
