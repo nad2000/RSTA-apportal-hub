@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
+from common.utils import send_mail
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -11,7 +12,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput

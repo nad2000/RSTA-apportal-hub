@@ -4,12 +4,13 @@ from datetime import date, datetime
 from urllib.parse import urljoin
 
 from common.models import TITLES, Base, Model
+from common.utils import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.core.mail import mail_admins, send_mail
+from django.core.mail import mail_admins
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
