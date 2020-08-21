@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import quote
 
@@ -19,6 +19,7 @@ from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -215,6 +216,11 @@ def index(request):
                 submitted_by=user,
             ).exists()
         )
+        if user.is_staff:
+            outstanding_identity_verifications = models.IdentityVerification.where(
+                state__in=["new", "sent"]
+            )
+            three_days_ago = timezone.now() - timedelta(days=3)
 
         schemes = (
             # models.SchemeApplication.where(groups__in=request.user.groups.all())

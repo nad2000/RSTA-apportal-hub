@@ -1220,7 +1220,7 @@ class IdentityVerification(Model):
     )
     user = ForeignKey(User, on_delete=CASCADE, related_name="identity_verifications")
     resolution = TextField(blank=True, null=True)
-    state = FSMField(default="new")
+    state = FSMField(default="new", db_index=True)
 
     @transition(field=state, source="new", target="draft")
     def save_draft(self, *args, **kwargs):
