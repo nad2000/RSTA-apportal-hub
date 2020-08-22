@@ -17,18 +17,28 @@
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar">User Details</p>
     </div>
-    <table class=" table searchable no-border">
-      <tbody>
-        <tr>
-          <td><b> UserName: </b></td>
-          <td>{{ user_data.username|default_if_none:"" }}</td>
-        </tr>
-        <tr>
-          <td><b> OrcidId: </b></td>
-          <td>{{ user_data.orcid|default_if_none:"" }}</td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div>
+      <div class="row">
+        <div class="col-sm" style="max-width: 14rem; min-with: 10rem;">
+          <img class="mb-2" style="max-width: 10rem;" src="{{ image_url }}">
+        </div>
+        <div class="col-sm-9">
+          <table class=" table searchable no-border">
+            <tbody>
+              <tr>
+                <td><b> UserName: </b></td>
+                <td>{{ user_data.username|default_if_none:"" }}</td>
+              </tr>
+              <tr>
+                <td><b> OrcidId: </b></td>
+                <td>{{ user_data.orcid|default_if_none:"" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     {% if qualification %}
     <div>

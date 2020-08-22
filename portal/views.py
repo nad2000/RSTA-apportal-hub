@@ -1457,28 +1457,35 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         """Get the profile summary of user"""
 
-        context = super(ProfileSummaryView, self).get_context_data(**kwargs)
-        context["user_data"] = self.model.objects.get(id=self.user.id)
+        context = super().get_context_data(**kwargs)
+
+        user = self.user
+        profile = self.user.profile
+
+        context["user_data"] = self.model.objects.get(id=user.id)
+        context["profile"] = profile
+        context["image_url"] = user.image_url()
+
         if not self.user.is_approved:
             context["approval_url"] = self.request.build_absolute_uri(
-                reverse("users:approve-user", kwargs=dict(user_id=self.user.id))
+                reverse("users:approve-user", kwargs=dict(user_id=user.id))
             )
         try:
-            context["qualification"] = models.Affiliation.objects.filter(
-                profile=self.user.profile, type__in=["EMP"]
+            context["qualification"] = models.Affiliation.where(
+                profile=profile, type__in=["EMP"]
             ).order_by("start_date", "end_date",)
-            context["professional_records"] = models.Affiliation.objects.filter(
-                profile=self.user.profile, type__in=["MEM", "SER"]
+            context["professional_records"] = models.Affiliation.where(
+                profile=profile, type__in=["MEM", "SER"]
             ).order_by("start_date", "end_date",)
-            context["external_id_records"] = models.ProfilePersonIdentifier.objects.filter(
-                profile=self.user.profile
+            context["external_id_records"] = models.ProfilePersonIdentifier.where(
+                profile=profile
             ).order_by("code")
-            context["academic_records"] = models.AcademicRecord.objects.filter(
-                profile=self.user.profile
-            ).order_by("-start_year")
-            context["recognitions"] = models.Recognition.objects.filter(
-                profile=self.user.profile
-            ).order_by("-recognized_in")
+            context["academic_records"] = models.AcademicRecord.where(profile=profile).order_by(
+                "-start_year"
+            )
+            context["recognitions"] = models.Recognition.where(profile=profile).order_by(
+                "-recognized_in"
+            )
         except:
             pass
 

@@ -87,6 +87,9 @@ class User(HelperMixin, AbstractUser):
 
     @cached_property
     def avatar(self):
+        return self.image_url(size=38)
+
+    def image_url(self, size=None, default="identicon"):
         """Return user image link or Gravatar service user avatar URL."""
         sa = self.socialaccount_set.filter(provider='google').first()
         if not (sa and (url := sa.extra_data.get("picture"))):
@@ -94,7 +97,8 @@ class User(HelperMixin, AbstractUser):
             url = (
                 "https://www.gravatar.com/avatar/" + md5(self.email.lower().encode()).hexdigest() + "?"
             )
-            size = 38
-            default = "identicon"
-            url += urlencode({"d": default, "s": str(size)})
+            queries = dict(d=default)
+            if size:
+                queries["s"] = str(size)
+            url += urlencode(queries)
         return url
