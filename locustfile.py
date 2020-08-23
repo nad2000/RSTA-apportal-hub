@@ -1,12 +1,13 @@
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 import random
 import secrets
 
+import urllib3
+from _locustfile import password, username
+
 # from locust import events, HttpUser, between, task
 from locust import HttpUser, between, task
-from _locustfile import username, password
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class QuickstartUser(HttpUser):

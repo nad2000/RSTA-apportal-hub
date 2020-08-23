@@ -64,3 +64,5 @@ if settings.DEBUG:
             name="favicon",
         )
     )
+
+handler500 = "portal.views.handler500"

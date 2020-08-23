@@ -18,8 +18,16 @@
   <script src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js" integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo" crossorigin="anonymous"></script>
   {% if sentry_event_id %}
     <script>
-      Sentry.init({ dsn: '{{ SENTRY_DSN }}' });
-      Sentry.showReportDialog({ eventId: '{{ sentry_event_id }}' })
+      Sentry.init({dsn: '{{ SENTRY_DSN }}'});
+      Sentry.showReportDialog({
+        lang: '{{ LANGUAGE_CODE }}',
+        title: '{% trans "Looks like something went wrong!" %}',
+        subtitle: '{% trans "We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing." %}',
+        user: {
+          name: '{{ request.user.full_name }}',
+          email: '{{ request.user.email }}'
+        },
+        eventId: '{{ sentry_event_id }}' })
     </script>
   {% endif %}
 

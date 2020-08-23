@@ -199,6 +199,8 @@ def subscribe(request):
 @login_required
 @shoud_be_onboarded
 def index(request):
+    if "error" in request.GET:
+        raise Exception(request.GET["error"])
     user = request.user
     outstanding_invitations = models.Invitation.outstanding_invitations(user)
     if request.user.is_approved:
