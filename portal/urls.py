@@ -10,7 +10,6 @@ from . import apis, models, views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
-    # path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # path("lllll", TemplateView.as_view(template_name="portal/login.html"), name="lllll"),
     path(
         "robots.txt",

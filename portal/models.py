@@ -317,7 +317,7 @@ class OrgIdentifierType(Model):
 
     class Meta:
         db_table = "org_identifier_type"
-        verbose_name = "organisation identifier type"
+        verbose_name = _("organisation identifier type")
         ordering = ["code"]
 
 
@@ -616,7 +616,7 @@ class Application(Model):
         blank=True,
         null=True,
         verbose_name=_("filled-in entry form"),
-        help_text=_("Please uploade filled-in entrant or nominee entry form"),
+        help_text=_("Please upload filled-in entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
     photo_identity = PrivateFileField(
@@ -624,7 +624,7 @@ class Application(Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
         verbose_name=_("Photo Identity"),
-        help_text=_("Pleaes upload a scanned copy of your pasport in PDF, JPG, or PNG format"),
+        help_text=_("Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"),
     )
 
     history = HistoricalRecords(table_name="application_history")
@@ -696,7 +696,7 @@ class Application(Model):
 
 
 class Member(Model):
-    """Application team memeber."""
+    """Application team member."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
     email = EmailField(max_length=120)
@@ -776,7 +776,9 @@ class StateField(StatusField, FSMField):
     pass
 
 
-INVITATION_TYPES = Choices(("A", "apply"), ("J", "join"), ("R", "testify"), ("T", "authorize"),)
+INVITATION_TYPES = Choices(
+    ("A", _("apply")), ("J", _("join")), ("R", _("testify")), ("T", _("authorize")),
+)
 
 
 class Invitation(Model):
@@ -948,7 +950,7 @@ class Testimony(Model):
         pass
 
     def __str__(self):
-        return "Testimony By Referee {0} For Application {1}".format(
+        return _("Testimony By Referee {0} For Application {1}").format(
             self.referee, self.referee.application
         )
 
@@ -1231,9 +1233,7 @@ class IdentityVerification(Model):
         url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
         mail_admins(
             _("User Identity Verification"),
-            _(
-                "User %s submitted a photo identity for verification. Plsease review the ID here: %s"
-            )
+            _("User %s submitted a photo identity for verification. Please review the ID here: %s")
             % (self.user, url),
         )
 

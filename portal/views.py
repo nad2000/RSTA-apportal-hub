@@ -244,7 +244,7 @@ def index(request):
 @login_required
 def test_task(req, message):
     notify_user(req.user.id, message)
-    messages.info(req, f"Task submitted with a message '{message}'")
+    messages.info(req, _("Task submitted with a message '%s'") % message)
     return render(req, "index.html", locals())
 
 
@@ -798,7 +798,7 @@ class ApplicationCreate(ApplicationView, CreateView):
             )
             if a:
                 messages.warning(
-                    self.request, _("You have aleady created an application. Please update it.")
+                    self.request, _("You have already created an application. Please update it.")
                 )
                 return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
@@ -1090,7 +1090,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             orcidhelper = OrcidHelper(request.user, self.orcid_sections)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, f" {total_records_fetched} ORCID records imported")
+                messages.success(self.request, _(" %s ORCID records imported") % total_records_fetched)
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 messages.warning(
@@ -1437,7 +1437,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
+            Submit("load_from_orcid", _("Import from ORCiD"), css_class="btn-orcid")
         )
         return context
 
@@ -1498,7 +1498,7 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         try:
             self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
         except:
-            raise Http404("No Profile summary found")
+            raise Http404(_("No Profile summary found"))
         return self.user
 
 
@@ -1716,9 +1716,9 @@ class TestimonyDetail(DetailView):
         context["extra_object"] = self.get_object().referee.application
         if self.get_object().state == "new":
             context["update_view_name"] = f"{self.model.__name__.lower()}-create"
-            context["update_button_name"] = "Add Testimony"
+            context["update_button_name"] = _("Add Testimony")
         else:
-            context["update_button_name"] = "Edit Testimony"
+            context["update_button_name"] = _("Edit Testimony")
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request, _("Please Check the application details and submit testimony."),

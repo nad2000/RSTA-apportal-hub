@@ -93,7 +93,7 @@ class ProfileForm(forms.ModelForm):
     def clean_is_accepted(self):
         """Allow only 'True'"""
         if not self.cleaned_data["is_accepted"]:
-            raise forms.ValidationError("Please read and consent to the Privacy Policy")
+            raise forms.ValidationError(_("Please read and consent to the Privacy Policy"))
         return True
 
     class Meta:
@@ -124,7 +124,7 @@ class ProfileForm(forms.ModelForm):
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
-        labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
+        labels = dict(is_accepted=_("I have read and agree to the <a href='#'>Privacy Policy</a>"))
 
 
 class ApplicationForm(forms.ModelForm):
@@ -139,11 +139,9 @@ class ApplicationForm(forms.ModelForm):
 
         fields = [
             Fieldset(
-                _(
-                    "Team representative"
-                    if self.instance.is_team_application
-                    else "Individual applicant"
-                ),
+                _("Team representative")
+                if self.instance.is_team_application
+                else _("Individual applicant"),
                 Row(
                     Column("title", css_class="form-group col-1 mb-0"),
                     Column("first_name", css_class="form-group col-3 mb-0"),
@@ -175,7 +173,7 @@ class ApplicationForm(forms.ModelForm):
             )
         tabs = [
             Tab(
-                _("Team" if self.instance.is_team_application else "Applicant"),
+                _("Team") if self.instance.is_team_application else _("Applicant"),
                 css_id="applicant",
                 *fields,
             ),
@@ -224,7 +222,7 @@ class ApplicationForm(forms.ModelForm):
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
-                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+                attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
             # summary=SummernoteWidget(),
             summary=SummernoteInplaceWidget(),
