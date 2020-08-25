@@ -785,7 +785,7 @@ class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
-    invitee = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
     first_name = CharField(max_length=30)
@@ -838,7 +838,7 @@ class Invitation(Model):
     )
     def send(self, request=None, by=None):
         if not by:
-            by = request.user if request else self.invitee
+            by = request.user if request else self.inviter
         url = reverse("onboard-with-token", kwargs=dict(token=self.token))
         if request:
             url = request.build_absolute_uri(url)
@@ -864,11 +864,9 @@ class Invitation(Model):
             )
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
-            body = _("You were nominated for %s by %s. Please follow the link: %s") % (
-                self.nomination.round,
-                self.invitee,
-                url,
-            )
+            body = _(
+                "You were nominated for %(round)s by %(inviter)s. Please follow the link: %(url)s"
+            ) % dict(round=self.nomination.round, inviter=self.inviter, url=url,)
         else:
             subject = _("You are invited to join the portal")
             body = _("You are invited to join the portal. Please follow the link: %s") % url
@@ -1186,7 +1184,7 @@ class Nomination(Model):
                 last_name=self.last_name,
                 org=self.org,
                 organisation=self.org.name,
-                invitee=self.nominator,
+                inviter=self.nominator,
             ),
         )
         i.send(*args, **kwargs)
@@ -1233,8 +1231,10 @@ class IdentityVerification(Model):
         url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
         mail_admins(
             _("User Identity Verification"),
-            _("User %s submitted a photo identity for verification. Please review the ID here: %s")
-            % (self.user, url),
+            _(
+                "User %(user)s submitted a photo identity for verification. Please review the ID here: %(url)s"
+            )
+            % dict(user=self.user, url=url),
         )
 
     @transition(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 23:35+1200\n"
+"POT-Creation-Date: 2020-08-25 14:22+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,64 +17,644 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: portal/models.py:228
-msgid "code"
-msgstr "waehere"
+#: config/settings/base.py:42
+msgid "English"
+msgstr ""
 
-#: portal/models.py:229
+#: config/settings/base.py:43
+msgid "Maori"
+msgstr ""
+
+#: portal/admin.py:14 portal/admin.py:15
+#: portal/templates/admin/base_site.html:13
+msgid "Portal Administration"
+msgstr ""
+
+#: portal/forms.py:96
+msgid "Please read and consent to the Privacy Policy"
+msgstr ""
+
+#: portal/forms.py:127
+msgid "I have read and agree to the <a href='#'>Privacy Policy</a>"
+msgstr ""
+
+#: portal/forms.py:142 portal/templates/application.html:64
+msgid "Team representative"
+msgstr ""
+
+#: portal/forms.py:144 portal/templates/application.html:60
+msgid "Individual applicant"
+msgstr ""
+
+#: portal/forms.py:176 portal/templates/application.html:65
+msgid "Team"
+msgstr ""
+
+#: portal/forms.py:176 portal/templates/application.html:61
+msgid "Applicant"
+msgstr ""
+
+#: portal/forms.py:180
+msgid "Referees"
+msgstr ""
+
+#: portal/forms.py:182
+msgid "Summary"
+msgstr ""
+
+#: portal/forms.py:190
+#, fuzzy
+#| msgid "Re-send Verification"
+msgid "Identity Verification"
+msgstr "Tukuna he whakamana"
+
+#: portal/forms.py:203 portal/forms.py:377 portal/forms.py:423
+msgid "Save Draft"
+msgstr ""
+
+#: portal/forms.py:204 portal/forms.py:378 portal/forms.py:424
+msgid "Submit"
+msgstr ""
+
+#: portal/forms.py:214 portal/forms.py:349 portal/forms.py:477
+#: portal/templates/profile_form.html:32
+msgid "Cancel"
+msgstr ""
+
+#: portal/forms.py:225
+msgid "Choose an organisation or create a new one ..."
+msgstr ""
+
+#: portal/forms.py:327
+msgid "Previous"
+msgstr ""
+
+#: portal/forms.py:334 portal/templates/profile_form.html:25
+msgid "Next"
+msgstr ""
+
+#: portal/forms.py:342 portal/forms.py:348
+#: portal/templates/profile_protection_patterns.html:50
+msgid "Save"
+msgstr ""
+
+#: portal/forms.py:342
+msgid "Finish and Save"
+msgstr ""
+
+#: portal/forms.py:360
+msgid "Nominee"
+msgstr ""
+
+#: portal/forms.py:381 portal/forms.py:428
+msgid "Close"
+msgstr ""
+
+#: portal/forms.py:401
+msgid "Choose an organisation or or create a new one ..."
+msgstr ""
+
+#: portal/forms.py:415
+msgid "Testimony"
+msgstr ""
+
+#: portal/forms.py:425
+msgid "I don't wish to Testify"
+msgstr ""
+
+#: portal/forms.py:466
+msgid "Accept"
+msgstr ""
+
+#: portal/forms.py:467
+msgid "Request Resubmission"
+msgstr ""
+
+#: portal/forms.py:484
+msgid "Please add a comment if you request a resubmission"
+msgstr ""
+
+#: portal/models.py:41
+msgid "Undisclosed"
+msgstr ""
+
+#: portal/models.py:41
+msgid "Male"
+msgstr ""
+
+#: portal/models.py:41
+msgid "Female"
+msgstr ""
+
+#: portal/models.py:41
+msgid "Gender diverse"
+msgstr ""
+
+#: portal/models.py:45
+#, fuzzy
+#| msgid "description"
+msgid "Education"
+msgstr "whakaahuatanga"
+
+#: portal/models.py:46
+msgid "Employment"
+msgstr ""
+
+#: portal/models.py:47
+msgid "Membership"
+msgstr ""
+
+#: portal/models.py:48
+msgid "Service"
+msgstr ""
+
+#: portal/models.py:66
+msgid "No Qualification"
+msgstr ""
+
+#: portal/models.py:67
+msgid "Level 1 Certificate"
+msgstr ""
+
+#: portal/models.py:68
+msgid "Level 2 Certificate"
+msgstr ""
+
+#: portal/models.py:69
+msgid "Level 3 Certificate"
+msgstr ""
+
+#: portal/models.py:70
+msgid "Level 4 Certificate"
+msgstr ""
+
+#: portal/models.py:71
+msgid "Level 5 Diploma/Certificate"
+msgstr ""
+
+#: portal/models.py:72
+msgid "Level 6 Graduate Certificate, Level 6 Diploma/Certificate"
+msgstr ""
+
+#: portal/models.py:73
+msgid ""
+"Bachelor Degree, Level 7 Graduate Diploma/Certificate, Level 7 Diploma/ "
+"Certificate"
+msgstr ""
+
+#: portal/models.py:74
+msgid "Postgraduate Diploma/Certificate, Bachelor Honours"
+msgstr ""
+
+#: portal/models.py:75
+msgid "Masters Degree"
+msgstr ""
+
+#: portal/models.py:76
+msgid "Doctorate Degree"
+msgstr ""
+
+#: portal/models.py:77
+msgid "Overseas Secondary School Qualification"
+msgstr ""
+
+#: portal/models.py:78
+msgid "Don't Know"
+msgstr ""
+
+#: portal/models.py:79
+msgid "Refused to Answer"
+msgstr ""
+
+#: portal/models.py:80
+msgid "Repeated Value"
+msgstr ""
+
+#: portal/models.py:81
+msgid "Response Unidentifiable"
+msgstr ""
+
+#: portal/models.py:82
+msgid "Response Outside Scope"
+msgstr ""
+
+#: portal/models.py:83
+msgid "Not Stated"
+msgstr ""
+
+#: portal/models.py:258 portal/models.py:274
 msgid "description"
 msgstr "whakaahuatanga"
 
-#: portal/templates/account/account_inactive.html:5
-#: portal/templates/account/account_inactive.html:8
+#: portal/models.py:273
+msgid "code"
+msgstr "waehere"
+
+#: portal/models.py:320
+#, fuzzy
+#| msgid "organisation"
+msgid "organisation identifier type"
+msgstr "tōpūtanga"
+
+#: portal/models.py:329
+msgid "the New Zealand Qualifications Framework Qualification level"
+msgstr ""
+
+#: portal/models.py:532
+msgid "prestigious prize or medal"
+msgstr ""
+
+#: portal/models.py:544
+msgid "year of recognition"
+msgstr ""
+
+#: portal/models.py:545
+msgid "award"
+msgstr ""
+
+#: portal/models.py:546
+msgid "awarded by"
+msgstr ""
+
+#: portal/models.py:548
+#, fuzzy
+#| msgid "Account"
+msgid "amount"
+msgstr "Pūkete Kaiwhakamahi"
+
+#: portal/models.py:550 portal/templates/profile_summary.html:133
+msgid "Currency code"
+msgstr ""
+
+#: portal/models.py:567 portal/models.py:596 portal/models.py:705
+#: portal/models.py:739 portal/models.py:793 portal/models.py:1141
+#: users/models.py:24
+msgid "middle names"
+msgstr ""
+
+#: portal/models.py:571 portal/models.py:600 portal/models.py:709
+#: portal/models.py:743 portal/models.py:797 portal/models.py:1145
+#: users/models.py:28
+msgid "Comma separated list of middle names"
+msgstr ""
+
+#: portal/models.py:618
+msgid "filled-in entry form"
+msgstr ""
+
+#: portal/models.py:619
+msgid "Please upload filled-in entrant or nominee entry form"
+msgstr ""
+
+#: portal/models.py:626 portal/models.py:1212
+msgid "Photo Identity"
+msgstr ""
+
+#: portal/models.py:627
+msgid ""
+"Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"
+msgstr ""
+
+#: portal/models.py:780
+msgid "apply"
+msgstr ""
+
+#: portal/models.py:780
+msgid "join"
+msgstr ""
+
+#: portal/models.py:780
+msgid "testify"
+msgstr ""
+
+#: portal/models.py:780
+msgid "authorize"
+msgstr ""
+
+#: portal/models.py:790
+#, fuzzy
+#| msgid "E-mail Addresses"
+msgid "email address"
+msgstr "Wāhitau mera"
+
+#: portal/models.py:850
+msgid "You are invited to authorize your team representative"
+msgstr ""
+
+#: portal/models.py:853
+#, python-format
+msgid ""
+"You are invited to authorize your team representative. Please follow the "
+"link: %s"
+msgstr ""
+
+#: portal/models.py:858
+msgid "You are invited to authorize as a Referee"
+msgstr ""
+
+#: portal/models.py:861
+#, python-format
+msgid ""
+"You are invited to authorize to testify an application. Please follow the "
+"link: %s"
+msgstr ""
+
+#: portal/models.py:866
+#, python-format
+msgid "You were nominated for %s"
+msgstr ""
+
+#: portal/models.py:868
+#, python-format
+msgid ""
+"You were nominated for %(round)s by %(inviter)s. Please follow the link: "
+"%(url)s"
+msgstr ""
+
+#: portal/models.py:871
+msgid "You are invited to join the portal"
+msgstr ""
+
+#: portal/models.py:872
+#, python-format
+msgid "You are invited to join the portal. Please follow the link: %s"
+msgstr ""
+
+#: portal/models.py:928 portal/models.py:929
+msgid "endorsement, testimony, or feedback"
+msgstr ""
+
+#: portal/models.py:951
+#, python-brace-format
+msgid "Testimony By Referee {0} For Application {1}"
+msgstr ""
+
+#: portal/models.py:999 portal/models.py:1090
+msgid "who starts"
+msgstr ""
+
+#: portal/models.py:1001 portal/models.py:1092
+msgid "guideline link URL"
+msgstr ""
+
+#: portal/models.py:1002 portal/models.py:1093
+#, fuzzy
+#| msgid "description"
+msgid "short description"
+msgstr "whakaahuatanga"
+
+#: portal/models.py:1003
+msgid "research summary required"
+msgstr ""
+
+#: portal/models.py:1004
+msgid "can be submitted by a team"
+msgstr ""
+
+#: portal/models.py:1006
+msgid "CVs required"
+msgstr ""
+
+#: portal/models.py:1007
+msgid "photo ID required"
+msgstr ""
+
+#: portal/models.py:1051
+msgid "the round cannot close before it opens."
+msgstr ""
+
+#: portal/models.py:1149 portal/views.py:555
+msgid "organisation"
+msgstr "tōpūtanga"
+
+#: portal/models.py:1158
+msgid "Nominator form"
+msgstr ""
+
+#: portal/models.py:1159
+msgid "Upload filled-in nominator form"
+msgstr ""
+
+#: portal/models.py:1200
+#, python-format
+msgid "Nomination for \"%s\""
+msgstr ""
+
+#: portal/models.py:1233
+#, fuzzy
+#| msgid "Re-send Verification"
+msgid "User Identity Verification"
+msgstr "Tukuna he whakamana"
+
+#: portal/models.py:1235
+#, python-format
+msgid ""
+"User %(user)s submitted a photo identity for verification. Please review the "
+"ID here: %(url)s"
+msgstr ""
+
+#: portal/models.py:1255
+msgid "Your identity verification reqire your attention"
+msgstr ""
+
+#: portal/models.py:1256
+#, python-format
+msgid "Please resubmit a new copy of your ID: %s"
+msgstr ""
+
+#: portal/models.py:1267
+#, fuzzy, python-format
+#| msgid "Re-send Verification"
+msgid "Identity Verification of \"%s\""
+msgstr "Tukuna he whakamana"
+
+#: portal/templates/403.html:4 portal/templates/403.html:7
+msgid "Forbidden (403)"
+msgstr ""
+
+#: portal/templates/403.html:9
+msgid "CSRF verification failed. Request aborted."
+msgstr ""
+
+#: portal/templates/404.html:4 portal/templates/404.html:7
+msgid "Page not found"
+msgstr ""
+
+#: portal/templates/404.html:9
+msgid "This is not the page you were looking for."
+msgstr ""
+
+#: portal/templates/500.html:7
+msgid "Ooops!!! 500"
+msgstr ""
+
+#: portal/templates/500.html:9 portal/templates/500.html:24
+msgid "Looks like something went wrong!"
+msgstr ""
+
+#: portal/templates/500.html:12 portal/templates/500.html:25
+msgid ""
+"We track these errors automatically, but if the problem persists feel free "
+"to contact us. In the meantime, try refreshing."
+msgstr ""
+
+#: portal/templates/account.html:25
+#, fuzzy
+#| msgid "Confirm E-mail Address"
+msgid "Primary email address"
+msgstr "Whakaū Wāhitau Emailmera"
+
+#: portal/templates/account.html:31
+#, fuzzy
+#| msgid "Confirm E-mail Address"
+msgid "Secondary email addresses"
+msgstr "Whakaū Wāhitau Emailmera"
+
+#: portal/templates/account.html:44
+msgid "First name"
+msgstr ""
+
+#: portal/templates/account.html:49
+msgid "Middle names"
+msgstr ""
+
+#: portal/templates/account.html:54
+msgid "Last name"
+msgstr ""
+
+#: portal/templates/account.html:59
+msgid "Linked accounts"
+msgstr ""
+
+#: portal/templates/account.html:78 portal/templates/profile.html:94
+#: portal/templates/profile_detail.html:94
+msgid "My Info"
+msgstr ""
+
+#: portal/templates/account.html:79 portal/templates/profile.html:95
+#, fuzzy
+#| msgid "E-mail Addresses"
+msgid "E-Mail Addresses"
+msgstr "Wāhitau mera"
+
+#: portal/templates/account.html:80 portal/templates/profile.html:96
+#: portal/templates/profile_detail.html:96 portal/templates/sidebar.html:163
+#, fuzzy
+#| msgid "Account"
+msgid "Linked Accounts"
+msgstr "Pūkete Kaiwhakamahi"
+
+#: portal/templates/account/account_inactive.html:4
+#: portal/templates/account/account_inactive.html:7
 msgid "Account Inactive"
 msgstr "Te Ake Kaute"
 
-#: portal/templates/account/account_inactive.html:10
+#: portal/templates/account/account_inactive.html:9
 msgid "This account is inactive."
 msgstr "He kuware te aamu tenei."
 
-#: portal/templates/account/email.html:7
+#: portal/templates/account/card.html:11 portal/templates/account/card.html:14
+msgid "Sign In"
+msgstr "Haina"
+
+#: portal/templates/account/card.html:17 portal/templates/account/card.html:20
+#: portal/templates/account/card.html:160
+#: portal/templates/socialaccount/signup.html:9
+#: portal/templates/socialaccount/signup.html:20
+msgid "Sign Up"
+msgstr "Waitohu ake"
+
+#: portal/templates/account/card.html:46 portal/templates/account/card.html:53
+msgid "Sign in with"
+msgstr "Waitohu me te"
+
+#: portal/templates/account/card.html:78 portal/templates/account/card.html:79
+msgid "Email address or username"
+msgstr "Wāhitau īmēra ingoa kaiwhakamahi ranei"
+
+#: portal/templates/account/card.html:84 portal/templates/sidebar.html:171
+msgid "Password"
+msgstr "Kupuhipa"
+
+#: portal/templates/account/card.html:89
+msgid "Remember password"
+msgstr "Mahara kupuhipa"
+
+#: portal/templates/account/card.html:92
+msgid "Sign in"
+msgstr "Haina"
+
+#: portal/templates/account/card.html:95
+msgid "Forgot Password?"
+msgstr "Wareware Kupuhipa?"
+
+#: portal/templates/account/card.html:111
+#: portal/templates/account/card.html:118
+#, fuzzy
+#| msgid "Sign in with"
+msgid "Sign up with"
+msgstr "Waitohu me te"
+
+#: portal/templates/account/card.html:130
+#, fuzzy
+#| msgid "Add E-mail"
+msgid "E-mail"
+msgstr "Tāpirihia Emailmera"
+
+#: portal/templates/account/card.html:133
+#, fuzzy
+#| msgid "E-mail Addresses"
+msgid "E-mail address"
+msgstr "Wāhitau mera"
+
+#: portal/templates/account/card.html:135
+#, fuzzy
+#| msgid "Users"
+msgid "Username"
+msgstr "Kaiwhakamahi"
+
+#: portal/templates/account/email.html:4 portal/templates/sidebar.html:151
 msgid "Account"
 msgstr "Pūkete Kaiwhakamahi"
 
-#: portal/templates/account/email.html:15
+#: portal/templates/account/email.html:13
 msgid "E-mail Addresses"
 msgstr "Wāhitau mera"
 
-#: portal/templates/account/email.html:18
+#: portal/templates/account/email.html:16
 msgid "The following e-mail addresses are associated with your account:"
 msgstr "Ko nga wahitau e-mail e whai ake nei e pa ana ki to putea:"
 
-#: portal/templates/account/email.html:32
+#: portal/templates/account/email.html:30
 msgid "Verified"
 msgstr "Kua manatoko"
 
-#: portal/templates/account/email.html:34
+#: portal/templates/account/email.html:32
 msgid "Unverified"
 msgstr "Kotahi Kotahi"
 
-#: portal/templates/account/email.html:36
+#: portal/templates/account/email.html:34
 msgid "Primary"
 msgstr "Kura Tuatahi"
 
-#: portal/templates/account/email.html:42
+#: portal/templates/account/email.html:40
 msgid "Make Primary"
 msgstr "Hangaia te Paraimere"
 
-#: portal/templates/account/email.html:43
+#: portal/templates/account/email.html:41
 msgid "Re-send Verification"
 msgstr "Tukuna he whakamana"
 
-#: portal/templates/account/email.html:44
+#: portal/templates/account/email.html:42
+#: portal/templates/socialaccount/connections.html:41
 msgid "Remove"
 msgstr "Tango"
 
-#: portal/templates/account/email.html:51
+#: portal/templates/account/email.html:49
 msgid "Warning:"
 msgstr "Whakatūpato:"
 
-#: portal/templates/account/email.html:51
+#: portal/templates/account/email.html:49
 msgid ""
 "You currently do not have any e-mail address set up. You should really add "
 "an e-mail address so you can receive notifications, reset your password, etc."
@@ -83,77 +663,69 @@ msgstr ""
 "imera kia taea ai e koe te whakamohiotanga, tautuhi ano i to kupuhipa, me "
 "era atu"
 
-#: portal/templates/account/email.html:56
+#: portal/templates/account/email.html:54
 msgid "Add E-mail Address"
 msgstr "Tāpiri Wāhitau Emailmera"
 
-#: portal/templates/account/email.html:61
+#: portal/templates/account/email.html:59
 msgid "Add E-mail"
 msgstr "Tāpirihia Emailmera"
 
-#: portal/templates/account/email.html:71
+#: portal/templates/account/email.html:69
 msgid "Do you really want to remove the selected e-mail address?"
 msgstr "Ka tino hiahia koe ki te tango i nga wahitau imera i tohua?"
 
-#: portal/templates/account/email_confirm.html:6
-#: portal/templates/account/email_confirm.html:10
+#: portal/templates/account/email_approve_user.html:4
+msgid "Approve User"
+msgstr ""
+
+#: portal/templates/account/email_approve_user.html:8
+msgid "Hello from Prime Minister's Science Prizes!"
+msgstr ""
+
+#: portal/templates/account/email_approve_user.html:9
+msgid ""
+"You are receiving this email because you are Admin for Prime Minister's "
+"Science Prizes"
+msgstr ""
+
+#: portal/templates/account/email_approve_user.html:11
+#, python-format
+msgid ""
+"\n"
+"    Please click on the link to approve %(user.email)s user <a "
+"href='%(approval_url)s'> click here </a>\n"
+"  "
+msgstr ""
+
+#: portal/templates/account/email_confirm.html:4
+#: portal/templates/account/email_confirm.html:11
 msgid "Confirm E-mail Address"
 msgstr "Whakaū Wāhitau Emailmera"
 
-#: portal/templates/account/email_confirm.html:16
+#: portal/templates/account/email_confirm.html:18
 #, python-format
 msgid ""
-"Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
-"address for user %(user_display)s."
+"\n"
+"    Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-"
+"mail address for user %(user_display)s.\n"
+"    "
 msgstr ""
 
-#: portal/templates/account/email_confirm.html:20
+#: portal/templates/account/email_confirm.html:24
 msgid "Confirm"
 msgstr "Whakaū"
 
-#: portal/templates/account/email_confirm.html:27
+#: portal/templates/account/email_confirm.html:31
 #, python-format
 msgid ""
 "This e-mail confirmation link expired or is invalid. Please <a href="
 "\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
 
-#: portal/templates/account/login.html:36
-#: portal/templates/account/login.html:43
-msgid "Sign in with"
-msgstr "Waitohu me te"
-
-#: portal/templates/account/login.html:65
-msgid "Email address or username"
-msgstr "Wāhitau īmēra ingoa kaiwhakamahi ranei"
-
-#: portal/templates/account/login.html:70
-msgid "Password"
-msgstr "Kupuhipa"
-
-#: portal/templates/account/login.html:75
-msgid "Remember password"
-msgstr "Mahara kupuhipa"
-
-#: portal/templates/account/login.html:78
-msgid "Sign in"
-msgstr "Haina"
-
-#: portal/templates/account/login.html:80
-msgid "Forgot Password?"
-msgstr "Wareware Kupuhipa?"
-
-#: portal/templates/account/login.html:83
-msgid "Don't have an account or any other social network account?"
-msgstr "Kaore he putea kaute, he kaute hononga hapori ranei?"
-
-#: portal/templates/account/login.html:83
-msgid "Sign&nbsp;up&nbsp;here!"
-msgstr "Haina i konei"
-
-#: portal/templates/account/logout.html:5
+#: portal/templates/account/logout.html:4
 #: portal/templates/account/logout.html:8
-#: portal/templates/account/logout.html:17 portal/templates/base.html:83
+#: portal/templates/account/logout.html:17 portal/templates/base.html:118
 msgid "Sign Out"
 msgstr "Taki mai"
 
@@ -164,21 +736,21 @@ msgstr "Kei te hiahia koe ki te haina?"
 #: portal/templates/account/password_change.html:6
 #: portal/templates/account/password_change.html:9
 #: portal/templates/account/password_change.html:14
-#: portal/templates/account/password_reset_from_key.html:5
-#: portal/templates/account/password_reset_from_key.html:8
+#: portal/templates/account/password_reset_from_key.html:4
+#: portal/templates/account/password_reset_from_key.html:7
 #: portal/templates/account/password_reset_from_key_done.html:4
 #: portal/templates/account/password_reset_from_key_done.html:7
 msgid "Change Password"
 msgstr "Hurihia Kupuhipa"
 
-#: portal/templates/account/password_reset.html:7
-#: portal/templates/account/password_reset.html:11
-#: portal/templates/account/password_reset_done.html:6
-#: portal/templates/account/password_reset_done.html:9
+#: portal/templates/account/password_reset.html:10
+#: portal/templates/account/password_reset.html:25
+#: portal/templates/account/password_reset_done.html:4
+#: portal/templates/account/password_reset_done.html:7
 msgid "Password Reset"
 msgstr "Tautuhi Kupuhipa"
 
-#: portal/templates/account/password_reset.html:16
+#: portal/templates/account/password_reset.html:30
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll send you "
 "an e-mail allowing you to reset it."
@@ -186,15 +758,15 @@ msgstr ""
 "Kua wareware koe i to kupu huna? Whakauruhia to wahitau imeera i raro nei, a "
 "ka tukuna atu e matou he imeera hei tuku ki a koe kia tautuhi ano."
 
-#: portal/templates/account/password_reset.html:21
+#: portal/templates/account/password_reset.html:35
 msgid "Reset My Password"
 msgstr "Tautuhi i taku Kupuhipa"
 
-#: portal/templates/account/password_reset.html:24
+#: portal/templates/account/password_reset.html:38
 msgid "Please contact us if you have any trouble resetting your password."
 msgstr "Tena koa whakapiri mai ki te mea he raru to tautuhi i to kupuhipa."
 
-#: portal/templates/account/password_reset_done.html:15
+#: portal/templates/account/password_reset_done.html:13
 msgid ""
 "We have sent you an e-mail. Please contact us if you do not receive it "
 "within a few minutes."
@@ -202,11 +774,11 @@ msgstr ""
 "Na matou i tuku atu i a koe he imeera. Tena koa whakapiri mai ki a koe mena "
 "kaore koe i te waa."
 
-#: portal/templates/account/password_reset_from_key.html:8
+#: portal/templates/account/password_reset_from_key.html:7
 msgid "Bad Token"
 msgstr ""
 
-#: portal/templates/account/password_reset_from_key.html:12
+#: portal/templates/account/password_reset_from_key.html:11
 #, python-format
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
@@ -214,58 +786,38 @@ msgid ""
 "a>."
 msgstr ""
 
-#: portal/templates/account/password_reset_from_key.html:18
+#: portal/templates/account/password_reset_from_key.html:17
 msgid "change password"
 msgstr ""
 
-#: portal/templates/account/password_reset_from_key.html:21
+#: portal/templates/account/password_reset_from_key.html:20
 #: portal/templates/account/password_reset_from_key_done.html:8
 msgid "Your password is now changed."
 msgstr ""
 
-#: portal/templates/account/password_set.html:6
-#: portal/templates/account/password_set.html:9
-#: portal/templates/account/password_set.html:14
+#: portal/templates/account/password_set.html:4
+#: portal/templates/account/password_set.html:7
+#: portal/templates/account/password_set.html:12
 msgid "Set Password"
 msgstr ""
 
-#: portal/templates/account/signup.html:6
-#: portal/templates/socialaccount/signup.html:6
-msgid "Signup"
-msgstr "Waitohu"
-
-#: portal/templates/account/signup.html:9
-#: portal/templates/account/signup.html:19 portal/templates/base.html:88
-#: portal/templates/socialaccount/signup.html:9
-#: portal/templates/socialaccount/signup.html:20
-msgid "Sign Up"
-msgstr "Waitohu ake"
-
-#: portal/templates/account/signup.html:11
-#, python-format
-msgid ""
-"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
-msgstr ""
-"Kei a koe he kaute? Na me whakauru ki <a href=\"%(login_url)s\">te takiuru</"
-"a>."
-
+#: portal/templates/account/signup_closed.html:2
 #: portal/templates/account/signup_closed.html:5
-#: portal/templates/account/signup_closed.html:8
 msgid "Sign Up Closed"
 msgstr "Waitohu Waitohu Katia"
 
-#: portal/templates/account/signup_closed.html:10
+#: portal/templates/account/signup_closed.html:7
 msgid "We are sorry, but the sign up is currently closed."
 msgstr "E mihi ana, engari kua tutakina te hainatanga."
 
-#: portal/templates/account/verification_sent.html:5
-#: portal/templates/account/verification_sent.html:8
-#: portal/templates/account/verified_email_required.html:5
-#: portal/templates/account/verified_email_required.html:8
+#: portal/templates/account/verification_sent.html:4
+#: portal/templates/account/verification_sent.html:11
+#: portal/templates/account/verified_email_required.html:4
+#: portal/templates/account/verified_email_required.html:7
 msgid "Verify Your E-mail Address"
 msgstr "Tirohia to Wāhitau Emailmera"
 
-#: portal/templates/account/verification_sent.html:10
+#: portal/templates/account/verification_sent.html:13
 msgid ""
 "We have sent an e-mail to you for verification. Follow the link provided to "
 "finalize the signup process. Please contact us if you do not receive it "
@@ -275,14 +827,14 @@ msgstr ""
 "whakaratohia hei whakaoti i te tukanga haina. Tena koa whakapiri mai ki a "
 "koe mena kaore koe i te waa."
 
-#: portal/templates/account/verified_email_required.html:12
+#: portal/templates/account/verified_email_required.html:11
 msgid ""
 "This part of the site requires us to verify that\n"
 "you are who you claim to be. For this purpose, we require that you\n"
 "verify ownership of your e-mail address. "
 msgstr ""
 
-#: portal/templates/account/verified_email_required.html:16
+#: portal/templates/account/verified_email_required.html:15
 msgid ""
 "We have sent an e-mail to you for\n"
 "verification. Please click on the link inside this e-mail. Please\n"
@@ -292,7 +844,7 @@ msgstr ""
 "koe. Mo tenei kaupapa, e hiahia ana matou ki te whakaū i nga rangatira o to "
 "wahitau imeera."
 
-#: portal/templates/account/verified_email_required.html:20
+#: portal/templates/account/verified_email_required.html:19
 #, python-format
 msgid ""
 "<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your e-"
@@ -303,21 +855,464 @@ msgstr ""
 msgid "Portal Admin"
 msgstr ""
 
-#: portal/templates/admin/base_site.html:13
-msgid "Portal Administration"
+#: portal/templates/application.html:91
+msgid "Do you want to close the form without saving it?"
 msgstr ""
 
-#: portal/templates/base.html:74
+#: portal/templates/base.html:78
+msgid "Home"
+msgstr ""
+
+#: portal/templates/base.html:84
 msgid "Admin"
 msgstr ""
 
-#: portal/templates/base.html:79
+#: portal/templates/base.html:89
+msgid "Invite to join"
+msgstr ""
+
+#: portal/templates/base.html:114
 msgid "My Profile"
 msgstr "Taku Panui"
 
-#: portal/templates/base.html:92
-msgid "Sign In"
-msgstr "Haina"
+#: portal/templates/base.html:163 portal/templates/base.html:188
+msgid "New"
+msgstr ""
+
+#: portal/templates/base.html:164
+msgid "Your indentity has not been yet verified."
+msgstr ""
+
+#: portal/templates/base.html:165
+msgid "Please upload a copy of a photo inentity here"
+msgstr ""
+
+#: portal/templates/base.html:175
+msgid "You have an invitation that hasn't been accepted yet."
+msgstr ""
+
+#: portal/templates/base.html:176
+msgid "Please click here to accept it"
+msgstr ""
+
+#: portal/templates/base.html:190
+msgid "A user has submited a photo idenentity for identity verification."
+msgstr ""
+
+#: portal/templates/base.html:191
+msgid "Please click here to review it"
+msgstr ""
+
+#: portal/templates/base.html:202
+msgid ""
+"You have a team representative authorization request that hasn't been "
+"accepted yet."
+msgstr ""
+
+#: portal/templates/base.html:204
+msgid "Please click here to review the request"
+msgstr ""
+
+#: portal/templates/base.html:217
+msgid ""
+"You have a request to review and endorse an application that hasn't been "
+"reviewed yet."
+msgstr ""
+
+#: portal/templates/base.html:219
+msgid "Please click here to review the application"
+msgstr ""
+
+#: portal/templates/done.html:23 portal/templates/wizard.html:23
+msgid "first step"
+msgstr ""
+
+#: portal/templates/done.html:24 portal/templates/wizard.html:24
+msgid "prev step"
+msgstr ""
+
+#: portal/templates/done.html:26 portal/templates/wizard.html:26
+msgid "submit"
+msgstr ""
+
+#: portal/templates/index.html:4 portal/templates/index.html:20
+#: portal/templates/pages/home.html:4 portal/templates/pages/home.html:7
+msgid "Apply for The Prime Minister’s Science Prize"
+msgstr ""
+
+#: portal/templates/index.html:12
+msgid "Account Approval Pending"
+msgstr ""
+
+#: portal/templates/index.html:13
+msgid ""
+"\n"
+"        Your profile has not been approved, Admin is looking into your "
+"request.\n"
+"        "
+msgstr ""
+
+#: portal/templates/index.html:25
+msgid "Application Drafts"
+msgstr ""
+
+#: portal/templates/index.html:42
+msgid "Current Submitted Applications"
+msgstr ""
+
+#: portal/templates/index.html:62 portal/templates/pages/home.html:14
+#: portal/templates/pages/home.html:21
+msgid "The Prime Minister's"
+msgstr ""
+
+#: portal/templates/index.html:68
+msgid "Read"
+msgstr ""
+
+#: portal/templates/index.html:68
+msgid "More"
+msgstr ""
+
+#: portal/templates/index.html:74
+msgid "Continue"
+msgstr ""
+
+#: portal/templates/index.html:74
+msgid "Application"
+msgstr ""
+
+#: portal/templates/index.html:82
+msgid "The application will be open on"
+msgstr ""
+
+#: portal/templates/index.html:83 portal/templates/index.html:89
+#: portal/templates/pages/home.html:27
+msgid "Apply"
+msgstr ""
+
+#: portal/templates/index.html:83
+msgid "Now"
+msgstr ""
+
+#: portal/templates/index.html:89
+msgid "Nominate to"
+msgstr ""
+
+#: portal/templates/nomination_detail.html:10
+#: portal/templates/testimony_detail.html:10
+msgid "Start Applying"
+msgstr ""
+
+#: portal/templates/pages/about.html:3 portal/templates/pages/about.html:7
+msgid "About the Prizes"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:44
+msgid "Coming Soon"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:48
+msgid "Our website is under construction, follow us for update now!"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:54
+msgid "Days"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:59
+msgid "Hours"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:64
+msgid "Minutes"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:69
+msgid "Seconds"
+msgstr ""
+
+#: portal/templates/pages/comingsoon.html:86
+#, fuzzy
+#| msgid "Confirm E-mail Address"
+msgid "Enter Email Address"
+msgstr "Whakaū Wāhitau Emailmera"
+
+#: portal/templates/pages/comingsoon.html:91
+msgid "Subscribe"
+msgstr ""
+
+#: portal/templates/profile.html:31 portal/templates/profile_detail.html:46
+msgid "Gender"
+msgstr ""
+
+#: portal/templates/profile.html:64
+msgid "Languages Spoken"
+msgstr ""
+
+#: portal/templates/profile.html:77
+msgid "Iwi Groups"
+msgstr ""
+
+#: portal/templates/profile.html:92 portal/templates/profile_detail.html:92
+msgid "Edit"
+msgstr ""
+
+#: portal/templates/profile.html:99
+msgid "Import From ORCID"
+msgstr ""
+
+#: portal/templates/profile.html:100
+msgid "Fetch all profile data from ORCID"
+msgstr ""
+
+#: portal/templates/profile_detail.html:12
+#, fuzzy
+#| msgid "My Profile"
+msgid "Your Profile"
+msgstr "Taku Panui"
+
+#: portal/templates/profile_detail.html:25 portal/templates/sidebar.html:100
+#, fuzzy
+#| msgid "My Profile"
+msgid "Profile"
+msgstr "Taku Panui"
+
+#: portal/templates/profile_detail.html:30 portal/templates/sidebar.html:115
+msgid "Career Stages"
+msgstr ""
+
+#: portal/templates/profile_detail.html:31
+msgid "Section #2..."
+msgstr ""
+
+#: portal/templates/profile_detail.html:32
+msgid "Section #3..."
+msgstr ""
+
+#: portal/templates/profile_detail.html:33
+msgid "Section #4..."
+msgstr ""
+
+#: portal/templates/profile_detail.html:50
+msgid "Year of birth"
+msgstr ""
+
+#: portal/templates/profile_detail.html:54
+msgid "Ethnicity"
+msgstr ""
+
+#: portal/templates/profile_detail.html:66
+msgid "Education Level"
+msgstr ""
+
+#: portal/templates/profile_detail.html:70
+msgid "Employment status"
+msgstr ""
+
+#: portal/templates/profile_detail.html:74
+msgid "Primary language spoken"
+msgstr ""
+
+#: portal/templates/profile_detail.html:78
+msgid "Lanuages spoken"
+msgstr ""
+
+#: portal/templates/profile_detail.html:95
+msgid "E-Mail"
+msgstr ""
+
+#: portal/templates/profile_form.html:28
+msgid "Update"
+msgstr ""
+
+#: portal/templates/profile_form.html:30
+msgid "Create"
+msgstr ""
+
+#: portal/templates/profile_protection_patterns.html:4
+msgid "Protection Patters"
+msgstr ""
+
+#: portal/templates/profile_protection_patterns.html:18
+msgid "Enable protection patterns"
+msgstr ""
+
+#: portal/templates/profile_summary.html:18
+msgid "User Details"
+msgstr ""
+
+#: portal/templates/profile_summary.html:30
+#, fuzzy
+#| msgid "Users"
+msgid "UserName"
+msgstr "Kaiwhakamahi"
+
+#: portal/templates/profile_summary.html:34
+msgid "OrcidId"
+msgstr ""
+
+#: portal/templates/profile_summary.html:46 portal/templates/sidebar.html:110
+#: portal/templates/sidebar.html:112
+msgid "Organisation Affiliations"
+msgstr ""
+
+#: portal/templates/profile_summary.html:51
+#: portal/templates/profile_summary.html:157
+#, fuzzy
+#| msgid "organisation"
+msgid "Organisation"
+msgstr "tōpūtanga"
+
+#: portal/templates/profile_summary.html:52
+msgid "Role"
+msgstr ""
+
+#: portal/templates/profile_summary.html:53
+#: portal/templates/profile_summary.html:159
+msgid "Start Date"
+msgstr ""
+
+#: portal/templates/profile_summary.html:54
+#: portal/templates/profile_summary.html:160
+msgid "End Date"
+msgstr ""
+
+#: portal/templates/profile_summary.html:72 portal/templates/sidebar.html:118
+msgid "External IDs"
+msgstr ""
+
+#: portal/templates/profile_summary.html:77
+msgid "Type"
+msgstr ""
+
+#: portal/templates/profile_summary.html:78
+msgid "Value"
+msgstr ""
+
+#: portal/templates/profile_summary.html:94 portal/templates/sidebar.html:125
+msgid "Academic Records"
+msgstr ""
+
+#: portal/templates/profile_summary.html:99
+msgid "Start Year"
+msgstr ""
+
+#: portal/templates/profile_summary.html:100
+msgid "Qualification"
+msgstr ""
+
+#: portal/templates/profile_summary.html:101
+msgid "Conferred On"
+msgstr ""
+
+#: portal/templates/profile_summary.html:102
+msgid "Discipline"
+msgstr ""
+
+#: portal/templates/profile_summary.html:103
+#: portal/templates/profile_summary.html:131
+msgid "Awarded By"
+msgstr ""
+
+#: portal/templates/profile_summary.html:104
+msgid "Research Topic"
+msgstr ""
+
+#: portal/templates/profile_summary.html:124 portal/templates/sidebar.html:130
+msgid "Prizes and/or Medals"
+msgstr ""
+
+#: portal/templates/profile_summary.html:129
+msgid "Year Of Recognition"
+msgstr ""
+
+#: portal/templates/profile_summary.html:130
+msgid "Award"
+msgstr ""
+
+#: portal/templates/profile_summary.html:132
+#, fuzzy
+#| msgid "Account"
+msgid "Amount"
+msgstr "Pūkete Kaiwhakamahi"
+
+#: portal/templates/profile_summary.html:152 portal/templates/sidebar.html:135
+msgid "Professional Bodies"
+msgstr ""
+
+#: portal/templates/profile_summary.html:158
+#, fuzzy
+#| msgid "description"
+msgid "Position"
+msgstr "whakaahuatanga"
+
+#: portal/templates/sidebar.html:8
+msgid "Applications"
+msgstr ""
+
+#: portal/templates/sidebar.html:18
+msgid "Saved application drafts"
+msgstr ""
+
+#: portal/templates/sidebar.html:20 portal/templates/sidebar.html:50
+#: portal/templates/sidebar.html:80
+msgid "Drafts"
+msgstr ""
+
+#: portal/templates/sidebar.html:26
+msgid "Submitted and previous applications"
+msgstr ""
+
+#: portal/templates/sidebar.html:28 portal/templates/sidebar.html:58
+#: portal/templates/sidebar.html:88
+msgid "Submitted"
+msgstr ""
+
+#: portal/templates/sidebar.html:38
+#, fuzzy
+#| msgid "organisation"
+msgid "Nominations"
+msgstr "tōpūtanga"
+
+#: portal/templates/sidebar.html:48
+msgid "Saved nomination drafts"
+msgstr ""
+
+#: portal/templates/sidebar.html:56
+msgid "Submitted and previous nominations"
+msgstr ""
+
+#: portal/templates/sidebar.html:68
+msgid "Testimonies"
+msgstr ""
+
+#: portal/templates/sidebar.html:78
+msgid "Saved testimony drafts"
+msgstr ""
+
+#: portal/templates/sidebar.html:86
+msgid "Submitted and previous testimonies"
+msgstr ""
+
+#: portal/templates/sidebar.html:121
+msgid "Curriculum Vitae"
+msgstr ""
+
+#: portal/templates/sidebar.html:140
+msgid "Protection Pattern"
+msgstr ""
+
+#: portal/templates/sidebar.html:161
+#, fuzzy
+#| msgid "Don't have an account or any other social network account?"
+msgid "Add or remove linked external system or social network accounts"
+msgstr "Kaore he putea kaute, he kaute hononga hapori ranei?"
+
+#: portal/templates/sidebar.html:169
+#, fuzzy
+#| msgid "Reset My Password"
+msgid "Set or reset your password"
+msgstr "Tautuhi i taku Kupuhipa"
 
 #: portal/templates/socialaccount/authentication_error.html:5
 #: portal/templates/socialaccount/authentication_error.html:8
@@ -327,6 +1322,28 @@ msgstr ""
 #: portal/templates/socialaccount/authentication_error.html:10
 msgid ""
 "An error occurred while attempting to login via your social network account."
+msgstr ""
+
+#: portal/templates/socialaccount/connections.html:4
+#: portal/templates/socialaccount/connections.html:12
+#, fuzzy
+#| msgid "Account Inactive"
+msgid "Account Connections"
+msgstr "Te Ake Kaute"
+
+#: portal/templates/socialaccount/connections.html:15
+msgid ""
+"You can sign in to your account using any of the following third party "
+"accounts"
+msgstr ""
+
+#: portal/templates/socialaccount/connections.html:50
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr ""
+
+#: portal/templates/socialaccount/connections.html:55
+msgid "Add a 3rd Party Account"
 msgstr ""
 
 #: portal/templates/socialaccount/login_cancelled.html:5
@@ -342,6 +1359,10 @@ msgid ""
 "\">sign in</a>."
 msgstr ""
 
+#: portal/templates/socialaccount/signup.html:6
+msgid "Signup"
+msgstr "Waitohu"
+
 #: portal/templates/socialaccount/signup.html:11
 #, python-format
 msgid ""
@@ -349,22 +1370,170 @@ msgid ""
 "%(site_name)s. As a final step, please complete the following form:"
 msgstr ""
 
-#: portal/views.py:175
-msgid "organisation"
-msgstr "tōpūtanga"
+#: portal/templates/subscription_detail.html:15
+msgid "Product Photo"
+msgstr ""
+
+#: portal/templatetags/tags.py:15
+msgid "yes"
+msgstr ""
+
+#: portal/templatetags/tags.py:15
+msgid "no"
+msgstr ""
+
+#: portal/views.py:89
+msgid "Your profile is not completed yet. Please complete your profile."
+msgstr ""
+
+#: portal/views.py:110 portal/views.py:239
+msgid "Your profile has not been approved, Admin is looking into your request"
+msgstr ""
+
+#: portal/views.py:247
+#, python-format
+msgid "Task submitted with a message '%s'"
+msgstr ""
+
+#: portal/views.py:272
+msgid "there is already user with this email address: "
+msgstr ""
+
+#: portal/views.py:284
+msgid "Please complete your profile."
+msgstr ""
+
+#: portal/views.py:397 portal/views.py:1101
+msgid ""
+"In order to import ORCID profile, please, link your ORCID account to your "
+"portal account."
+msgstr ""
+
+#: portal/views.py:565
+msgid "An invitation was sent to "
+msgstr ""
+
+#: portal/views.py:607
+msgid "I authorize the team leader."
+msgstr ""
+
+#: portal/views.py:616
+msgid "Authorize"
+msgstr ""
+
+#: portal/views.py:618
+msgid "I don't wish to join the team"
+msgstr ""
+
+#: portal/views.py:648
+msgid "A team member opted out of application"
+msgstr ""
+
+#: portal/views.py:649
+#, python-format
+msgid "Your team member %s has opted out of application"
+msgstr ""
+
+#: portal/views.py:664
+msgid "Please review the application and authorize your team representative."
+msgstr ""
+
+#: portal/views.py:713
+#, python-format
+msgid "%d invitation(s) to authorize the team representative sent."
+msgstr ""
+
+#: portal/views.py:728
+#, python-format
+msgid "%d invitation(s) to authorize the referee sent."
+msgstr ""
+
+#: portal/views.py:801
+msgid "You have already created an application. Please update it."
+msgstr ""
+
+#: portal/views.py:1094
+#, python-format
+msgid " %s ORCID records imported"
+msgstr ""
+
+#: portal/views.py:1442
+msgid "Import from ORCiD"
+msgstr ""
+
+#: portal/views.py:1503
+msgid "No Profile summary found"
+msgstr ""
+
+#: portal/views.py:1585
+msgid "A Referee opted out of Testimony"
+msgstr ""
+
+#: portal/views.py:1586
+#, python-format
+msgid "Your Referee %s has opted out of Testimony"
+msgstr ""
+
+#: portal/views.py:1596
+msgid "You opted out of Testimony."
+msgstr ""
+
+#: portal/views.py:1601
+msgid "Testimony is already submitted."
+msgstr ""
+
+#: portal/views.py:1609
+msgid "Please submit testimony."
+msgstr ""
+
+#: portal/views.py:1648
+#, python-format
+msgid "You have been invited by %(inviter)s to apply for %(round)s"
+msgstr ""
+
+#: portal/views.py:1721
+msgid "Add Testimony"
+msgstr ""
+
+#: portal/views.py:1723
+msgid "Edit Testimony"
+msgstr ""
+
+#: portal/views.py:1726
+msgid "Please Check the application details and submit testimony."
+msgstr ""
+
+#: users/adapters.py:42
+msgid "Invitation is missing!"
+msgstr ""
 
 #: users/apps.py:7
 msgid "Users"
 msgstr "Kaiwhakamahi"
 
-#: users/forms.py:16
+#: users/forms.py:21
 msgid "This username has already been taken."
 msgstr "Ko tenei ingoa ingoa kua tangohia."
 
-#: users/models.py:13
+#: users/forms.py:55
+msgid "[Prime Minister's Science Prizes] New User Signed up to join the portal"
+msgstr ""
+
+#: users/models.py:32
 msgid "Name of User"
 msgstr "Ingoa Kaiwhakamahi"
 
-#: users/views.py:34
+#: users/views.py:39
 msgid "Infos successfully updated"
 msgstr ""
+
+#~ msgid "Sign&nbsp;up&nbsp;here!"
+#~ msgstr "Haina i konei"
+
+#, python-format
+#~ msgid ""
+#~ "Already have an account? Then please <a href=\"%(login_url)s\">sign in</"
+#~ "a>."
+#~ msgstr ""
+#~ "Kei a koe he kaute? Na me whakauru ki <a href=\"%(login_url)s\">te "
+#~ "takiuru</a>."

@@ -1090,7 +1090,9 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             orcidhelper = OrcidHelper(request.user, self.orcid_sections)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, _(" %s ORCID records imported") % total_records_fetched)
+                messages.success(
+                    self.request, _(" %s ORCID records imported") % total_records_fetched
+                )
                 return HttpResponseRedirect(self.request.path_info)
             else:
                 messages.warning(
@@ -1643,8 +1645,8 @@ class NominationDetail(DetailView):
             nominator = self.object.nominator
             messages.info(
                 request,
-                _("You have been invited by %s to apply for %s")
-                % (nominator.full_name_with_email, self.object.round),
+                _("You have been invited by %(inviter)s to apply for %(round)s")
+                % dict(initer=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
 
