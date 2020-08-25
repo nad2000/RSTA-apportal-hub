@@ -136,9 +136,8 @@ class OrcidHelper:
             else "Don't Know"
         )
         academic_obj, _ = models.AcademicRecord.get_or_create(
-            put_code=orcid_data.get("put-code"), profile=self.profile,
+            put_code=orcid_data.get("put-code"), profile=self.profile, awarded_by=org
         )
-        academic_obj.awarded_by = org
         academic_obj.qualification = qualification
 
         if orcid_data.get("start-date"):
@@ -175,12 +174,15 @@ class OrcidHelper:
             award, _ = models.Award.objects.get_or_create(
                 name=orcid_data.get("title").get("title").get("value")
             )
-            rec_obj, _ = models.Recognition.objects.get_or_create(
-                put_code=orcid_data.get("put-code"), profile=self.profile
+            rec_obj, created = models.Recognition.objects.get_or_create(
+                put_code=orcid_data.get("put-code"),
+                profile=self.profile,
+                defaults=dict(awarded_by=org, award=award),
             )
 
-            rec_obj.awarded_by = org
-            rec_obj.award = award
+            if not created:
+                rec_obj.awarded_by = org
+                rec_obj.award = award
 
             if orcid_data.get("start-date"):
                 rec_obj.recognized_in = PartialDate.create(orcid_data.get("start-date")).year
@@ -218,8 +220,7 @@ class OrcidHelper:
         )
         value = orcid_data.get("external-id-value")
         ext_obj, _ = models.ProfilePersonIdentifier.get_or_create(
-            put_code=orcid_data.get("put-code")
+            profile=self.profile, put_code=orcid_data.get("put-code"), code=code
         )
-        ext_obj.code = code
         ext_obj.value = value
         ext_obj.save()

@@ -14,7 +14,19 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
     fieldsets = (
-        ("User", {"fields": ("title", "name", "middle_names", "orcid", "is_approved",)},),
+        (
+            "User",
+            {
+                "fields": (
+                    "title",
+                    "name",
+                    "middle_names",
+                    "orcid",
+                    "is_approved",
+                    "is_identity_verified",
+                )
+            },
+        ),
     ) + auth_admin.UserAdmin.fieldsets
     list_display = [
         "username",

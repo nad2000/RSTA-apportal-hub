@@ -3,7 +3,7 @@
 
   <div class="col-sm-9 col-md-7 col-lg-5 mx-auto my-3" style="max-width: 480px;">
 
-    <div class="card">
+    <div class="card card-account">
 
       <div class="card-header text-center">
         <ul class="nav nav-tabs card-header-tabs" role="tablist">
@@ -27,7 +27,7 @@
           <div class="tab-pane fade{% if active == 'login' %} in show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
 
             <!-- form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}" -->
-            <form autocomplete="on"  method="POST" action="{% url 'account_login' %}">
+            <form autocomplete="on" class="login-form" method="POST" action="{% url 'account_login' %}">
 
               {% csrf_token %}
 
@@ -99,7 +99,7 @@
       <div class="tab-pane fade{% if active == 'signup' %} in show active{% endif %}" id="signup" role="tabpanel" aria-labelledby="signup-tab">
 
         <!-- form class="login-form" id="signup_form" method="post" action="{% url 'account_signup' %}" -->
-        <form id="signup_form" method="post" action="{% url 'account_signup' %}">
+        <form id="signup_form" class="login-form" method="post" action="{% url 'account_signup' %}">
           {% csrf_token %}
           <input type="hidden" name="{{ redirect_field_name }}"
                                value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
@@ -129,12 +129,13 @@
           <div id="div_id_email" class="form-group">
             <label for="id_email" class=" requiredField">{% trans 'E-mail' %}<span class="asteriskField">*</span></label>
             <div> <input type="email" name="email"
+                                      value="{{ form.email.value }}"
                                       placeholder="{% trans 'E-mail address' %}" class="textinput textInput form-control" required id="id_email"> </div></div>
           <div id="div_id_username" class="form-group"> <label for="id_username" class="requiredField">
               {% trans 'Username' %}
               <span class="asteriskField">*</span> </label>
             <div>
-              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username">
+              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value }}">
             </div>
           </div>
 
@@ -145,11 +146,16 @@
           {% endif %}
 
           <div id="div_id_password1" class="form-group"> <label for="id_password1" class=" requiredField">
-              Password<span class="asteriskField">*</span> </label> <div> <input type="password" name="password1" placeholder="Password" class="textinput textInput form-control" required id="id_password1"> </div>
+              Password<span class="asteriskField">*</span> </label> <div>
+              <input type="password" name="password1" placeholder="Password" class="textinput textInput form-control" required id="id_password1" value="{{ form.password1.value }}"> </div>
 
           </div> <div id="div_id_password2" class="form-group">
             <label for="id_password2" class=" requiredField">
-              Password (again)<span class="asteriskField">*</span> </label> <div class=""> <input type="password" name="password2" placeholder="Password (again)" class="textinput textInput form-control" required="" id="id_password2"> </div> </div>
+              Password (again)<span class="asteriskField">*</span> </label> <div class="">
+              <input type="password" name="password2"
+                                    value="{{ form.password2.value }}"
+                                    placeholder="Password (again)" class="textinput textInput form-control"
+                                    required="" id="id_password2"> </div> </div>
 
           <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans "Sign Up" %} &raquo;</button>
         </form>
@@ -159,6 +165,4 @@
   </div>
 </div>
 </div>
-
 </div>
-

@@ -5,6 +5,18 @@
 
 {% block content %}
 <div class="container">
+  {% if not request.user.is_approved %}
+
+    <div class="container">
+      <div class="jumbotron">
+        <h1>{% trans "Account Approval Pending" %}</h1>
+        <p>{% blocktrans %}
+        Your profile has not been approved, Admin is looking into your request.
+        {% endblocktrans %}</p>
+      </div>
+    </div>
+
+  {% else %}
 <!-- h1>{% trans "Apply for The Prime Minister’s Science Prize" %}</h1 -->
 
   {% if draft_applications %}
@@ -56,7 +68,7 @@
           {% trans "Read" %} <b>{% trans "More" %}</b>
         </a>
         {% if scheme.current_round %}
-          {% if request.user.is_applicant and scheme.can_be_applied_to %}
+          {#% if request.user.is_applicant and scheme.can_be_applied_to %#}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
               <a href="{% url 'application-update' pk=scheme.application.id %}" class="btn btn-primary"
                 style="text-transform: uppercase;"> {% trans "Continue" %} <b>{% trans "Application" %}</b>
@@ -71,12 +83,12 @@
                 {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
               </a>
             {% endif %}
-          {% endif %}
-          {% if request.user.is_nominator and scheme.can_be_nominated_to %}
+          {#% endif %#}
+          {#% if request.user.is_nominator and scheme.can_be_nominated_to %#}
             <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
             </a>
-          {% endif %}
+          {#% endif %#}
         {% endif %}
       </div>
     </dic>
@@ -85,6 +97,7 @@
 
   {% endfor %}
 
+  {% endif %}
 </div>
 
 {% endblock content %}

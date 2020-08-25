@@ -62,6 +62,21 @@ class TableInlineFormset(LayoutObject):
         return render_to_string(self.template, {"formset": formset})
 
 
+class InlineSubform(LayoutObject):
+    # template = "mycollections/formset.html"
+    template = "portal/sub_form.html"
+
+    def __init__(self, form_name_in_context, template=None):
+        self.formset_name_in_context = form_name_in_context
+        self.fields = []
+        if template:
+            self.template = template
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK):
+        form = context[self.formset_name_in_context]
+        return render_to_string(self.template, {"form": form})
+
+
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = Subscription
@@ -78,7 +93,7 @@ class ProfileForm(forms.ModelForm):
     def clean_is_accepted(self):
         """Allow only 'True'"""
         if not self.cleaned_data["is_accepted"]:
-            raise forms.ValidationError("Please read and consent to the Privacy Policy")
+            raise forms.ValidationError(_("Please read and consent to the Privacy Policy"))
         return True
 
     class Meta:
@@ -109,24 +124,24 @@ class ProfileForm(forms.ModelForm):
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
-        labels = dict(is_accepted="I have read and agree to the <a href='#'>Privacy Policy</a>")
+        labels = dict(is_accepted=_("I have read and agree to the <a href='#'>Privacy Policy</a>"))
 
 
 class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
+        user = kwargs.get("initial", {}).get("user")
 
         self.helper = FormHelper(self)
-        self.helper.include_media = False
         # self.helper.help_text_inline = True
         # self.helper.html5_required = True
+
         fields = [
             Fieldset(
-                _(
-                    "Team representative"
-                    if self.instance.is_team_application
-                    else "Individual applicant"
-                ),
+                _("Team representative")
+                if self.instance.is_team_application
+                else _("Individual applicant"),
                 Row(
                     Column("title", css_class="form-group col-1 mb-0"),
                     Column("first_name", css_class="form-group col-3 mb-0"),
@@ -156,22 +171,36 @@ class ApplicationForm(forms.ModelForm):
                     Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
             )
-        self.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    _("Team" if self.instance.is_team_application else "Applicant"),
-                    css_id="applicant",
-                    *fields,
-                ),
-                Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
-                Tab(
-                    _("Summary"),
-                    Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-                    Field("summary"),
-                ),
+        tabs = [
+            Tab(
+                _("Team") if self.instance.is_team_application else _("Applicant"),
+                css_id="applicant",
+                *fields,
             ),
+            Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
+            Tab(
+                _("Summary"),
+                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+                Field("summary"),
+            ),
+        ]
+        if user and not user.is_identity_verified:
+            tabs.append(
+                Tab(
+                    _("Identity Verification"),
+                    Field(
+                        "photo_identity",
+                        data_toggle="tooltip",
+                        title=self.fields["photo_identity"].help_text,
+                    ),
+                    css_id="id-verification",
+                ),
+            )
+
+        self.helper.layout = Layout(
+            TabHolder(*tabs),
             ButtonHolder(
-                Submit("save", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
                     """
@@ -193,7 +222,7 @@ class ApplicationForm(forms.ModelForm):
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
-                attrs={"data-placeholder": _("Choose an organisationor or create a new one ...")},
+                attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
             # summary=SummernoteWidget(),
             summary=SummernoteInplaceWidget(),
@@ -288,7 +317,7 @@ class ProfileSectionFormSetHelper(FormHelper):
 
     template = "portal/table_inline_formset.html"
 
-    def __init__(self, previous_step=None, next_step=None, *args, **kwargs):
+    def __init__(self, profile=None, previous_step=None, next_step=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # add_more_button = Button(
         #     "add_more", _("Add More"), css_class="btn btn-outline-warning", css_id="add_more"
@@ -307,7 +336,13 @@ class ProfileSectionFormSetHelper(FormHelper):
                 next_button.input_type = "submit"
                 self.add_input(next_button)
             else:
-                self.add_input(Submit("save", _("Save"), css_class="float-right"))
+                self.add_input(
+                    Submit(
+                        "save",
+                        _("Save") if profile.is_completed else _("Finish and Save"),
+                        css_class="btn-primary float-right",
+                    )
+                )
         else:
             # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
@@ -339,7 +374,7 @@ class NominationForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
-                Submit("save", _("Save Draft"), css_class="btn btn-primary",),
+                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
                 Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
@@ -403,3 +438,53 @@ class TestimonyForm(forms.ModelForm):
         ]
 
         widgets = dict(summary=SummernoteInplaceWidget(),)
+
+
+class IdentityVerificationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    """
+                    <embed src="{% url 'identity-verification-file' pk=object.id %}"
+                        type="application/pdf"
+                        frameBorder="0"
+                        scrolling="auto"
+                        height="100%"
+                        width="100%"
+                        style="min-height: 30rem;">
+                    </embed>
+                    """
+                ),
+                height="60%",
+            ),
+            ButtonHolder(
+                Submit("accept", _("Accept"), css_class="btn btn-primary",),
+                Submit("reject", _("Request Resubmission"), css_class="btn btn-outline-danger",),
+                HTML(
+                    """
+                    <a href="{{ view.get_success_url }}"
+                    type="button"
+                    role="button"
+                    class="btn btn-secondary"
+                    id="cancel">
+                        %s
+                    </a>"""
+                    % _("Cancel")
+                ),
+                css_class="mb-4",
+            ),
+            Field(
+                "resolution",
+                data_toggle="tooltip",
+                title=_("Please add a comment if you request a resubmission"),
+            ),
+        )
+
+    class Meta:
+        model = models.IdentityVerification
+        fields = ["file", "resolution"]

@@ -1,7 +1,17 @@
+from functools import cached_property
+from hashlib import md5
+from urllib.parse import urlencode
+
 from allauth.socialaccount.models import SocialToken
-from common.models import HelperMixin
+from common.models import TITLES, HelperMixin
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, CharField
+from django.db.models import (
+    SET_NULL,
+    BooleanField,
+    CharField,
+    DateTimeField,
+    ForeignKey,
+)
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
@@ -9,7 +19,7 @@ from simple_history.models import HistoricalRecords
 
 class User(HelperMixin, AbstractUser):
 
-    title = CharField(max_length=40, null=True, blank=True)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     middle_names = CharField(
         _("middle names"),
         blank=True,
@@ -23,6 +33,10 @@ class User(HelperMixin, AbstractUser):
     orcid = CharField("ORCID iD", blank=True, null=True, max_length=80)
     history = HistoricalRecords()
     is_approved = BooleanField("Is Approved", default=True)
+
+    is_identity_verified = BooleanField(null=True, blank=True)
+    identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
+    identity_verified_at = DateTimeField(null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
@@ -70,3 +84,21 @@ class User(HelperMixin, AbstractUser):
                     self.save()
 
                 return access_token
+
+    @cached_property
+    def avatar(self):
+        return self.image_url(size=38)
+
+    def image_url(self, size=None, default="identicon"):
+        """Return user image link or Gravatar service user avatar URL."""
+        sa = self.socialaccount_set.filter(provider='google').first()
+        if not (sa and (url := sa.extra_data.get("picture"))):
+            # default = "https://www.example.com/default.jpg"
+            url = (
+                "https://www.gravatar.com/avatar/" + md5(self.email.lower().encode()).hexdigest() + "?"
+            )
+            queries = dict(d=default)
+            if size:
+                queries["s"] = str(size)
+            url += urlencode(queries)
+        return url

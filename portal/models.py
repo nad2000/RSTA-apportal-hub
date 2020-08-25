@@ -3,13 +3,14 @@ import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin
 
-from common.models import Base, Model
+from common.models import TITLES, Base, Model
+from common.utils import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
+from django.core.mail import mail_admins
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import (
     CASCADE,
@@ -316,7 +317,7 @@ class OrgIdentifierType(Model):
 
     class Meta:
         db_table = "org_identifier_type"
-        verbose_name = "organisation identifier type"
+        verbose_name = _("organisation identifier type")
         ordering = ["code"]
 
 
@@ -336,16 +337,28 @@ class Qualification(Model):
         ordering = ["definition"]
 
 
+def default_organisation_code(name):
+    name = name.lower()
+    code = "".join(w[0] for w in name.split() if w).upper()
+    return code
+
+
 class Organisation(Model):
 
     name = CharField(max_length=200)
     identifier_type = ForeignKey(OrgIdentifierType, null=True, blank=True, on_delete=SET_NULL)
     identifier = CharField(max_length=24, null=True, blank=True)
+    code = CharField(max_length=10, blank=True, default="")
 
     history = HistoricalRecords(table_name="organisation_history")
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = default_organisation_code(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = "organisation"
@@ -567,6 +580,7 @@ class Nominee(Model):
 
 class Application(Model):
 
+    number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
     application_tite = CharField(max_length=200, null=True, blank=True)
 
@@ -576,7 +590,7 @@ class Application(Model):
     team_name = CharField(max_length=200, null=True, blank=True)
 
     # Applicant or nominator:
-    title = CharField(max_length=40, null=True, blank=True)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     first_name = CharField(max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -594,33 +608,62 @@ class Application(Model):
     postal_address = CharField(max_length=120)
     city = CharField(max_length=80)
     postcode = CharField(max_length=4)
-    daytime_phone = CharField("daytime phone numbrer", max_length=12)
-    mobile_phone = CharField("mobild phone number", max_length=12)
+    daytime_phone = CharField("daytime phone number", max_length=12)
+    mobile_phone = CharField("mobile phone number", max_length=12)
     email = EmailField("email address", blank=True)
-
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
         blank=True,
         null=True,
         verbose_name=_("filled-in entry form"),
-        help_text=_("Please uploade filled-in entrant or nominee entry form"),
+        help_text=_("Please upload filled-in entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
+    )
+    photo_identity = PrivateFileField(
+        null=True,
+        blank=True,
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
+        verbose_name=_("Photo Identity"),
+        help_text=_("Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"),
     )
 
     history = HistoricalRecords(table_name="application_history")
-
     state = FSMField(default="new")
 
-    @transition(field=state, source="new", target="draft")
+    def save(self, *args, **kwargs):
+        if not self.number:
+            code = self.round.scheme.code
+            org_code = self.org.code
+            year = f"{self.round.opens_on.year}"
+            last_number = (
+                Application.where(
+                    round=self.round,
+                    number__isnull=False,
+                    number__istartswith=f"{code}-{org_code}-{year}",
+                )
+                .order_by("-number")
+                .values("number")
+                .first()
+            )
+            application_number = (
+                int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
+            )
+            self.number = f"{code}-{org_code}-{year}-{application_number:03}"
+        super().save(*args, **kwargs)
+
+    @transition(field=state, source=["draft", "new"], target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft"], target="submitted")
+    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
         pass
 
     def __str__(self):
-        return self.application_tite or self.round.title
+        title = self.application_tite or self.round.title
+        if self.number:
+            title = f"{title} ({self.number})"
+        return title
 
     def get_absolute_url(self):
         return reverse("application", kwargs={"pk": self.pk})
@@ -653,7 +696,7 @@ class Application(Model):
 
 
 class Member(Model):
-    """Application team memeber."""
+    """Application team member."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
     email = EmailField(max_length=120)
@@ -733,14 +776,16 @@ class StateField(StatusField, FSMField):
     pass
 
 
-INVITATION_TYPES = Choices(("A", "apply"), ("J", "join"), ("R", "testify"), ("T", "authorize"),)
+INVITATION_TYPES = Choices(
+    ("A", _("apply")), ("J", _("join")), ("R", _("testify")), ("T", _("authorize")),
+)
 
 
 class Invitation(Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
-    invitee = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
     first_name = CharField(max_length=30)
@@ -793,7 +838,7 @@ class Invitation(Model):
     )
     def send(self, request=None, by=None):
         if not by:
-            by = request.user if request else self.invitee
+            by = request.user if request else self.inviter
         url = reverse("onboard-with-token", kwargs=dict(token=self.token))
         if request:
             url = request.build_absolute_uri(url)
@@ -819,11 +864,9 @@ class Invitation(Model):
             )
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
-            body = _("You were nominated for %s by %s. Please follow the link: %s") % (
-                self.nomination.round,
-                self.invitee,
-                url,
-            )
+            body = _(
+                "You were nominated for %(round)s by %(inviter)s. Please follow the link: %(url)s"
+            ) % dict(round=self.nomination.round, inviter=self.inviter, url=url,)
         else:
             subject = _("You are invited to join the portal")
             body = _("You are invited to join the portal. Please follow the link: %s") % url
@@ -905,7 +948,7 @@ class Testimony(Model):
         pass
 
     def __str__(self):
-        return "Testimony By Referee {0} For Application {1}".format(
+        return _("Testimony By Referee {0} For Application {1}").format(
             self.referee, self.referee.application
         )
 
@@ -942,6 +985,14 @@ class CurriculumVitae(Model):
         db_table = "curriculum_vitae"
 
 
+def default_scheme_code(title):
+    title = title.lower()
+    code = "".join(w[0] for w in title.split() if w).upper()
+    if not code.startswith("PM"):
+        code = "PM" + code
+    return code
+
+
 class Scheme(Model):
     title = CharField(max_length=100)
     groups = ManyToManyField(
@@ -956,10 +1007,16 @@ class Scheme(Model):
     pid_required = BooleanField(_("photo ID required"), default=True)
     animal_ethics_required = BooleanField(default=False)
     # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
+    code = CharField(max_length=10, blank=True, default="")
 
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = default_scheme_code(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -1017,8 +1074,10 @@ class Round(Model):
 
 
 class SchemeApplicationGroup(Base):
-    scheme = ForeignKey("SchemeApplication", on_delete=CASCADE, db_column="scheme_id")
-    group = ForeignKey(Group, on_delete=CASCADE)
+    scheme = ForeignKey(
+        "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"
+    )
+    group = ForeignKey(Group, on_delete=CASCADE, related_name="+")
 
     class Meta:
         managed = False
@@ -1035,11 +1094,17 @@ class SchemeApplication(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
-    application = ForeignKey(
-        Application, null=True, on_delete=DO_NOTHING, db_constraint=False, db_index=False,
-    )
     can_be_applied_to = BooleanField(null=True, blank=True)
     can_be_nominated_to = BooleanField(null=True, blank=True)
+    application = ForeignKey(
+        Application,
+        null=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
+    )
+    application_number = CharField(max_length=24, null=True, blank=True)
     application_submitted_by = ForeignKey(
         User,
         blank=True,
@@ -1119,7 +1184,7 @@ class Nomination(Model):
                 last_name=self.last_name,
                 org=self.org,
                 organisation=self.org.name,
-                invitee=self.nominator,
+                inviter=self.nominator,
             ),
         )
         i.send(*args, **kwargs)
@@ -1136,3 +1201,70 @@ class Nomination(Model):
 
     class Meta:
         db_table = "nomination"
+
+
+class IdentityVerification(Model):
+
+    file = PrivateFileField(
+        null=True,
+        blank=True,
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.user.id)],
+        verbose_name=_("Photo Identity"),
+    )
+    application = OneToOneField(
+        Application,
+        on_delete=SET_NULL,
+        null=True,
+        blank=True,
+        related_name="identity_verification",
+    )
+    user = ForeignKey(User, on_delete=CASCADE, related_name="identity_verifications")
+    resolution = TextField(blank=True, null=True)
+    state = FSMField(default="new", db_index=True)
+
+    @transition(field=state, source="new", target="draft")
+    def save_draft(self, *args, **kwargs):
+        pass
+
+    @transition(field=state, source=["new", "draft", "needs-resubmission", "sent"], target="sent")
+    def send(self, request, *args, **kwargs):
+        url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
+        mail_admins(
+            _("User Identity Verification"),
+            _(
+                "User %(user)s submitted a photo identity for verification. Please review the ID here: %(url)s"
+            )
+            % dict(user=self.user, url=url),
+        )
+
+    @transition(
+        field=state, source=["new", "draft", "sent", "submitted", "accepted"], target="accepted"
+    )
+    def accept(self, *args, request=None, **kwargs):
+        self.user.is_identity_verified = True
+        if request:
+            self.identity_verified_by = request.user
+        self.identity_verified_at = datetime.now()
+        self.user.save()
+
+    @transition(
+        field=state, source=["new", "draft", "sent", "accepted"], target="needs-resubmission"
+    )
+    def request_resubmission(self, request, *args, **kwargs):
+        url = request.build_absolute_uri(reverse("photo-identity"))
+        subject = _("Your identity verification reqire your attention")
+        body = _("Please resubmit a new copy of your ID: %s") % url
+
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[self.user.email],
+            fail_silently=False,
+        )
+
+    def __str__(self):
+        return _('Identity Verification of "%s"') % self.user
+
+    class Meta:
+        db_table = "identity_verification"

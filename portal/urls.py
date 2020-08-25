@@ -10,8 +10,7 @@ from . import apis, models, views
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
-    # path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
-    # path("lllll", TemplateView.as_view(template_name="portal/login.html"), name="lllll"),
+    path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path(
         "robots.txt",
         cache_page(3600)(
@@ -50,6 +49,23 @@ urlpatterns = [
     ),
     path("myprofile/", views.user_profile, name="my-profile"),
     path("account/", views.AccountView.as_view(), name="account"),
+    path(
+        "identity-verification/",
+        include(
+            [
+                path(
+                    "<int:pk>/file",
+                    views.IdentityVerificationFileView.as_view(),
+                    name="identity-verification-file",
+                ),
+                path(
+                    "<int:pk>",
+                    views.IdentityVerificationView.as_view(),
+                    name="identity-verification",
+                ),
+            ]
+        ),
+    ),
     path("profiles/<int:pk>", views.ProfileDetail.as_view(), name="profile-instance"),
     path(
         "profile/",
@@ -115,6 +131,7 @@ urlpatterns = [
     path("index", views.index, name="index"),
     path("home", views.index, name="home"),
     path("index.html", views.index, name="index.html"),
+    path("photo_identity", views.photo_identity, name="photo-identity"),
     path("test_task/<message>", views.test_task),
     path("onboard/<token>", views.check_profile, name="onboard-with-token"),
     path("onboard", views.check_profile, name="onboard"),
@@ -129,30 +146,40 @@ urlpatterns = [
             [
                 path(
                     "org/",
-                    views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
+                    cache_page(180)(
+                        views.OrgAutocomplete.as_view(
+                            model=models.Organisation, create_field="name"
+                        )
+                    ),
                     name="org-autocomplete",
                 ),
                 path(
                     "fos/",
-                    views.FosAutocomplete.as_view(model=models.FieldOfStudy),
+                    cache_page(180)(views.FosAutocomplete.as_view(model=models.FieldOfStudy)),
                     name="fos-autocomplete",
                 ),
                 path(
                     "award/",
-                    views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
+                    cache_page(180)(
+                        views.AwardAutocomplete.as_view(model=models.Award, create_field="name")
+                    ),
                     name="award-autocomplete",
                 ),
                 path(
                     "qualification/",
-                    views.QualificationAutocomplete.as_view(
-                        model=models.Qualification, create_field="description"
+                    cache_page(180)(
+                        views.QualificationAutocomplete.as_view(
+                            model=models.Qualification, create_field="description"
+                        )
                     ),
                     name="qualification-autocomplete",
                 ),
                 path(
                     "person-identifier/",
-                    views.PersonIdentifierAutocomplete.as_view(
-                        model=models.PersonIdentifierType, create_field="description"
+                    cache_page(180)(
+                        views.PersonIdentifierAutocomplete.as_view(
+                            model=models.PersonIdentifierType, create_field="description"
+                        )
                     ),
                     name="person-identifier-autocomplete",
                 ),

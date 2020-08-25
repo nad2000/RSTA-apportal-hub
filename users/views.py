@@ -1,3 +1,4 @@
+from allauth.account import views as allauth_views
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -7,7 +8,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
-from allauth.account import views as allauth_views
 
 from . import forms
 

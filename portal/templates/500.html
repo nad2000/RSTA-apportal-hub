@@ -1,13 +1,34 @@
 {% extends "base.html" %}
+{% load static i18n compress %}
 
 {% block title %}Server Error{% endblock %}
 
 {% block content %}
-<h1>Ooops!!! 500</h1>
+  <h1>{% trans "Ooops!!! 500" %}</h1>
 
-<h3>Looks like something went wrong!</h3>
+  <h3>{% trans "Looks like something went wrong!" %}</h3>
 
-<p>We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing.</p>
+  <p>
+  {% trans "We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing." %}
+  </p>
 {% endblock content %}
 
+{% block javascript %}
+  {{ block.super }}
+  <script src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js" integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo" crossorigin="anonymous"></script>
+  {% if sentry_event_id %}
+    <script>
+      Sentry.init({dsn: '{{ SENTRY_DSN }}'});
+      Sentry.showReportDialog({
+        lang: '{{ LANGUAGE_CODE }}',
+        title: '{% trans "Looks like something went wrong!" %}',
+        subtitle: '{% trans "We track these errors automatically, but if the problem persists feel free to contact us. In the meantime, try refreshing." %}',
+        user: {
+          name: '{{ request.user.full_name }}',
+          email: '{{ request.user.email }}'
+        },
+        eventId: '{{ sentry_event_id }}' })
+    </script>
+  {% endif %}
 
+{% endblock javascript %}

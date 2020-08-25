@@ -1,7 +1,6 @@
 from django.db.models import DateTimeField
 from django.db.models import Model as Base
 from model_utils import Choices
-from simple_history.models import HistoricalRecords
 
 SEX_CHOICES = Choices("female", "male", "other")
 
@@ -18,6 +17,8 @@ ETHNICITY_COICES = Choices(
     "New Zealander",
     "Other",
 )
+
+TITLES = Choices(("MR", "Mr"), ("MRS", "Mrs"), ("MS", "Ms"), ("DR", "Dr"), ("PROF", "Prof"),)
 
 
 class TimeStampMixin(Base):

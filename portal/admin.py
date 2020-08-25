@@ -206,6 +206,7 @@ class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
 admin.site.register(models.Award)
 admin.site.register(models.Member)
 admin.site.register(models.Referee)
+admin.site.register(models.IdentityVerification)
 
 
 @admin.register(models.Nomination)

@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
+from common.utils import send_mail
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -11,7 +12,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
@@ -20,6 +20,7 @@ from django.forms import widgets
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.template.loader import get_template
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
@@ -31,6 +32,8 @@ from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 from weasyprint import HTML
+from private_storage.views import PrivateStorageDetailView
+from sentry_sdk import last_event_id
 
 from . import forms, models, tables
 from .forms import Submit
@@ -46,12 +49,21 @@ from .tasks import notify_user
 from .utils.orcid import OrcidHelper
 
 
+def handler500(request, *args, **argv):
+    return render(
+        request,
+        "500.html",
+        {"sentry_event_id": last_event_id(), "SENTRY_DSN": settings.SENTRY_DSN,},
+        status=500,
+    )
+
+
 def shoud_be_onboarded(function):
     """
-    Check if the authentication user has a profile.  If it is misssing,
-    the user gets redirected to 'onboard' to create a profile.
+    Check if the authentication user has a profile.  If it is missing,
+    the user gets redirected to 'on-board' to create a profile.
 
-    If the user is onboarded, add the profile to the request object.
+    If the user is on-board, add the profile to the request object.
     """
 
     @wraps(function)
@@ -60,7 +72,26 @@ def shoud_be_onboarded(function):
         user = request.user
         profile = Profile.where(user=user).first()
         if not profile or not profile.is_completed:
-            return redirect(reverse("onboard") + "?next=" + quote(request.get_full_path()))
+            view_name = "profile-create"
+            if profile:
+                if not profile.is_employments_completed:
+                    view_name = "profile-employments"
+                elif not profile.is_career_stages_completed:
+                    view_name = "profile-career-stages"
+                elif not profile.is_external_ids_completed:
+                    view_name = "profile-external-ids"
+                elif not profile.is_cvs_completed:
+                    view_name = "profile-cvs"
+                elif not profile.is_academic_records_completed:
+                    view_name = "profile-academic-records"
+                elif not profile.is_recognitions_completed:
+                    view_name = "profile-recognitions"
+                elif not profile.is_professional_bodies_completed:
+                    view_name = "profile-professional-records"
+            messages.info(
+                request, _("Your profile is not completed yet. Please complete your profile.")
+            )
+            return redirect(reverse(view_name) + "?next=" + quote(request.get_full_path()))
         request.profile = profile
         return function(request, *args, **kwargs)
 
@@ -171,16 +202,34 @@ def subscribe(request):
 @login_required
 @shoud_be_onboarded
 def index(request):
-    outstanding_invitations = models.Invitation.outstanding_invitations(request.user)
+    if "error" in request.GET:
+        raise Exception(request.GET["error"])
+    user = request.user
+    outstanding_invitations = models.Invitation.outstanding_invitations(user)
     if request.user.is_approved:
-        outstanding_authorization_requests = models.Member.outstanding_requests(request.user)
-        outstanding_testimony_requests = models.Referee.outstanding_requests(request.user)
-        draft_applications = models.Application.user_draft_applications(request.user)
+        outstanding_authorization_requests = models.Member.outstanding_requests(user)
+        outstanding_testimony_requests = models.Referee.outstanding_requests(user)
+        draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
-            request.user, ["submitted", "review", "accepted"]
+            user, ["submitted", "review", "accepted"]
         )
+        need_to_verify_identity = (
+            not user.is_identity_verified
+            and Application.where(
+                Q(photo_identity__isnull=True) | Q(photo_identity=""),
+                state__in=["new", "draft"],
+                submitted_by=user,
+            ).exists()
+        )
+        if user.is_staff:
+            outstanding_identity_verifications = models.IdentityVerification.where(
+                state__in=["new", "sent"]
+            )
+            three_days_ago = timezone.now() - timedelta(days=3)
+
         schemes = (
-            models.SchemeApplication.where(groups__in=request.user.groups.all())
+            # models.SchemeApplication.where(groups__in=request.user.groups.all())
+            models.SchemeApplication.where()
             # .filter(
             #     Q(application__isnull=True)
             #     | Q(application__submitted_by=request.user)
@@ -198,7 +247,7 @@ def index(request):
 @login_required
 def test_task(req, message):
     notify_user(req.user.id, message)
-    messages.info(req, f"Task submitted with a message '{message}'")
+    messages.info(req, _("Task submitted with a message '%s'") % message)
     return render(req, "index.html", locals())
 
 
@@ -352,7 +401,11 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
                         "link your ORCID account to your portal account."
                     ),
                 )
-                return redirect("socialaccount_connections")
+                return redirect(
+                    reverse("socialaccount_connections")
+                    + "?next="
+                    + quote(request.get_full_path())
+                )
 
     def get_object(self):
         if "pk" in self.kwargs:
@@ -624,6 +677,11 @@ class ApplicationView(LoginRequiredMixin):
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["user"] = self.request.user
+        return initial
+
     @property
     def round(self):
         if "nomination" in self.kwargs:
@@ -659,6 +717,11 @@ class ApplicationView(LoginRequiredMixin):
                             _("%d invitation(s) to authorize the team representative sent.")
                             % count,
                         )
+            if not self.request.user.is_identity_verified and "identity_verification" in context:
+                identity_verification = context["identity_verification"]
+                if identity_verification.is_valid():
+                    identity_verification.save()
+
             if referees.is_valid():
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
@@ -668,6 +731,24 @@ class ApplicationView(LoginRequiredMixin):
                     messages.success(
                         self.request, _("%d invitation(s) to authorize the referee sent.") % count,
                     )
+            if "photo_identity" in form.changed_data and form.instance.photo_identity:
+                iv, created = models.IdentityVerification.get_or_create(
+                    application=form.instance,
+                    user=self.request.user,
+                    defaults=dict(file=form.instance.photo_identity),
+                )
+                iv.send(self.request)
+                iv.save()
+
+        if not has_deleted:
+            a = self.object
+            if "submit" in self.request.POST:
+                a.submit(request=self.request)
+                a.save()
+            elif "save_draft" in self.request.POST:
+                a.save_draft(request=self.request)
+                a.save()
+
         if has_deleted:  # keep editing
             return HttpResponseRedirect(self.request.path_info)
         return resp
@@ -688,6 +769,7 @@ class ApplicationView(LoginRequiredMixin):
                     if self.object
                     else forms.MemberFormSet()
                 )
+
         if self.request.POST:
             context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
         else:
@@ -720,7 +802,7 @@ class ApplicationCreate(ApplicationView, CreateView):
             )
             if a:
                 messages.warning(
-                    self.request, _("You have aleady created an application. Please update it.")
+                    self.request, _("You have already created an application. Please update it.")
                 )
                 return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
@@ -910,6 +992,53 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
+@login_required
+def photo_identity(request):
+    """Redirect to the application section for a photo identity resubmission."""
+    iv = models.IdentityVerification.where(~Q(state="accepted", user=request.user)).first()
+    url = request.build_absolute_uri(
+        reverse("application-update", kwargs=dict(pk=iv.application.id)) + "?verification=1"
+    )
+    return redirect(url)
+
+
+class IdentityVerificationFileView(LoginRequiredMixin, PrivateStorageDetailView):
+    model = models.IdentityVerification
+    model_file_field = "file"
+
+    # def get_queryset(self):
+    #     return super().get_queryset().filter(...)
+
+    def can_access_file(self, private_file):
+        # When the object can be accessed, the file may be downloaded.
+        # This overrides PRIVATE_STORAGE_AUTH_FUNCTION
+        return True
+
+
+class IdentityVerificationView(LoginRequiredMixin, UpdateView):
+
+    model = models.IdentityVerification
+    template_name = "form.html"
+    form_class = forms.IdentityVerificationForm
+
+    def has_permission(self):
+        return self.request.user.is_staff and super().has_permission()
+
+    def get_success_url(self):
+        return reverse("index")
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        iv = self.object
+        if "accept" in self.request.POST:
+            iv.accept(request=self.request)
+            iv.save()
+        elif "reject" in self.request.POST:
+            iv.request_resubmission(request=self.request)
+            iv.save()
+        return resp
+
+
 class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     template_name = "profile_section.html"
@@ -959,33 +1088,37 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         kwargs["can_delete"] = True
         return kwargs
 
-    # def get_initial(self):
-    #     defaults = self.get_defaults()
-    #     initial = super().get_initial()
-    #     if not initial:
-    #         initial = [dict()]
-    #         if self.request.method != "GET":
-    #             initial = initial * int(self.request.POST["form-TOTAL_FORMS"])
-    #     for row in initial:
-    #         row.update(defaults)
-    #     return initial
-
     def post(self, request, *args, **kwargs):
         """Check the POST request call """
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidHelper(request.user, self.orcid_sections)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()
             if user_has_linked_orcid:
-                messages.success(self.request, f" {total_records_fetched} ORCID records imported")
+                messages.success(
+                    self.request, _(" %s ORCID records imported") % total_records_fetched
+                )
                 return HttpResponseRedirect(self.request.path_info)
             else:
-                return redirect("socialaccount_connections")
-        return super(ProfileSectionFormSetView, self).post(request, *args, **kwargs)
+                messages.warning(
+                    self.request,
+                    _(
+                        "In order to import ORCID profile, please, "
+                        "link your ORCID account to your portal account."
+                    ),
+                )
+                return redirect(
+                    reverse("socialaccount_connections")
+                    + "?next="
+                    + quote(request.get_full_path())
+                )
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        profile = self.request.user.profile
+        context["profile"] = profile
         previous_step = next_step = None
-        if not self.request.user.profile.is_completed:
+        if not profile.is_completed:
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if view_idx > 0:
                 previous_step = self.section_views[view_idx - 1]
@@ -995,7 +1128,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                 context["next_step"] = next_step
             context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
         context["helper"] = forms.ProfileSectionFormSetHelper(
-            previous_step=previous_step, next_step=next_step
+            profile=profile, previous_step=previous_step, next_step=next_step
         )
         return context
 
@@ -1310,7 +1443,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
+            Submit("load_from_orcid", _("Import from ORCiD"), css_class="btn-orcid")
         )
         return context
 
@@ -1332,28 +1465,35 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         """Get the profile summary of user"""
 
-        context = super(ProfileSummaryView, self).get_context_data(**kwargs)
-        context["user_data"] = self.model.objects.get(id=self.user.id)
+        context = super().get_context_data(**kwargs)
+
+        user = self.user
+        profile = self.user.profile
+
+        context["user_data"] = self.model.objects.get(id=user.id)
+        context["profile"] = profile
+        context["image_url"] = user.image_url()
+
         if not self.user.is_approved:
             context["approval_url"] = self.request.build_absolute_uri(
-                reverse("users:approve-user", kwargs=dict(user_id=self.user.id))
+                reverse("users:approve-user", kwargs=dict(user_id=user.id))
             )
         try:
-            context["qualification"] = models.Affiliation.objects.filter(
-                profile=self.user.profile, type__in=["EMP"]
+            context["qualification"] = models.Affiliation.where(
+                profile=profile, type__in=["EMP"]
             ).order_by("start_date", "end_date",)
-            context["professional_records"] = models.Affiliation.objects.filter(
-                profile=self.user.profile, type__in=["MEM", "SER"]
+            context["professional_records"] = models.Affiliation.where(
+                profile=profile, type__in=["MEM", "SER"]
             ).order_by("start_date", "end_date",)
-            context["external_id_records"] = models.ProfilePersonIdentifier.objects.filter(
-                profile=self.user.profile
+            context["external_id_records"] = models.ProfilePersonIdentifier.where(
+                profile=profile
             ).order_by("code")
-            context["academic_records"] = models.AcademicRecord.objects.filter(
-                profile=self.user.profile
-            ).order_by("-start_year")
-            context["recognitions"] = models.Recognition.objects.filter(
-                profile=self.user.profile
-            ).order_by("-recognized_in")
+            context["academic_records"] = models.AcademicRecord.where(profile=profile).order_by(
+                "-start_year"
+            )
+            context["recognitions"] = models.Recognition.where(profile=profile).order_by(
+                "-recognized_in"
+            )
         except:
             pass
 
@@ -1364,7 +1504,7 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         try:
             self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
         except:
-            raise Http404("No Profile summary found")
+            raise Http404(_("No Profile summary found"))
         return self.user
 
 
@@ -1509,8 +1649,8 @@ class NominationDetail(DetailView):
             nominator = self.object.nominator
             messages.info(
                 request,
-                _("You have been invited by %s to apply for %s")
-                % (nominator.full_name_with_email, self.object.round),
+                _("You have been invited by %(inviter)s to apply for %(round)s")
+                % dict(initer=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
 
@@ -1582,9 +1722,9 @@ class TestimonyDetail(DetailView):
         context["extra_object"] = self.get_object().referee.application
         if self.get_object().state == "new":
             context["update_view_name"] = f"{self.model.__name__.lower()}-create"
-            context["update_button_name"] = "Add Testimony"
+            context["update_button_name"] = _("Add Testimony")
         else:
-            context["update_button_name"] = "Edit Testimony"
+            context["update_button_name"] = _("Edit Testimony")
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request, _("Please Check the application details and submit testimony."),

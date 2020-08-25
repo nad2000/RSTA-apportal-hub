@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load static %}
+{% load static i18n %}
 
 {% block sidebar %}{% include 'sidebar.html' with categrory="profile" %}{% endblock sidebar %}
 {% block title %}User: {{ object.username }}{% endblock %}
@@ -9,7 +9,7 @@
 
   <h1>
     {% if object.user and object.user == request.user %}
-      Your Profile
+      {% trans 'Your Profile' %}
     {% else %}
       {{ object|title }}
     {% endif %}
@@ -22,15 +22,15 @@
       <div class="card">
         <div class="card-header">
           <a href="{% url 'my-profile' %}">
-            Profile
+            {% trans 'Profile' %}
           </a>
         </div>
         <div class="card-body">
           <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-            <a class="nav-link" id="v-pills-profile-tab" href="{% url 'career-stages' %}" role="tab" aria-controls="v-pills-home" aria-selected="true" >Career Stages</a>
-            <a class="nav-link" id="v-pills-career-stages-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Section #2...</a>
-            <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">Section #3...</a>
-            <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Section #4...</a>
+            <a class="nav-link" id="v-pills-profile-tab" href="{% url 'career-stages' %}" role="tab" aria-controls="v-pills-home" aria-selected="true" >{% trans 'Career Stages' %}</a>
+            <a class="nav-link" id="v-pills-career-stages-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">{% trans 'Section #2...' %}</a>
+            <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">{% trans 'Section #3...' %}</a>
+            <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">{% trans 'Section #4...' %}</a>
           </div>
         </div>
       </div>
@@ -43,15 +43,15 @@
       <table class="table table-bordered searchable">
         <tbody>
           <tr>
-            <th style="width: 21%; min-width: 160px; max-width: 180px;">Sex</th>
+            <th style="width: 21%; min-width: 160px; max-width: 180px;">{% trans 'Gender' %}</th>
             <td>{{ object.get_sex_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Year of birth</th>
+            <th>{% trans 'Year of birth' %}</th>
             <td>{{ object.year_of_birth|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Ethnicity</th>
+            <th>{% trans 'Ethnicity' %}</th>
             <td>
               <ul>
               {% for o in object.ethnicities.all %}
@@ -63,19 +63,19 @@
             </td>
           </tr>
           <tr>
-            <th>Education Level</th>
+            <th>{% trans 'Education Level' %}</th>
             <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Employment status</th>
+            <th>{% trans 'Employment status' %}</th>
             <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Primary language spoken</th>
+            <th>{% trans 'Primary language spoken' %}</th>
             <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
           </tr>
           <tr>
-            <th>Lanuages spoken</th>
+            <th>{% trans 'Lanuages spoken' %}</th>
             <td>
               <ul>
               {% for o in object.languages_spoken.all %}
@@ -89,11 +89,11 @@
         </tbody>
       </table>
 
-      <a class="btn btn-primary" href="{% url 'profile-update' %}">Edit</a>
+      <a class="btn btn-primary" href="{% url 'profile-update' %}">{% trans 'Edit' %}</a>
       {% if object.user == request.user %}
-        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Info</a>
-        <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">E-Mail</a>
-        <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">Linked Accounts</a>
+        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">{% trans 'My Info' %}</a>
+        <a class="btn btn-primary" href="{% url 'account_email' %}" role="button">{% trans 'E-Mail' %}</a>
+        <a class="btn btn-primary" href="{% url 'socialaccount_connections' %}" role="button">{% trans 'Linked Accounts' %}</a>
       {% endif %}
 
     </div>

@@ -20,6 +20,10 @@ body {
   margin-top: 6rem !important;
 }
 
+.card-account {
+  border-radius: 0.5rem;
+}
+
 .card-signin {
   border: 0;
   border-radius: 0.5rem;
@@ -159,7 +163,7 @@ body {
   font-weight: normal;
 }
 
-.login-form .btn {
+.login-form .btn, #account-linking-div .btn {
   color: #fff;
   border-radius: 4px;
   text-decoration: none;

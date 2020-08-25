@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
         migrations.RemoveField(model_name="profile", name="affiliations",),
         migrations.RunSQL(
             """
+            SET sql_mode='ANSI_QUOTES';
             ALTER TABLE application ADD COLUMN state varchar(50) DEFAULT 'new'  NULL;
             ALTER TABLE application_history ADD COLUMN state varchar(50) DEFAULT 'new' NULL;
             ALTER TABLE application ADD COLUMN "file" varchar(100) NULL;
@@ -112,7 +113,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ["-id"], "abstract": False, "db_table": "nomination",},
+            options={"ordering": ["-id"], "abstract": False, "db_table": "testimony",},
             bases=(common.models.HelperMixin, models.Model),
         ),
         migrations.CreateModel(

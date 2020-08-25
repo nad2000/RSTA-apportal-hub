@@ -15,33 +15,43 @@
 
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">User Details</p>
+         class="progress-bar">{% trans 'User Details' %}</p>
     </div>
-    <table class=" table searchable no-border">
-      <tbody>
-        <tr>
-          <td><b> UserName: </b></td>
-          <td>{{ user_data.username|default_if_none:"" }}</td>
-        </tr>
-        <tr>
-          <td><b> OrcidId: </b></td>
-          <td>{{ user_data.orcid|default_if_none:"" }}</td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div>
+      <div class="row">
+        <div class="col-sm" style="max-width: 14rem; min-with: 10rem;">
+          <img class="mb-2" style="max-width: 10rem;" src="{{ image_url }}">
+        </div>
+        <div class="col-sm-9">
+          <table class=" table searchable no-border">
+            <tbody>
+              <tr>
+                <td><b> {% trans 'UserName' %}: </b></td>
+                <td>{{ user_data.username|default_if_none:"" }}</td>
+              </tr>
+              <tr>
+                <td><b> {% trans 'OrcidId' %}: </b></td>
+                <td>{{ user_data.orcid|default_if_none:"" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     {% if qualification %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">Organisation Affiliations</p>
+         class="progress-bar">{% trans 'Organisation Affiliations' %}</p>
     </div>
     <table class=" table searchable no-border">
       <tbody>
       <tr>
-        <td><b> Organisation </b></td>
-        <td><b> Role</b></td>
-        <td><b> Start Date</b></td>
-        <td><b> End Date</b></td>
+        <td><b> {% trans 'Organisation' %} </b></td>
+        <td><b> {% trans 'Role' %}</b></td>
+        <td><b> {% trans 'Start Date' %}</b></td>
+        <td><b> {% trans 'End Date' %}</b></td>
       </tr>
 
       {% for o in qualification %}
@@ -59,13 +69,13 @@
     {% if external_id_records %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">External IDs</p>
+         class="progress-bar">{% trans 'External IDs' %}</p>
     </div>
     <table class="table no-border">
       <tbody>
       <tr>
-        <td><b>Type</b></td>
-        <td><b>Value</b></td>
+        <td><b>{% trans 'Type' %}</b></td>
+        <td><b>{% trans 'Value' %}</b></td>
       </tr>
 
       {% for o in external_id_records %}
@@ -81,17 +91,17 @@
   {% if academic_records %}
   <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">Academic Records</p>
+         class="progress-bar">{% trans 'Academic Records' %}</p>
     </div>
     <table class="table no-border">
       <tbody>
       <tr>
-        <td><b>Start Year</b></td>
-        <td><b>Qualification</b></td>
-        <td><b>Conferred On</b></td>
-        <td><b>Discipline</b></td>
-        <td><b>Awarded By</b></td>
-        <td><b>Research Topic</b></td>
+        <td><b>{% trans 'Start Year' %}</b></td>
+        <td><b>{% trans 'Qualification' %}</b></td>
+        <td><b>{% trans 'Conferred On' %}</b></td>
+        <td><b>{% trans 'Discipline' %}</b></td>
+        <td><b>{% trans 'Awarded By' %}</b></td>
+        <td><b>{% trans 'Research Topic' %}</b></td>
 
       </tr>
       {% for o in academic_records %}
@@ -111,16 +121,16 @@
     {% if recognitions %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">Prizes and/or Medals</p>
+         class="progress-bar">{% trans 'Prizes and/or Medals' %}</p>
     </div>
     <table class="table no-border">
       <tbody>
       <tr>
-        <td><b>Year Of Recognition</b></td>
-        <td><b>Award</b></td>
-        <td><b>Awarded By</b></td>
-        <td><b>Amount</b></td>
-        <td><b>Currency code</b></td>
+        <td><b>{% trans 'Year Of Recognition' %}</b></td>
+        <td><b>{% trans 'Award' %}</b></td>
+        <td><b>{% trans 'Awarded By' %}</b></td>
+        <td><b>{% trans 'Amount' %}</b></td>
+        <td><b>{% trans 'Currency code' %}</b></td>
       </tr>
 
       {% for o in recognitions %}
@@ -139,15 +149,15 @@
     {% if professional_records %}
     <div>
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
-         class="progress-bar">Professional Bodies</p>
+         class="progress-bar">{% trans 'Professional Bodies' %}</p>
     </div>
     <table class="table no-border">
       <tbody>
       <tr>
-        <td><b>Organisation</b></td>
-        <td><b>Position</b></td>
-        <td><b>Start Date</b></td>
-        <td><b>End Date</b></td>
+        <td><b>{% trans 'Organisation' %}</b></td>
+        <td><b>{% trans 'Position' %}</b></td>
+        <td><b>{% trans 'Start Date' %}</b></td>
+        <td><b>{% trans 'End Date' %}</b></td>
       </tr>
 
       {% for o in professional_records %}
@@ -165,8 +175,8 @@
       <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
          class="progress-bar"/>
     </div>
-  {% if approval_url %}
-    <a class="btn btn-primary" href="{{ approval_url }}" role="button">Approve</a>
+  {% if approval_url %
+    <a class="btn btn-primary" href="{{ approval_url }}" role="button">{% trans 'Approve</a>
   {% endif %}
   {% endblock %}
 

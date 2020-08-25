@@ -96,13 +96,15 @@
                 <ul class="navbar-nav ml-auto">
 
                   {% if request.user.is_authenticated %}
+                  <img alt="GRAVATAR" src="{{ request.user.avatar }}" style="-webkit-border-radius: 12%; border-radius: 12%; max-width: 38px;">
                   <li class="nav-item dropdown" id="profile">
                     <a class="nav-link dropdown-toggle"
                        data-toggle="dropdown"
                        aria-haspopup="true"
                        aria-expanded="false"
                        id="navbarDropdownMenuLinkProfile">
-                      <i class="fas fa-user"></i> {{ request.user.username }}
+                       <!-- i class="fas fa-user"></i -->
+                      {{ request.user.username }}
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-info"
                          aria-labelledby="navbarDropdownMenuLinkProfile">
@@ -156,11 +158,37 @@
 
       <div class="container-fluid">
 
+        {% if need_to_verify_identity %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <span class="badge badge-info">{% trans 'New' %}</span>
+              {% trans "Your indentity has not been yet verified." %}
+              <a href="{% url 'photo-identity' %}" class="alert-link">{% trans 'Please upload a copy of a photo inentity here' %}!</a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+        {% endif %}
+
         {% if outstanding_invitations %}
           {% for oi in outstanding_invitations %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">
               {% trans "You have an invitation that hasn't been accepted yet." %}
-              <a href="{% url 'onboard-with-token' token=oi.token %}" class="alert-link">{% trans 'Please click here' %}!</a>
+              <a href="{% url 'onboard-with-token' token=oi.token %}" class="alert-link">{% trans 'Please click here to accept it' %}!</a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if outstanding_identity_verifications  %}
+          {% for oiv in outstanding_identity_verifications %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% if oiv.created_at >= three_days_ago %}
+                <span class="badge badge-primary">{% trans 'New' %}</span>
+              {% endif %}
+              {% trans "A user has submited a photo idenentity for identity verification." %}
+              <a href="{% url 'identity-verification' pk=oiv.id %}" class="alert-link">{% trans 'Please click here to review it' %}!</a>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -253,21 +281,20 @@
       <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
 
       <!-- Your stuff: Third-party javascript libraries go here -->
-
       <!-- place project specific Javascript in this file -->
       {% compress js %}
-      <script src="{% static 'js/project.js' %}"></script>
-      <script>
-        $(document).ready(function(){
-          $("time").each(function () {
-            var el = $(this);
-            var dt = moment.utc(el.attr("datetime")).local();
-            el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
+        <script src="{% static 'js/project.js' %}"></script>
+        <script>
+          $(document).ready(function(){
+            $("time").each(function () {
+              var el = $(this);
+              var dt = moment.utc(el.attr("datetime")).local();
+              el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+            $("#{{request.resolver_match.view_name}}").addClass("active");
           });
-          $('[data-toggle="tooltip"]').tooltip();
-          $("#{{request.resolver_match.view_name}}").addClass("active");
-        });
-      </script>
+        </script>
       {% endcompress %}
 
     {% endblock javascript %}

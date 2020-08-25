@@ -1,6 +1,5 @@
 from allauth.account import forms as allauth_forms
 from captcha.fields import ReCaptchaField
-from django import forms as django_forms
 from django.conf import settings
 from django.contrib.auth import forms, get_user_model
 from django.core.exceptions import ValidationError
