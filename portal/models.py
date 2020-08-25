@@ -539,7 +539,6 @@ class Award(Model):
 
 
 class Recognition(Model):
-
     profile = ForeignKey(Profile, related_name="recognitions", on_delete=CASCADE)
     recognized_in = PositiveSmallIntegerField(_("year of recognition"), null=True, blank=True)
     award = ForeignKey(Award, on_delete=CASCADE, verbose_name=_("award"))
@@ -558,7 +557,6 @@ class Recognition(Model):
 
 
 class Nominee(Model):
-
     title = CharField(max_length=40, null=True, blank=True)
     # email = EmailField(max_length=119)
     email = EmailField("email address")
@@ -579,7 +577,6 @@ class Nominee(Model):
 
 
 class Application(Model):
-
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
     application_tite = CharField(max_length=200, null=True, blank=True)
@@ -611,6 +608,7 @@ class Application(Model):
     daytime_phone = CharField("daytime phone number", max_length=12)
     mobile_phone = CharField("mobile phone number", max_length=12)
     email = EmailField("email address", blank=True)
+    is_bilingual_summary = BooleanField(default=False)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
         blank=True,
@@ -627,7 +625,6 @@ class Application(Model):
         help_text=_("Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"),
     )
 
-    history = HistoricalRecords(table_name="application_history")
     state = FSMField(default="new")
 
     def save(self, *args, **kwargs):
@@ -879,7 +876,7 @@ class Invitation(Model):
             fail_silently=False,
         )
 
-    @transition(field=status, source=[STATUS.sent, STATUS.accepted], target=STATUS.accepted)
+    @transition(field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.accepted)
     def accept(self, request=None, by=None):
         if not by:
             if not request or not request.user:

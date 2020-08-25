@@ -64,6 +64,19 @@
           $("#submitter legend").text("{% trans 'Team representative' %}");
           $("a[href='#applicant']").text("{% trans 'Team' %}");
         };
+      });
+      {% if not form.is_bilingual_summary.value %}
+        $("#div_id_summary_en").hide();
+        $("#div_id_summary_mi").hide();
+      {% endif %}
+      $('#id_is_bilingual_summary').change(function() {
+        if (!($(this).prop('checked'))) {
+          $("#div_id_summary_en").hide();
+          $("#div_id_summary_mi").hide();
+        } else {
+          $("#div_id_summary_en").show()
+          $("#div_id_summary_mi").show()
+        };
       })
     });
     // Focus on the first tab with invalid input:

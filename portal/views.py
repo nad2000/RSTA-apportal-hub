@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import quote
 
+import django.utils.translation
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from common.utils import send_mail
@@ -676,6 +677,7 @@ class ApplicationView(LoginRequiredMixin):
     def get_initial(self):
         initial = super().get_initial()
         initial["user"] = self.request.user
+        initial["language"] = django.utils.translation.get_language()
         return initial
 
     @property
@@ -1646,7 +1648,7 @@ class NominationDetail(DetailView):
             messages.info(
                 request,
                 _("You have been invited by %(inviter)s to apply for %(round)s")
-                % dict(initer=nominator.full_name_with_email, round=self.object.round),
+                % dict(inviter=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
 
