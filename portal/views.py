@@ -1,6 +1,5 @@
 from datetime import datetime
 from functools import wraps
-from io import BytesIO
 from urllib.parse import quote
 
 from allauth.account.models import EmailAddress
@@ -31,7 +30,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
-from xhtml2pdf import pisa
+from weasyprint import HTML
 
 from . import forms, models, tables
 from .forms import Submit
@@ -1599,25 +1598,25 @@ class ExportView(LoginRequiredMixin, View):
     template = "pdf_export_template.html"
 
     def get(self, request, pk):
-        template = get_template(self.template)
-        html = template.render({"object": self.model.objects.get(id=pk)})
-        result = BytesIO()
-        pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
-        if not pdf.err:
-            return HttpResponse(result.getvalue(), content_type="application/pdf")
-        messages.warning(
-            self.request, _("Error while converting to pdf."),
-        )
-        return redirect(self.request.META.get("HTTP_REFERER"))
+        try:
+            template = get_template(self.template)
+            html = HTML(string=template.render({"object": self.model.objects.get(id=pk)}))
+            pdf = html.write_pdf(presentational_hints=True)
+            pdf_response = HttpResponse(pdf, content_type="application/pdf")
+            pdf_response['Content-Disposition'] = "attachment: filename=export.pdf"
+            return pdf_response
+        except:
+            messages.warning(
+                self.request, _("Error while converting to pdf. Please contact Administrator!!"),
+            )
+            return redirect(self.request.META.get("HTTP_REFERER"))
 
 
 class ApplicationExportView(ExportView):
     """Application PDF export view"""
-
     model = models.Application
 
 
-class TestimonyExportView(ExportView):
+class TestimonyExportView(ExportView, TestimonyDetail):
     """Testimony PDF export view"""
-
     model = models.Testimony
