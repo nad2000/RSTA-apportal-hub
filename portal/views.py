@@ -1737,17 +1737,21 @@ class ExportView(LoginRequiredMixin, View):
     model = None
     template = "pdf_export_template.html"
 
+    def get_objects(self, pk):
+        return [self.model.objects.get(id=pk)]
+
     def get(self, request, pk):
         try:
+            objects = self.get_objects(pk)
             template = get_template(self.template)
-            html = HTML(string=template.render({"object": self.model.objects.get(id=pk)}))
+            html = HTML(string=template.render({"objects": objects}))
             pdf = html.write_pdf(presentational_hints=True)
             pdf_response = HttpResponse(pdf, content_type="application/pdf")
             pdf_response['Content-Disposition'] = "attachment: filename=export.pdf"
             return pdf_response
-        except:
+        except Exception as ex:
             messages.warning(
-                self.request, _("Error while converting to pdf. Please contact Administrator!!"),
+                self.request, _(f"Error while converting to pdf. Please contact Administrator!! {ex}"),
             )
             return redirect(self.request.META.get("HTTP_REFERER"))
 
@@ -1756,6 +1760,13 @@ class ApplicationExportView(ExportView):
     """Application PDF export view"""
     model = models.Application
 
+    def get_objects(self, pk):
+        objects = []
+        app_object = self.model.objects.get(id=pk)
+        objects.append(app_object)
+        testmony_object = models.Application.get_application_testimony(app_object)
+        objects.extend(testmony_object)
+        return objects
 
 class TestimonyExportView(ExportView, TestimonyDetail):
     """Testimony PDF export view"""

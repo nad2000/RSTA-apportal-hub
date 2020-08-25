@@ -31,10 +31,10 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   </header>
 </div>
 {% endblock header %}
-<h1>
+{% for object in objects %}
+<h2>
   {{ object }}
-</h1>
-
+</h2>
 <table class="table table-bordered searchable">
   <tbody>
   {% for field in object|fields %}
@@ -53,6 +53,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   {% endfor %}
   </tbody>
 </table>
+{% endfor %}
 {% endblock %}
 </body>
 </html>
