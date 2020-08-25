@@ -1747,7 +1747,7 @@ class ExportView(LoginRequiredMixin, View):
             html = HTML(string=template.render({"objects": objects}))
             pdf = html.write_pdf(presentational_hints=True)
             pdf_response = HttpResponse(pdf, content_type="application/pdf")
-            pdf_response['Content-Disposition'] = "attachment: filename=export.pdf"
+            pdf_response['Content-Disposition'] = f"attachment; filename={self.model.objects.get(id=pk).number}.pdf"
             return pdf_response
         except Exception as ex:
             messages.warning(
