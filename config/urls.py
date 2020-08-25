@@ -1,6 +1,5 @@
 import private_storage.urls
 from django.conf import settings
-from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -33,10 +32,6 @@ urlpatterns += [
     path("auth-token/", obtain_auth_token),
     path("select2/", include("django_select2.urls")),
 ]
-
-urlpatterns += i18n_patterns(
-    path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
-)
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

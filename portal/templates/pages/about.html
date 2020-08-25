@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% trans 'About the Prizes' %}{% endblock title %}
+
+{% block content %}
+<h1>
+  {% trans 'About the Prizes' %}
+</h1>
+<div class="row">
+
+  <div class="col-md-4">
+    {% blocktranslate %}
+    The Government of New Zealand introduced The Prime Minister’s Science Prizes in 2009 as a way of raising the profile and prestige of science among New Zealanders.
+    <p>There are five prizes in total with a combined value of 1 million dollars.</p>
+    <p>The Prime Minister’s Science Prizes will close on Thursday 10 October 2019!</p>
+    {% endblocktranslate %}
+  </div>
+
+  <div class="col-md-8">
+    {% blocktranslate %}
+      The Prime Minister’s Science Prizes are awarded to:<p></p>
+      <p><a title="The Prime Minister’s Science Prize" href="https://www.pmscienceprizes.org.nz/about-the-prizes/science/">The Prime Minister’s Science Prize</a></p>
+      <p>An individual or team for a transformative &nbsp;scientific discovery or achievement&nbsp;, which has had a significant economic, health, social and/or environmental <strong>impact&nbsp;</strong>on New Zealand or internationally.</p>
+      <p><a title="The Prime Minister’s MacDiarmid Emerging Scientist Prize" href="https://www.pmscienceprizes.org.nz/about-the-prizes/macdiarmid/">The Prime Minister’s MacDiarmid Emerging Scientist Prize</a></p>
+      <p>An outstanding emerging scientist who has had their PhD or equivalent qualification conferred within the last eight years (i.e. from 1 January 2011 onwards)</p>
+      <p><a title="The Prime Minister’s Science Teacher Prize" href="https://www.pmscienceprizes.org.nz/about-the-prizes/teacher/">The Prime Minister’s Science Teacher Prize</a></p>
+      <p>A&nbsp;registered teacher&nbsp;who has been teaching science, mathematics, technology,&nbsp;pūtaiao, hangarau or pāngarau &nbsp;learning areas of the New Zealand curriculum to school-age children in a primary, intermediate or secondary New Zealand registered school)</p>
+      <p><a title="The Prime Minister’s Future Scientist Prize" href="https://www.pmscienceprizes.org.nz/about-the-prizes/the-prime-ministers-future-scientist-prize">The Prime Minister’s Future Scientist Prize</a></p>
+      <p>A secondary school student for outstanding achievement in carrying out a practical and innovative science research, maths, technology or engineering project.</p>
+      <p><a title="The Prime Minister’s Science Media Communication Prize" href="https://www.pmscienceprizes.org.nz/about-the-prizes/media">The Prime Minister’s Science Communication Prize</a></p>
+      <p>A practising scientist&nbsp;who can demonstrate an interest, passion and aptitude for science communication and public engagement, <strong>or</strong> to a person who has developed expertise in public engagement with, or communication of complex scientific or technological information to the public&nbsp;or science community.</p>
+    {% endblocktranslate %}
+  </div>
+
+</div>
+
+{% endblock content %}

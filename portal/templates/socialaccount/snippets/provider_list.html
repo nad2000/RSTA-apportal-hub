@@ -1,4 +1,4 @@
-{% load socialaccount static %}
+{% load socialaccount static i18n %}
 
 {% get_providers as socialaccount_providers %}
 
@@ -22,7 +22,9 @@
           class="btn btn-lg btn-google btn-block"
           href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}">
         <i class="fab fa-google mr-2"></i>
+        {% blocktranslate %}
         Connect with <strong>Google</strong>
+        {% endblocktranslate %}
       </a>
 
 {% elif provider.id == "orcid" %}
@@ -30,7 +32,9 @@
           class="btn btn-lg btn-orcid btn-block btn-orcid"
           href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}">
         <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+        {% blocktranslate %}
         Connect with <strong>ORCID iD</strong>
+        {% endblocktranslate %}
       </a>
 
       <!-- a title="Facebook"

@@ -1,9 +1,7 @@
 {% extends "profile.html" %}
-{#% extends "socialaccount/base.html" %#}
-
 {% load static i18n %}
 
-{% block head_title %}Account Connections{% endblock %}
+{% block head_title %}{% trans 'Account Connections' %}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with categrory="account" %}{% endblock sidebar %}
 
 {% block section %}
@@ -11,10 +9,10 @@
     <div class="row">
       <div class="col-sm-6">
 
-        <h1>Account Connections</h1>
+        <h1>{% trans 'Account Connections' %}</h1>
 
         {% if form.accounts %}
-        <p>You can sign in to your account using any of the following third party accounts:</p>
+          <p>{% trans 'You can sign in to your account using any of the following third party accounts' %}:</p>
 
         <form method="post" action="{% url 'socialaccount_connections' %}">
         {% csrf_token %}
@@ -40,7 +38,7 @@
             {% endfor %}
           </fieldset>
 
-          <button class="btn btn-danger" type="submit">Remove</button>
+          <button class="btn btn-danger" type="submit">{% trans 'Remove' %}</button>
 
         </fieldset>
 
@@ -49,7 +47,7 @@
         </form>
 
         {% else %}
-        <p>You currently have no social network accounts connected to this account.</p>
+          <p>{% trans 'You currently have no social network accounts connected to this account.' %}</p>
         {% endif %}
 
       </div>
