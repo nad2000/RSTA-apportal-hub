@@ -213,7 +213,7 @@ MEDIA_URL = "/media/"
 
 # Protected storage:
 PRIVATE_STORAGE_ROOT = str(ROOT_DIR / "private-media")
-PRIVATE_STORAGE_AUTH_FUNCTION = "private_storage.permissions.allow_staff"
+PRIVATE_STORAGE_AUTH_FUNCTION = "private_storage.permissions.allow_authenticated"
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
