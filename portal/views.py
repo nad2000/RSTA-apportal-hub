@@ -1,10 +1,11 @@
+import io
 from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import quote
 
+from PyPDF2 import PdfFileMerger, PdfFileReader
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
-from common.utils import send_mail
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -31,10 +32,11 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
-from weasyprint import HTML
 from private_storage.views import PrivateStorageDetailView
 from sentry_sdk import last_event_id
+from weasyprint import HTML
 
+from common.utils import send_mail
 from . import forms, models, tables
 from .forms import Submit
 from .models import (
@@ -1740,14 +1742,29 @@ class ExportView(LoginRequiredMixin, View):
     def get_objects(self, pk):
         return [self.model.objects.get(id=pk)]
 
+    def get_attachments(self, pk):
+        return []
+
+    def get_filename(self, pk):
+        return "export"
+
     def get(self, request, pk):
         try:
             objects = self.get_objects(pk)
             template = get_template(self.template)
+            attachments = self.get_attachments(pk)
+            pdf_file_merger = PdfFileMerger()
             html = HTML(string=template.render({"objects": objects}))
-            pdf = html.write_pdf(presentational_hints=True)
-            pdf_response = HttpResponse(pdf, content_type="application/pdf")
-            pdf_response['Content-Disposition'] = f"attachment; filename={self.model.objects.get(id=pk).number}.pdf"
+            pdf_object = html.write_pdf(presentational_hints=True)
+            # converting pdf bytes to stream which is required for pdf merger.
+            pdf_stream = io.BytesIO(pdf_object)
+            pdf_file_merger.append(pdf_stream)
+            for i in attachments:
+                pdf_file_merger.append(PdfFileReader(i, "rb"))
+            pdf_content = io.BytesIO()
+            pdf_file_merger.write(pdf_content)
+            pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
+            pdf_response['Content-Disposition'] = f"attachment; filename={self.get_filename(pk)}.pdf"
             return pdf_response
         except Exception as ex:
             messages.warning(
@@ -1764,10 +1781,30 @@ class ApplicationExportView(ExportView):
         objects = []
         app_object = self.model.objects.get(id=pk)
         objects.append(app_object)
-        testmony_object = models.Application.get_application_testimony(app_object)
-        objects.extend(testmony_object)
+        testimony_object = models.Application.get_application_testimony(app_object)
+        objects.extend(testimony_object)
         return objects
+
+    def get_attachments(self, pk):
+        attachments = []
+        app_object = self.model.objects.get(id=pk)
+        if app_object.file:
+            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app_object.file))
+        testimony_object = models.Application.get_application_testimony(app_object)
+        for o in testimony_object:
+            if o.file:
+                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(o.file))
+
+        return attachments
+
+    def get_filename(self, pk):
+        return self.model.objects.get(id=pk).number
+
 
 class TestimonyExportView(ExportView, TestimonyDetail):
     """Testimony PDF export view"""
     model = models.Testimony
+
+    def get_attachments(self, pk):
+        return [settings.PRIVATE_STORAGE_ROOT + "/" + str(self.model.objects.get(id=pk).file)] if str(
+            self.model.objects.get(id=pk).file) else []
