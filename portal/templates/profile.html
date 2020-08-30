@@ -32,11 +32,11 @@
           <td>{{ object.get_gender_display|default_if_none:"" }}</td>
         </tr>
         <tr>
-          <th>{% 'Date of Birth' %}</th>
+          <th>{% trans 'Date of Birth' %}</th>
           <td>{{ object.date_of_birth|date:"Y-m-d"|default_if_none:"" }}</td>
         </tr>
         <tr>
-          <th>{% 'Ethnicity' %}</th>
+          <th>{% trans 'Ethnicity' %}</th>
           <td>
             <ul>
               {% for o in object.ethnicities.all %}
@@ -48,15 +48,15 @@
           </td>
         </tr>
         <tr>
-          <th>{% 'Education Level' %}</th>
+          <th>{% trans 'Education Level' %}</th>
           <td>{{ object.get_education_level_display|default_if_none:"" }}</td>
         </tr>
         <tr>
-          <th>{% 'Employment Status' %}</th>
+          <th>{% trans 'Employment Status' %}</th>
           <td>{{ object.get_employment_status_display|default_if_none:"" }}</td>
         </tr>
         <tr>
-          <th>{% 'Primary Language Spoken' %}</th>
+          <th>{% trans 'Primary Language Spoken' %}</th>
           <td>{{ object.get_primary_language_spoken_display|default_if_none:"" }}</td>
         </tr>
 

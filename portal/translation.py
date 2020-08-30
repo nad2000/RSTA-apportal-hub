@@ -1,3 +1,4 @@
+import simple_history
 from modeltranslation.translator import TranslationOptions, register
 
 from . import models
@@ -9,6 +10,14 @@ class SchemeTranslationOptions(TranslationOptions):
         "title",
         "description",
     )
+
+
+@register(models.Application)
+class ApplicationTranslationOptions(TranslationOptions):
+    fields = ("summary",)
+
+
+simple_history.register(models.Application, inherit=True, table_name="application_history")
 
 
 @register(models.SchemeApplication)

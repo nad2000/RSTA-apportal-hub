@@ -131,7 +131,9 @@ class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
-        user = kwargs.get("initial", {}).get("user")
+        initial = kwargs.get("initial", {})
+        user = initial.get("user")
+        language = initial.get("language", "en")
 
         self.helper = FormHelper(self)
         # self.helper.help_text_inline = True
@@ -181,7 +183,8 @@ class ApplicationForm(forms.ModelForm):
             Tab(
                 _("Summary"),
                 Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-                Field("summary"),
+                Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
+                Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
             ),
         ]
         if user and not user.is_identity_verified:
@@ -226,6 +229,8 @@ class ApplicationForm(forms.ModelForm):
             ),
             # summary=SummernoteWidget(),
             summary=SummernoteInplaceWidget(),
+            summary_en=SummernoteInplaceWidget(),
+            summary_mi=SummernoteInplaceWidget(),
         )
 
 
