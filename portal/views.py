@@ -4,9 +4,9 @@ from functools import wraps
 from urllib.parse import quote
 
 import django.utils.translation
-from PyPDF2 import PdfFileMerger, PdfFileReader
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
+from common.utils import send_mail
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -34,10 +34,10 @@ from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
 from extra_views import InlineFormSetFactory, ModelFormSetView
 from private_storage.views import PrivateStorageDetailView
+from PyPDF2 import PdfFileMerger, PdfFileReader
 from sentry_sdk import last_event_id
 from weasyprint import HTML
 
-from common.utils import send_mail
 from . import forms, models, tables
 from .forms import Submit
 from .models import (
@@ -129,8 +129,8 @@ class AccountView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         u = self.request.user
         context["user"] = u
-        context["emails"] = list(EmailAddress.objects.filter(~Q(email=u.email), user=u))
-        context["accounts"] = list(SocialAccount.objects.filter(user=u))
+        context["emails"] = list(EmailAddress.where(~Q(email=u.email), user=u))
+        context["accounts"] = list(SocialAccount.where(user=u))
         return context
 
 
@@ -164,6 +164,8 @@ class DetailView(LoginRequiredMixin, _DetailView):
         context["exclude"] = ["id", "created_at", "updated_at", "org"]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
         context["update_button_name"] = "Edit"
+        if self.model and self.model in (models.Application, models.Testimony):
+            context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
 
 
@@ -370,7 +372,7 @@ def profile_protection_patterns(request):
                         ppp.save()
 
                 else:
-                    models.ProfileProtectionPattern.objects.filter(
+                    models.ProfileProtectionPattern.where(
                         protection_pattern_id=ppc, profile=profile
                     ).delete()
 
@@ -670,7 +672,6 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
 
 
@@ -1185,9 +1186,7 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
     }
 
     def get_queryset(self):
-        return self.model.objects.filter(profile=self.request.user.profile).order_by(
-            "year_achieved"
-        )
+        return self.model.where(profile=self.request.user.profile).order_by("year_achieved")
 
 
 class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
@@ -1210,7 +1209,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
-        return self.model.objects.filter(profile=self.request.user.profile).order_by("code")
+        return self.model.where(profile=self.request.user.profile).order_by("code")
 
     def get_context_data(self, **kwargs):
         """Get the context data"""
@@ -1243,7 +1242,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
-        return self.model.objects.filter(
+        return self.model.where(
             profile=self.request.user.profile, type__in=self.affiliation_type.values()
         ).order_by("start_date", "end_date",)
 
@@ -1367,7 +1366,7 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
-        return self.model.objects.filter(owner=self.request.user).order_by("-id")
+        return self.model.where(owner=self.request.user).order_by("-id")
 
     def get_defaults(self):
         """Default values for a form."""
@@ -1405,7 +1404,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
-        return self.model.objects.filter(profile=self.request.user.profile).order_by("-start_year")
+        return self.model.where(profile=self.request.user.profile).order_by("-start_year")
 
     def get_context_data(self, **kwargs):
         """Get the context data"""
@@ -1438,9 +1437,7 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
         return kwargs
 
     def get_queryset(self):
-        return self.model.objects.filter(profile=self.request.user.profile).order_by(
-            "-recognized_in"
-        )
+        return self.model.where(profile=self.request.user.profile).order_by("-recognized_in")
 
     def get_context_data(self, **kwargs):
         """Get the context data"""
@@ -1474,7 +1471,7 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         user = self.user
         profile = self.user.profile
 
-        context["user_data"] = self.model.objects.get(id=user.id)
+        context["user_data"] = self.model.get(id=user.id)
         context["profile"] = profile
         context["image_url"] = user.image_url()
 
@@ -1588,7 +1585,7 @@ class TestimonyView(CreateUpdateView):
             elif "turn_down" in self.request.POST:
                 n.referee.has_testifed = False
                 n.referee.save()
-                self.model.objects.filter(id=n.id).delete()
+                self.model.where(id=n.id).delete()
                 send_mail(
                     _("A Referee opted out of Testimony"),
                     _("Your Referee %s has opted out of Testimony") % n.referee,
@@ -1705,7 +1702,7 @@ class TestimonyList(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
-        referee = models.Referee.objects.filter(user=u).values("id")
+        referee = models.Referee.where(user=u).values("id")
         queryset = queryset.filter(referee__in=Subquery(referee))
 
         state = self.request.path.split("/")[-1]
@@ -1733,7 +1730,6 @@ class TestimonyDetail(DetailView):
             messages.info(
                 self.request, _("Please Check the application details and submit testimony."),
             )
-        context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
 
 
@@ -1742,7 +1738,7 @@ class ExportView(LoginRequiredMixin, View):
     template = "pdf_export_template.html"
 
     def get_objects(self, pk):
-        return [self.model.objects.get(id=pk)]
+        return [self.model.get(id=pk)]
 
     def get_attachments(self, pk):
         return []
@@ -1766,47 +1762,53 @@ class ExportView(LoginRequiredMixin, View):
             pdf_content = io.BytesIO()
             pdf_file_merger.write(pdf_content)
             pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
-            pdf_response['Content-Disposition'] = f"attachment; filename={self.get_filename(pk)}.pdf"
+            pdf_response[
+                "Content-Disposition"
+            ] = f"attachment; filename={self.get_filename(pk)}.pdf"
             return pdf_response
         except Exception as ex:
             messages.warning(
-                self.request, _(f"Error while converting to pdf. Please contact Administrator!! {ex}"),
+                self.request,
+                _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
             )
             return redirect(self.request.META.get("HTTP_REFERER"))
 
 
 class ApplicationExportView(ExportView):
     """Application PDF export view"""
+
     model = models.Application
 
     def get_objects(self, pk):
-        objects = []
-        app_object = self.model.objects.get(id=pk)
-        objects.append(app_object)
-        testimony_object = models.Application.get_application_testimony(app_object)
-        objects.extend(testimony_object)
+        app = self.model.get(id=pk)
+        objects = [app]
+        testimonies = models.Application.get_application_testimony(app)
+        objects.extend(testimonies)
         return objects
 
     def get_attachments(self, pk):
         attachments = []
-        app_object = self.model.objects.get(id=pk)
-        if app_object.file:
-            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app_object.file))
-        testimony_object = models.Application.get_application_testimony(app_object)
-        for o in testimony_object:
-            if o.file:
-                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(o.file))
+        app = self.model.get(id=pk)
+        if app.file:
+            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.file))
+        testimonies = models.Application.get_application_testimony(app)
+        for t in testimonies:
+            if t.file:
+                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file))
 
         return attachments
 
     def get_filename(self, pk):
-        return self.model.objects.get(id=pk).number
+        return self.model.get(id=pk).number
 
 
 class TestimonyExportView(ExportView, TestimonyDetail):
     """Testimony PDF export view"""
+
     model = models.Testimony
 
     def get_attachments(self, pk):
-        return [settings.PRIVATE_STORAGE_ROOT + "/" + str(self.model.objects.get(id=pk).file)] if str(
-            self.model.objects.get(id=pk).file) else []
+        testimony = self.model.get(id=pk)
+        if testimony.file:
+            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimony.file)]
+        return []
