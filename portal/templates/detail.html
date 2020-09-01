@@ -57,4 +57,7 @@
   {% if update_view_name %}
     <a class="btn btn-primary" href="{% url update_view_name pk=object.pk %}">{% trans update_button_name %}</a>
   {% endif %}
+  {% if export_button_view_name %}
+    <a class="btn btn-primary" href="{% url export_button_view_name pk=object.pk %}">{% trans 'Export' %}</a>
+  {% endif %}
 {% endblock %}

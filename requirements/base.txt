@@ -46,4 +46,6 @@ django-summernote>=0.8.11.6,<0.9.0.0
 django-modeltranslation==0.15
 django-recaptcha==2.0.6
 jinja2>=2.11.2,<2.12.0
+django-weasyprint==1.0.1
 html2text==2020.1.16
+PyPdf2==1.26.0
