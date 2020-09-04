@@ -129,8 +129,8 @@ class AccountView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         u = self.request.user
         context["user"] = u
-        context["emails"] = list(EmailAddress.where(~Q(email=u.email), user=u))
-        context["accounts"] = list(SocialAccount.where(user=u))
+        context["emails"] = list(EmailAddress.objects.filter(~Q(email=u.email), user=u))
+        context["accounts"] = list(SocialAccount.objects.filter(user=u))
         return context
 
 
