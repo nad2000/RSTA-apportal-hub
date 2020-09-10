@@ -20,6 +20,14 @@ class ApplicationTranslationOptions(TranslationOptions):
 simple_history.register(models.Application, inherit=True, table_name="application_history")
 
 
+@register(models.Criterion)
+class CriterionTranslationOptions(TranslationOptions):
+    fields = ("definition",)
+
+
+simple_history.register(models.Criterion, inherit=True, table_name="criterion_history")
+
+
 @register(models.SchemeApplication)
 class SchemeApplicationTranslationOptions(TranslationOptions):
     fields = (

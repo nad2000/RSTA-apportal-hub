@@ -1079,6 +1079,17 @@ class Round(Model):
         db_table = "round"
 
 
+class Criterion(Model):
+    """Scoring criterion"""
+    round = ForeignKey(Round, on_delete=CASCADE, related_name="criteria")
+    definition = TextField(max_length=200)
+    comment = BooleanField(default=True, help_text=_("The pannelist should commnet their score"))
+    scale = PositiveSmallIntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = "criterion"
+
+
 class SchemeApplicationGroup(Base):
     scheme = ForeignKey(
         "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"
