@@ -1526,6 +1526,7 @@ class NominationView(CreateUpdateView):
         if not n.id:
             n.nominator = self.request.user
             n.round = self.round
+        resp = super().form_valid(form)
 
         if "submit" in self.request.POST:
             if not n.id:
@@ -1534,12 +1535,12 @@ class NominationView(CreateUpdateView):
         elif "save_draft" in self.request.POST:
             n.save_draft()
 
-        return super().form_valid(form)
+        return resp
 
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
-        if self.request.method == "GET" and "initial" in kwargs:
+        if self.request.method == "GET" and not (self.object and self.object.org) and "initial" in kwargs:
             a = (
                 self.request.user.profile.affiliations.filter(type="EMP", end_date__isnull=True)
                 .order_by("-id")
@@ -1552,6 +1553,7 @@ class NominationView(CreateUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
+        context["nominator"] = self.request.user
         return context
 
 

@@ -399,6 +399,7 @@ class NominationForm(forms.ModelForm):
             "org",
             "summary",
             "file",
+            # "nominator",
         ]
         widgets = dict(
             org=autocomplete.ModelSelect2(
