@@ -1529,11 +1529,10 @@ class NominationView(CreateUpdateView):
         resp = super().form_valid(form)
 
         if "submit" in self.request.POST:
-            if not n.id:
-                n.save()
             n.submit(request=self.request)
         elif "save_draft" in self.request.POST:
             n.save_draft()
+        n.save()
 
         return resp
 

@@ -1189,7 +1189,7 @@ class Nomination(Model):
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft"], target="submitted")
+    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
         i, created = Invitation.get_or_create(
             type=INVITATION_TYPES.A,
