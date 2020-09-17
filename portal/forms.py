@@ -18,7 +18,7 @@ from crispy_forms.layout import (
 )
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput, inlineformset_factory
+from django.forms import HiddenInput, inlineformset_factory, formset_factory
 from django.forms.models import modelformset_factory
 from django.forms.widgets import NullBooleanSelect
 from django.template.loader import render_to_string
@@ -496,13 +496,17 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-class PanalistForm(forms.ModelForm):
+class PanelistForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-
+        fields = ["email", "first_name", "middle_names", "last_name"]
         self.helper.layout = Layout(
-            Div(TableInlineFormset("panelists"), css_id="panelists"),
+            Div("team_name", TableInlineFormset("panelists"), css_id="panelists"),
+            Field("email"),
+            Field("first_name"),
+            Field("middle_names"),
+            Field("last_name"),
             ButtonHolder(
                 Submit("send_invite", _("Invite"), css_class="btn btn-primary",),
                 HTML(
@@ -523,6 +527,10 @@ class PanalistForm(forms.ModelForm):
         model = models.Panelist
         fields = ["email", "first_name", "middle_names", "last_name"]
 
-PanalistFormSet = inlineformset_factory(
-    models.Round, models.Panelist, form=PanalistForm, extra=1, can_delete=True
+PanelistFormSet = formset_factory(
+    form=PanelistForm, extra=1, can_delete=True
 )
+
+
+class PanelistFormSetHelper(FormHelper):
+    template = "portal/table_inline_formset.html"

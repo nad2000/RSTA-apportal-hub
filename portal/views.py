@@ -553,7 +553,7 @@ def get_or_create_referee_invitation(referee):
         )
 
 
-def invite_panelist(request, application):
+def invite_panelist(request, panelist):
     """Send invitations to all panelist members to authorized_at the representative."""
     # members that don't have invitations
     count = 0
@@ -568,7 +568,7 @@ def invite_panelist(request, application):
 
     # send 'yet unsent' invitations:
     invitations = list(
-        models.Invitation.where(application=application, type="P", sent_at__isnull=True)
+        models.Invitation.where(panelist=panelist, type="P", sent_at__isnull=True)
     )
     for i in invitations:
         i.send(request)
@@ -594,12 +594,12 @@ def get_or_create_panelist_invitation(panelist):
         return models.Invitation.get_or_create(
             type=models.INVITATION_TYPES.P,
             panelist=panelist,
-            email=referee.email,
+            email=panelist.email,
             defaults=dict(
-                application=referee.application,
-                first_name=referee.first_name,
-                middle_names=referee.middle_names,
-                last_name=referee.last_name,
+                round=panelist.round,
+                first_name=panelist.first_name,
+                middle_names=panelist.middle_names,
+                last_name=panelist.last_name,
             ),
         )
 
@@ -1869,7 +1869,7 @@ class TestimonyExportView(ExportView, TestimonyDetail):
 class PanelistView(CreateUpdateView):
 
     model = models.Panelist
-    form_class = forms.PanalistForm
+    form_class = forms.PanelistForm
     template_name = "panelist.html"
 
     @property
@@ -1878,27 +1878,26 @@ class PanelistView(CreateUpdateView):
             models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
         )
 
-    def form_valid(self, form):
-        n = form.instance
-        if not n.id:
-            n.panelist = self.request.user
-            n.round = self.round
-        resp = super().form_valid(form)
-
-        if "submit" in self.request.POST:
-            n.submit(request=self.request)
-        elif "save_draft" in self.request.POST:
-            n.save_draft()
-        n.save()
-
-        return resp
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
-        context["helper"] = forms.MemberFormSetHelper
+        context["helper"] = forms.PanelistFormSetHelper
         if self.request.POST:
-            context["panelists"] = forms.PanalistFormSet(self.request.POST, instance=self.round)
+            context["panelists"] = forms.PanelistFormSet(self.request.POST)
         else:
-            context["panelists"] = forms.PanalistFormSet(instance=self.round)
+            context["panelists"] = forms.PanelistFormSet()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_panelist_form()
+        if not form.is_valid():
+            return self.form_invalid(form)
+        form.save()
+        return super().post(request, *args, **kwargs)
+
+    def get_panelist_form(self):
+        if self.request.method == "POST":
+            panelist_form = forms.PanelistForm(self.request.POST, instance=self.round)
+        else:
+            panelist_form = forms.PanelistForm(instance=self.round)
+        return panelist_form
