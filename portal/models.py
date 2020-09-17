@@ -772,7 +772,7 @@ class Referee(Model):
 class Panelist(Model):
     """Round Panelist."""
 
-    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="rounds")
+    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="rounds", null=True, blank=True)
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
     middle_names = CharField(

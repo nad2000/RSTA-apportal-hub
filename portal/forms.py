@@ -494,3 +494,35 @@ class IdentityVerificationForm(forms.ModelForm):
     class Meta:
         model = models.IdentityVerification
         fields = ["file", "resolution"]
+
+
+class PanalistForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+
+        self.helper.layout = Layout(
+            Div(TableInlineFormset("panelists"), css_id="panelists"),
+            ButtonHolder(
+                Submit("send_invite", _("Invite"), css_class="btn btn-primary",),
+                HTML(
+                    """
+                    <a href="{{ view.get_success_url }}"
+                       type="button"
+                       role="button"
+                       class="btn btn-secondary"
+                       id="cancel">
+                        %s
+                    </a>"""
+                    % _("Cancel")
+                ),
+            ),
+        )
+
+    class Meta:
+        model = models.Panelist
+        fields = ["email", "first_name", "middle_names", "last_name"]
+
+PanalistFormSet = inlineformset_factory(
+    models.Round, models.Panelist, form=PanalistForm, extra=1, can_delete=True
+)

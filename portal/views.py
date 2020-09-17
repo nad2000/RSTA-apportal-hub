@@ -1864,3 +1864,41 @@ class TestimonyExportView(ExportView, TestimonyDetail):
         if testimony.file:
             return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimony.file)]
         return []
+
+
+class PanelistView(CreateUpdateView):
+
+    model = models.Panelist
+    form_class = forms.PanalistForm
+    template_name = "panelist.html"
+
+    @property
+    def round(self):
+        return (
+            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
+        )
+
+    def form_valid(self, form):
+        n = form.instance
+        if not n.id:
+            n.panelist = self.request.user
+            n.round = self.round
+        resp = super().form_valid(form)
+
+        if "submit" in self.request.POST:
+            n.submit(request=self.request)
+        elif "save_draft" in self.request.POST:
+            n.save_draft()
+        n.save()
+
+        return resp
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["round"] = self.round
+        context["helper"] = forms.MemberFormSetHelper
+        if self.request.POST:
+            context["panelists"] = forms.PanalistFormSet(self.request.POST, instance=self.round)
+        else:
+            context["panelists"] = forms.PanalistFormSet(instance=self.round)
+        return context
