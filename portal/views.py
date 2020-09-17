@@ -553,6 +553,57 @@ def get_or_create_referee_invitation(referee):
         )
 
 
+def invite_panelist(request, application):
+    """Send invitations to all panelist members to authorized_at the representative."""
+    # members that don't have invitations
+    count = 0
+    panelist = list(
+        models.Panelist.objects.select_related("invitation").extra(
+            tables=["invitation"],
+            where=["invitation.id IS NULL or panelist.email != invitation.email"],
+        )
+    )
+    for p in panelist:
+        get_or_create_panelist_invitation(p)
+
+    # send 'yet unsent' invitations:
+    invitations = list(
+        models.Invitation.where(application=application, type="P", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
+def get_or_create_panelist_invitation(panelist):
+
+    if hasattr(panelist, "invitation"):
+        i = panelist.invitation
+        if panelist.email != i.email:
+            i.email = panelist.email
+            i.first_name = panelist.first_name
+            i.middle_names = panelist.middle_names
+            i.last_name = panelist.last_name
+            i.sent_at = None
+            i.status = models.Invitation.STATUS.submitted
+            i.save()
+        return (i, False)
+    else:
+        return models.Invitation.get_or_create(
+            type=models.INVITATION_TYPES.P,
+            panelist=panelist,
+            email=referee.email,
+            defaults=dict(
+                application=referee.application,
+                first_name=referee.first_name,
+                middle_names=referee.middle_names,
+                last_name=referee.last_name,
+            ),
+        )
+
+
 class InvitationCreate(CreateView):
     model = models.Invitation
     template_name = "form.html"

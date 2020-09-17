@@ -769,6 +769,29 @@ class Referee(Model):
         db_table = "referee"
 
 
+class Panelist(Model):
+    """Round Panelist."""
+
+    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="rounds")
+    email = EmailField(max_length=120)
+    first_name = CharField(max_length=30, null=True, blank=True)
+    middle_names = CharField(
+        _("middle names"),
+        blank=True,
+        null=True,
+        max_length=280,
+        help_text=_("Comma separated list of middle names"),
+    )
+    last_name = CharField(max_length=150, null=True, blank=True)
+    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        db_table = "panelist"
+
+
 def get_unique_invitation_token():
 
     while True:
@@ -783,7 +806,7 @@ class StateField(StatusField, FSMField):
 
 
 INVITATION_TYPES = Choices(
-    ("A", _("apply")), ("J", _("join")), ("R", _("testify")), ("T", _("authorize")),
+    ("A", _("apply")), ("J", _("join")), ("R", _("testify")), ("T", _("authorize")), ("P", _("panelist")),
 )
 
 
@@ -818,6 +841,9 @@ class Invitation(Model):
     )
     referee = OneToOneField(
         Referee, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+    )
+    panelist = OneToOneField(
+        Panelist, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
     )
 
     # TODO: take a look FSM ... as an alternative. might be more appropriate...
@@ -861,7 +887,7 @@ class Invitation(Model):
                 % url
             )
         if self.type == INVITATION_TYPES.R:
-            subject = _("You are invited to authorize as a Referee")
+            subject = _("You are invited to testify an application")
             body = (
                 _(
                     "You are invited to authorize to testify an application. Please follow the link: %s"
@@ -873,6 +899,14 @@ class Invitation(Model):
             body = _(
                 "You were nominated for %(round)s by %(inviter)s. Please follow the link: %(url)s"
             ) % dict(round=self.nomination.round, inviter=self.inviter, url=url,)
+        if self.type == INVITATION_TYPES.P:
+            subject = _("You are invited to be a Panelist")
+            body = (
+                _(
+                    "You are invited to as a panelist. Please follow the link: %s"
+                )
+                % url
+            )
         else:
             subject = _("You are invited to join the portal")
             body = _("You are invited to join the portal. Please follow the link: %s") % url
@@ -909,6 +943,8 @@ class Invitation(Model):
                 t.save()
                 referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
+        elif self.type == INVITATION_TYPES.P:
+            pass
 
     @classmethod
     def outstanding_invitations(cls, user):
