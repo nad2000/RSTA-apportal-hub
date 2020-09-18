@@ -500,13 +500,8 @@ class PanelistForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        fields = ["email", "first_name", "middle_names", "last_name"]
         self.helper.layout = Layout(
-            Div("team_name", TableInlineFormset("panelists"), css_id="panelists"),
-            Field("email"),
-            Field("first_name"),
-            Field("middle_names"),
-            Field("last_name"),
+            Div(TableInlineFormset("panelists"), css_id="panelists"),
             ButtonHolder(
                 Submit("send_invite", _("Invite"), css_class="btn btn-primary",),
                 HTML(
@@ -527,8 +522,8 @@ class PanelistForm(forms.ModelForm):
         model = models.Panelist
         fields = ["email", "first_name", "middle_names", "last_name"]
 
-PanelistFormSet = formset_factory(
-    form=PanelistForm, extra=1, can_delete=True
+PanelistFormSet = inlineformset_factory(
+    models.Round, models.Panelist, form=PanelistForm, extra=1, can_delete=True
 )
 
 

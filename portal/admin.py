@@ -206,6 +206,7 @@ class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
 admin.site.register(models.Award)
 admin.site.register(models.Member)
 admin.site.register(models.Referee)
+admin.site.register(models.Panelist)
 admin.site.register(models.IdentityVerification)
 
 
@@ -263,3 +264,9 @@ class SchemeAdmin(TranslationAdmin, ImportExportModelAdmin):
 class RoundAdmin(ImportExportModelAdmin):
     list_display = ["title", "scheme", "opens_on"]
     list_filter = ["created_at", "updated_at"]
+
+    class PanelistInline(admin.TabularInline):
+        extra = 0
+        model = models.Panelist
+
+    inlines = [PanelistInline]

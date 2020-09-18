@@ -32,7 +32,7 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
-from extra_views import InlineFormSetFactory, ModelFormSetView
+from extra_views import InlineFormSetFactory, ModelFormSetView, FormSetView
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from sentry_sdk import last_event_id
@@ -555,7 +555,6 @@ def get_or_create_referee_invitation(referee):
 
 def invite_panelist(request, panelist):
     """Send invitations to all panelist members to authorized_at the representative."""
-    # members that don't have invitations
     count = 0
     panelist = list(
         models.Panelist.objects.select_related("invitation").extra(
@@ -568,7 +567,7 @@ def invite_panelist(request, panelist):
 
     # send 'yet unsent' invitations:
     invitations = list(
-        models.Invitation.where(panelist=panelist, type="P", sent_at__isnull=True)
+        models.Invitation.where(panelist__in=panelist, type="P", sent_at__isnull=True)
     )
     for i in invitations:
         i.send(request)
@@ -578,7 +577,6 @@ def invite_panelist(request, panelist):
 
 
 def get_or_create_panelist_invitation(panelist):
-
     if hasattr(panelist, "invitation"):
         i = panelist.invitation
         if panelist.email != i.email:
@@ -596,7 +594,7 @@ def get_or_create_panelist_invitation(panelist):
             panelist=panelist,
             email=panelist.email,
             defaults=dict(
-                round=panelist.round,
+                panelist = panelist,
                 first_name=panelist.first_name,
                 middle_names=panelist.middle_names,
                 last_name=panelist.last_name,
@@ -1867,32 +1865,40 @@ class TestimonyExportView(ExportView, TestimonyDetail):
 
 
 class PanelistView(CreateUpdateView):
-
-    model = models.Panelist
+    model = models.Round
     form_class = forms.PanelistForm
     template_name = "panelist.html"
 
     @property
     def round(self):
         return (
-            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
+            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.round
         )
 
     def get_context_data(self, **kwargs):
+        self.object = self.round
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
         context["helper"] = forms.PanelistFormSetHelper
         if self.request.POST:
-            context["panelists"] = forms.PanelistFormSet(self.request.POST)
+            context["panelists"] = forms.PanelistFormSet(self.request.POST, instance=self.round)
         else:
-            context["panelists"] = forms.PanelistFormSet()
+            context["panelists"] = forms.PanelistFormSet(instance=self.round)
         return context
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_panelist_form()
-        if not form.is_valid():
-            return self.form_invalid(form)
-        form.save()
+    def post(self, request, *args, **kwargs) :
+        context = self.get_context_data()
+        panelists = context["panelists"]
+        if panelists.is_valid():
+            panelists.instance = self.object
+            has_deleted = bool(panelists.deleted_forms)
+            saved_data=panelists.save()
+            for s in saved_data:
+                s.save()
+            count = invite_panelist(self.request, self.round)
+            if count > 0:
+                messages.success(
+                self.request, _("%d invitation(s) to panelists sent.") % count,)
         return super().post(request, *args, **kwargs)
 
     def get_panelist_form(self):
