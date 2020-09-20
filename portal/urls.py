@@ -226,6 +226,19 @@ urlpatterns = [
             ]
         ),
     ),
+    path(
+        "reviews/",
+        include(
+            [
+                path("<int:pk>/~create", views.TestimonyView.as_view(), name="review-create"),
+                path("<int:pk>/~update", views.TestimonyView.as_view(), name="review-update"),
+                path("<int:pk>", views.TestimonyDetail.as_view(), name="review-detail"),
+                path("draft", views.RoundList.as_view(), name="reviews-working"),
+                path("submitted", views.RoundList.as_view(), name="reviews-submitted"),
+                path("", views.RoundList.as_view(), name="reviews"),
+            ]
+        ),
+    ),
     path("", views.subscribe, name="comingsoon"),
     # path(
     #     "subscription/update/<int:pk>",

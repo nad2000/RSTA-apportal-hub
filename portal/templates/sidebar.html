@@ -92,6 +92,36 @@
   {% endif %}
 </div>
 
+<div class="card mb-2">
+  <div class="card-header">
+    <a href="{% url 'reviews' %}">
+      {% trans 'Reviews' %}
+    </a>
+  </div>
+  {% if categrory == "reviews" %}
+    <div class="card-body">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item" id="reviews-working">
+          <a
+            class="nav-link"
+            href="{% url 'reviews-working' %}"
+            title="{% trans 'working review' %}"
+            data-toggle="tooltip"
+            >{% trans 'Working' %}</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{% url 'reviews-submitted' %}"
+            title="{% trans 'Submitted and previous reviews' %}"
+            data-toggle="tooltip"
+            >{% trans 'Submitted' %}</a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
 {% endif %}
 
 <div class="card mb-2">

@@ -1923,3 +1923,24 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
                 return kwargs
 
         return Klass
+
+
+class RoundList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Round
+    table_class = tables.RoundTable
+    template_name = "rounds.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        breakpoint()
+        panelist = models.Round.raw("select * from round where id in %s", ["4"])
+        queryset = queryset.filter(referee__in=Subquery(panelist))
+
+        state = self.request.path.split("/")[-1]
+        if state == "working":
+            queryset = queryset.filter(state__in=[state, "new"])
+        elif state == "submitted":
+            queryset = queryset.filter(state=state)
+        return queryset

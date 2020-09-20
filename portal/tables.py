@@ -70,3 +70,19 @@ class ApplicationTable(tables.Table):
             "first_name",
             "last_name",
         )
+
+
+class RoundTable(tables.Table):
+
+    round = tables.Column()
+
+    class Meta:
+        model = models.Round
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped"}
+        fields = (
+            "title",
+            "scheme",
+            "opens_on",
+            "closes_on",
+        )
