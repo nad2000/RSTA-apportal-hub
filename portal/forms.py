@@ -496,7 +496,7 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-PanelistFormSet = modelformset_factory(models.Panelist, exclude=(), can_delete=True, widgets = {"round_id": HiddenInput()})
+PanelistFormSet = modelformset_factory(models.Panelist, exclude=(), can_delete=True, widgets = {"round": HiddenInput()})
 
 
 class PanelistFormSetHelper(FormHelper):
@@ -505,4 +505,4 @@ class PanelistFormSetHelper(FormHelper):
     def __init__(self, panelist=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_input(Submit("send_invite", _("Invite"), css_class="btn btn-primary", ))
-        self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+        self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))

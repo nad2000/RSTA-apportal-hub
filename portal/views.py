@@ -553,8 +553,8 @@ def get_or_create_referee_invitation(referee):
         )
 
 
-def invite_panelist(request, panelist):
-    """Send invitations to all panelist members to authorized_at the representative."""
+def invite_panelist(request, round):
+    """Send invitations to all panelists."""
     count = 0
     panelist = list(
         models.Panelist.objects.select_related("invitation").extra(
@@ -565,9 +565,8 @@ def invite_panelist(request, panelist):
     for p in panelist:
         get_or_create_panelist_invitation(p)
 
-    # send 'yet unsent' invitations:
     invitations = list(
-        models.Invitation.where(panelist__in=panelist, type="P", sent_at__isnull=True)
+        models.Invitation.where(round=round, panelist__in=panelist, type="P", sent_at__isnull=True)
     )
     for i in invitations:
         i.send(request)
@@ -594,7 +593,8 @@ def get_or_create_panelist_invitation(panelist):
             panelist=panelist,
             email=panelist.email,
             defaults=dict(
-                panelist = panelist,
+                panelist=panelist,
+                round=panelist.round,
                 first_name=panelist.first_name,
                 middle_names=panelist.middle_names,
                 last_name=panelist.last_name,
@@ -1868,7 +1868,7 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
     model = models.Panelist
     formset_class = forms.PanelistFormSet
     template_name = "panelist.html"
-    exclude = ("round", "user")
+    exclude = ("user",)
 
     @property
     def round(self):
@@ -1878,13 +1878,18 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["round"] = self.round
-        context["round_id"] = self.round.id
         context["helper"] = forms.PanelistFormSetHelper
         return context
 
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        if "cancel" in request.POST:
+            return HttpResponseRedirect(reverse("home"))
+        else:
+            super().post(request, *args, **kwargs)
+            count = invite_panelist(self.request, self.round)
+            if count > 0:
+                messages.success(self.request, _("%d invitation(s) to panelist sent.") % count,)
+            return HttpResponseRedirect(self.request.path_info)
 
     def get_queryset(self):
         return self.model.where(round=self.round)
@@ -1893,8 +1898,7 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
         widgets.update(
-            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"),
-             "round_id": HiddenInput(), }
+            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"), "round": HiddenInput()}
         )
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
@@ -1902,4 +1906,20 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
 
     def get_defaults(self):
         """Default values for a form."""
-        return dict(panelist=self.get_queryset(), round=self.round, round_id=self.round.id)
+        return dict(round=self.round)
+
+    def get_formset(self):
+
+        klass = super().get_formset()
+        defaults = self.get_defaults()
+
+        class Klass(klass):
+            def get_form_kwargs(self, index):
+                kwargs = super().get_form_kwargs(index)
+                if "initial" not in kwargs:
+                    kwargs["initial"] = defaults
+                else:
+                    kwargs["initial"].update(defaults)
+                return kwargs
+
+        return Klass

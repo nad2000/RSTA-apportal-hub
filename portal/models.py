@@ -772,7 +772,7 @@ class Referee(Model):
 class Panelist(Model):
     """Round Panelist."""
 
-    round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="rounds", null=True, blank=True)
+    round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panelists")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
     middle_names = CharField(
@@ -853,7 +853,9 @@ class Invitation(Model):
     panelist = OneToOneField(
         Panelist, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
     )
-
+    round = ForeignKey(
+        "Round", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+    )
     # TODO: take a look FSM ... as an alternative. might be more appropriate...
     # status = StatusField()
     status = StateField()
