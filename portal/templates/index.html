@@ -89,11 +89,11 @@
               > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
             </a>
           {#% endif %#}
-          {#% if request.user.is_staff %#}
+          {% if request.user.is_staff %}
             <a href="{% url 'panelist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Invite Panelist" %}
             </a>
-          {#% endif %#}
+          {% endif %}
         {% endif %}
       </div>
     </dic>

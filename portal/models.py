@@ -788,6 +788,14 @@ class Panelist(Model):
     def __str__(self):
         return str(self.user)
 
+    @classmethod
+    def outstanding_requests(cls, user):
+        return Invitation.objects.raw(
+            "SELECT DISTINCT p.* FROM panelist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
+            "WHERE (p.user_id=%s OR ae.user_id=%s)",
+            [user.id, user.id],
+        )
+
     class Meta:
         db_table = "panelist"
 
@@ -944,7 +952,9 @@ class Invitation(Model):
                 referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
-            pass
+            n = self.panelist
+            n.user = by
+            n.save()
 
     @classmethod
     def outstanding_invitations(cls, user):
