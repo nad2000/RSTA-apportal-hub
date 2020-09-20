@@ -1864,10 +1864,11 @@ class TestimonyExportView(ExportView, TestimonyDetail):
         return []
 
 
-class PanelistView(CreateUpdateView):
-    model = models.Round
-    form_class = forms.PanelistForm
+class PanelistView(LoginRequiredMixin, ModelFormSetView):
+    model = models.Panelist
+    formset_class = forms.PanelistFormSet
     template_name = "panelist.html"
+    exclude = ("round", "user")
 
     @property
     def round(self):
@@ -1876,34 +1877,29 @@ class PanelistView(CreateUpdateView):
         )
 
     def get_context_data(self, **kwargs):
-        self.object = self.round
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
+        context["round_id"] = self.round.id
         context["helper"] = forms.PanelistFormSetHelper
-        if self.request.POST:
-            context["panelists"] = forms.PanelistFormSet(self.request.POST, instance=self.round)
-        else:
-            context["panelists"] = forms.PanelistFormSet(instance=self.round)
         return context
 
-    def post(self, request, *args, **kwargs) :
-        context = self.get_context_data()
-        panelists = context["panelists"]
-        if panelists.is_valid():
-            panelists.instance = self.object
-            has_deleted = bool(panelists.deleted_forms)
-            saved_data=panelists.save()
-            for s in saved_data:
-                s.save()
-            count = invite_panelist(self.request, self.round)
-            if count > 0:
-                messages.success(
-                self.request, _("%d invitation(s) to panelists sent.") % count,)
+    def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-    def get_panelist_form(self):
-        if self.request.method == "POST":
-            panelist_form = forms.PanelistForm(self.request.POST, instance=self.round)
-        else:
-            panelist_form = forms.PanelistForm(instance=self.round)
-        return panelist_form
+    def get_queryset(self):
+        return self.model.where(round=self.round)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        widgets = kwargs.get("widgets", {})
+        widgets.update(
+            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"),
+             "round_id": HiddenInput(), }
+        )
+        kwargs["widgets"] = widgets
+        kwargs["can_delete"] = True
+        return kwargs
+
+    def get_defaults(self):
+        """Default values for a form."""
+        return dict(panelist=self.get_queryset(), round=self.round, round_id=self.round.id)
