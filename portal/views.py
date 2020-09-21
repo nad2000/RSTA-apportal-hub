@@ -32,7 +32,7 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
-from extra_views import InlineFormSetFactory, ModelFormSetView
+from extra_views import InlineFormSetFactory, ModelFormSetView, FormSetView
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from sentry_sdk import last_event_id
@@ -549,6 +549,55 @@ def get_or_create_referee_invitation(referee):
                 first_name=referee.first_name,
                 middle_names=referee.middle_names,
                 last_name=referee.last_name,
+            ),
+        )
+
+
+def invite_panelist(request, round):
+    """Send invitations to all panelists."""
+    count = 0
+    panelist = list(
+        models.Panelist.objects.select_related("invitation").extra(
+            tables=["invitation"],
+            where=["invitation.id IS NULL or panelist.email != invitation.email"],
+        )
+    )
+    for p in panelist:
+        get_or_create_panelist_invitation(p)
+
+    invitations = list(
+        models.Invitation.where(round=round, panelist__in=panelist, type="P", sent_at__isnull=True)
+    )
+    for i in invitations:
+        i.send(request)
+        i.save()
+        count += 1
+    return count
+
+
+def get_or_create_panelist_invitation(panelist):
+    if hasattr(panelist, "invitation"):
+        i = panelist.invitation
+        if panelist.email != i.email:
+            i.email = panelist.email
+            i.first_name = panelist.first_name
+            i.middle_names = panelist.middle_names
+            i.last_name = panelist.last_name
+            i.sent_at = None
+            i.status = models.Invitation.STATUS.submitted
+            i.save()
+        return (i, False)
+    else:
+        return models.Invitation.get_or_create(
+            type=models.INVITATION_TYPES.P,
+            panelist=panelist,
+            email=panelist.email,
+            defaults=dict(
+                panelist=panelist,
+                round=panelist.round,
+                first_name=panelist.first_name,
+                middle_names=panelist.middle_names,
+                last_name=panelist.last_name,
             ),
         )
 
@@ -1813,3 +1862,64 @@ class TestimonyExportView(ExportView, TestimonyDetail):
         if testimony.file:
             return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimony.file)]
         return []
+
+
+class PanelistView(LoginRequiredMixin, ModelFormSetView):
+    model = models.Panelist
+    formset_class = forms.PanelistFormSet
+    template_name = "panelist.html"
+    exclude = ("user",)
+
+    @property
+    def round(self):
+        return (
+            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.round
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["helper"] = forms.PanelistFormSetHelper
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if "cancel" in request.POST:
+            return HttpResponseRedirect(reverse("home"))
+        else:
+            super().post(request, *args, **kwargs)
+            count = invite_panelist(self.request, self.round)
+            if count > 0:
+                messages.success(self.request, _("%d invitation(s) to panelist sent.") % count,)
+            return HttpResponseRedirect(self.request.path_info)
+
+    def get_queryset(self):
+        return self.model.where(round=self.round)
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        widgets = kwargs.get("widgets", {})
+        widgets.update(
+            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"), "round": HiddenInput()}
+        )
+        kwargs["widgets"] = widgets
+        kwargs["can_delete"] = True
+        return kwargs
+
+    def get_defaults(self):
+        """Default values for a form."""
+        return dict(round=self.round)
+
+    def get_formset(self):
+
+        klass = super().get_formset()
+        defaults = self.get_defaults()
+
+        class Klass(klass):
+            def get_form_kwargs(self, index):
+                kwargs = super().get_form_kwargs(index)
+                if "initial" not in kwargs:
+                    kwargs["initial"] = defaults
+                else:
+                    kwargs["initial"].update(defaults)
+                return kwargs
+
+        return Klass
