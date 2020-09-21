@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+  {{ formset.media.css }}
+  {{ block.super }}
+{% endblock %}
+
+{% load static i18n %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="applications" %}{% endblock sidebar %}
+
+{% block content_header %}
+  {{ round|title }}
+{% endblock %}
+{% block content %}
+    {% crispy formset helper %}
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {{ formset.media.js }}
+{% endblock %}

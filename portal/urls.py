@@ -187,6 +187,7 @@ urlpatterns = [
         ),
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
+    path("panelist/<int:round>/~invite", views.PanelistView.as_view(), name="panelist-invite"),
     path(
         "nominations/",
         include(

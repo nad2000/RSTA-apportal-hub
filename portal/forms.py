@@ -18,7 +18,7 @@ from crispy_forms.layout import (
 )
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput, inlineformset_factory
+from django.forms import HiddenInput, inlineformset_factory, formset_factory
 from django.forms.models import modelformset_factory
 from django.forms.widgets import NullBooleanSelect
 from django.template.loader import render_to_string
@@ -494,3 +494,15 @@ class IdentityVerificationForm(forms.ModelForm):
     class Meta:
         model = models.IdentityVerification
         fields = ["file", "resolution"]
+
+
+PanelistFormSet = modelformset_factory(models.Panelist, exclude=(), can_delete=True, widgets = {"round": HiddenInput()})
+
+
+class PanelistFormSetHelper(FormHelper):
+    template = "portal/table_inline_formset.html"
+
+    def __init__(self, panelist=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_input(Submit("send_invite", _("Invite"), css_class="btn btn-primary", ))
+        self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))
