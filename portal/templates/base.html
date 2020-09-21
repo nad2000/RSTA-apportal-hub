@@ -73,11 +73,11 @@
 
                 <ul class="navbar-nav mr-auto">
                   {% if request.user.is_authenticated %}
-                  <li class="nav-item" id="home">
-                    <a class="nav-link" href="{% url 'home' %}">
-                      <i class="fa fa-fw fa-home"></i> {% trans 'Home' %}<span class="sr-only">(current)</span>
-                    </a>
-                  </li>
+                    <li class="nav-item" id="home">
+                      <a class="nav-link" href="{% url 'home' %}">
+                        <i class="fa fa-fw fa-home"></i> {% trans 'Home' %}<span class="sr-only">(current)</span>
+                      </a>
+                    </li>
                     {% if request.user.is_superuser or request.user.is_staff %}
                       <li class="nav-item" id="admin:index">
                         <a id="admin-link" class="nav-link" href="{% url 'admin:index' %}">
@@ -96,30 +96,30 @@
                 <ul class="navbar-nav ml-auto">
 
                   {% if request.user.is_authenticated %}
-                  <img alt="GRAVATAR" src="{{ request.user.avatar }}" style="-webkit-border-radius: 12%; border-radius: 12%; max-width: 38px;">
-                  <li class="nav-item dropdown" id="profile">
-                    <a class="nav-link dropdown-toggle"
-                       data-toggle="dropdown"
-                       aria-haspopup="true"
-                       aria-expanded="false"
-                       id="navbarDropdownMenuLinkProfile">
-                       <!-- i class="fas fa-user"></i -->
-                      {{ request.user.username }}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right dropdown-info"
-                         aria-labelledby="navbarDropdownMenuLinkProfile">
-
-                      <a class="dropdown-item" href="{% url 'my-profile' %}" id="profile">
-                        {# URL provided by django-allauth/account/urls.py #}
-                        <i class="fas fa-id-badge"></i> {% trans "My Profile" %}
+                    <img alt="GRAVATAR" src="{{ request.user.avatar }}" style="-webkit-border-radius: 12%; border-radius: 12%; max-width: 38px;">
+                    <li class="nav-item dropdown" id="profile">
+                      <a class="nav-link dropdown-toggle"
+                         data-toggle="dropdown"
+                         aria-haspopup="true"
+                         aria-expanded="false"
+                         id="navbarDropdownMenuLinkProfile">
+                        <!-- i class="fas fa-user"></i -->
+                        {{ request.user.username }}
                       </a>
+                      <div class="dropdown-menu dropdown-menu-right dropdown-info"
+                           aria-labelledby="navbarDropdownMenuLinkProfile">
 
-                      <a class="dropdown-item" href="{% url 'account_logout' %}" id="account_logout">
-                        <i class="fas fa-sign-out-alt"></i> {% trans "Sign Out" %}
-                      </a>
+                        <a class="dropdown-item" href="{% url 'my-profile' %}" id="profile">
+                          {# URL provided by django-allauth/account/urls.py #}
+                          <i class="fas fa-id-badge"></i> {% trans "My Profile" %}
+                        </a>
 
-                    </div>
-                  </li>
+                        <a class="dropdown-item" href="{% url 'account_logout' %}" id="account_logout">
+                          <i class="fas fa-sign-out-alt"></i> {% trans "Sign Out" %}
+                        </a>
+
+                      </div>
+                    </li>
                   {% endif %}
 
                   <form action="{% url 'set_language' %}" method="post">
@@ -159,14 +159,14 @@
       <div class="container-fluid">
 
         {% if need_to_verify_identity %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-              <span class="badge badge-info">{% trans 'New' %}</span>
-              {% trans "Your indentity has not been yet verified." %}
-              <a href="{% url 'photo-identity' %}" class="alert-link">{% trans 'Please upload a copy of a photo inentity here' %}!</a>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <span class="badge badge-info">{% trans 'New' %}</span>
+            {% trans "Your indentity has not been yet verified." %}
+            <a href="{% url 'photo-identity' %}" class="alert-link">{% trans 'Please upload a copy of a photo inentity here' %}!</a>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
         {% endif %}
 
         {% if outstanding_invitations %}
@@ -213,15 +213,15 @@
         {% if outstanding_testimony_requests %}
           {% for o in outstanding_testimony_requests %}
             {% if o.testimony_id %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-              {% trans "You have a request to review and endorse an application that hasn't been reviewed yet." %}
-              <a href="{% url 'testimony-detail' pk=o.testimony_id %}" class="alert-link">
-                {% trans 'Please click here to review the application' %}!
-              </a>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {% trans "You have a request to review and endorse an application that hasn't been reviewed yet." %}
+                <a href="{% url 'testimony-detail' pk=o.testimony_id %}" class="alert-link">
+                  {% trans 'Please click here to review the application' %}!
+                </a>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
             {% endif %}
           {% endfor %}
         {% endif %}
@@ -267,6 +267,28 @@
 
       {% block modal %}{% endblock modal %}
 
+      <footer class="footer">
+        <div class="container">
+          <p></p><strong>Contact</strong> Us <strong>Whakapā</strong> Mai</p>
+          <div class="row">
+            <div class="footer-col footer-left col-sm-6">
+              <div class="widget text-2 widget_text">			<div class="textwidget"><p>The Prime Minister’s Science Prizes is administered by the<br>
+                  <strong><a href="http://www.royalsociety.org.nz/">Royal Society Te Apārangi.</a></strong></p>
+                  <p><small>Website provided by <a href="https://www.ackama.com">Ackama</a></small></p>
+                </div>
+              </div>
+            </div><!--//footer-col-->
+            <div class="footer-col footer-right col-sm-6">
+              <div class="widget text-3 widget_text">			<div class="textwidget"><strong>The Prime Minister’s Science Prizes Secretariat</strong><br>
+                  PO Box 598 |  Wellington 6001<br>
+                  Tel: (04) 472 7421<br>
+                  <a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a></div>
+              </div>
+            </div><!--//footer-col-->
+          </div>
+        </div>
+      </footer>
+
       <!-- Le javascript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
@@ -283,18 +305,18 @@
       <!-- Your stuff: Third-party javascript libraries go here -->
       <!-- place project specific Javascript in this file -->
       {% compress js %}
-        <script src="{% static 'js/project.js' %}"></script>
-        <script>
-          $(document).ready(function(){
-            $("time").each(function () {
-              var el = $(this);
-              var dt = moment.utc(el.attr("datetime")).local();
-              el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
-            });
-            $('[data-toggle="tooltip"]').tooltip();
-            $("#{{request.resolver_match.view_name}}").addClass("active");
+      <script src="{% static 'js/project.js' %}"></script>
+      <script>
+        $(document).ready(function(){
+          $("time").each(function () {
+            var el = $(this);
+            var dt = moment.utc(el.attr("datetime")).local();
+            el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
           });
-        </script>
+          $('[data-toggle="tooltip"]').tooltip();
+          $("#{{request.resolver_match.view_name}}").addClass("active");
+        });
+      </script>
       {% endcompress %}
 
     {% endblock javascript %}

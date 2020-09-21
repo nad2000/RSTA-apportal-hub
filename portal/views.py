@@ -56,7 +56,10 @@ def handler500(request, *args, **argv):
     return render(
         request,
         "500.html",
-        {"sentry_event_id": last_event_id(), "SENTRY_DSN": settings.SENTRY_DSN,},
+        {
+            "sentry_event_id": last_event_id(),
+            "SENTRY_DSN": settings.SENTRY_DSN,
+        },
         status=500,
     )
 
@@ -244,7 +247,8 @@ def index(request):
         )
     else:
         messages.info(
-            request, _("Your profile has not been approved, Admin is looking into your request"),
+            request,
+            _("Your profile has not been approved, Admin is looking into your request"),
         )
     return render(request, "index.html", locals())
 
@@ -431,6 +435,28 @@ class ProfileCreate(ProfileView, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+
+        if "user_form" not in kwargs:
+            kwargs["user_form"] = self.get_user_form()
+
+        return data
+
+    def get_initial(self):
+        initial = super().get_initial()
+        n = (
+            models.Nomination.where(user=self.request.user, state="submitted")
+            .order_by("-id")
+            .first()
+        )
+        if n:
+            initial["first_name"] = n.first_name
+            initial["middle_names"] = n.middle_names
+            initial["last_name"] = n.last_name
+            initial["title"] = n.title
+        return initial
 
 
 # def send_mail(self, subject_template_name, email_template_name,
@@ -734,7 +760,8 @@ class ApplicationView(LoginRequiredMixin):
                 count = invite_referee(self.request, self.object)
                 if count > 0:
                     messages.success(
-                        self.request, _("%d invitation(s) to authorize the referee sent.") % count,
+                        self.request,
+                        _("%d invitation(s) to authorize the referee sent.") % count,
                     )
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(
@@ -1087,7 +1114,10 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
         widgets.update(
-            {"profile": HiddenInput(), "DELETE": Submit("submit", "DELETE"),}
+            {
+                "profile": HiddenInput(),
+                "DELETE": Submit("submit", "DELETE"),
+            }
         )
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
@@ -1215,7 +1245,11 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         """Get the context data"""
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid",)
+            Submit(
+                "load_from_orcid",
+                "Import from ORCiD",
+                css_class="btn-orcid",
+            )
         )
         return context
 
@@ -1244,7 +1278,10 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
     def get_queryset(self):
         return self.model.where(
             profile=self.request.user.profile, type__in=self.affiliation_type.values()
-        ).order_by("start_date", "end_date",)
+        ).order_by(
+            "start_date",
+            "end_date",
+        )
 
     def get_defaults(self):
         """Default values for a form."""
@@ -1482,10 +1519,16 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         try:
             context["qualification"] = models.Affiliation.where(
                 profile=profile, type__in=["EMP"]
-            ).order_by("start_date", "end_date",)
+            ).order_by(
+                "start_date",
+                "end_date",
+            )
             context["professional_records"] = models.Affiliation.where(
                 profile=profile, type__in=["MEM", "SER"]
-            ).order_by("start_date", "end_date",)
+            ).order_by(
+                "start_date",
+                "end_date",
+            )
             context["external_id_records"] = models.ProfilePersonIdentifier.where(
                 profile=profile
             ).order_by("code")
@@ -1539,7 +1582,11 @@ class NominationView(CreateUpdateView):
     def get_form_kwargs(self):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
-        if self.request.method == "GET" and not (self.object and self.object.org) and "initial" in kwargs:
+        if (
+            self.request.method == "GET"
+            and not (self.object and self.object.org)
+            and "initial" in kwargs
+        ):
             a = (
                 self.request.user.profile.affiliations.filter(type="EMP", end_date__isnull=True)
                 .order_by("-id")
@@ -1599,12 +1646,14 @@ class TestimonyView(CreateUpdateView):
                     fail_silently=False,
                 )
                 messages.info(
-                    self.request, _("You opted out of Testimony."),
+                    self.request,
+                    _("You opted out of Testimony."),
                 )
                 return HttpResponseRedirect(reverse("testimonies"))
         else:
             messages.warning(
-                self.request, _("Testimony is already submitted."),
+                self.request,
+                _("Testimony is already submitted."),
             )
         return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=n.id)))
 
@@ -1612,7 +1661,8 @@ class TestimonyView(CreateUpdateView):
         context = super().get_context_data(**kwargs)
         if not self.object.referee.has_testifed:
             messages.info(
-                self.request, _("Please submit testimony."),
+                self.request,
+                _("Please submit testimony."),
             )
         return context
 
@@ -1729,7 +1779,8 @@ class TestimonyDetail(DetailView):
             context["update_button_name"] = _("Edit Testimony")
         if not self.object.referee.has_testifed:
             messages.info(
-                self.request, _("Please Check the application details and submit testimony."),
+                self.request,
+                _("Please Check the application details and submit testimony."),
             )
         return context
 
