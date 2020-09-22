@@ -236,6 +236,7 @@ urlpatterns = [
                 path("draft", views.RoundList.as_view(), name="reviews-working"),
                 path("submitted", views.RoundList.as_view(), name="reviews-submitted"),
                 path("", views.RoundList.as_view(), name="reviews"),
+                path("round/<int:round_id>/~applications", views.RoundApplicationList.as_view(), name="round-application-list"),
             ]
         ),
     ),

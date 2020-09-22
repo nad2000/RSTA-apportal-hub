@@ -1932,15 +1932,21 @@ class RoundList(LoginRequiredMixin, SingleTableView):
     template_name = "rounds.html"
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        u = self.request.user
-        breakpoint()
-        panelist = models.Round.raw("select * from round where id in %s", ["4"])
-        queryset = queryset.filter(referee__in=Subquery(panelist))
+        panelist = models.Panelist.objects.select_related("round").extra(tables=["panelist"],
+                                                              where=["panelist.user_id=" + str(self.request.user.id)])
+        round_ids = []
+        for p in panelist:
+            round_ids.append(p.round.id)
+        queryset = models.Round.objects.filter(id__in=round_ids)
+        return queryset
 
-        state = self.request.path.split("/")[-1]
-        if state == "working":
-            queryset = queryset.filter(state__in=[state, "new"])
-        elif state == "submitted":
-            queryset = queryset.filter(state=state)
+
+class RoundApplicationList(LoginRequiredMixin, SingleTableView):
+
+    model = models.Application
+    table_class = tables.RoundApplicationTable
+    template_name = "rounds.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = self.model.objects.raw("select * from application where round_id="+str(self.kwargs.get("round_id")))
         return queryset

@@ -74,7 +74,9 @@ class ApplicationTable(tables.Table):
 
 class RoundTable(tables.Table):
 
-    round = tables.Column()
+    title = tables.Column(
+        linkify=lambda record: reverse("round-application-list", kwargs={"round_id": record.id})
+    )
 
     class Meta:
         model = models.Round
@@ -85,4 +87,21 @@ class RoundTable(tables.Table):
             "scheme",
             "opens_on",
             "closes_on",
+        )
+
+
+class RoundApplicationTable(tables.Table):
+
+    round = tables.Column()
+
+    class Meta:
+        model = models.Application
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped"}
+        fields = (
+            "number",
+            "round",
+            "email",
+            "first_name",
+            "last_name",
         )
