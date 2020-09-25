@@ -27,7 +27,7 @@ def send_mail(
         html_message = f"<html><body><pre>{message}</pre></body></html>"
 
     token = models.get_unique_mail_token()
-    headers = {"Message-ID": token}
+    headers = {"Message-ID": f"{token}@pmscienceprizes.org.nz"}
     if request:
         url = request.build_absolute_uri(reverse("unsubscribe", kwargs=dict(token=token)))
         headers["List-Unsubscribe"] = f"<{url}>"
