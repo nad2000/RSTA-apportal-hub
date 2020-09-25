@@ -6,7 +6,6 @@ from urllib.parse import quote
 import django.utils.translation
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
-from common.utils import send_mail
 from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
@@ -20,7 +19,7 @@ from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, reverse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -32,7 +31,7 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
-from extra_views import InlineFormSetFactory, ModelFormSetView, FormSetView
+from extra_views import InlineFormSetFactory, ModelFormSetView
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from sentry_sdk import last_event_id
@@ -49,6 +48,7 @@ from .models import (
     User,
 )
 from .tasks import notify_user
+from .utils import send_mail
 from .utils.orcid import OrcidHelper
 
 
@@ -204,6 +204,13 @@ def subscribe(request):
         name = request.POST.get("name")
         Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
 
+    return render(request, "pages/comingsoon.html", locals())
+
+
+def unsubscribe(request, token):
+
+    get_object_or_404(models.MailLog, token=token)
+    messages.success(request, _("We will missed You"))
     return render(request, "pages/comingsoon.html", locals())
 
 
@@ -733,6 +740,7 @@ class ApplicationDetail(DetailView):
                 settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[self.object.submitted_by.email],
                 fail_silently=False,
+                request=self.request,
             )
 
         return self.get(request, *args, **kwargs)
@@ -1693,6 +1701,7 @@ class TestimonyView(CreateUpdateView):
                         else n.referee.application.email
                     ],
                     fail_silently=False,
+                    request=self.request,
                 )
                 messages.info(
                     self.request,

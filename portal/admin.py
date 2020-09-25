@@ -208,6 +208,7 @@ admin.site.register(models.Member)
 admin.site.register(models.Referee)
 admin.site.register(models.Panelist)
 admin.site.register(models.IdentityVerification)
+admin.site.register(models.MailLog)
 
 
 @admin.register(models.Nomination)

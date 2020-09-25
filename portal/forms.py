@@ -18,7 +18,7 @@ from crispy_forms.layout import (
 )
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput, inlineformset_factory, formset_factory
+from django.forms import HiddenInput, inlineformset_factory
 from django.forms.models import modelformset_factory
 from django.forms.widgets import NullBooleanSelect
 from django.template.loader import render_to_string
@@ -112,14 +112,17 @@ class ProfileForm(forms.ModelForm):
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
             ethnicities=ModelSelect2MultipleWidget(
-                model=Ethnicity, search_fields=["description__icontains"],
+                model=Ethnicity,
+                search_fields=["description__icontains"],
             ),
             sex=forms.RadioSelect,
             languages_spoken=ModelSelect2MultipleWidget(
-                model=Language, search_fields=["description__icontains"],
+                model=Language,
+                search_fields=["description__icontains"],
             ),
             iwi_groups=ModelSelect2MultipleWidget(
-                model=models.IwiGroup, search_fields=["description__icontains"],
+                model=models.IwiGroup,
+                search_fields=["description__icontains"],
             ),
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
@@ -179,7 +182,10 @@ class ApplicationForm(forms.ModelForm):
                 css_id="applicant",
                 *fields,
             ),
-            Tab(_("Referees"), Div(TableInlineFormset("referees"), css_id="referees"),),
+            Tab(
+                _("Referees"),
+                Div(TableInlineFormset("referees"), css_id="referees"),
+            ),
             Tab(
                 _("Summary"),
                 Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
@@ -203,8 +209,16 @@ class ApplicationForm(forms.ModelForm):
         self.helper.layout = Layout(
             TabHolder(*tabs),
             ButtonHolder(
-                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
-                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
+                Submit(
+                    "save_draft",
+                    _("Save Draft"),
+                    css_class="btn btn-primary",
+                ),
+                Submit(
+                    "submit",
+                    _("Submit"),
+                    css_class="btn btn-outline-primary",
+                ),
                 HTML(
                     """
                     <a href="{{ view.get_success_url }}"
@@ -379,8 +393,16 @@ class NominationForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
-                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
-                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
+                Submit(
+                    "save_draft",
+                    _("Save Draft"),
+                    css_class="btn btn-primary",
+                ),
+                Submit(
+                    "submit",
+                    _("Submit"),
+                    css_class="btn btn-outline-primary",
+                ),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
@@ -426,8 +448,16 @@ class TestimonyForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
-                Submit("save_draft", _("Save Draft"), css_class="btn btn-primary",),
-                Submit("submit", _("Submit"), css_class="btn btn-outline-primary",),
+                Submit(
+                    "save_draft",
+                    _("Save Draft"),
+                    css_class="btn btn-primary",
+                ),
+                Submit(
+                    "submit",
+                    _("Submit"),
+                    css_class="btn btn-outline-primary",
+                ),
                 Submit("turn_down", _("I don't wish to Testify"), css_class="btn-outline-danger"),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
@@ -443,7 +473,9 @@ class TestimonyForm(forms.ModelForm):
             "file",
         ]
 
-        widgets = dict(summary=SummernoteInplaceWidget(),)
+        widgets = dict(
+            summary=SummernoteInplaceWidget(),
+        )
 
 
 class IdentityVerificationForm(forms.ModelForm):
@@ -469,8 +501,16 @@ class IdentityVerificationForm(forms.ModelForm):
                 height="60%",
             ),
             ButtonHolder(
-                Submit("accept", _("Accept"), css_class="btn btn-primary",),
-                Submit("reject", _("Request Resubmission"), css_class="btn btn-outline-danger",),
+                Submit(
+                    "accept",
+                    _("Accept"),
+                    css_class="btn btn-primary",
+                ),
+                Submit(
+                    "reject",
+                    _("Request Resubmission"),
+                    css_class="btn btn-outline-danger",
+                ),
                 HTML(
                     """
                     <a href="{{ view.get_success_url }}"
@@ -496,7 +536,9 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-PanelistFormSet = modelformset_factory(models.Panelist, exclude=(), can_delete=True, widgets = {"round": HiddenInput()})
+PanelistFormSet = modelformset_factory(
+    models.Panelist, exclude=(), can_delete=True, widgets={"round": HiddenInput()}
+)
 
 
 class PanelistFormSetHelper(FormHelper):
@@ -504,5 +546,11 @@ class PanelistFormSetHelper(FormHelper):
 
     def __init__(self, panelist=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_input(Submit("send_invite", _("Invite"), css_class="btn btn-primary", ))
+        self.add_input(
+            Submit(
+                "send_invite",
+                _("Invite"),
+                css_class="btn btn-primary",
+            )
+        )
         self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))

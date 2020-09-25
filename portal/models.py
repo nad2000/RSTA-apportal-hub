@@ -4,7 +4,6 @@ from datetime import date, datetime
 from urllib.parse import urljoin
 
 from common.models import TITLES, Base, Model
-from common.utils import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -19,6 +18,7 @@ from django.db.models import (
     BooleanField,
     CharField,
     DateField,
+    DateTimeField,
     DecimalField,
     EmailField,
     ForeignKey,
@@ -36,6 +36,8 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
+
+from .utils import send_mail
 
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
@@ -298,7 +300,10 @@ class ProfileCareerStage(Model):
 
 
 class ProfilePersonIdentifier(Model):
-    profile = ForeignKey("Profile", on_delete=CASCADE,)
+    profile = ForeignKey(
+        "Profile",
+        on_delete=CASCADE,
+    )
     code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name="type")
     value = CharField(max_length=20)
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)
@@ -326,7 +331,8 @@ class Qualification(Model):
     description = CharField(max_length=100)
     definition = TextField(max_length=100, null=True, blank=True)
     is_nzqf = BooleanField(
-        _("the New Zealand Qualifications Framework Qualification level"), default=True,
+        _("the New Zealand Qualifications Framework Qualification level"),
+        default=True,
     )
 
     def __str__(self):
@@ -598,7 +604,11 @@ class Application(Model):
     )
     last_name = CharField(max_length=150)
     org = ForeignKey(
-        Organisation, blank=False, null=True, on_delete=SET_NULL, verbose_name="organisation",
+        Organisation,
+        blank=False,
+        null=True,
+        on_delete=SET_NULL,
+        verbose_name="organisation",
     )
     organisation = CharField(max_length=200)
     position = CharField(max_length=80)
@@ -814,7 +824,11 @@ class StateField(StatusField, FSMField):
 
 
 INVITATION_TYPES = Choices(
-    ("A", _("apply")), ("J", _("join")), ("R", _("testify")), ("T", _("authorize")), ("P", _("panelist")),
+    ("A", _("apply")),
+    ("J", _("join")),
+    ("R", _("testify")),
+    ("T", _("authorize")),
+    ("P", _("panelist")),
 )
 
 
@@ -908,15 +922,14 @@ class Invitation(Model):
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
                 "You were nominated for %(round)s by %(inviter)s. Please follow the link: %(url)s"
-            ) % dict(round=self.nomination.round, inviter=self.inviter, url=url,)
+            ) % dict(
+                round=self.nomination.round,
+                inviter=self.inviter,
+                url=url,
+            )
         if self.type == INVITATION_TYPES.P:
             subject = _("You are invited to be a Panelist")
-            body = (
-                _(
-                    "You are invited to as a panelist. Please follow the link: %s"
-                )
-                % url
-            )
+            body = _("You are invited to as a panelist. Please follow the link: %s") % url
         else:
             subject = _("You are invited to join the portal")
             body = _("You are invited to join the portal. Please follow the link: %s") % url
@@ -927,9 +940,12 @@ class Invitation(Model):
             by.email if by else settings.DEFAULT_FROM_EMAIL,
             recipient_list=[self.email],
             fail_silently=False,
+            request=request,
         )
 
-    @transition(field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.accepted)
+    @transition(
+        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.accepted
+    )
     def accept(self, request=None, by=None):
         if not by:
             if not request or not request.user:
@@ -1129,6 +1145,7 @@ class Round(Model):
 
 class Criterion(Model):
     """Scoring criterion"""
+
     round = ForeignKey(Round, on_delete=CASCADE, related_name="criteria")
     definition = TextField(max_length=200)
     comment = BooleanField(default=True, help_text=_("The pannelist should commnet their score"))
@@ -1152,7 +1169,10 @@ class SchemeApplicationGroup(Base):
 class SchemeApplication(Model):
     title = CharField(max_length=100)
     groups = ManyToManyField(
-        Group, blank=True, verbose_name=_("who starts"), through=SchemeApplicationGroup,
+        Group,
+        blank=True,
+        verbose_name=_("who starts"),
+        through=SchemeApplicationGroup,
     )
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
@@ -1326,6 +1346,7 @@ class IdentityVerification(Model):
             settings.DEFAULT_FROM_EMAIL,
             recipient_list=[self.user.email],
             fail_silently=False,
+            request=request,
         )
 
     def __str__(self):
@@ -1333,3 +1354,30 @@ class IdentityVerification(Model):
 
     class Meta:
         db_table = "identity_verification"
+
+
+def get_unique_mail_token(length=10):
+
+    while True:
+        token = secrets.token_urlsafe(length)
+        if not MailLog.objects.filter(token=token).exists():
+            return token
+
+
+class MailLog(Model):
+    """Email log - the log of email sent from the Hub."""
+
+    sent_at = DateTimeField(auto_now_add=True)
+    user = ForeignKey(User, null=True, on_delete=SET_NULL)
+    recipient = CharField(max_length=200)
+    sender = CharField(max_length=200)
+    subject = CharField(max_length=100)
+    was_sent_successfully = BooleanField(null=True)
+    error = TextField(null=True)
+    token = CharField(max_length=10, default=get_unique_mail_token, unique=True)
+
+    def __str__(self):
+        return f"{self.recipient}: {self.token}/{self.sent_at}"
+
+    class Meta:
+        db_table = "mail_log"
