@@ -11,27 +11,44 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('portal', '0019_auto_20200921_0007'),
+        ("portal", "0019_auto_20200921_0007"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MailLog',
+            name="MailLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True)),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True)),
-                ('sent_at', models.DateTimeField(auto_now_add=True)),
-                ('recipient', models.CharField(max_length=200)),
-                ('sender', models.CharField(max_length=200)),
-                ('subject', models.CharField(max_length=100)),
-                ('was_sent_successfully', models.BooleanField(null=True)),
-                ('error', models.TextField(null=True)),
-                ('token', models.CharField(default=portal.models.get_unique_mail_token, max_length=10, unique=True)),
-                ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, null=True)),
+                ("updated_at", models.DateTimeField(auto_now=True, null=True)),
+                ("sent_at", models.DateTimeField(auto_now_add=True)),
+                ("recipient", models.CharField(max_length=200)),
+                ("sender", models.CharField(max_length=200)),
+                ("subject", models.CharField(max_length=100)),
+                ("was_sent_successfully", models.BooleanField(null=True)),
+                ("error", models.TextField(null=True)),
+                (
+                    "token",
+                    models.CharField(
+                        default=portal.models.get_unique_mail_token, max_length=100, unique=True
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'mail_log',
+                "db_table": "mail_log",
             },
             bases=(common.models.HelperMixin, models.Model),
         ),

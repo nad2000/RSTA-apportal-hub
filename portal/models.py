@@ -1374,7 +1374,7 @@ class MailLog(Model):
     subject = CharField(max_length=100)
     was_sent_successfully = BooleanField(null=True)
     error = TextField(null=True)
-    token = CharField(max_length=10, default=get_unique_mail_token, unique=True)
+    token = CharField(max_length=100, default=get_unique_mail_token, unique=True)
 
     def __str__(self):
         return f"{self.recipient}: {self.token}/{self.sent_at}"
