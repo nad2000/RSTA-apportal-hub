@@ -1,4 +1,7 @@
+from urllib.parse import urljoin
+
 import html2text
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.urls import reverse
 
@@ -28,9 +31,14 @@ def send_mail(
 
     token = models.get_unique_mail_token()
     headers = {"Message-ID": f"{token}@pmscienceprizes.org.nz"}
+    url = reverse("unsubscribe", kwargs=dict(token=token))
     if request:
+        domain = request.get_host().split(":")[0]
         url = request.build_absolute_uri(reverse("unsubscribe", kwargs=dict(token=token)))
-        headers["List-Unsubscribe"] = f"<{url}>"
+    else:
+        domain = Site.objects.get_current().domain
+        url = f"https://{urljoin(domain, url)}"
+    headers = {"Message-ID": f"{token}@{domain}", "List-Unsubscribe": f"<{url}>"}
 
     msg = mail.EmailMultiAlternatives(
         subject,
@@ -56,5 +64,7 @@ def send_mail(
             token=token,
         )
     if not resp:
-        raise Exception(f"Failed to email the message: {resp.error}. Please contact a Hub administrator!")
+        raise Exception(
+            f"Failed to email the message: {resp.error}. Please contact a Hub administrator!"
+        )
     return resp
