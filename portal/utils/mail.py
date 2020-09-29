@@ -38,7 +38,7 @@ def send_mail(
     else:
         domain = Site.objects.get_current().domain
         url = f"https://{urljoin(domain, url)}"
-    headers = {"Message-ID": f"{token}@{domain}", "List-Unsubscribe": f"<{url}>"}
+    headers = {"Message-ID": f"<{token}@{domain}>", "List-Unsubscribe": f"<{url}>"}
 
     msg = mail.EmailMultiAlternatives(
         subject,
