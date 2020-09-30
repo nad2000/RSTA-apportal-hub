@@ -866,6 +866,9 @@ class ApplicationView(LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        latest_application = (
+            models.Application.where(submitted_by=self.request.user).order_by("-id").first()
+        )
         if self.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
             if self.request.POST:
@@ -875,16 +878,43 @@ class ApplicationView(LoginRequiredMixin):
                     else forms.MemberFormSet(self.request.POST)
                 )
             else:
+                initial_members = (
+                    [
+                        dict(
+                            email=m.email,
+                            first_name=m.first_name,
+                            middle_names=m.middle_names,
+                            last_name=m.last_name,
+                            role=m.role,
+                        )
+                        for m in latest_application.members.all()
+                    ]
+                    if latest_application
+                    else []
+                )
                 context["members"] = (
-                    forms.MemberFormSet(instance=self.object)
+                    forms.MemberFormSet(instance=self.object, initial=initial_members)
                     if self.object
-                    else forms.MemberFormSet()
+                    else forms.MemberFormSet(initial=initial_members)
                 )
 
         if self.request.POST:
             context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
         else:
-            context["referees"] = forms.RefereeFormSet(instance=self.object)
+            context["referees"] = forms.RefereeFormSet(
+                instance=self.object,
+                initial=[
+                    dict(
+                        email=r.email,
+                        first_name=r.first_name,
+                        middle_names=r.middle_names,
+                        last_name=r.last_name,
+                    )
+                    for r in latest_application.referees.all()
+                ]
+                if latest_application
+                else [],
+            )
         return context
 
 
