@@ -127,7 +127,7 @@ class ProfileForm(forms.ModelForm):
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
-        labels = dict(is_accepted=_("I have read and agree to the <a href='#'>Privacy Policy</a>"))
+        labels = dict(is_accepted=_("I have read and agreed to the <a href='#'>Privacy Policy</a>"))
 
 
 class ApplicationForm(forms.ModelForm):
@@ -426,7 +426,7 @@ class NominationForm(forms.ModelForm):
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
-                attrs={"data-placeholder": _("Choose an organisation or or create a new one ...")},
+                attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
             summary=SummernoteInplaceWidget(),
         )
@@ -458,7 +458,7 @@ class TestimonyForm(forms.ModelForm):
                     _("Submit"),
                     css_class="btn btn-outline-primary",
                 ),
-                Submit("turn_down", _("I don't wish to Testify"), css_class="btn-outline-danger"),
+                Submit("turn_down", _("I do not wish to provide a testimonial"), css_class="btn-outline-danger"),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
@@ -508,7 +508,7 @@ class IdentityVerificationForm(forms.ModelForm):
                 ),
                 Submit(
                     "reject",
-                    _("Request Resubmission"),
+                    _("Request resubmission"),
                     css_class="btn btn-outline-danger",
                 ),
                 HTML(

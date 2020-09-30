@@ -627,7 +627,7 @@ class Application(Model):
         blank=True,
         null=True,
         verbose_name=_("filled-in entry form"),
-        help_text=_("Please upload filled-in entrant or nominee entry form"),
+        help_text=_("Please upload completed entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
     photo_identity = PrivateFileField(
@@ -635,7 +635,7 @@ class Application(Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
         verbose_name=_("Photo Identity"),
-        help_text=_("Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"),
+        help_text=_("Please upload a scanned copy of your passport in PDF, JPG, or PNG format"),
     )
 
     state = FSMField(default="new")
@@ -917,14 +917,14 @@ class Invitation(Model):
             subject = _("You are invited to testify an application")
             body = (
                 _(
-                    "You are invited to authorize to testify an application. Please follow the link: %s"
-                )
-                % url
+                    "You are invited to provide a testimonial for %(inviter)s's application to "
+                    "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
+                ) % dir(inviter=by, url=url)
             )
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
-                "You were nominated for %(round)s by %(inviter)s. Please follow the link: %(url)s"
+                "You were nominated for %(round)s by %(inviter)s. To accept please follow the link: %(url)s"
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
@@ -934,8 +934,8 @@ class Invitation(Model):
             subject = _("You are invited to be a Panelist")
             body = _("You are invited to as a panelist. Please follow the link: %s") % url
         else:
-            subject = _("You are invited to join the portal")
-            body = _("You are invited to join the portal. Please follow the link: %s") % url
+            subject = _("You are invited to join the PM Science Prize portal")
+            body = _("You are invited to join the PM Science Prize portal. Please follow the link: %s") % url
 
         send_mail(
             subject,
@@ -1069,7 +1069,7 @@ def default_scheme_code(title):
 class Scheme(Model):
     title = CharField(max_length=100)
     groups = ManyToManyField(
-        Group, blank=True, verbose_name=_("who starts"), db_table="scheme_group"
+        Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
     )
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
@@ -1340,7 +1340,7 @@ class IdentityVerification(Model):
     )
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))
-        subject = _("Your identity verification reqire your attention")
+        subject = _("Your ID verification requires your attention")
         body = _("Please resubmit a new copy of your ID: %s") % url
 
         send_mail(
