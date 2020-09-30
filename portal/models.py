@@ -382,6 +382,9 @@ class Affiliation(Model):
 
     history = HistoricalRecords(table_name="affiliation_history")
 
+    def __str__(self):
+        return f"{self.org}: {self.start_date} to {self.end_date}"
+
     class Meta:
         db_table = "affiliation"
 

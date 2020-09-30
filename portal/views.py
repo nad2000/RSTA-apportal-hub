@@ -765,9 +765,31 @@ class ApplicationView(LoginRequiredMixin):
     form_class = forms.ApplicationForm
 
     def get_initial(self):
+        user = self.request.user
         initial = super().get_initial()
-        initial["user"] = self.request.user
+        initial["user"] = user
+        initial["email"] = user.email
         initial["language"] = django.utils.translation.get_language()
+        current_affiliation = (
+            models.Affiliation.where(profile=user.profile, end_date__isnull=True)
+            .order_by("-start_date")
+            .first()
+        )
+        latest_application = models.Application.where(submitted_by=user).order_by("-id").first()
+        if current_affiliation:
+            initial["org"] = current_affiliation.org
+        elif latest_application:
+            initial["org"] = latest_application.org
+
+        if latest_application:
+            initial["user"] = user
+            initial["position"] = latest_application.position
+            initial["postal_address"] = latest_application.postal_address
+            initial["city"] = latest_application.city
+            initial["postcode"] = latest_application.postcode
+            initial["daytime_phone"] = latest_application.daytime_phone
+            initial["mobile_phone"] = latest_application.mobile_phone
+
         return initial
 
     @property
@@ -1932,9 +1954,7 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
 
     @property
     def round(self):
-        return (
-            models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.round
-        )
+        return models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.round
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1948,7 +1968,10 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
             super().post(request, *args, **kwargs)
             count = invite_panelist(self.request, self.round)
             if count > 0:
-                messages.success(self.request, _("%d invitation(s) to panelist sent.") % count,)
+                messages.success(
+                    self.request,
+                    _("%d invitation(s) to panelist sent.") % count,
+                )
             return HttpResponseRedirect(self.request.path_info)
 
     def get_queryset(self):
@@ -1958,7 +1981,11 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
         widgets.update(
-            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"), "round": HiddenInput()}
+            {
+                "panelist": HiddenInput(),
+                "DELETE": Submit("submit", "DELETE"),
+                "round": HiddenInput(),
+            }
         )
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
