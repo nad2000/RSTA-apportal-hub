@@ -64,6 +64,16 @@
       </h5>
       <div class="card-body">
         <p class="card-text">{{ scheme.description }}</p>
+        {% if scheme.current_round %}
+          <p class="card-text">{% trans 'Application period' %}:
+          <strong>
+            {{ scheme.current_round.opens_on|date:"c" }}
+            {% if scheme.current_round.closes_on %}
+              - {{ scheme.current_round.closes_on|date:"c" }}
+            {% endif %}
+          </strong>
+          </p>
+        {% endif %}
         <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
           {% trans "Read" %} <b>{% trans "More" %}</b>
         </a>
@@ -83,6 +93,9 @@
                 {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
               </a>
             {% endif %}
+            <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+              > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
+            </a>
           {% else %}
             {% if request.user.is_superuser %}
               <a href="{% url 'admin:portal_round_change' object_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
@@ -90,14 +103,10 @@
               </a>
             {% endif %}
           {% endif %}
-          {#% if request.user.is_nominator and scheme.can_be_nominated_to %#}
-            <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
-            </a>
-          {#% endif %#}
           {% if request.user.is_staff %}
             <a href="{% url 'panelist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Invite Panelist" %}
+              > {% trans "Invite" %}
+              <b>{% trans "Panellist" %}</b>
             </a>
           {% endif %}
 
