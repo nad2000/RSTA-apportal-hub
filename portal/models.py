@@ -1116,6 +1116,7 @@ class Round(Model):
     scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds")
     opens_on = DateField(null=True, blank=True)
     closes_on = DateField(null=True, blank=True)
+    has_online_scoring = BooleanField(default=True)
 
     history = HistoricalRecords(table_name="round_history")
 
@@ -1156,6 +1157,7 @@ class Criterion(Model):
 
     class Meta:
         db_table = "criterion"
+        verbose_name_plural = _("criteria")
 
 
 class SchemeApplicationGroup(Base):

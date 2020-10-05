@@ -270,4 +270,8 @@ class RoundAdmin(ImportExportModelAdmin):
         extra = 0
         model = models.Panelist
 
-    inlines = [PanelistInline]
+    class CriterionInline(admin.StackedInline):
+        extra = 1
+        model = models.Criterion
+
+    inlines = [CriterionInline, PanelistInline]
