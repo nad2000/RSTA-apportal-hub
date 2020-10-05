@@ -17,70 +17,24 @@ class Migration(migrations.Migration):
             name="criterion",
             options={"verbose_name_plural": "criteria"},
         ),
-        migrations.AddField(
-            model_name="historicalround",
-            name="has_online_scoring",
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name="round",
-            name="has_online_scoring",
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AlterField(
-            model_name="application",
-            name="file",
-            field=private_storage.fields.PrivateFileField(
-                blank=True,
-                help_text="Please upload completed entrant or nominee entry form",
-                null=True,
-                storage=private_storage.storage.files.PrivateFileSystemStorage(),
-                upload_to="",
-                verbose_name="filled-in entry form",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="application",
-            name="photo_identity",
-            field=private_storage.fields.PrivateFileField(
-                blank=True,
-                help_text="Please upload a scanned copy of your passport in PDF, JPG, or PNG format",
-                null=True,
-                storage=private_storage.storage.files.PrivateFileSystemStorage(),
-                upload_to="",
-                verbose_name="Photo Identity",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="historicalapplication",
-            name="file",
-            field=models.TextField(
-                blank=True,
-                help_text="Please upload completed entrant or nominee entry form",
-                max_length=100,
-                null=True,
-                verbose_name="filled-in entry form",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="historicalapplication",
-            name="photo_identity",
-            field=models.TextField(
-                blank=True,
-                help_text="Please upload a scanned copy of your passport in PDF, JPG, or PNG format",
-                max_length=100,
-                null=True,
-                verbose_name="Photo Identity",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="scheme",
-            name="groups",
-            field=models.ManyToManyField(
-                blank=True,
-                db_table="scheme_group",
-                to="auth.Group",
-                verbose_name="who starts the application",
-            ),
+        migrations.RunSQL(
+            """
+            SET sql_mode='ANSI_QUOTES';
+            ALTER TABLE round ADD COLUMN has_online_scoring BOOL DEFAULT true;
+            ALTER TABLE round_history ADD COLUMN has_online_scoring BOOL DEFAULT true;
+            """,
+            "",
+            state_operations=[
+                migrations.AddField(
+                    model_name="historicalround",
+                    name="has_online_scoring",
+                    field=models.BooleanField(default=True),
+                ),
+                migrations.AddField(
+                    model_name="round",
+                    name="has_online_scoring",
+                    field=models.BooleanField(default=True),
+                ),
+            ]
         ),
     ]
