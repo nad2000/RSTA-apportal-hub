@@ -919,7 +919,7 @@ class Invitation(Model):
                 _(
                     "You are invited to provide a testimonial for %(inviter)s's application to "
                     "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
-                ) % dir(inviter=by, url=url)
+                ) % dict(inviter=by, url=url)
             )
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
