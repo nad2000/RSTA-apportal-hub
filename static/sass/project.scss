@@ -30,9 +30,16 @@
 
 // Styles
 
-html, body {
-    height: 100%;
-    font-family: 'Roboto', sans-serif;
+html {
+  // height: 100%;
+  min-height: 100%;
+  position: relative;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
 }
 
 .asteriskField {
@@ -185,7 +192,7 @@ label {
 	overflow:hidden;
 	padding:20px;
 	-webkit-border-radius: 7px;
-        border-radius: 7px;
+  border-radius: 7px;
 }
 
 .box-white {
@@ -220,4 +227,29 @@ label {
 .box-yellow {
 	background-color:#fef5c4;
 	border:1px solid #fadf98;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+  color: #ffffff;
+  background-color: #829c00;
+  // background-color: #f5f5f5;
+  // background-color: theme-color-level($mint-green, $alert-bg-level);
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
 }

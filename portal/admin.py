@@ -208,6 +208,7 @@ admin.site.register(models.Member)
 admin.site.register(models.Referee)
 admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
+admin.site.register(models.MailLog)
 
 
 @admin.register(models.Nomination)
@@ -269,4 +270,8 @@ class RoundAdmin(ImportExportModelAdmin):
         extra = 0
         model = models.Panellist
 
-    inlines = [PanellistInline]
+    class CriterionInline(admin.StackedInline):
+        extra = 1
+        model = models.Criterion
+
+    inlines = [CriterionInline, PanellistInline]

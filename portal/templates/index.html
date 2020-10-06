@@ -64,11 +64,21 @@
       </h5>
       <div class="card-body">
         <p class="card-text">{{ scheme.description }}</p>
+        {% if scheme.current_round %}
+          <p class="card-text">{% trans 'Application period' %}:
+          <strong>
+            {{ scheme.current_round.opens_on|date:"c" }}
+            {% if scheme.current_round.closes_on %}
+              - {{ scheme.current_round.closes_on|date:"c" }}
+            {% endif %}
+          </strong>
+          </p>
+        {% endif %}
         <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
           {% trans "Read" %} <b>{% trans "More" %}</b>
         </a>
         {% if scheme.current_round %}
-          {#% if request.user.is_applicant and scheme.can_be_applied_to %#}
+          {% if request.can_apply %}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
               <a href="{% url 'application-update' pk=scheme.application.id %}" class="btn btn-primary"
                 style="text-transform: uppercase;"> {% trans "Continue" %} <b>{% trans "Application" %}</b>
@@ -83,17 +93,23 @@
                 {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
               </a>
             {% endif %}
-          {#% endif %#}
-          {#% if request.user.is_nominator and scheme.can_be_nominated_to %#}
             <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
             </a>
-          {#% endif %#}
+          {% else %}
+            {% if request.user.is_superuser %}
+              <a href="{% url 'admin:portal_round_change' object_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+                > {% trans "Edit" %} <b>{% trans "Round" %}</b>
+              </a>
+            {% endif %}
+          {% endif %}
           {% if request.user.is_staff %}
             <a href="{% url 'panellist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Invite Panellist" %}
+              > {% trans "Invite" %}
+              <b>{% trans "Panellist" %}</b>
             </a>
           {% endif %}
+
         {% endif %}
       </div>
     </dic>

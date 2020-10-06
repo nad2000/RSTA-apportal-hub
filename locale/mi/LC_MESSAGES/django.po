@@ -35,7 +35,7 @@ msgid "Please read and consent to the Privacy Policy"
 msgstr ""
 
 #: portal/forms.py:127
-msgid "I have read and agree to the <a href='#'>Privacy Policy</a>"
+msgid "I have read and agreed to the <a href='#'>Privacy Policy</a>"
 msgstr ""
 
 #: portal/forms.py:142 portal/templates/application.html:64
@@ -111,7 +111,7 @@ msgid "Close"
 msgstr ""
 
 #: portal/forms.py:401
-msgid "Choose an organisation or or create a new one ..."
+msgid "Choose an organisation or create a new one ..."
 msgstr ""
 
 #: portal/forms.py:415
@@ -119,7 +119,7 @@ msgid "Testimony"
 msgstr ""
 
 #: portal/forms.py:425
-msgid "I don't wish to Testify"
+msgid "I do not wish to provide a testimonial"
 msgstr ""
 
 #: portal/forms.py:466
@@ -127,7 +127,7 @@ msgid "Accept"
 msgstr ""
 
 #: portal/forms.py:467
-msgid "Request Resubmission"
+msgid "Request resubmission"
 msgstr ""
 
 #: portal/forms.py:484
@@ -303,7 +303,7 @@ msgid "filled-in entry form"
 msgstr ""
 
 #: portal/models.py:619
-msgid "Please upload filled-in entrant or nominee entry form"
+msgid "Please upload completed entrant or nominee entry form"
 msgstr ""
 
 #: portal/models.py:626 portal/models.py:1212
@@ -312,7 +312,7 @@ msgstr ""
 
 #: portal/models.py:627
 msgid ""
-"Pleaes upload a scanned copy of your passport in PDF, JPG, or PNG format"
+"Please upload a scanned copy of your passport in PDF, JPG, or PNG format"
 msgstr ""
 
 #: portal/models.py:780
@@ -349,14 +349,16 @@ msgid ""
 msgstr ""
 
 #: portal/models.py:858
-msgid "You are invited to authorize as a Referee"
+# need to see where this is in the flow
+# would be great to have an indicator on who the invite is for/from
+msgid "You are invited to be a referee for %(inviter)s's application to the Prime Minister's Science Prizes."
 msgstr ""
 
 #: portal/models.py:861
 #, python-format
 msgid ""
-"You are invited to authorize to testify an application. Please follow the "
-"link: %s"
+"You are invited to provide a testimonial for %(inviter)s's application to the Prime Minister's Science Prizes."
+"To accept please follow the link: %(url)s"
 msgstr ""
 
 #: portal/models.py:866
@@ -367,17 +369,17 @@ msgstr ""
 #: portal/models.py:868
 #, python-format
 msgid ""
-"You were nominated for %(round)s by %(inviter)s. Please follow the link: "
+"You were nominated for %(round)s by %(inviter)s. To accept please follow the link: "
 "%(url)s"
 msgstr ""
 
 #: portal/models.py:871
-msgid "You are invited to join the portal"
+msgid "You are invited to join the PM Science Prize portal"
 msgstr ""
 
 #: portal/models.py:872
 #, python-format
-msgid "You are invited to join the portal. Please follow the link: %s"
+msgid "You are invited to join the PM Science Prize portal. Please follow the link: %s"
 msgstr ""
 
 #: portal/models.py:928 portal/models.py:929
@@ -390,7 +392,7 @@ msgid "Testimony By Referee {0} For Application {1}"
 msgstr ""
 
 #: portal/models.py:999 portal/models.py:1090
-msgid "who starts"
+msgid "who starts the application"
 msgstr ""
 
 #: portal/models.py:1001 portal/models.py:1092
@@ -442,7 +444,7 @@ msgstr ""
 
 #: portal/models.py:1233
 #, fuzzy
-#| msgid "Re-send Verification"
+#| msgid "Re-send Identity Verification"
 msgid "User Identity Verification"
 msgstr "Tukuna he whakamana"
 
@@ -454,7 +456,7 @@ msgid ""
 msgstr ""
 
 #: portal/models.py:1255
-msgid "Your identity verification reqire your attention"
+msgid "Your ID verification requires your attention"
 msgstr ""
 
 #: portal/models.py:1256
@@ -515,7 +517,7 @@ msgid "First name"
 msgstr ""
 
 #: portal/templates/account.html:49
-msgid "Middle names"
+msgid "Middle name(s)"
 msgstr ""
 
 #: portal/templates/account.html:54

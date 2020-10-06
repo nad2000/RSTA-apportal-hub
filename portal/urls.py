@@ -241,6 +241,7 @@ urlpatterns = [
         ),
     ),
     path("", views.subscribe, name="comingsoon"),
+    path("unsubscribe/<token>", views.unsubscribe, name="unsubscribe"),
     # path(
     #     "subscription/update/<int:pk>",
     #     views.SubscriptionUpdate.as_view(),

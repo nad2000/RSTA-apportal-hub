@@ -38,6 +38,10 @@ class User(HelperMixin, AbstractUser):
     identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
     identity_verified_at = DateTimeField(null=True, blank=True)
 
+    def can_apply(self):
+        """Admin nor staff cannot apply nor nominate other user."""
+        return not self.is_superuser and not self.is_staff
+
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
 
