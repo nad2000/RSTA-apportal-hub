@@ -46,7 +46,12 @@ MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
 MODELTRANSLATION_LANGUAGES = ["en", "mi"]
 LANG_INFO.update(
     {
-        "mi": {"bidi": False, "code": "mi", "name": "Maori", "name_local": "Māori",},
+        "mi": {
+            "bidi": False,
+            "code": "mi",
+            "name": "Maori",
+            "name_local": "Māori",
+        },
         # "en-nz": {
         #     "bidi": False,
         #     "code": "en-nz",
@@ -244,7 +249,11 @@ TEMPLATES = [
                 "portal.utils.context_processors.settings_context",
             ],
         },
-    }
+    },
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [str(APPS_DIR / "templates/j2")],
+    },
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
@@ -305,7 +314,11 @@ LOGGING = {
         }
     },
     "handlers": {
-        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "verbose",}
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
 }
@@ -346,10 +359,19 @@ REST_FRAMEWORK = {
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": ["profile", "email", "openid",],
-        "AUTH_PARAMS": {"access_type": "online",},
+        "SCOPE": [
+            "profile",
+            "email",
+            "openid",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
     },
-    "orcid": {"BASE_DOMAIN": "sandbox.orcid.org", "MEMBER_API": False,},
+    "orcid": {
+        "BASE_DOMAIN": "sandbox.orcid.org",
+        "MEMBER_API": False,
+    },
     "rapidconnect": {
         "BASE_URL": "https://rapidconnect.staging.tuakiri.ac.nz/jwt/authnrequest/research/",
     },
@@ -372,5 +394,5 @@ DATETIME_FORMAT = f"{DATE_FORMAT} {TIME_FORMAT}"
 # Make suer RECAPTCHA_PUBLIC_KEY and RECAPTCHA_PRIVATE_KEY are set
 RECAPTCHA_USE_SSL = True
 ACCOUNT_FORMS = {
-        "signup": "users.forms.UserSignupForm",
+    "signup": "users.forms.UserSignupForm",
 }

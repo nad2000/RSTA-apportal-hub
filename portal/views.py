@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q, Subquery
+from django.db.models import Count, Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -212,6 +212,21 @@ def unsubscribe(request, token):
     get_object_or_404(models.MailLog, token=token)
     messages.success(request, _("We will missed You"))
     return render(request, "pages/comingsoon.html", locals())
+
+
+@login_required
+def round_detail(request, round):
+    if "error" in request.GET:
+        raise Exception(request.GET["error"])
+    user = request.user
+    round = get_object_or_404(models.Round, id=round)
+    applications = Application.where(round=round).values("state").annotate(total=Count("state"))
+    total_applications = sum(a["total"] for a in applications)
+
+    nominations = models.Nomination.where(round=round).values("state").annotate(total=Count("state"))
+    total_nominations = sum(n["total"] for n in nominations)
+
+    return render(request, "round_detail.html", locals())
 
 
 @login_required
@@ -778,12 +793,12 @@ class ApplicationView(LoginRequiredMixin):
         latest_application = models.Application.where(submitted_by=user).order_by("-id").first()
         if current_affiliation:
             initial["org"] = current_affiliation.org
+            initial["position"] = current_affiliation.role
         elif latest_application:
             initial["org"] = latest_application.org
+            initial["position"] = latest_application.position
 
         if latest_application:
-            initial["user"] = user
-            initial["position"] = latest_application.position
             initial["postal_address"] = latest_application.postal_address
             initial["city"] = latest_application.city
             initial["postcode"] = latest_application.postcode
