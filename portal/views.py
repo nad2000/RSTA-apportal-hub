@@ -2064,5 +2064,5 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     template_name = "rounds.html"
 
     def get_queryset(self, *args, **kwargs):
-        queryset = self.model.objects.raw("select * from application where round_id="+str(self.kwargs.get("round_id")))
+        queryset = self.model.where(round=self.kwargs.get("round_id"))
         return queryset
