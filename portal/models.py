@@ -782,10 +782,10 @@ class Referee(Model):
         db_table = "referee"
 
 
-class Panelist(Model):
-    """Round Panelist."""
+class Panellist(Model):
+    """Round Panellist."""
 
-    round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panelists")
+    round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
     middle_names = CharField(
@@ -804,13 +804,13 @@ class Panelist(Model):
     @classmethod
     def outstanding_requests(cls, user):
         return Invitation.objects.raw(
-            "SELECT DISTINCT p.* FROM panelist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
+            "SELECT DISTINCT p.* FROM panellist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
             "WHERE (p.user_id=%s OR ae.user_id=%s)",
             [user.id, user.id],
         )
 
     class Meta:
-        db_table = "panelist"
+        db_table = "panellist"
 
 
 def get_unique_invitation_token():
@@ -831,7 +831,7 @@ INVITATION_TYPES = Choices(
     ("J", _("join")),
     ("R", _("testify")),
     ("T", _("authorize")),
-    ("P", _("panelist")),
+    ("P", _("panellist")),
 )
 
 
@@ -867,8 +867,8 @@ class Invitation(Model):
     referee = OneToOneField(
         Referee, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
     )
-    panelist = OneToOneField(
-        Panelist, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+    panellist = OneToOneField(
+        Panellist, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
     )
     round = ForeignKey(
         "Round", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
@@ -931,8 +931,8 @@ class Invitation(Model):
                 url=url,
             )
         if self.type == INVITATION_TYPES.P:
-            subject = _("You are invited to be a Panelist")
-            body = _("You are invited to as a panelist. Please follow the link: %s") % url
+            subject = _("You are invited to be a Panellist")
+            body = _("You are invited to as a panellist. Please follow the link: %s") % url
         else:
             subject = _("You are invited to join the PM Science Prize portal")
             body = _("You are invited to join the PM Science Prize portal. Please follow the link: %s") % url
@@ -973,7 +973,7 @@ class Invitation(Model):
                 referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
-            n = self.panelist
+            n = self.panellist
             n.user = by
             n.save()
 

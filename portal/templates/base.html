@@ -226,6 +226,19 @@
           {% endfor %}
         {% endif %}
 
+        {% if outstanding_review_requests %}
+          {% for o in outstanding_review_requests %}
+            {% if o.review_id %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% trans "You have a request to review and score a round that hasn't been reviewed yet." %}
+              {% trans 'Please click here to review and score the round' %}!
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
 
         {% if messages %}
           {% for message in messages %}

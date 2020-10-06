@@ -536,15 +536,15 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-PanelistFormSet = modelformset_factory(
-    models.Panelist, exclude=(), can_delete=True, widgets={"round": HiddenInput()}
+PanellistFormSet = modelformset_factory(
+    models.Panellist, exclude=(), can_delete=True, widgets={"round": HiddenInput()}
 )
 
 
-class PanelistFormSetHelper(FormHelper):
+class PanellistFormSetHelper(FormHelper):
     template = "portal/table_inline_formset.html"
 
-    def __init__(self, panelist=None, *args, **kwargs):
+    def __init__(self, panellist=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_input(
             Submit(

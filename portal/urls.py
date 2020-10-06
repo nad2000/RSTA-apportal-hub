@@ -187,7 +187,7 @@ urlpatterns = [
         ),
     ),
     path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
-    path("panelist/<int:round>/~invite", views.PanelistView.as_view(), name="panelist-invite"),
+    path("panellist/<int:round>/~invite", views.PanellistView.as_view(), name="panellist-invite"),
     path("round/<int:round>", views.round_detail, name="round-detail"),
     path(
         "nominations/",
@@ -224,6 +224,20 @@ urlpatterns = [
                     views.TestimonyExportView.as_view(),
                     name="testimony-export",
                 ),
+            ]
+        ),
+    ),
+    path(
+        "reviews/",
+        include(
+            [
+                path("<int:pk>/~create", views.TestimonyView.as_view(), name="review-create"),
+                path("<int:pk>/~update", views.TestimonyView.as_view(), name="review-update"),
+                path("<int:pk>", views.TestimonyDetail.as_view(), name="review-detail"),
+                path("draft", views.RoundList.as_view(), name="reviews-working"),
+                path("submitted", views.RoundList.as_view(), name="reviews-submitted"),
+                path("", views.RoundList.as_view(), name="reviews"),
+                path("round/<int:round_id>/~applications", views.RoundApplicationList.as_view(), name="round-application-list"),
             ]
         ),
     ),

@@ -206,7 +206,7 @@ class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
 admin.site.register(models.Award)
 admin.site.register(models.Member)
 admin.site.register(models.Referee)
-admin.site.register(models.Panelist)
+admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
 admin.site.register(models.MailLog)
 
@@ -266,12 +266,12 @@ class RoundAdmin(ImportExportModelAdmin):
     list_display = ["title", "scheme", "opens_on"]
     list_filter = ["created_at", "updated_at"]
 
-    class PanelistInline(admin.TabularInline):
+    class PanellistInline(admin.TabularInline):
         extra = 0
-        model = models.Panelist
+        model = models.Panellist
 
     class CriterionInline(admin.StackedInline):
         extra = 1
         model = models.Criterion
 
-    inlines = [CriterionInline, PanelistInline]
+    inlines = [CriterionInline, PanellistInline]
