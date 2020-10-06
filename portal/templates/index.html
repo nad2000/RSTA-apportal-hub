@@ -90,8 +90,8 @@
             </a>
           {#% endif %#}
           {% if request.user.is_staff %}
-            <a href="{% url 'panelist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Invite Panelist" %}
+            <a href="{% url 'panellist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+              > {% trans "Invite Panellist" %}
             </a>
           {% endif %}
         {% endif %}

@@ -553,20 +553,20 @@ def get_or_create_referee_invitation(referee):
         )
 
 
-def invite_panelist(request, round):
-    """Send invitations to all panelists."""
+def invite_panellist(request, round):
+    """Send invitations to all panellists."""
     count = 0
-    panelist = list(
-        models.Panelist.objects.select_related("invitation").extra(
+    panellist = list(
+        models.Panellist.objects.select_related("invitation").extra(
             tables=["invitation"],
-            where=["invitation.id IS NULL or panelist.email != invitation.email"],
+            where=["invitation.id IS NULL or panellist.email != invitation.email"],
         )
     )
-    for p in panelist:
-        get_or_create_panelist_invitation(p)
+    for p in panellist:
+        get_or_create_panellist_invitation(p)
 
     invitations = list(
-        models.Invitation.where(round=round, panelist__in=panelist, type="P", sent_at__isnull=True)
+        models.Invitation.where(round=round, panellist__in=panellist, type="P", sent_at__isnull=True)
     )
     for i in invitations:
         i.send(request)
@@ -575,14 +575,14 @@ def invite_panelist(request, round):
     return count
 
 
-def get_or_create_panelist_invitation(panelist):
-    if hasattr(panelist, "invitation"):
-        i = panelist.invitation
-        if panelist.email != i.email:
-            i.email = panelist.email
-            i.first_name = panelist.first_name
-            i.middle_names = panelist.middle_names
-            i.last_name = panelist.last_name
+def get_or_create_panellist_invitation(panellist):
+    if hasattr(panellist, "invitation"):
+        i = panellist.invitation
+        if panellist.email != i.email:
+            i.email = panellist.email
+            i.first_name = panellist.first_name
+            i.middle_names = panellist.middle_names
+            i.last_name = panellist.last_name
             i.sent_at = None
             i.status = models.Invitation.STATUS.submitted
             i.save()
@@ -590,14 +590,14 @@ def get_or_create_panelist_invitation(panelist):
     else:
         return models.Invitation.get_or_create(
             type=models.INVITATION_TYPES.P,
-            panelist=panelist,
-            email=panelist.email,
+            panellist=panellist,
+            email=panellist.email,
             defaults=dict(
-                panelist=panelist,
-                round=panelist.round,
-                first_name=panelist.first_name,
-                middle_names=panelist.middle_names,
-                last_name=panelist.last_name,
+                panellist=panellist,
+                round=panellist.round,
+                first_name=panellist.first_name,
+                middle_names=panellist.middle_names,
+                last_name=panellist.last_name,
             ),
         )
 
@@ -1864,10 +1864,10 @@ class TestimonyExportView(ExportView, TestimonyDetail):
         return []
 
 
-class PanelistView(LoginRequiredMixin, ModelFormSetView):
-    model = models.Panelist
-    formset_class = forms.PanelistFormSet
-    template_name = "panelist.html"
+class PanellistView(LoginRequiredMixin, ModelFormSetView):
+    model = models.Panellist
+    formset_class = forms.PanellistFormSet
+    template_name = "panellist.html"
     exclude = ("user",)
 
     @property
@@ -1878,7 +1878,7 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["helper"] = forms.PanelistFormSetHelper
+        context["helper"] = forms.PanellistFormSetHelper
         return context
 
     def post(self, request, *args, **kwargs):
@@ -1886,9 +1886,9 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
             return HttpResponseRedirect(reverse("home"))
         else:
             super().post(request, *args, **kwargs)
-            count = invite_panelist(self.request, self.round)
+            count = invite_panellist(self.request, self.round)
             if count > 0:
-                messages.success(self.request, _("%d invitation(s) to panelist sent.") % count,)
+                messages.success(self.request, _("%d invitation(s) to panellist sent.") % count,)
             return HttpResponseRedirect(self.request.path_info)
 
     def get_queryset(self):
@@ -1898,7 +1898,7 @@ class PanelistView(LoginRequiredMixin, ModelFormSetView):
         kwargs = super().get_factory_kwargs()
         widgets = kwargs.get("widgets", {})
         widgets.update(
-            {"panelist": HiddenInput(), "DELETE": Submit("submit", "DELETE"), "round": HiddenInput()}
+            {"panellist": HiddenInput(), "DELETE": Submit("submit", "DELETE"), "round": HiddenInput()}
         )
         kwargs["widgets"] = widgets
         kwargs["can_delete"] = True
@@ -1932,10 +1932,9 @@ class RoundList(LoginRequiredMixin, SingleTableView):
     template_name = "rounds.html"
 
     def get_queryset(self, *args, **kwargs):
-        panelist = models.Panelist.objects.select_related("round").extra(tables=["panelist"],
-                                                              where=["panelist.user_id=" + str(self.request.user.id)])
+        panellist = models.Panellist.where(user=self.request.user).select_related("round")
         round_ids = []
-        for p in panelist:
+        for p in panellist:
             round_ids.append(p.round.id)
         queryset = models.Round.objects.filter(id__in=round_ids)
         return queryset
