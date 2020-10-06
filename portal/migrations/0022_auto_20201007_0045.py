@@ -11,70 +11,91 @@ import private_storage.storage.files
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0011_update_proxy_permissions'),
+        ("auth", "0011_update_proxy_permissions"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('portal', '0021_auto_20201006_0102'),
+        ("portal", "0021_auto_20201006_0102"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Panellist',
+            name="Panellist",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, null=True)),
-                ('updated_at', models.DateTimeField(auto_now=True, null=True)),
-                ('email', models.EmailField(max_length=120)),
-                ('first_name', models.CharField(blank=True, max_length=30, null=True)),
-                ('middle_names', models.CharField(blank=True, help_text='Comma separated list of middle names', max_length=280, null=True, verbose_name='middle names')),
-                ('last_name', models.CharField(blank=True, max_length=150, null=True)),
-                ('round', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='panellists', to='portal.Round')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, null=True)),
+                ("updated_at", models.DateTimeField(auto_now=True, null=True)),
+                ("email", models.EmailField(max_length=120)),
+                ("first_name", models.CharField(blank=True, max_length=30, null=True)),
+                (
+                    "middle_names",
+                    models.CharField(
+                        blank=True,
+                        help_text="Comma separated list of middle names",
+                        max_length=280,
+                        null=True,
+                        verbose_name="middle names",
+                    ),
+                ),
+                ("last_name", models.CharField(blank=True, max_length=150, null=True)),
+                (
+                    "round",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="panellists",
+                        to="portal.Round",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'panellist',
+                "db_table": "panellist",
             },
             bases=(common.models.HelperMixin, models.Model),
         ),
+
         migrations.RemoveField(
-            model_name='invitation',
-            name='panelist',
+            model_name="invitation",
+            name="panelist",
         ),
         migrations.AlterField(
-            model_name='application',
-            name='file',
-            field=private_storage.fields.PrivateFileField(blank=True, help_text='Please upload completed entrant or nominee entry form', null=True, storage=private_storage.storage.files.PrivateFileSystemStorage(), upload_to='', verbose_name='filled-in entry form'),
-        ),
-        migrations.AlterField(
-            model_name='application',
-            name='photo_identity',
-            field=private_storage.fields.PrivateFileField(blank=True, help_text='Please upload a scanned copy of your passport in PDF, JPG, or PNG format', null=True, storage=private_storage.storage.files.PrivateFileSystemStorage(), upload_to='', verbose_name='Photo Identity'),
-        ),
-        migrations.AlterField(
-            model_name='historicalapplication',
-            name='file',
-            field=models.TextField(blank=True, help_text='Please upload completed entrant or nominee entry form', max_length=100, null=True, verbose_name='filled-in entry form'),
-        ),
-        migrations.AlterField(
-            model_name='historicalapplication',
-            name='photo_identity',
-            field=models.TextField(blank=True, help_text='Please upload a scanned copy of your passport in PDF, JPG, or PNG format', max_length=100, null=True, verbose_name='Photo Identity'),
-        ),
-        migrations.AlterField(
-            model_name='invitation',
-            name='type',
-            field=models.CharField(choices=[('A', 'apply'), ('J', 'join'), ('R', 'testify'), ('T', 'authorize'), ('P', 'panellist')], default='J', max_length=1),
-        ),
-        migrations.AlterField(
-            model_name='scheme',
-            name='groups',
-            field=models.ManyToManyField(blank=True, db_table='scheme_group', to='auth.Group', verbose_name='who starts the application'),
+            model_name="invitation",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("A", "apply"),
+                    ("J", "join"),
+                    ("R", "testify"),
+                    ("T", "authorize"),
+                    ("P", "panellist"),
+                ],
+                default="J",
+                max_length=1,
+            ),
         ),
         migrations.DeleteModel(
-            name='Panelist',
+            name="Panelist",
         ),
         migrations.AddField(
-            model_name='invitation',
-            name='panellist',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='invitation', to='portal.Panellist'),
+            model_name="invitation",
+            name="panellist",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="invitation",
+                to="portal.Panellist",
+            ),
         ),
     ]
