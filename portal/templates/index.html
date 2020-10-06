@@ -4,6 +4,28 @@
 {% block title %}{% trans "Apply for The Prime Minister’s Science Prize" %}{% endblock title %}
 
 {% block content %}
+
+<!-- Modal -->
+<div class="modal fade" id="roundDetail" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="roundDetailLabel">{% trans 'Round' %}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="roundDetailBody">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+        <!-- button type="button" class="btn btn-primary">Save changes</button -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   {% if not request.user.is_approved %}
 
@@ -74,11 +96,22 @@
           </strong>
           </p>
         {% endif %}
-        <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
-          {% trans "Read" %} <b>{% trans "More" %}</b>
-        </a>
+        {% if request.user.can_apply %}
+          <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
+            {% trans "Read" %} <b>{% trans "More" %}</b>
+          </a>
+        {% else %}
+          <button type="button" class="btn btn-outline-primary"
+                                data-toggle="modal"
+                                data-target="#roundDetail"
+                                data-round-id="{{ scheme.current_round.id }}"
+                                data-round-title="{{ scheme.current_round.title }}"
+                                style="text-transform: uppercase;">
+            {% trans "Show" %} <b>{% trans "Details" %}</b>
+          </button>
+        {% endif %}
         {% if scheme.current_round %}
-          {% if request.can_apply %}
+          {% if request.user.can_apply %}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
               <a href="{% url 'application-update' pk=scheme.application.id %}" class="btn btn-primary"
                 style="text-transform: uppercase;"> {% trans "Continue" %} <b>{% trans "Application" %}</b>
@@ -122,3 +155,18 @@
 </div>
 
 {% endblock content %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function(){
+        $("#roundDetail").on("show.bs.modal", function(event){
+            $("#roundDetailLabel").html(event.relatedTarget.dataset.roundTitle);
+            $("#roundDetailBody").load("round/" + event.relatedTarget.dataset.roundId);
+            // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
+        });
+    });
+  </script>
+{% endblock javascript %}
+
+

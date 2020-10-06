@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>{{ round.title }}</title>
+	<meta charset="utf-8" />
+</head>
+
+<body class="body" style="background-color:#f6f6f6">
+
+  <table class="table table-bordered searchable table-striped">
+    <tbody>
+
+      {% if round.opens_on %}
+        <tr>
+          <th style="width: 32%; min-width: 180px; max-width: 200px;">
+            Application Starts On
+          </th>
+          <td>
+            {{ round.opens_on }}
+          </td>
+        </tr>
+      {% endif %}
+
+      {% if round.closes_on %}
+        <tr>
+          <th style="width: 32%; min-width: 180px; max-width: 200px;">
+            Application Ends On
+          </th>
+          <td>
+            {{ round.closes_on }}
+          </td>
+        </tr>
+      {% endif %}
+
+      {% for a in applications %}
+        <tr>
+          <th>
+            Applications ({{ a["state"] }})
+          </th>
+          <td>
+            {{ a["total"] }}
+          </td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <th>
+          Total Applications
+        </th>
+        <td>
+          {{ total_applications }}
+        </td>
+      </tr>
+
+      {% for n in nominations %}
+        <tr>
+          <th>
+            Nominations ({{ n["state"] }})
+          </th>
+          <td>
+            {{ n["total"] }}
+          </td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <th>
+          Total Nominations
+        </th>
+        <td>
+          {{ total_nominations }}
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+</body>
+
+</html>
