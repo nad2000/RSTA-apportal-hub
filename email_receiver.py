@@ -51,5 +51,5 @@ if __name__ == "__main__":
             ml.save()
             break
 
-    with open("%s-%s.txt" % (msg["from"], subject), "w") as f:
-         f.write(full_msg)
+    # with open("%s-%s.txt" % (msg["from"], subject), "w") as f:
+    #     f.write(full_msg)
