@@ -2,7 +2,7 @@
 """
 .procmailrc
 :0Wc:
-| env python email_receiver.py
+| source $HOME/venv/bin/activate; python prod/email_receiver.py
 """
 import datetime
 import email
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     try:
         importlib.import_module(f"config.settings.{env_name}")
     except ModuleNotFoundError:
-        parent_dir = os.path.basename(os.getcwd())
-        env_name = parent_dir if parent_dir in ["dev", "prod", "test"] else "local"
+        parent_dir = os.path.basename(__file__)
+        env_name = parent_dir if parent_dir in ["local", "test", "dev"] else "prod"
     current_path = Path(__file__).parent.resolve()
     sys.path.append(str(current_path / "portal"))
 
@@ -51,5 +51,5 @@ if __name__ == "__main__":
             ml.save()
             break
 
-    # with open("_%s-%s.txt" % (msg["from"], subject), "w") as f:
-    #     f.write(full_msg)
+    with open("%s-%s.txt" % (msg["from"], subject), "w") as f:
+         f.write(full_msg)
