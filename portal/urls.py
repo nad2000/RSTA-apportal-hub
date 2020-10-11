@@ -110,7 +110,9 @@ urlpatterns = [
                     name="profile-protection-patterns",
                 ),
                 path(
-                    "cvs/", views.ProfileCurriculumVitaeFormSetView.as_view(), name="profile-cvs",
+                    "cvs/",
+                    views.ProfileCurriculumVitaeFormSetView.as_view(),
+                    name="profile-cvs",
                 ),
                 path("~check", views.check_profile, name="check-profile"),
                 path(
@@ -237,7 +239,11 @@ urlpatterns = [
                 path("draft", views.RoundList.as_view(), name="reviews-working"),
                 path("submitted", views.RoundList.as_view(), name="reviews-submitted"),
                 path("", views.RoundList.as_view(), name="reviews"),
-                path("round/<int:round_id>/~applications", views.RoundApplicationList.as_view(), name="round-application-list"),
+                path(
+                    "round/<int:round_id>/~applications",
+                    views.RoundApplicationList.as_view(),
+                    name="round-application-list",
+                ),
             ]
         ),
     ),
