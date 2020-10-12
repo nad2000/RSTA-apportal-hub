@@ -832,6 +832,8 @@ class ApplicationView(LoginRequiredMixin):
             if self.object.is_team_application:
                 members = context["members"]
                 has_deleted = bool(members.deleted_forms)
+                if has_deleted:
+                    url = self.request.path_info.split("?")[0] + "?members=1"
                 if members.is_valid():
                     members.instance = self.object
                     members.save()
@@ -850,6 +852,8 @@ class ApplicationView(LoginRequiredMixin):
             if referees.is_valid():
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
+                if has_deleted:
+                    url = self.request.path_info.split("?")[0] + "?referees=1"
                 referees.save()
                 count = invite_referee(self.request, self.object)
                 if count > 0:
@@ -877,10 +881,10 @@ class ApplicationView(LoginRequiredMixin):
                     a.save()
             except Exception as e:
                 messages.error(self.request, str(e))
-                return HttpResponseRedirect(self.request.path_info)
+                return HttpResponseRedirect(url)
 
         if has_deleted:  # keep editing
-            return HttpResponseRedirect(self.request.path_info)
+            return HttpResponseRedirect(url)
         return resp
 
     def get_context_data(self, **kwargs):

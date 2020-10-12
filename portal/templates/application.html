@@ -106,6 +106,7 @@
           });
       });
       {% if "verification" in request.GET %}$('.nav a[href="#id-verification"]').tab('show');{% endif %}
+      {% if "referees" in request.GET %}$('.nav a[href="#referees"]').tab('show');{% endif %}
     });
     $(document).ready(function() {
       $("#div_id_title").parent().css("min-width", "4rem");
