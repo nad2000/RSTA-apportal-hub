@@ -667,6 +667,34 @@ class Application(Model):
 
     @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
+        if not self.file and not self.summary:
+            raise Exception(
+                _(
+                    "The application is not compled. Missing summary "
+                    "and/or uploaded application form"
+                )
+            )
+        if not self.submitted_by.is_identity_verified and not self.photo_identity:
+            raise Exception(
+                _(
+                    "Your identity has not been veryfied. "
+                    "Please upload a copy of your photo identity"
+                )
+            )
+        if Referee.where(application=self, testified_at__isnull=True, user__isnull=True).exists():
+            raise Exception(
+                _(
+                    "Not all nominated referees have responded. "
+                    "Please contact your referees or modlify the list of your referees"
+                )
+            )
+        if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
+            raise Exception(
+                _(
+                    "Not all team memebers have responded and given their consent. "
+                    "Please contact your team memeber or modlify the list of the team members"
+                )
+            )
         pass
 
     def __str__(self):
@@ -915,12 +943,10 @@ class Invitation(Model):
             )
         if self.type == INVITATION_TYPES.R:
             subject = _("You are invited to testify an application")
-            body = (
-                _(
-                    "You are invited to provide a testimonial for %(inviter)s's application to "
-                    "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
-                ) % dict(inviter=by, url=url)
-            )
+            body = _(
+                "You are invited to provide a testimonial for %(inviter)s's application to "
+                "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
+            ) % dict(inviter=by, url=url)
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
@@ -935,7 +961,12 @@ class Invitation(Model):
             body = _("You are invited to as a panellist. Please follow the link: %s") % url
         else:
             subject = _("You are invited to join the PM Science Prize portal")
-            body = _("You are invited to join the PM Science Prize portal. Please follow the link: %s") % url
+            body = (
+                _(
+                    "You are invited to join the PM Science Prize portal. Please follow the link: %s"
+                )
+                % url
+            )
 
         send_mail(
             subject,
