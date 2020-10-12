@@ -113,24 +113,38 @@
         {% if scheme.current_round %}
           {% if request.user.can_apply %}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
+              <div class="tooltip-wrapper{% if not scheme.application.state == 'submitted'%} disabled{% endif %}"
+                 {% if not scheme.application.state == 'submitted'%}
+                   disabled
+                   data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+                 {% else %}
+                   data-title="{% trans 'Modify your application and continue application process' %}"
+                 {% endif %}
+              >
               <a href="{% url 'application-update' pk=scheme.application.id %}"
                  class="btn btn-primary{% if not scheme.application.state == 'submitted'%} disabled{% endif %}"
                  style="text-transform: uppercase;"
-                 {% if not scheme.current_round.is_open %}
-                   disabled
-                   data-toggle="tooltip"
-                   title="{% trans 'The application has been already submitted and cannot be modified.' %}"
-                 {% endif %}> {% trans "Continue" %} <b>{% trans "Application" %}</b>
+              > {% trans "Continue" %} <b>{% trans "Application" %}</b>
               </a>
+              </div>
             {% else %}
-              <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
-                style="text-transform: uppercase;"
+              <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
                 {% if not scheme.current_round.is_open %}
                   disabled
-                  data-toggle="tooltip"
-                  title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
-                {% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                  {% if scheme.current_round.will_open %}
+                    data-title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+                  {% else %}
+                    data-title="{% trans 'The application period closed on' %} {{ scheme.current_round.closes_on|date:'o-m-d'}}"
+                  {% endif %}
+                {% else %}
+                   data-title="{% trans 'Start a new application' %}"
+                {% endif %}
+              >
+              <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+                style="text-transform: uppercase;"
+                {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
               </a>
+              </div>
             {% endif %}
             <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
@@ -171,6 +185,7 @@
             $("#roundDetailBody").load("round/" + event.relatedTarget.dataset.roundId);
             // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
         });
+        $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
     });
   </script>
 {% endblock javascript %}

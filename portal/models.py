@@ -1174,6 +1174,12 @@ class Round(Model):
         today = date.today()
         return self.opens_on <= today and (self.closes_on is None or self.closes_on >= today)
 
+    @property
+    def will_open(self):
+        """The round will be open in the future."""
+        today = date.today()
+        return self.opens_on > today
+
     class Meta:
         db_table = "round"
 
