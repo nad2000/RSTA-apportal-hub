@@ -113,8 +113,14 @@
         {% if scheme.current_round %}
           {% if request.user.can_apply %}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
-              <a href="{% url 'application-update' pk=scheme.application.id %}" class="btn btn-primary"
-                style="text-transform: uppercase;"> {% trans "Continue" %} <b>{% trans "Application" %}</b>
+              <a href="{% url 'application-update' pk=scheme.application.id %}"
+                 class="btn btn-primary{% if not scheme.application.state == 'submitted'%} disabled{% endif %}"
+                 style="text-transform: uppercase;"
+                 {% if not scheme.current_round.is_open %}
+                   disabled
+                   data-toggle="tooltip"
+                   title="{% trans 'The application has been already submitted and cannot be modified.' %}"
+                 {% endif %}> {% trans "Continue" %} <b>{% trans "Application" %}</b>
               </a>
             {% else %}
               <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
