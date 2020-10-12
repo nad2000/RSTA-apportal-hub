@@ -458,7 +458,7 @@ class Profile(Model):
                 else f"{u.name or u.username or u.email}'s profile"
             )
             if u
-            else f"Proile: ID={self.id}"
+            else f"Profile: ID={self.id}"
         )
 
     def get_absolute_url(self):
@@ -670,14 +670,14 @@ class Application(Model):
         if not self.file and not self.summary:
             raise Exception(
                 _(
-                    "The application is not compled. Missing summary "
+                    "The application is not completed. Missing summary "
                     "and/or uploaded application form"
                 )
             )
         if not self.submitted_by.is_identity_verified and not self.photo_identity:
             raise Exception(
                 _(
-                    "Your identity has not been veryfied. "
+                    "Your identity has not been verified. "
                     "Please upload a copy of your photo identity"
                 )
             )
@@ -685,14 +685,14 @@ class Application(Model):
             raise Exception(
                 _(
                     "Not all nominated referees have responded. "
-                    "Please contact your referees or modlify the list of your referees"
+                    "Please contact your referees or modify the list of your referees"
                 )
             )
         if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
-                    "Not all team memebers have responded and given their consent. "
-                    "Please contact your team memeber or modlify the list of the team members"
+                    "Not all team members have responded and given their consent. "
+                    "Please contact your team members or modify the list of the team members"
                 )
             )
         pass
@@ -917,7 +917,7 @@ class Invitation(Model):
         monitor="status", when=[STATUS.expired], null=True, blank=True, default=None
     )
 
-    # TODO: need to figure out how to propaged STATUS to the historycal rec model:
+    # TODO: need to figure out how to propagate STATUS to the historical rec model:
     # history = HistoricalRecords(table_name="invitation_history")
 
     @transition(
@@ -1183,7 +1183,7 @@ class Criterion(Model):
 
     round = ForeignKey(Round, on_delete=CASCADE, related_name="criteria")
     definition = TextField(max_length=200)
-    comment = BooleanField(default=True, help_text=_("The pannelist should commnet their score"))
+    comment = BooleanField(default=True, help_text=_("The panelist should comment their score"))
     scale = PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:

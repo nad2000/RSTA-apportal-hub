@@ -868,12 +868,16 @@ class ApplicationView(LoginRequiredMixin):
 
         if not has_deleted:
             a = self.object
-            if "submit" in self.request.POST:
-                a.submit(request=self.request)
-                a.save()
-            elif "save_draft" in self.request.POST:
-                a.save_draft(request=self.request)
-                a.save()
+            try:
+                if "submit" in self.request.POST:
+                    a.submit(request=self.request)
+                    a.save()
+                elif "save_draft" in self.request.POST:
+                    a.save_draft(request=self.request)
+                    a.save()
+            except Exception as e:
+                messages.error(self.request, str(e))
+                return HttpResponseRedirect(self.request.path_info)
 
         if has_deleted:  # keep editing
             return HttpResponseRedirect(self.request.path_info)
