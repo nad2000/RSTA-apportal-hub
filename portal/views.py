@@ -1165,7 +1165,9 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
 @login_required
 def photo_identity(request):
     """Redirect to the application section for a photo identity resubmission."""
-    iv = models.IdentityVerification.where(~Q(state="accepted", user=request.user), application__isnull=False).first()
+    iv = models.IdentityVerification.where(
+        ~Q(state="accepted", user=request.user), application__isnull=False
+    ).first()
     if iv and iv.application:
         application = iv.application
     else:
@@ -1419,9 +1421,23 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                 "labels": {"role": "Position"},
             }
         )
+        # breakpoint()
         return kwargs
 
     def get_queryset(self):
+        # if there is an invitation or nomination reuse it:
+        if not self.request.user.profile.is_employments_completed:
+            data = (
+                models.Invitation.where(email=self.request.user.email).order_by("-id").first()
+                or models.Nomination.where(user=self.request.user).order_by("-id").first()
+            )
+            if data and data.org:
+                models.Affiliation.get_or_create(
+                    profile=self.request.user.profile,
+                    org=data.org,
+                    type=models.AFFILIATION_TYPES.EMP,
+                )
+
         return self.model.where(
             profile=self.request.user.profile, type__in=self.affiliation_type.values()
         ).order_by(
