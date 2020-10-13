@@ -1165,9 +1165,17 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
 @login_required
 def photo_identity(request):
     """Redirect to the application section for a photo identity resubmission."""
-    iv = models.IdentityVerification.where(~Q(state="accepted", user=request.user)).first()
+    iv = models.IdentityVerification.where(~Q(state="accepted", user=request.user), application__isnull=False).first()
+    if iv and iv.application:
+        application = iv.application
+    else:
+        application = Application.where(
+            Q(photo_identity__isnull=True) | Q(photo_identity=""),
+            state__in=["new", "draft"],
+            submitted_by=request.user,
+        ).first()
     url = request.build_absolute_uri(
-        reverse("application-update", kwargs=dict(pk=iv.application.id)) + "?verification=1"
+        reverse("application-update", kwargs=dict(pk=application.id)) + "?verification=1"
     )
     return redirect(url)
 
