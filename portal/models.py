@@ -1340,7 +1340,7 @@ class IdentityVerification(Model):
     )
     application = OneToOneField(
         Application,
-        on_delete=SET_NULL,
+        on_delete=CASCADE,
         null=True,
         blank=True,
         related_name="identity_verification",
