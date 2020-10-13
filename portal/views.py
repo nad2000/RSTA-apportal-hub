@@ -223,7 +223,9 @@ def round_detail(request, round):
     applications = Application.where(round=round).values("state").annotate(total=Count("state"))
     total_applications = sum(a["total"] for a in applications)
 
-    nominations = models.Nomination.where(round=round).values("state").annotate(total=Count("state"))
+    nominations = (
+        models.Nomination.where(round=round).values("state").annotate(total=Count("state"))
+    )
     total_nominations = sum(n["total"] for n in nominations)
 
     return render(request, "round_detail.html", locals())
@@ -614,7 +616,9 @@ def invite_panellist(request, round):
         get_or_create_panellist_invitation(p)
 
     invitations = list(
-        models.Invitation.where(round=round, panellist__in=panellist, type="P", sent_at__isnull=True)
+        models.Invitation.where(
+            round=round, panellist__in=panellist, type="P", sent_at__isnull=True
+        )
     )
     for i in invitations:
         i.send(request)
@@ -782,28 +786,31 @@ class ApplicationView(LoginRequiredMixin):
     def get_initial(self):
         user = self.request.user
         initial = super().get_initial()
-        initial["user"] = user
-        initial["email"] = user.email
-        initial["language"] = django.utils.translation.get_language()
-        current_affiliation = (
-            models.Affiliation.where(profile=user.profile, end_date__isnull=True)
-            .order_by("-start_date")
-            .first()
-        )
-        latest_application = models.Application.where(submitted_by=user).order_by("-id").first()
-        if current_affiliation:
-            initial["org"] = current_affiliation.org
-            initial["position"] = current_affiliation.role
-        elif latest_application:
-            initial["org"] = latest_application.org
-            initial["position"] = latest_application.position
+        if not (self.object and self.object.id):
+            initial["user"] = user
+            initial["email"] = user.email
+            initial["language"] = django.utils.translation.get_language()
+            current_affiliation = (
+                models.Affiliation.where(profile=user.profile, end_date__isnull=True)
+                .order_by("-start_date")
+                .first()
+            )
+            latest_application = (
+                models.Application.where(submitted_by=user).order_by("-id").first()
+            )
+            if current_affiliation:
+                initial["org"] = current_affiliation.org
+                initial["position"] = current_affiliation.role
+            elif latest_application:
+                initial["org"] = latest_application.org
+                initial["position"] = latest_application.position
 
-        if latest_application:
-            initial["postal_address"] = latest_application.postal_address
-            initial["city"] = latest_application.city
-            initial["postcode"] = latest_application.postcode
-            initial["daytime_phone"] = latest_application.daytime_phone
-            initial["mobile_phone"] = latest_application.mobile_phone
+            if latest_application:
+                initial["postal_address"] = latest_application.postal_address
+                initial["city"] = latest_application.city
+                initial["postcode"] = latest_application.postcode
+                initial["daytime_phone"] = latest_application.daytime_phone
+                initial["mobile_phone"] = latest_application.mobile_phone
 
         return initial
 
@@ -870,7 +877,9 @@ class ApplicationView(LoginRequiredMixin):
                 iv.send(self.request)
                 iv.save()
 
-        if not has_deleted:
+        if has_deleted:  # keep editing
+            return HttpResponseRedirect(url)
+        else:
             a = self.object
             try:
                 if "submit" in self.request.POST:
@@ -881,10 +890,7 @@ class ApplicationView(LoginRequiredMixin):
                     a.save()
             except Exception as e:
                 messages.error(self.request, str(e))
-                return HttpResponseRedirect(url)
 
-        if has_deleted:  # keep editing
-            return HttpResponseRedirect(url)
         return resp
 
     def get_context_data(self, **kwargs):
@@ -912,7 +918,7 @@ class ApplicationView(LoginRequiredMixin):
                         )
                         for m in latest_application.members.all()
                     ]
-                    if latest_application
+                    if latest_application and not (self.object and self.object.id)
                     else []
                 )
                 context["members"] = (
@@ -935,7 +941,7 @@ class ApplicationView(LoginRequiredMixin):
                     )
                     for r in latest_application.referees.all()
                 ]
-                if latest_application
+                if latest_application and not (self.object and self.object.id)
                 else [],
             )
         return context
