@@ -40,16 +40,16 @@ class OrcidHelper:
 
     def get_orcid_profile(self, orcid_api_url, access_token):
         """Retrieve the user ORCID profile."""
+        headers = {
+            "Accept": "application/json",
+            "Content-Length": "0",
+        }
         if access_token:
-            headers = {
-                "Accept": "application/json",
-                "Authorization": f"Bearer {access_token.token}",
-                "Content-Length": "0",
-            }
-            resp = requests.get(orcid_api_url, headers=headers)
-            if resp.status_code == 200:
-                extra_data = resp.json()
-                return (extra_data, True)
+            headers["Authorization"] = f"Bearer {access_token.token}"
+        resp = requests.get(orcid_api_url, headers=headers)
+        if resp.status_code == 200:
+            extra_data = resp.json()
+            return (extra_data, True)
         return (None, False)
 
     def org_from_orcid_data(self, orcid_data):
@@ -61,29 +61,49 @@ class OrcidHelper:
 
     def fetch_and_load_orcid_data(self):
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
-        access_token = self.user.orcid_access_token
-        url = urljoin(settings.ORCID_API_BASE, self.user.orcid)
-        orcid_profile, user_has_linked_orcid = self.get_orcid_profile(url, access_token)
+        orcid = self.user.orcid
+        if not orcid and self.user.profile:
+            ppi = (
+                models.ProfilePersonIdentifier.where(profile=self.user.profile, code__code="02")
+                .order_by("-id")
+                .first()
+            )
+            if ppi:
+                orcid = ppi.value
 
-        if user_has_linked_orcid:
+        if orcid:
+            if orcid.startswith("https://"):
+                url = orcid
+            else:
+                url = urljoin(settings.ORCID_API_BASE, orcid)
 
-            count = 0
-            for section in self.sections:
-                if section == "externalid":
-                    count += self.import_externa_identifiers(orcid_profile)
+            access_token = self.user.orcid_access_token
+            url = urljoin(settings.ORCID_API_BASE, orcid)
 
-                if section in ["qualification", "education"]:
-                    count += self.import_academic_records(orcid_profile, section)
+            if not orcid.startswith(settings.ORCID_API_BASE):
+                access_token = None
 
-                if section in ["employment", "membership", "service"]:
-                    count += self.import_affiliations(orcid_profile, section)
+            orcid_profile, user_has_linked_orcid = self.get_orcid_profile(url, access_token)
 
-                if section == "funding":
-                    count += self.import_recognitions(orcid_profile)
+            if user_has_linked_orcid:
 
-            return (count, user_has_linked_orcid)
-        else:
-            return (-1, user_has_linked_orcid)
+                count = 0
+                for section in self.sections:
+                    if section == "externalid":
+                        count += self.import_externa_identifiers(orcid_profile)
+
+                    if section in ["qualification", "education"]:
+                        count += self.import_academic_records(orcid_profile, section)
+
+                    if section in ["employment", "membership", "service"]:
+                        count += self.import_affiliations(orcid_profile, section)
+
+                    if section == "funding":
+                        count += self.import_recognitions(orcid_profile)
+
+                return (count, user_has_linked_orcid)
+            else:
+                return (-1, user_has_linked_orcid)
 
         return (-1, False)
 
@@ -208,7 +228,9 @@ class OrcidHelper:
             description="ORCID ID", code="02"
         )
         _, created = models.ProfilePersonIdentifier.objects.get_or_create(
-            profile=self.profile, code=person_identifier_orcid, value=self.user.orcid,
+            profile=self.profile,
+            code=person_identifier_orcid,
+            value=self.user.orcid,
         )
         if created:
             count += 1
