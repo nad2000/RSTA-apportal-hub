@@ -305,7 +305,7 @@ class ProfilePersonIdentifier(Model):
         on_delete=CASCADE,
     )
     code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name="type")
-    value = CharField(max_length=20)
+    value = CharField(max_length=100)
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)
 
     class Meta:
