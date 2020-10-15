@@ -156,13 +156,19 @@
               </a>
             {% endif %}
           {% endif %}
+
           {% if request.user.is_staff %}
             <a href="{% url 'panellist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Invite" %}
               <b>{% trans "Panellist" %}</b>
             </a>
           {% endif %}
-
+        {% else %}
+          <span>
+            <strong>
+              {% trans 'Scheme has no round available to apply for' %}
+            </strong>
+          </span>
         {% endif %}
       </div>
     </dic>
