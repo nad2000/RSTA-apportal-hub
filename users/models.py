@@ -43,6 +43,13 @@ class User(HelperMixin, AbstractUser):
         """Admin nor staff cannot apply nor nominate other user."""
         return not self.is_superuser and not self.is_staff
 
+    @property
+    def needs_identity_verification(self):
+        return not (
+            self.is_identity_verified
+            and self.identity_verifications.filter(state="accepted").exists()
+        )
+
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
 
@@ -96,11 +103,13 @@ class User(HelperMixin, AbstractUser):
 
     def image_url(self, size=None, default="identicon"):
         """Return user image link or Gravatar service user avatar URL."""
-        sa = self.socialaccount_set.filter(provider='google').first()
+        sa = self.socialaccount_set.filter(provider="google").first()
         if not (sa and (url := sa.extra_data.get("picture"))):
             # default = "https://www.example.com/default.jpg"
             url = (
-                "https://www.gravatar.com/avatar/" + md5(self.email.lower().encode()).hexdigest() + "?"
+                "https://www.gravatar.com/avatar/"
+                + md5(self.email.lower().encode()).hexdigest()
+                + "?"
             )
             queries = dict(d=default)
             if size:

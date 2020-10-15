@@ -158,7 +158,7 @@
 
       <div class="container-fluid">
 
-        {% if need_to_verify_identity %}
+        {% if requery.user.needs_identity_verification %}
           <div class="alert alert-info alert-dismissible fade show" role="alert">
             <span class="badge badge-info">{% trans 'New' %}</span>
             {% trans "Your indentity has not been yet verified." %}

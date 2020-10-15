@@ -245,14 +245,6 @@ def index(request):
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
         )
-        need_to_verify_identity = (
-            not user.is_identity_verified
-            and Application.where(
-                Q(photo_identity__isnull=True) | Q(photo_identity=""),
-                state__in=["new", "draft"],
-                submitted_by=user,
-            ).exists()
-        )
         if user.is_staff:
             outstanding_identity_verifications = models.IdentityVerification.where(
                 state__in=["new", "sent"]
@@ -840,7 +832,7 @@ class ApplicationView(LoginRequiredMixin):
                 members = context["members"]
                 has_deleted = bool(members.deleted_forms)
                 if has_deleted:
-                    url = self.request.path_info.split("?")[0] + "?members=1"
+                    url = self.request.path_info + "?members=1"
                 if members.is_valid():
                     members.instance = self.object
                     members.save()
@@ -890,6 +882,7 @@ class ApplicationView(LoginRequiredMixin):
                     a.save()
             except Exception as e:
                 messages.error(self.request, str(e))
+                return HttpResponseRedirect(self.request.get_full_path())
 
         return resp
 

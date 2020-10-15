@@ -674,7 +674,9 @@ class Application(Model):
                     "and/or uploaded application form"
                 )
             )
-        if not self.submitted_by.is_identity_verified and not self.photo_identity:
+        if not self.submitted_by.needs_identity_verification and not (
+            self.photo_identity and self.photo_identity.state != "accepted"
+        ):
             raise Exception(
                 _(
                     "Your identity has not been verified. "
