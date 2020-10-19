@@ -189,6 +189,7 @@ class Language(Model):
 
 
 class CareerStage(Model):
+
     code = CharField(max_length=2, primary_key=True)
     description = CharField(max_length=40)
     definition = TextField(max_length=1000)
@@ -841,6 +842,18 @@ class Panellist(Model):
 
     class Meta:
         db_table = "panellist"
+
+
+class ConflictOfInterest(Model):
+
+    # panellist = ForeignKey(Panellist, on_delete=CASCADE, related_name="conflict_of_interests")
+    user = ForeignKey(User, on_delete=CASCADE)
+    application = ForeignKey(Application, on_delete=CASCADE, related_name="conflict_of_interests")
+    has_conflict = BooleanField(null=True, blank=True)
+    comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
+
+    class Meta:
+        db_table = "conflict_of_interest"
 
 
 def get_unique_invitation_token():
