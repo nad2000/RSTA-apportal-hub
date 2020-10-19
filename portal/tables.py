@@ -92,7 +92,7 @@ class RoundTable(tables.Table):
 
 class RoundApplicationTable(tables.Table):
 
-    round = tables.Column()
+    number = tables.Column(linkify=lambda record: reverse("round-application-review", kwargs={"round_id" : record.round.id, "application_id": record.id}))
 
     class Meta:
         model = models.Application

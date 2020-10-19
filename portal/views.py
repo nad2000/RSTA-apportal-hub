@@ -2112,3 +2112,41 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = self.model.where(round=self.kwargs.get("round_id"))
         return queryset
+
+
+class ConflictOfInterestView(CreateUpdateView):
+    model = models.ConflictOfInterest
+    form_class = forms.ConflictOfInterestForm
+    template_name = "conflict_of_interest.html"
+
+    def get(self, request, *args, **kwargs):
+        round_id = kwargs.get("round_id")
+        application_id = kwargs.get("application_id")
+        conflict_of_interest = self.model.where(application_id=application_id, user=self.request.user)
+        if conflict_of_interest:
+            if conflict_of_interest.first().has_conflict:
+                messages.warning(
+                    self.request, _("You have conflict of interest for this application.")
+                )
+                return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(round_id=round_id)))
+            else:
+                return HttpResponseRedirect(reverse("application", kwargs=dict(pk=application_id)))
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        n = form.instance
+        if "submit" in self.request.POST:
+            n.application_id = self.kwargs.get("application_id")
+            n.user = self.request.user
+            n.save()
+        elif "close" in self.request.POST:
+            return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
+                round_id=self.kwargs.get("round_id"))))
+        if n.has_conflict:
+            messages.warning(
+                self.request, _("You have conflict of interest for this application.")
+            )
+            return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
+                round_id=self.kwargs.get("round_id"))))
+        else:
+            return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))
