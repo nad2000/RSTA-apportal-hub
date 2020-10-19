@@ -2122,7 +2122,8 @@ class ConflictOfInterestView(CreateUpdateView):
     def get(self, request, *args, **kwargs):
         round_id = kwargs.get("round_id")
         application_id = kwargs.get("application_id")
-        conflict_of_interest = self.model.where(application_id=application_id, user=self.request.user)
+        panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
+        conflict_of_interest = self.model.where(application_id=application_id, panellist=panellist)
         if conflict_of_interest:
             if conflict_of_interest.first().has_conflict:
                 messages.warning(
@@ -2135,18 +2136,19 @@ class ConflictOfInterestView(CreateUpdateView):
 
     def form_valid(self, form):
         n = form.instance
+        round_id = self.kwargs.get("round_id")
         if "submit" in self.request.POST:
             n.application_id = self.kwargs.get("application_id")
-            n.user = self.request.user
+            n.panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
             n.save()
         elif "close" in self.request.POST:
             return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
-                round_id=self.kwargs.get("round_id"))))
+                round_id=round_id)))
         if n.has_conflict:
             messages.warning(
                 self.request, _("You have conflict of interest for this application.")
             )
             return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
-                round_id=self.kwargs.get("round_id"))))
+                round_id=round_id)))
         else:
             return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))

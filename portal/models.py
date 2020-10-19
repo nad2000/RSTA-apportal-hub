@@ -846,8 +846,7 @@ class Panellist(Model):
 
 class ConflictOfInterest(Model):
 
-    # panellist = ForeignKey(Panellist, on_delete=CASCADE, related_name="conflict_of_interests")
-    user = ForeignKey(User, on_delete=CASCADE)
+    panellist = ForeignKey(Panellist, null=True, blank=True, on_delete=CASCADE, related_name="conflict_of_interests")
     application = ForeignKey(Application, on_delete=CASCADE, related_name="conflict_of_interests")
     has_conflict = BooleanField(null=True, blank=True)
     comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
