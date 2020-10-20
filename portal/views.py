@@ -753,6 +753,7 @@ class ApplicationDetail(DetailView):
                 recipient_list=[self.object.submitted_by.email],
                 fail_silently=False,
                 request=self.request,
+                reply_to=settings.DEFAULT_FROM_EMAIL,
             )
 
         return self.get(request, *args, **kwargs)
@@ -1801,6 +1802,7 @@ class TestimonyView(CreateUpdateView):
                     ],
                     fail_silently=False,
                     request=self.request,
+                    reply_to=settings.DEFAULT_FROM_EMAIL,
                 )
                 messages.info(
                     self.request,
@@ -2130,7 +2132,9 @@ class ConflictOfInterestView(CreateUpdateView):
                 messages.warning(
                     self.request, _("You have conflict of interest for this application.")
                 )
-                return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(round_id=round_id)))
+                return HttpResponseRedirect(
+                    reverse("round-application-list", kwargs=dict(round_id=round_id))
+                )
             else:
                 return HttpResponseRedirect(reverse("application", kwargs=dict(pk=application_id)))
         return super().get(request, *args, **kwargs)
@@ -2143,14 +2147,16 @@ class ConflictOfInterestView(CreateUpdateView):
             n.panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
             n.save()
         elif "close" in self.request.POST:
-            return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
-                round_id=round_id)))
+            return HttpResponseRedirect(
+                reverse("round-application-list", kwargs=dict(round_id=round_id))
+            )
         if n.has_conflict:
             messages.warning(
                 self.request, _("You have conflict of interest for this application.")
             )
-            return HttpResponseRedirect(reverse("round-application-list", kwargs=dict(
-                round_id=round_id)))
+            return HttpResponseRedirect(
+                reverse("round-application-list", kwargs=dict(round_id=round_id))
+            )
         else:
             return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))
 
