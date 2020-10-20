@@ -989,6 +989,7 @@ class Invitation(Model):
             recipient_list=[self.email],
             fail_silently=False,
             request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
         )
 
     @transition(
@@ -1403,6 +1404,7 @@ class IdentityVerification(Model):
             recipient_list=[self.user.email],
             fail_silently=False,
             request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
         )
 
     def __str__(self):

@@ -21,6 +21,7 @@ def send_mail(
     connection=None,
     html_message=None,
     request=None,
+    reply_to=None,
 ):
 
     if not message and html_message:
@@ -46,6 +47,7 @@ def send_mail(
         from_email,
         recipient_list,
         headers=headers,
+        reply_to=[reply_to or from_email]
     )
 
     if html_message:
