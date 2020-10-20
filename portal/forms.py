@@ -563,11 +563,8 @@ class ConflictOfInterestForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         fields = [
-            Fieldset(
-                _("ConflictOfInterest"),
-                Field("has_conflict"),
-                Field("comment"),
-            ),
+            Field("has_conflict"),
+            Field("comment"),
         ]
         self.helper.layout = Layout(
             *fields,

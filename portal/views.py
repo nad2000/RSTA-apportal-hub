@@ -2118,6 +2118,7 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
 
 class ConflictOfInterestView(CreateUpdateView):
+
     model = models.ConflictOfInterest
     form_class = forms.ConflictOfInterestForm
     template_name = "conflict_of_interest.html"
