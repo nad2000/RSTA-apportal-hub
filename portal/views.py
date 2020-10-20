@@ -241,6 +241,7 @@ def index(request):
     if request.user.is_approved:
         outstanding_authorization_requests = models.Member.outstanding_requests(user)
         outstanding_testimony_requests = models.Referee.outstanding_requests(user)
+        outstanding_review_requests = models.Panellist.outstanding_requests(user)
         draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
@@ -2152,3 +2153,14 @@ class ConflictOfInterestView(CreateUpdateView):
                 round_id=round_id)))
         else:
             return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        application_id = self.kwargs.get("application_id")
+        application = models.Application.where(id=application_id).first()
+        members = models.Member.where(application_id=application_id)
+        context["object"] = application
+        context["members"] = members
+        context["include"] = ["application_title", "team_name", "email", "first_name", "last_name"]
+        context["member_include"] = ["first_name", "last_name", "email"]
+        return context

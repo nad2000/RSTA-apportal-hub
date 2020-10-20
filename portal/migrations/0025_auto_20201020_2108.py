@@ -23,4 +23,9 @@ class Migration(migrations.Migration):
             name='panellist',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='conflict_of_interests', to='portal.Panellist'),
         ),
+        migrations.AddField(
+            model_name='conflictofinterest',
+            name='statement_given_at',
+            field=models.DateTimeField(auto_now_add=True, null=True),
+        )
     ]

@@ -555,6 +555,7 @@ class PanellistFormSetHelper(FormHelper):
         )
         self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))
 
+
 class ConflictOfInterestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -592,4 +593,5 @@ class ConflictOfInterestForm(forms.ModelForm):
 
         widgets = dict(
             comment=SummernoteInplaceWidget(),
+            has_conflict=forms.CheckboxInput()
         )
