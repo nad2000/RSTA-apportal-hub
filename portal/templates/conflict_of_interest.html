@@ -24,12 +24,12 @@
     </tbody>
   </table>
   {% if object.is_team_application %}
-  <h2> Team info </h2>
+  <h2> Team Members </h2>
   <table class="table table-bordered searchable">
     <tbody>
     <tr>
       {% for t in member_include %}
-        <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ t }}</th>
+        <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ t | title }}</th>
       {% endfor %}
     </tr>
     {% for member in members %}

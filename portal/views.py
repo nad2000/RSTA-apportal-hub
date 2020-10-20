@@ -2167,6 +2167,6 @@ class ConflictOfInterestView(CreateUpdateView):
         members = models.Member.where(application_id=application_id)
         context["object"] = application
         context["members"] = members
-        context["include"] = ["application_title", "team_name", "email", "first_name", "last_name"]
+        context["include"] = ["number", "application_title", "team_name", "email", "first_name", "last_name"]
         context["member_include"] = ["first_name", "last_name", "email"]
         return context
