@@ -244,6 +244,11 @@ urlpatterns = [
                     views.RoundApplicationList.as_view(),
                     name="round-application-list",
                 ),
+                path(
+                    "round/<int:round_id>/applications/<int:application_id>",
+                    views.ConflictOfInterestView.as_view(),
+                    name="round-application-review",
+                ),
             ]
         ),
     ),

@@ -241,6 +241,7 @@ def index(request):
     if request.user.is_approved:
         outstanding_authorization_requests = models.Member.outstanding_requests(user)
         outstanding_testimony_requests = models.Referee.outstanding_requests(user)
+        outstanding_review_requests = models.Panellist.outstanding_requests(user)
         draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
@@ -518,7 +519,7 @@ def invite_team_members(request, application):
 
 
 def invite_referee(request, application):
-    """Send invitations to all referee members to authorized_at the representative."""
+    """Send invitations to all referee."""
     # members that don't have invitations
     count = 0
     referees = list(
@@ -752,6 +753,7 @@ class ApplicationDetail(DetailView):
                 recipient_list=[self.object.submitted_by.email],
                 fail_silently=False,
                 request=self.request,
+                reply_to=settings.DEFAULT_FROM_EMAIL,
             )
 
         return self.get(request, *args, **kwargs)
@@ -858,7 +860,7 @@ class ApplicationView(LoginRequiredMixin):
                 if count > 0:
                     messages.success(
                         self.request,
-                        _("%d invitation(s) to authorize the referee sent.") % count,
+                        _("%d referee invitation(s) sent.") % count,
                     )
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(
@@ -1800,6 +1802,7 @@ class TestimonyView(CreateUpdateView):
                     ],
                     fail_silently=False,
                     request=self.request,
+                    reply_to=settings.DEFAULT_FROM_EMAIL,
                 )
                 messages.info(
                     self.request,
@@ -2112,3 +2115,59 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = self.model.where(round=self.kwargs.get("round_id"))
         return queryset
+
+
+class ConflictOfInterestView(CreateUpdateView):
+
+    model = models.ConflictOfInterest
+    form_class = forms.ConflictOfInterestForm
+    template_name = "conflict_of_interest.html"
+
+    def get(self, request, *args, **kwargs):
+        round_id = kwargs.get("round_id")
+        application_id = kwargs.get("application_id")
+        panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
+        conflict_of_interest = self.model.where(application_id=application_id, panellist=panellist)
+        if conflict_of_interest:
+            if conflict_of_interest.first().has_conflict:
+                messages.warning(
+                    self.request, _("You have conflict of interest for this application.")
+                )
+                return HttpResponseRedirect(
+                    reverse("round-application-list", kwargs=dict(round_id=round_id))
+                )
+            else:
+                return HttpResponseRedirect(reverse("application", kwargs=dict(pk=application_id)))
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        n = form.instance
+        round_id = self.kwargs.get("round_id")
+        if "submit" in self.request.POST:
+            n.application_id = self.kwargs.get("application_id")
+            n.panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
+            n.save()
+        elif "close" in self.request.POST:
+            return HttpResponseRedirect(
+                reverse("round-application-list", kwargs=dict(round_id=round_id))
+            )
+        if n.has_conflict:
+            messages.warning(
+                self.request, _("You have conflict of interest for this application.")
+            )
+            return HttpResponseRedirect(
+                reverse("round-application-list", kwargs=dict(round_id=round_id))
+            )
+        else:
+            return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        application_id = self.kwargs.get("application_id")
+        application = models.Application.where(id=application_id).first()
+        members = models.Member.where(application_id=application_id)
+        context["object"] = application
+        context["members"] = members
+        context["include"] = ["number", "application_title", "team_name", "email", "first_name", "last_name"]
+        context["member_include"] = ["first_name", "last_name", "email"]
+        return context

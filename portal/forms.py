@@ -554,3 +554,41 @@ class PanellistFormSetHelper(FormHelper):
             )
         )
         self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))
+
+
+class ConflictOfInterestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        fields = [
+            Field("has_conflict"),
+            Field("comment"),
+        ]
+        self.helper.layout = Layout(
+            *fields,
+            ButtonHolder(
+                Submit(
+                    "submit",
+                    _("Submit"),
+                    css_class="btn btn-outline-primary",
+                ),
+                HTML(
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    % _("Close")
+                ),
+            ),
+        )
+
+    class Meta:
+        model = models.ConflictOfInterest
+        fields = [
+            "comment",
+            "has_conflict",
+        ]
+
+        widgets = dict(
+            comment=SummernoteInplaceWidget(),
+            has_conflict=forms.CheckboxInput()
+        )

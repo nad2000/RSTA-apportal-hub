@@ -846,11 +846,16 @@ class Panellist(Model):
 
 class ConflictOfInterest(Model):
 
-    # panellist = ForeignKey(Panellist, on_delete=CASCADE, related_name="conflict_of_interests")
-    user = ForeignKey(User, on_delete=CASCADE)
+    panellist = ForeignKey(
+        Panellist, null=True, blank=True, on_delete=CASCADE, related_name="conflict_of_interests"
+    )
     application = ForeignKey(Application, on_delete=CASCADE, related_name="conflict_of_interests")
     has_conflict = BooleanField(null=True, blank=True)
     comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
+    statement_given_at = DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return _("Statement of Conflict of Interest of %s") % self.panellist.user
 
     class Meta:
         db_table = "conflict_of_interest"
@@ -990,6 +995,7 @@ class Invitation(Model):
             recipient_list=[self.email],
             fail_silently=False,
             request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
         )
 
     @transition(
@@ -1404,6 +1410,7 @@ class IdentityVerification(Model):
             recipient_list=[self.user.email],
             fail_silently=False,
             request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
         )
 
     def __str__(self):
