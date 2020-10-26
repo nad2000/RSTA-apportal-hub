@@ -12,10 +12,10 @@ import sys
 from pathlib import Path
 
 import django
+from django.db import transaction
 
 if __name__ == "__main__":
     env_name = os.getenv("ENV", "local")
-    # fall back to local if
     try:
         importlib.import_module(f"config.settings.{env_name}")
     except ModuleNotFoundError:
@@ -46,9 +46,13 @@ if __name__ == "__main__":
             continue
         ml = MailLog.where(token=message_id).first()
         if ml:
-            ml.error = f"{subject}\n{datetime.datetime.now()}"
-            ml.was_sent_successfully = False
-            ml.save()
+            with transaction.atomic():
+                ml.error = f"{subject}\n{datetime.datetime.now()}"
+                ml.was_sent_successfully = False
+                ml.save()
+                if ml.invitation:
+                    ml.invitation.bounce()
+                    ml.invitation.save()
             break
 
     # with open("%s-%s.txt" % (msg["from"], subject), "w") as f:

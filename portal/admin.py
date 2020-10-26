@@ -208,7 +208,12 @@ admin.site.register(models.Member)
 admin.site.register(models.Referee)
 admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
-admin.site.register(models.MailLog)
+
+
+@admin.register(models.MailLog)
+class MailLogAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    search_fields = ["token", "recipient"]
+    date_hierarchy = "sent_at"
 
 
 @admin.register(models.Nomination)
