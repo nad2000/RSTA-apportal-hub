@@ -22,6 +22,7 @@ def send_mail(
     html_message=None,
     request=None,
     reply_to=None,
+    invitation=None,
 ):
 
     if not message and html_message:
@@ -64,6 +65,7 @@ def send_mail(
             was_sent_successfully=resp,
             # error=resp.error,
             token=token,
+            invitation=invitation,
         )
     if not resp:
         raise Exception(

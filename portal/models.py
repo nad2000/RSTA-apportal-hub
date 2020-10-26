@@ -3,6 +3,7 @@ import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin
 
+import simple_history
 from common.models import TITLES, Base, Model
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -133,6 +134,11 @@ LANGUAGES = Choices(
     "Yue Chinese (Cantonese)",
     "Other",
 )
+
+
+class StateField(StatusField, FSMField):
+
+    pass
 
 
 def hash_int(value):
@@ -779,7 +785,18 @@ class Member(Model):
         db_table = "member"
 
 
-class Referee(Model):
+class RefereeMixin:
+    """Workaround for simple history."""
+
+    STATUS = Choices(
+        ("S", _("sent")),
+        ("A", _("accepted")),
+        ("OO", _("opted out")),
+        ("B", _("bounced")),
+    )
+
+
+class Referee(RefereeMixin, Model):
     """Application referee."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="referees")
@@ -796,6 +813,7 @@ class Referee(Model):
     has_testifed = BooleanField(null=True, blank=True)
     testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    status = StateField()
 
     def __str__(self):
         return str(self.user)
@@ -811,6 +829,9 @@ class Referee(Model):
 
     class Meta:
         db_table = "referee"
+
+
+simple_history.register(Referee, inherit=True, table_name="referee_history", bases=[RefereeMixin, Model])
 
 
 class Panellist(Model):
@@ -869,11 +890,6 @@ def get_unique_invitation_token():
             return token
 
 
-class StateField(StatusField, FSMField):
-
-    pass
-
-
 INVITATION_TYPES = Choices(
     ("A", _("apply")),
     ("J", _("join")),
@@ -885,8 +901,9 @@ INVITATION_TYPES = Choices(
 
 class Invitation(Model):
 
-    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired")
+    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
+    url = CharField(max_length=200, null=True, blank=True)
     inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
@@ -922,7 +939,6 @@ class Invitation(Model):
         "Round", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
     )
     # TODO: take a look FSM ... as an alternative. might be more appropriate...
-    # status = StatusField()
     status = StateField()
     submitted_at = MonitorField(
         monitor="status", when=[STATUS.submitted], null=True, blank=True, default=None
@@ -935,6 +951,9 @@ class Invitation(Model):
     )
     expired_at = MonitorField(
         monitor="status", when=[STATUS.expired], null=True, blank=True, default=None
+    )
+    bounced_at = MonitorField(
+        monitor="status", when=[STATUS.bounced], null=True, blank=True, default=None
     )
 
     # TODO: need to figure out how to propagate STATUS to the historical rec model:
@@ -951,6 +970,7 @@ class Invitation(Model):
             url = request.build_absolute_uri(url)
         else:
             url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+        self.url = url
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
@@ -996,6 +1016,7 @@ class Invitation(Model):
             fail_silently=False,
             request=request,
             reply_to=settings.DEFAULT_FROM_EMAIL,
+            invitation=self,
         )
 
     @transition(
@@ -1028,6 +1049,14 @@ class Invitation(Model):
             n = self.panellist
             n.user = by
             n.save()
+
+    @transition(
+        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
+    )
+    def bounce(self, request=None, by=None):
+        if self.type == INVITATION_TYPES.R and self.referee:
+            self.referee.status = Referee.STATUS.B
+            self.referee.save()
 
     @classmethod
     def outstanding_invitations(cls, user):
@@ -1437,8 +1466,9 @@ class MailLog(Model):
     sender = CharField(max_length=200)
     subject = CharField(max_length=100)
     was_sent_successfully = BooleanField(null=True)
-    error = TextField(null=True)
+    error = TextField(null=True, blank=True)
     token = CharField(max_length=100, default=get_unique_mail_token, unique=True)
+    invitation = ForeignKey(Invitation, null=True, on_delete=SET_NULL)
 
     def __str__(self):
         return f"{self.recipient}: {self.token}/{self.sent_at}"
