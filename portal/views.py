@@ -519,7 +519,7 @@ def invite_team_members(request, application):
 
 
 def invite_referee(request, application):
-    """Send invitations to all referee members to authorized_at the representative."""
+    """Send invitations to all referee."""
     # members that don't have invitations
     count = 0
     referees = list(
@@ -860,7 +860,7 @@ class ApplicationView(LoginRequiredMixin):
                 if count > 0:
                     messages.success(
                         self.request,
-                        _("%d invitation(s) to authorize the referee sent.") % count,
+                        _("%d referee invitation(s) sent.") % count,
                     )
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(

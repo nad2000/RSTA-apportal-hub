@@ -886,7 +886,7 @@ msgid "Your indentity has not been yet verified."
 msgstr ""
 
 #: portal/templates/base.html:165
-msgid "Please upload a copy of a photo inentity here"
+msgid "Please upload a copy of a photo identity here"
 msgstr ""
 
 #: portal/templates/base.html:175
@@ -1516,7 +1516,7 @@ msgstr ""
 
 #: portal/views.py:728
 #, python-format
-msgid "%d invitation(s) to authorize the referee sent."
+msgid "%d referee invitation(s) sent."
 msgstr ""
 
 #: portal/views.py:801
