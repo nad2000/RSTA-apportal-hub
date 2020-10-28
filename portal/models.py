@@ -1058,9 +1058,7 @@ class Invitation(Model):
     def bounce(self, request=None, by=None):
         body = (
             _(
-                "We are sorry to have to inform you that "
-                "your invitation message could not be delivered "
-                "to %s. It's attached below."
+                "We are sorry to have to inform you that your invitation message could not be delivered to %s."
             )
             % self.email
         )
