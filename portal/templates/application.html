@@ -44,6 +44,11 @@
   <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
   <script>
+    function activateRefereeTab() {
+      document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new initations' %}";
+      document.getElementById("submit-id-submit").hidden = true;
+      document.getElementById("cancel").hidden = true;
+    }
     $(function() {
       bootbox.addLocale('mi', {
         OK      : 'Pai',
@@ -106,16 +111,12 @@
           });
       });
       {% if "verification" in request.GET %}$('.nav a[href="#id-verification"]').tab('show');{% endif %}
-      {% if "referees" in request.GET %}$('.nav a[href="#referees"]').tab('show');{% endif %}
+      {% if "referees" in request.GET %}$('.nav a[href="#referees"]').tab('show'); activateRefereeTab();{% endif %}
     });
     $(document).ready(function() {
       $("#div_id_title").parent().css("min-width", "4rem");
       $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"});
-      $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', function (e) {
-        document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new initations' %}";
-        document.getElementById("submit-id-submit").hidden = true;
-        document.getElementById("cancel").hidden = true;
-      });
+      $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
       $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
         document.getElementById("submit-id-save_draft").value = "{% trans 'Save Draft' %}";
         document.getElementById("submit-id-submit").hidden = false;

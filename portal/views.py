@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, Q, Subquery
+from django.db.models import Count, F, Q, Subquery
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -523,7 +523,8 @@ def invite_referee(request, application):
     # members that don't have invitations
     count = 0
     # referees = list(models.Referee.where(application=application, invitation__isnull=True))
-    referees = list(models.Referee.where(invitation__isnull=True))
+    # referees = list(models.Referee.where(invitation__isnull=True))
+    referees = list(models.Referee.where(~Q(invitation__email=F('email'))))
     for r in referees:
         get_or_create_referee_invitation(r, by=request.user)
 
@@ -534,6 +535,9 @@ def invite_referee(request, application):
     for i in invitations:
         i.send(request)
         i.save()
+        if i.referee:
+            i.referee.status = models.Referee.STATUS.sent
+            i.referee.save()
         count += 1
     return count
 
@@ -579,6 +583,7 @@ def get_or_create_referee_invitation(referee, by=None):
             i.sent_at = None
             i.status = models.Invitation.STATUS.submitted
             i.save()
+        referee.satus = None
         return (i, False)
     else:
         return models.Invitation.get_or_create(
