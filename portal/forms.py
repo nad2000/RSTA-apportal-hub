@@ -18,7 +18,7 @@ from crispy_forms.layout import (
 )
 from dal import autocomplete
 from django import forms
-from django.forms import HiddenInput, inlineformset_factory
+from django.forms import HiddenInput, Widget, inlineformset_factory
 from django.forms.models import modelformset_factory
 from django.forms.widgets import NullBooleanSelect
 from django.template.loader import render_to_string
@@ -127,7 +127,9 @@ class ProfileForm(forms.ModelForm):
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
-        labels = dict(is_accepted=_("I have read and agreed to the <a href='#'>Privacy Policy</a>"))
+        labels = dict(
+            is_accepted=_("I have read and agreed to the <a href='#'>Privacy Policy</a>")
+        )
 
 
 class ApplicationForm(forms.ModelForm):
@@ -263,11 +265,19 @@ MemberFormSet = inlineformset_factory(
 )
 
 
+class InvitationStatusInput(Widget):
+    template_name = "portal/widgets/invitation_status.html"
+
+
 class RefereeForm(forms.ModelForm):
     class Meta:
         model = models.Referee
-        fields = ["has_testifed", "email", "first_name", "middle_names", "last_name"]
-        widgets = dict(has_testifed=NullBooleanSelect(attrs=dict(readonly=True)))
+        # fields = ["has_testifed", "email", "first_name", "middle_names", "last_name"]
+        fields = ["has_testifed", "status", "email", "first_name", "middle_names", "last_name"]
+        widgets = dict(
+            has_testifed=NullBooleanSelect(attrs=dict(readonly=True)),
+            status=InvitationStatusInput(attrs=dict(readonly=True)),
+        )
 
 
 RefereeFormSet = inlineformset_factory(
@@ -458,7 +468,11 @@ class TestimonyForm(forms.ModelForm):
                     _("Submit"),
                     css_class="btn btn-outline-primary",
                 ),
-                Submit("turn_down", _("I do not wish to provide a testimonial"), css_class="btn-outline-danger"),
+                Submit(
+                    "turn_down",
+                    _("I do not wish to provide a testimonial"),
+                    css_class="btn-outline-danger",
+                ),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
@@ -588,7 +602,4 @@ class ConflictOfInterestForm(forms.ModelForm):
             "has_conflict",
         ]
 
-        widgets = dict(
-            comment=SummernoteInplaceWidget(),
-            has_conflict=forms.CheckboxInput()
-        )
+        widgets = dict(comment=SummernoteInplaceWidget(), has_conflict=forms.CheckboxInput())

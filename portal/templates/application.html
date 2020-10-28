@@ -111,6 +111,16 @@
     $(document).ready(function() {
       $("#div_id_title").parent().css("min-width", "4rem");
       $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"});
+      $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', function (e) {
+        document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new initations' %}";
+        document.getElementById("submit-id-submit").hidden = true;
+        document.getElementById("cancel").hidden = true;
+      });
+      $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
+        document.getElementById("submit-id-save_draft").value = "{% trans 'Save Draft' %}";
+        document.getElementById("submit-id-submit").hidden = false;
+        document.getElementById("cancel").hidden = false;
+      });
     });
   </script>
 {% endblock %}

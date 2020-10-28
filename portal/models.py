@@ -789,10 +789,10 @@ class RefereeMixin:
     """Workaround for simple history."""
 
     STATUS = Choices(
-        ("S", _("sent")),
-        ("A", _("accepted")),
-        ("OO", _("opted out")),
-        ("B", _("bounced")),
+        ("sent", _("sent")),
+        ("accepted", _("accepted")),
+        ("opted-out", _("opted out")),
+        ("bounced", _("bounced")),
     )
 
 
@@ -813,7 +813,7 @@ class Referee(RefereeMixin, Model):
     has_testifed = BooleanField(null=True, blank=True)
     testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
-    status = StateField()
+    status = StateField(null=True, blank=True)
 
     def __str__(self):
         return str(self.user or self.email)
@@ -1063,7 +1063,7 @@ class Invitation(Model):
             % self.email
         )
         if self.type == INVITATION_TYPES.R and self.referee:
-            self.referee.status = Referee.STATUS.B
+            self.referee.status = Referee.STATUS.bounced
             self.referee.save()
             url = reverse("application-update", kwargs={"pk": self.application.id})
             url += "?referees=1"
