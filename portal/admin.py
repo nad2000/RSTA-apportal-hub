@@ -233,7 +233,7 @@ class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 @admin.register(models.Invitation)
 class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
     fsm_field = ["status"]
-    list_display = ["type", "email", "first_name", "last_name", "organisation"]
+    list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email"]
     date_hierarchy = "created_at"

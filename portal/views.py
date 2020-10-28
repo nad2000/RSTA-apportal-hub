@@ -522,14 +522,10 @@ def invite_referee(request, application):
     """Send invitations to all referee."""
     # members that don't have invitations
     count = 0
-    referees = list(
-        models.Referee.objects.select_related("invitation").extra(
-            tables=["invitation"],
-            where=["invitation.id IS NULL or referee.email != invitation.email"],
-        )
-    )
+    # referees = list(models.Referee.where(application=application, invitation__isnull=True))
+    referees = list(models.Referee.where(invitation__isnull=True))
     for r in referees:
-        get_or_create_referee_invitation(r)
+        get_or_create_referee_invitation(r, by=request.user)
 
     # send 'yet unsent' invitations:
     invitations = list(
@@ -569,11 +565,13 @@ def get_or_create_team_member_invitation(member):
         )
 
 
-def get_or_create_referee_invitation(referee):
+def get_or_create_referee_invitation(referee, by=None):
 
     if hasattr(referee, "invitation"):
         i = referee.invitation
         if referee.email != i.email:
+            if by:
+                i.inviter = by
             i.email = referee.email
             i.first_name = referee.first_name
             i.middle_names = referee.middle_names
@@ -588,6 +586,7 @@ def get_or_create_referee_invitation(referee):
             referee=referee,
             email=referee.email,
             defaults=dict(
+                inviter=by,
                 application=referee.application,
                 first_name=referee.first_name,
                 middle_names=referee.middle_names,

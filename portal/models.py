@@ -1,7 +1,7 @@
 import hashlib
 import secrets
 from datetime import date, datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import simple_history
 from common.models import TITLES, Base, Model
@@ -816,7 +816,7 @@ class Referee(RefereeMixin, Model):
     status = StateField()
 
     def __str__(self):
-        return str(self.user)
+        return str(self.user or self.email)
 
     @classmethod
     def outstanding_requests(cls, user):
@@ -831,7 +831,9 @@ class Referee(RefereeMixin, Model):
         db_table = "referee"
 
 
-simple_history.register(Referee, inherit=True, table_name="referee_history", bases=[RefereeMixin, Model])
+simple_history.register(
+    Referee, inherit=True, table_name="referee_history", bases=[RefereeMixin, Model]
+)
 
 
 class Panellist(Model):
@@ -1054,9 +1056,40 @@ class Invitation(Model):
         field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
     )
     def bounce(self, request=None, by=None):
+        body = (
+            _(
+                "We are sorry to have to inform you that "
+                "your invitation message could not be delivered "
+                "to %s. It's attached below."
+            )
+            % self.email
+        )
         if self.type == INVITATION_TYPES.R and self.referee:
             self.referee.status = Referee.STATUS.B
             self.referee.save()
+            url = reverse("application-update", kwargs={"pk": self.application.id})
+            url += "?referees=1"
+            if request:
+                url = request.build_absolute_uri(url)
+            elif self.url:
+                pr = urlparse(self.url)
+                url = urljoin(f"{pr.scheme}://{pr.netloc}", url)
+            else:
+                url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+            body += (
+                "\n\n" + _("Please correct the email address to resend the invitation: %s") % url
+            )
+
+        if self.inviter:
+            send_mail(
+                _("Your Invitation Undelivered"),
+                body,
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[self.inviter.email],
+                fail_silently=False,
+                request=request,
+                reply_to=settings.DEFAULT_FROM_EMAIL,
+            )
 
     @classmethod
     def outstanding_invitations(cls, user):
