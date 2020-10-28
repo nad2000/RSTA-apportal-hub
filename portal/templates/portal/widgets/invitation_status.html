@@ -1,0 +1,11 @@
+{% load static i18n %}
+{% if widget.value == 'accepted' %}
+  <i class="fa fa-check-circle text-success text-center" aria-hidden="true"></i>
+{% elif widget.value == 'opted-out' %}
+  <i class="fa fa-ban text-danger text-center" aria-hidden="true"></i>
+{% elif widget.value == 'bounced' %}
+  <i class="fa fa-exclamation-triangle text-danger text-center" aria-hidden="true"
+                                                                data-toggle="tooltip" title="{% trans 'The invitation delivery failed'%}"></i>
+{% endif %}
+<input type="hidden" name="{{ widget.name }}"
+  {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>

@@ -255,9 +255,6 @@ class MemberForm(forms.ModelForm):
         model = models.Member
         fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]
         widgets = dict(has_authorized=NullBooleanSelect(attrs=dict(readonly=True)))
-        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True, disabled=True)))
-        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(disabled=True)))
-        # widgets = dict(has_authorized=forms.CheckboxInput(attrs=dict(readonly=True)))
 
 
 MemberFormSet = inlineformset_factory(
