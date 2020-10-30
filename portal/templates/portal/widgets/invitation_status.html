@@ -2,9 +2,12 @@
 <div class="align-middle text-center">
 
 {% if widget.value == 'accepted' %}
+  <i class="fa fa-envelope-open text-success text-center" aria-hidden="true"
+     data-toggle="tooltip" title="{% trans 'The referee has accepted your invitation to testify' %}"></i>
+{% elif widget.value == 'testified' %}
   <i class="fa fa-check-circle text-success text-center" aria-hidden="true"
-     data-toggle="tooltip" title="{% trans 'The referee has accepted your invitation'%}"></i>
-{% elif widget.value == 'opted-out' %}
+     data-toggle="tooltip" title="{% trans 'The referee has submitted a testimony' %}"></i>
+{% elif widget.value == 'opted-out' or widget.value == 'opted_out' %}
 <i class="fa fa-ban text-danger text-center" aria-hidden="true"
                                                               data-toggle="tooltip" title="{% trans 'The referee has opted out to participate in reviewing of your application'%}"></i>
 {% elif widget.value == 'bounced' %}

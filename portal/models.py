@@ -785,15 +785,19 @@ class Member(Model):
         db_table = "member"
 
 
+REFEREE_STATUS = Choices(
+    ("sent", _("sent")),
+    ("accepted", _("accepted")),
+    ("testified", _("testified")),
+    ("opted_out", _("opted out")),
+    ("bounced", _("bounced")),
+)
+
+
 class RefereeMixin:
     """Workaround for simple history."""
 
-    STATUS = Choices(
-        ("sent", _("sent")),
-        ("accepted", _("accepted")),
-        ("opted-out", _("opted out")),
-        ("bounced", _("bounced")),
-    )
+    STATUS = REFEREE_STATUS
 
 
 class Referee(RefereeMixin, Model):
@@ -811,9 +815,11 @@ class Referee(RefereeMixin, Model):
     )
     last_name = CharField(max_length=150, null=True, blank=True)
     has_testifed = BooleanField(null=True, blank=True)
-    testified_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     status = StateField(null=True, blank=True)
+    testified_at = MonitorField(
+        monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
+    )
 
     def __str__(self):
         return str(self.user or self.email)
@@ -823,7 +829,7 @@ class Referee(RefereeMixin, Model):
         return Invitation.objects.raw(
             "SELECT DISTINCT r.*, tm.id AS testimony_id FROM referee AS r JOIN account_emailaddress AS ae ON "
             "ae.email = r.email LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
-            "WHERE (r.user_id=%s OR ae.user_id=%s) AND has_testifed IS NULL",
+            "WHERE (r.user_id=%s OR ae.user_id=%s) AND status NOT IN ('testified', 'opted_out')",
             [user.id, user.id],
         )
 
@@ -1041,6 +1047,7 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.R:
             n = self.referee
             n.user = by
+            n.status = Referee.STATUS.accepted
             n.save()
             if self.status != self.STATUS.accepted:
                 t = Testimony.objects.create(referee=n)
@@ -1128,7 +1135,8 @@ class Testimony(Model):
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, request=None, by=None):
         self.referee.has_testifed = True
-        self.referee.testified_at = datetime.now()
+        self.referee.status = "testified"
+        # self.referee.testified_at = datetime.now()
         self.referee.save()
         pass
 

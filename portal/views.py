@@ -1793,6 +1793,7 @@ class TestimonyView(CreateUpdateView):
                 n.save()
             elif "turn_down" in self.request.POST:
                 n.referee.has_testifed = False
+                n.referee.status = "opted_out"
                 n.referee.save()
                 self.model.where(id=n.id).delete()
                 send_mail(
