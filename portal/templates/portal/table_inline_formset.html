@@ -46,7 +46,13 @@
 
         <tr>
           {% for field in form %}
-            {% include 'bootstrap4/field.html' with tag="td" form_show_labels=False %}
+            {% if field.name == "status" %}
+              <td id="div_{{ field.auto_id }}" class="form-group align-middle text-center">
+                {% crispy_field field %}
+              </td>
+            {% else %}
+              {% include 'bootstrap4/field.html' with tag="td" form_show_labels=False field_class=field.field_class %}
+            {% endif %}
           {% endfor %}
         </tr>
 
