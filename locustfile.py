@@ -19,7 +19,7 @@ class QuickstartUser(HttpUser):
     def on_start(self):
         self.client.verify = False
         self.login()
-        self.add_orgs()
+        # self.add_orgs()
 
     def add_orgs(self, n=10):
         for _ in range(10):
@@ -87,16 +87,42 @@ class QuickstartUser(HttpUser):
     # def view_employment(self):
     #     self.client.get("/profile/employments/")
 
-    @task
-    def upate_employments(self):
-
+    def get_random_org_ids(self, k=7):
         while True:
             q = random.choice("0123456789abcdef")
             resp = self.client.get(f"/autocomplete/org/?q={q}")
             data = resp.json()
-            org_ids = random.choices([d["id"] for d in data["results"] if d["id"].isdigit()], k=7)
+            org_ids = random.choices([d["id"] for d in data["results"] if d["id"].isdigit()], k=k)
             if org_ids:
                 break
+        return org_ids
+
+    @task
+    def admin_organisations(self):
+        self.client.get(f"/admin/portal/organisation/?p={random.randint(1,100)}")
+
+    @task
+    def admin_organisations_add(self):
+        resp = self.client.get("/admin/portal/organisation/add/")
+        csrftoken = resp.cookies["csrftoken"]
+        self.client.post(
+            "/admin/portal/organisation/add/",
+            dict(
+                csrfmiddlewaretoken=csrftoken,
+                name=f"TEST {secrets.token_hex(8)}",
+                identifier_type="99",
+                identifier=secrets.token_hex(7),
+                code=secrets.token_hex(4),
+            ),
+            headers={
+                "X-CSRFToken": csrftoken,
+                "Referer": self.client.base_url + "/profile/employments/",
+            },
+        )
+
+    def upate_employments(self):
+
+        org_ids = self.get_random_org_ids()
 
         resp = self.client.get("/api/affiliations/")
         data = resp.json()
