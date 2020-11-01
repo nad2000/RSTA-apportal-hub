@@ -751,7 +751,22 @@ class Application(Model):
         db_table = "application"
 
 
-class Member(Model):
+MEMBER_STATUS = Choices(
+    ("sent", _("sent")),
+    ("accepted", _("accepted")),
+    ("authorized", _("authorized")),
+    ("opted_out", _("opted out")),
+    ("bounced", _("bounced")),
+)
+
+
+class MemberMixin:
+    """Workaround for simple history."""
+
+    STATUS = MEMBER_STATUS
+
+
+class Member(MemberMixin, Model):
     """Application team member."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
@@ -767,8 +782,11 @@ class Member(Model):
     last_name = CharField(max_length=150, null=True, blank=True)
     role = CharField(max_length=200, null=True, blank=True)
     has_authorized = BooleanField(null=True, blank=True)
-    authorized_at = DateField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    status = StateField(null=True, blank=True)
+    authorized_at = MonitorField(
+        monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
+    )
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.email})"
@@ -783,6 +801,11 @@ class Member(Model):
 
     class Meta:
         db_table = "member"
+
+
+simple_history.register(
+    Member, inherit=True, table_name="member_history", bases=[MemberMixin, Model]
+)
 
 
 REFEREE_STATUS = Choices(
