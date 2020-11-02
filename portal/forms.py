@@ -235,11 +235,19 @@ class ApplicationForm(forms.ModelForm):
         )
 
 
+class InvitationStatusInput(Widget):
+
+    template_name = "portal/widgets/invitation_status.html"
+
+
 class MemberForm(forms.ModelForm):
     class Meta:
         model = models.Member
-        fields = ["has_authorized", "email", "first_name", "middle_names", "last_name", "role"]
-        widgets = dict(has_authorized=NullBooleanSelect(attrs=dict(readonly=True)))
+        fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
+        widgets = dict(
+            has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
+            status=InvitationStatusInput(attrs={"readonly": True}),
+        )
 
 
 MemberFormSet = inlineformset_factory(
@@ -247,13 +255,7 @@ MemberFormSet = inlineformset_factory(
 )
 
 
-class InvitationStatusInput(Widget):
-
-    template_name = "portal/widgets/invitation_status.html"
-
-
 class RefereeForm(forms.ModelForm):
-
     class Meta:
         model = models.Referee
         fields = ["status", "email", "first_name", "middle_names", "last_name"]

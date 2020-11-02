@@ -1018,6 +1018,7 @@ class Invitation(Model):
                 "You are invited to provide a testimonial for %(inviter)s's application to "
                 "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
             ) % dict(inviter=by, url=url)
+
         if self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
@@ -1039,7 +1040,7 @@ class Invitation(Model):
                 % url
             )
 
-        send_mail(
+        resp = send_mail(
             subject,
             body,
             by.email if by else settings.DEFAULT_FROM_EMAIL,
@@ -1049,6 +1050,16 @@ class Invitation(Model):
             reply_to=settings.DEFAULT_FROM_EMAIL,
             invitation=self,
         )
+
+        if self.type == INVITATION_TYPES.T:
+            if self.member:
+                self.member.status = REFEREE_STATUS.sent
+                self.member.save()
+        elif self.type == INVITATION_TYPES.R:
+            if self.referee:
+                self.referee.status = REFEREE_STATUS.sent
+                self.referee.save()
+        return resp
 
     @transition(
         field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.accepted
