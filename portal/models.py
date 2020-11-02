@@ -865,9 +865,23 @@ simple_history.register(
 )
 
 
-class Panellist(Model):
+PANELLIST_STATUS = Choices(
+    ("sent", _("sent")),
+    ("accepted", _("accepted")),
+    ("bounced", _("bounced")),
+)
+
+
+class PanellistMixin:
+    """Workaround for simple history."""
+
+    STATUS = PANELLIST_STATUS
+
+
+class Panellist(PanellistMixin, Model):
     """Round Panellist."""
 
+    status = StateField(null=True, blank=True)
     round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
@@ -894,6 +908,11 @@ class Panellist(Model):
 
     class Meta:
         db_table = "panellist"
+
+
+simple_history.register(
+    Panellist, inherit=True, table_name="panellist_history", bases=[PanellistMixin, Model]
+)
 
 
 class ConflictOfInterest(Model):
@@ -1071,6 +1090,7 @@ class Invitation(Model):
             by = request.user
         if self.type == INVITATION_TYPES.T:
             m = self.member
+            m.status = MEMBER_STATUS.accepted
             m.user = by
             m.save()
         elif self.type == INVITATION_TYPES.A:
@@ -1079,35 +1099,26 @@ class Invitation(Model):
                 n.user = by
                 n.save()
         elif self.type == INVITATION_TYPES.R:
-            n = self.referee
-            n.user = by
-            n.status = Referee.STATUS.accepted
-            n.save()
+            r = self.referee
+            r.user = by
+            r.status = Referee.STATUS.accepted
+            r.save()
             if self.status != self.STATUS.accepted:
-                t = Testimony.objects.create(referee=n)
+                t = Testimony.objects.create(referee=r)
                 t.save()
                 referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
-            n = self.panellist
-            n.user = by
-            n.save()
+            p = self.panellist
+            p.status = PANELLIST_STATUS.accepted
+            p.user = by
+            p.save()
 
     @transition(
         field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
     )
     def bounce(self, request=None, by=None):
-        body = (
-            _(
-                "We are sorry to have to inform you that your invitation message could not be delivered to %s."
-            )
-            % self.email
-        )
-        if self.type == INVITATION_TYPES.R and self.referee:
-            self.referee.status = Referee.STATUS.bounced
-            self.referee.save()
-            url = reverse("application-update", kwargs={"pk": self.application.id})
-            url += "?referees=1"
+        def get_absolute_uri(request, url):
             if request:
                 url = request.build_absolute_uri(url)
             elif self.url:
@@ -1115,6 +1126,37 @@ class Invitation(Model):
                 url = urljoin(f"{pr.scheme}://{pr.netloc}", url)
             else:
                 url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+            return url
+
+        body = (
+            _(
+                "We are sorry to have to inform you that your invitation message could not be delivered to %s."
+            )
+            % self.email
+        )
+        url = None
+
+        if self.type == INVITATION_TYPES.R and self.referee:
+            self.referee.status = REFEREE_STATUS.bounced
+            self.referee.save()
+            url = get_absolute_uri(
+                request,
+                reverse("application-update", kwargs={"pk": self.application.id}) + "?referees=1",
+            )
+        elif self.type == INVITATION_TYPES.T and self.member:
+            self.member = MEMBER_STATUS.bounced
+            self.member.save()
+            url = get_absolute_uri(
+                request, reverse("application-update", kwargs={"pk": self.application.id})
+            )
+        elif self.type == INVITATION_TYPES.P and self.panellist:
+            self.panellist.status = PANELLIST_STATUS.bounced
+            self.panellist.save()
+            url = get_absolute_uri(
+                request, reverse("panellist-invite", kwargs={"round": self.round.id})
+            )
+
+        if url:
             body += (
                 "\n\n" + _("Please correct the email address to resend the invitation: %s") % url
             )

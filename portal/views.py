@@ -1,5 +1,5 @@
 import io
-from datetime import datetime, timedelta
+from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
 
@@ -499,9 +499,8 @@ def invite_team_members(request, application):
     # members that don't have invitations
     count = 0
     members = list(
-        models.Member.objects.select_related("invitation").extra(
-            tables=["invitation"],
-            where=["invitation.id IS NULL or member.email != invitation.email"],
+        models.Member.where(
+            ~Q(invitation__email=F("email")) | Q(status="sent") | Q(status__isnull=True)
         )
     )
     for m in members:
@@ -524,7 +523,7 @@ def invite_referee(request, application):
     count = 0
     # referees = list(models.Referee.where(application=application, invitation__isnull=True))
     # referees = list(models.Referee.where(invitation__isnull=True))
-    referees = list(models.Referee.where(~Q(invitation__email=F('email'))))
+    referees = list(models.Referee.where(~Q(invitation__email=F("email"))))
     for r in referees:
         get_or_create_referee_invitation(r, by=request.user)
 
@@ -745,10 +744,12 @@ class ApplicationDetail(DetailView):
         ).first()
         if "authorize_team_lead" in request.POST:
             member.has_authorized = True
-            member.authorized_at = datetime.now()
+            member.status = models.MEMBER_STATUS.authorized
+            # member.authorized_at = datetime.now()
             member.save()
         elif "turn_down" in request.POST:
             member.has_authorized = False
+            member.status = models.MEMBER_STATUS.opted_out
             member.save()
             send_mail(
                 _("A team member opted out of application"),
@@ -2032,6 +2033,7 @@ class TestimonyExportView(ExportView, TestimonyDetail):
 
 class PanellistView(LoginRequiredMixin, ModelFormSetView):
     model = models.Panellist
+    form_class = forms.PanellistForm
     formset_class = forms.PanellistFormSet
     template_name = "panellist.html"
     exclude = ("user",)
@@ -2069,6 +2071,7 @@ class PanellistView(LoginRequiredMixin, ModelFormSetView):
                 "panellist": HiddenInput(),
                 "DELETE": Submit("submit", "DELETE"),
                 "round": HiddenInput(),
+                "status": forms.InvitationStatusInput(),
             }
         )
         kwargs["widgets"] = widgets
@@ -2173,6 +2176,13 @@ class ConflictOfInterestView(CreateUpdateView):
         members = models.Member.where(application_id=application_id)
         context["object"] = application
         context["members"] = members
-        context["include"] = ["number", "application_title", "team_name", "email", "first_name", "last_name"]
+        context["include"] = [
+            "number",
+            "application_title",
+            "team_name",
+            "email",
+            "first_name",
+            "last_name",
+        ]
         context["member_include"] = ["first_name", "last_name", "email"]
         return context
