@@ -46,6 +46,7 @@
   <script>
     function activateRefereeTab() {
       document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new invitation(s)' %}";
+      document.getElementById("submit-id-save_draft").name = "send_invitations";
       document.getElementById("submit-id-submit").hidden = true;
       document.getElementById("cancel").hidden = true;
     }
@@ -119,6 +120,7 @@
       $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
       $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
         document.getElementById("submit-id-save_draft").value = "{% trans 'Save Draft' %}";
+        document.getElementById("submit-id-save_draft").name = "save_draft";
         document.getElementById("submit-id-submit").hidden = false;
         document.getElementById("cancel").hidden = false;
       });

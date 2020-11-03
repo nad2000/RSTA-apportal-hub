@@ -855,7 +855,7 @@ class ApplicationView(LoginRequiredMixin):
             if referees.is_valid():
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
-                if has_deleted:
+                if has_deleted or "send_invitations" in self.request.POST:
                     url = self.request.path_info.split("?")[0] + "?referees=1"
                 referees.save()
                 count = invite_referee(self.request, self.object)
@@ -881,9 +881,11 @@ class ApplicationView(LoginRequiredMixin):
                 if "submit" in self.request.POST:
                     a.submit(request=self.request)
                     a.save()
-                elif "save_draft" in self.request.POST:
+                elif "save_draft" in self.request.POST or "send_invitations" in self.request.POST:
                     a.save_draft(request=self.request)
                     a.save()
+                    if "send_invitations" in self.request.POST:
+                        return HttpResponseRedirect(url)
             except Exception as e:
                 messages.error(self.request, str(e))
                 return HttpResponseRedirect(self.request.get_full_path())
