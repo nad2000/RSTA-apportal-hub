@@ -1081,6 +1081,10 @@ class Invitation(Model):
             if self.referee:
                 self.referee.status = REFEREE_STATUS.sent
                 self.referee.save()
+        elif self.type == INVITATION_TYPES.P:
+            if self.panellist:
+                self.panellist.status = PANELLIST_STATUS.sent
+                self.panellist.save()
         return resp
 
     @transition(
