@@ -100,6 +100,9 @@ DJANGO_APPS = [
     "modeltranslation",
     "dal",
     "dal_select2",
+    # https://github.com/maykinmedia/django-admin-index
+    # "django_admin_index",
+    # "ordered_model",
     # 'grappelli',
     "django.contrib.admin",
     "django.forms",
