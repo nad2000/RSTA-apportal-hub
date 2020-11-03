@@ -752,6 +752,7 @@ class Application(Model):
 
 
 MEMBER_STATUS = Choices(
+    (None, None),
     ("sent", _("sent")),
     ("accepted", _("accepted")),
     ("authorized", _("authorized")),
@@ -809,6 +810,7 @@ simple_history.register(
 
 
 REFEREE_STATUS = Choices(
+    (None, None),
     ("sent", _("sent")),
     ("accepted", _("accepted")),
     ("testified", _("testified")),
@@ -866,6 +868,7 @@ simple_history.register(
 
 
 PANELLIST_STATUS = Choices(
+    (None, None),
     ("sent", _("sent")),
     ("accepted", _("accepted")),
     ("bounced", _("bounced")),

@@ -1,15 +1,18 @@
 {% load static i18n %}
 <div class="align-middle text-center">
 
-{% if widget.value == 'accepted' %}
-  <i class="fa fa-envelope-open text-success text-center" aria-hidden="true"
-     data-toggle="tooltip" title="{% trans 'The referee has accepted your invitation to testify' %}"></i>
+{% if widget.value == 'sent' %}
+  <i class="far fa-envelope text-success text-center" aria-hidden="true"
+     data-toggle="tooltip" title="{% trans 'The invitation was sent' %}"></i>
+{% elif widget.value == 'accepted' %}
+  <i class="far fa-envelope-open text-success text-center" aria-hidden="true"
+     data-toggle="tooltip" title="{% trans 'The user has accepted your invitation' %}"></i>
 {% elif widget.value == 'testified' or widget.value == 'authorized' %}
   <i class="fa fa-check-circle text-success text-center" aria-hidden="true"
      data-toggle="tooltip" title="{% trans 'The referee has submitted a testimony' %}"></i>
 {% elif widget.value == 'opted-out' or widget.value == 'opted_out' %}
 <i class="fa fa-ban text-danger text-center" aria-hidden="true"
-                                                              data-toggle="tooltip" title="{% trans 'The referee has opted out to participate in reviewing of your application'%}"></i>
+  data-toggle="tooltip" title="{% trans 'The referee has opted out to participate in reviewing of your application'%}"></i>
 {% elif widget.value == 'bounced' %}
 <i class="fa fa-exclamation-triangle text-danger text-center" aria-hidden="true"
   data-toggle="tooltip" title="{% trans 'The invitation delivery failed. Please correct the email addres and resend the invitation.'%}"></i>
