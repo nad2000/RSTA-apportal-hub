@@ -78,7 +78,7 @@
   {% for scheme in schemes %}
 
   <div class="row">
-    <dic class="col mb-3">
+    <div class="col mb-3">
     <div class="card">
       <h5 class="card-header">
         {% trans "The Prime Minister's" %}
@@ -110,6 +110,7 @@
             {% trans "Show" %} <b>{% trans "Details" %}</b>
           </button>
         {% endif %}
+
         {% if scheme.current_round %}
           {% if request.user.can_apply %}
             {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
@@ -171,7 +172,7 @@
           </span>
         {% endif %}
       </div>
-    </dic>
+    </div>
     </div>
   </div>
 

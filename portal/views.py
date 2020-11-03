@@ -603,10 +603,7 @@ def invite_panellist(request, round):
     """Send invitations to all panellists."""
     count = 0
     panellist = list(
-        models.Panellist.objects.select_related("invitation").extra(
-            tables=["invitation"],
-            where=["invitation.id IS NULL or panellist.email != invitation.email"],
-        )
+        models.Panellist.where(~Q(invitation__email=F("email")) | Q(status__isnull=True))
     )
     for p in panellist:
         get_or_create_panellist_invitation(p)
