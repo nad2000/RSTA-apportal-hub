@@ -27,12 +27,16 @@
           <table class=" table searchable no-border">
             <tbody>
               <tr>
-                <td><b> {% trans 'UserName' %}: </b></td>
-                <td>{{ user_data.username|default_if_none:"" }}</td>
+                <td><b> {% trans 'Name' %}: </b></td>
+                <td>{{ user_data.full_name|default_if_none:"" }}</td>
               </tr>
               <tr>
-                <td><b> {% trans 'OrcidId' %}: </b></td>
+                <td><b> {% trans 'ORCiD iD' %}: </b></td>
                 <td>{{ user_data.orcid|default_if_none:"" }}</td>
+              </tr>
+              <tr>
+                <td><b> {% trans 'Username' %}: </b></td>
+                <td>{{ user_data.username|default_if_none:"" }}</td>
               </tr>
             </tbody>
           </table>
