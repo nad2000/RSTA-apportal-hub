@@ -396,11 +396,19 @@ class Affiliation(Model):
         db_table = "affiliation"
 
 
+def validate_bod(value):
+    if value and value >= date.today():
+        raise ValidationError(
+            _("Date of birth cannnot be in the future: %(value)s"),
+            params={"value": value},
+        )
+
+
 class Profile(Model):
 
     user = OneToOneField(User, on_delete=CASCADE)
     gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
-    date_of_birth = DateField(null=True, blank=True)
+    date_of_birth = DateField(null=True, blank=True, validators=[validate_bod])
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     is_ethnicities_completed = BooleanField(default=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)

@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 
 from crispy_forms.bootstrap import Tab, TabHolder
@@ -30,8 +31,16 @@ from . import models
 from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
 
 DateInput = partial(
-    forms.DateInput, attrs={"class": "form-control datepicker", "type": "text"}, format="%Y-%m-%d"
+    forms.DateInput,
+    attrs={
+        "class": "form-control datepicker",
+        "type": "text",
+        "data-date-end-date": datetime.date.today().isoformat(),
+    },
+    format="%Y-%m-%d",
 )
+
+
 YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", "type": "text"})
 # FileInput = partial(FileInput, attrs={"class": "custom-file-input", "type": "file"})
 # FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
