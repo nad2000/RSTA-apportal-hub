@@ -1442,7 +1442,7 @@ class Nomination(Model):
 
     # Nominee personal data
     title = CharField(max_length=40, null=True, blank=True)
-    email = EmailField("email address")
+    email = EmailField(_("email address"), help_text=_("Email address of the nominee"))
     first_name = CharField(max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -1453,7 +1453,12 @@ class Nomination(Model):
     )
     last_name = CharField(max_length=150)
     org = ForeignKey(
-        Organisation, null=True, blank=True, on_delete=CASCADE, verbose_name=_("organisation")
+        Organisation,
+        null=True,
+        blank=True,
+        on_delete=CASCADE,
+        verbose_name=_("organisation"),
+        help_text=_("Organisation of the nominee"),
     )
 
     nominator = ForeignKey(User, on_delete=CASCADE, related_name="nominations")
