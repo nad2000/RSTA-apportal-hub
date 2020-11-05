@@ -186,6 +186,9 @@ class ProfileAdmin(SimpleHistoryAdmin):
         CurriculumVitaeInline,
     ]
 
+    def view_on_site(self, obj):
+        return obj.get_absolute_url()
+
 
 @admin.register(models.Application)
 class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
@@ -201,6 +204,9 @@ class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
         model = models.Referee
 
     inlines = [MemberInline, RefereeInline]
+
+    def view_on_site(self, obj):
+        return obj.get_absolute_url()
 
 
 admin.site.register(models.Award)

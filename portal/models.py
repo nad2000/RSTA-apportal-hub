@@ -721,7 +721,7 @@ class Application(Model):
         return title
 
     def get_absolute_url(self):
-        return reverse("application", kwargs={"pk": self.pk})
+        return reverse("application", args=[str(self.id)])
 
     @classmethod
     def user_applications(cls, user, state=None):
