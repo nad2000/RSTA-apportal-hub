@@ -21,7 +21,7 @@ from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput, Widget, inlineformset_factory
 from django.forms.models import modelformset_factory
-from django.forms.widgets import NullBooleanSelect
+from django.forms.widgets import NullBooleanSelect, TextInput
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django_select2.forms import ModelSelect2MultipleWidget
@@ -54,6 +54,10 @@ class Submit(BaseInput):
     def __init__(self, *args, **kwargs):
         self.field_classes = "btn" if "css_class" in kwargs else "btn btn-primary"
         super().__init__(*args, **kwargs)
+
+
+class TelInput(TextInput):
+    input_type = "tel"
 
 
 class TableInlineFormset(LayoutObject):
@@ -169,7 +173,23 @@ class ApplicationForm(forms.ModelForm):
             Row(Column("position"), Column("org")),
             "postal_address",
             Row(Column("city"), Column("postcode")),
-            Row(Column("daytime_phone"), Column("mobile_phone")),
+            # Row(Column("daytime_phone"), Column("mobile_phone")),
+            Row(
+                Column(
+                    Field(
+                        "daytime_phone",
+                        pattern="\+?[0-9- ]+",
+                        placeholder="e.g., +64 4 472 7421",
+                    )
+                ),
+                Column(
+                    Field(
+                        "mobile_phone",
+                        pattern="\+?[0-9-]+",
+                        placeholder="e.g., +64 4 472 7421",
+                    )
+                ),
+            ),
             # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
         round = (
@@ -252,6 +272,8 @@ class ApplicationForm(forms.ModelForm):
                 attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
             # summary=SummernoteWidget(),
+            daytime_phone=TelInput(),
+            mobile_phone=TelInput(),
             summary=SummernoteInplaceWidget(),
             summary_en=SummernoteInplaceWidget(),
             summary_mi=SummernoteInplaceWidget(),

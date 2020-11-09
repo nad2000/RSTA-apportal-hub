@@ -633,9 +633,9 @@ class Application(Model):
     postal_address = CharField(max_length=120)
     city = CharField(max_length=80)
     postcode = CharField(max_length=4)
-    daytime_phone = CharField("daytime phone number", max_length=12, null=True, blank=True)
-    mobile_phone = CharField("mobile phone number", max_length=12, null=True, blank=True)
-    email = EmailField("email address", blank=True)
+    daytime_phone = CharField(_("daytime phone number"), max_length=24, null=True, blank=True)
+    mobile_phone = CharField(_("mobile phone number"), max_length=24, null=True, blank=True)
+    email = EmailField(_("email address"), blank=True)
     is_bilingual_summary = BooleanField(default=False)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
