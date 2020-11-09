@@ -178,14 +178,14 @@ class ApplicationForm(forms.ModelForm):
                 Column(
                     Field(
                         "daytime_phone",
-                        pattern="\+?[0-9- ]+",
+                        pattern=r"\+?[0-9- ]+",
                         placeholder="e.g., +64 4 472 7421",
                     )
                 ),
                 Column(
                     Field(
                         "mobile_phone",
-                        pattern="\+?[0-9-]+",
+                        pattern=r"\+?[0-9-]+",
                         placeholder="e.g., +64 4 472 7421",
                     )
                 ),

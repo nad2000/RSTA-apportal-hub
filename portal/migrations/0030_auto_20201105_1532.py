@@ -19,7 +19,28 @@ class Migration(migrations.Migration):
             model_name="application",
             name="daytime_phone",
             field=models.CharField(
-                blank=True, max_length=12, null=True, verbose_name="daytime phone number"
+                blank=True, max_length=24, null=True, verbose_name="daytime phone number"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="application",
+            name="mobile_phone",
+            field=models.CharField(
+                blank=True, max_length=24, null=True, verbose_name="mobile phone number"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="historicalapplication",
+            name="daytime_phone",
+            field=models.CharField(
+                blank=True, max_length=24, null=True, verbose_name="daytime phone number"
+            ),
+        ),
+        migrations.AlterField(
+            model_name="historicalapplication",
+            name="mobile_phone",
+            field=models.CharField(
+                blank=True, max_length=24, null=True, verbose_name="mobile phone number"
             ),
         ),
         migrations.AlterField(
@@ -32,13 +53,6 @@ class Migration(migrations.Migration):
                 storage=private_storage.storage.files.PrivateFileSystemStorage(),
                 upload_to="",
                 verbose_name="filled-in entry form",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="application",
-            name="mobile_phone",
-            field=models.CharField(
-                blank=True, max_length=12, null=True, verbose_name="mobile phone number"
             ),
         ),
         migrations.AlterField(
@@ -55,13 +69,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="historicalapplication",
-            name="daytime_phone",
-            field=models.CharField(
-                blank=True, max_length=12, null=True, verbose_name="daytime phone number"
-            ),
-        ),
-        migrations.AlterField(
-            model_name="historicalapplication",
             name="file",
             field=models.TextField(
                 blank=True,
@@ -69,13 +76,6 @@ class Migration(migrations.Migration):
                 max_length=100,
                 null=True,
                 verbose_name="filled-in entry form",
-            ),
-        ),
-        migrations.AlterField(
-            model_name="historicalapplication",
-            name="mobile_phone",
-            field=models.CharField(
-                blank=True, max_length=12, null=True, verbose_name="mobile phone number"
             ),
         ),
         migrations.AlterField(
