@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% load static i18n account socialaccount %}
 
-{% block localcss %}
+{#% block localcss %}
   {{ block.super }}
   <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
-{% endblock %}
+{% endblock %#}
 
 {% block sidebar %}{% endblock sidebar %}
 {% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
