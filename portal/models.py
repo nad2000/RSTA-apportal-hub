@@ -368,6 +368,9 @@ class Organisation(Model):
     def __str__(self):
         return self.name
 
+    def get_code(self):
+        return self.code or default_organisation_code(self.name)
+
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = default_organisation_code(self.name)
@@ -658,7 +661,7 @@ class Application(Model):
     def save(self, *args, **kwargs):
         if not self.number:
             code = self.round.scheme.code
-            org_code = self.org.code
+            org_code = self.org.get_code()
             year = f"{self.round.opens_on.year}"
             last_number = (
                 Application.where(
