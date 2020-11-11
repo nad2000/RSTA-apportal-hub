@@ -748,15 +748,16 @@ class ApplicationDetail(DetailView):
             member.has_authorized = False
             member.status = models.MEMBER_STATUS.opted_out
             member.save()
-            send_mail(
-                _("A team member opted out of application"),
-                _("Your team member %s has opted out of application") % member,
-                settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[self.object.submitted_by.email],
-                fail_silently=False,
-                request=self.request,
-                reply_to=settings.DEFAULT_FROM_EMAIL,
-            )
+            if self.object.submitted_by.email:
+                send_mail(
+                    _("A team member opted out of application"),
+                    _("Your team member %s has opted out of application") % member,
+                    settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[self.object.submitted_by.email],
+                    fail_silently=False,
+                    request=self.request,
+                    reply_to=settings.DEFAULT_FROM_EMAIL,
+                )
 
         return self.get(request, *args, **kwargs)
 
