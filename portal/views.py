@@ -224,7 +224,7 @@ def round_detail(request, round):
     total_applications = sum(a["total"] for a in applications)
 
     nominations = (
-        models.Nomination.where(round=round).values("state").annotate(total=Count("state"))
+        models.Nomination.where(round=round).values("status").annotate(total=Count("status"))
     )
     total_nominations = sum(n["total"] for n in nominations)
 
@@ -464,7 +464,7 @@ class ProfileCreate(ProfileView, CreateView):
     def get_initial(self):
         initial = super().get_initial()
         n = (
-            models.Nomination.where(user=self.request.user, state="submitted")
+            models.Nomination.where(user=self.request.user, status="submitted")
             .order_by("-id")
             .first()
         )
@@ -1843,11 +1843,11 @@ class NominationList(LoginRequiredMixin, SingleTableView):
         u = self.request.user
         if not u.is_superuser or not u.is_staff:
             queryset = queryset.filter(nominator=u)
-        state = self.request.path.split("/")[-1]
-        if state == "draft":
-            queryset = queryset.filter(state__in=[state, "new"])
-        elif state == "submitted":
-            queryset = queryset.filter(state=state)
+        status = self.request.path.split("/")[-1]
+        if status == "draft":
+            queryset = queryset.filter(status__in=[status, "new"])
+        elif status == "submitted":
+            queryset = queryset.filter(status=status)
         return queryset
 
 

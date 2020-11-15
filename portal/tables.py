@@ -1,5 +1,7 @@
 import django_tables2 as tables
 from django.shortcuts import reverse
+from django.utils.html import mark_safe
+from django.utils.translation import gettext as _
 
 from . import models
 
@@ -15,17 +17,54 @@ class SubscriptionTable(tables.Table):
         )
 
 
+class StatusColumn(tables.Column):
+
+    attrs = {
+        "td": {
+            "data-toggle": "tooltip",
+            "title": lambda record: {
+                "sent": _("The invitation was sent"),
+                "accepted": _("The invitation was accepted"),
+                "testified": _("The application was submitted"),
+                "opted_out": _("The invitee has turned down the nomination"),
+            }.get(
+                record.status,
+                _("The invitation has not been processed yet or it is in draft version"),
+            ),
+            "class": "align-middle text-center",
+        }
+    }
+
+    def render(self, value):
+        if not value or value in ["new", "draft"]:
+            css_classes = "far fa-plus-square text-success text-center"
+        elif value == "sent":
+            css_classes = "far fa-envelope text-success text-center"
+        elif value == "accepted":
+            css_classes = "far fa-envelope-open text-success text-center"
+        elif value == "testified":
+            css_classes = "fa fa-check-circle text-success text-center"
+        elif value == "opted_out":
+            css_classes = "fa fa-ban text-danger text-center"
+        elif value == "bounced":
+            css_classes = "fa fa-exclamation-triangle text-danger text-center"
+
+        return mark_safe(f'<i class="{css_classes}" aria-hidden="true"></i>')
+
+
 class NominationTable(tables.Table):
 
     round = tables.Column(
-        linkify=lambda record: record.get_absolute_url() if record.state != "submitted" else None
+        linkify=lambda record: record.get_absolute_url() if record.status != "submitted" else None
     )
+    status = StatusColumn()
 
     class Meta:
         model = models.Nomination
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped"}
         fields = (
+            "status",
             "round",
             "email",
             "first_name",

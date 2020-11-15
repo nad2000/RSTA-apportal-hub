@@ -1439,7 +1439,24 @@ class SchemeApplication(Model):
         ordering = ["title"]
 
 
-class Nomination(Model):
+NOMINATION_STATUS = Choices(
+    (None, None),
+    ("new", _("new")),
+    ("draft", _("draft")),
+    ("sent", _("sent")),
+    ("submitted", _("submitted")),
+    ("accepted", _("accepted")),
+    ("bounced", _("bounced")),
+)
+
+
+class NominationMixin:
+    """Workaround for simple history."""
+
+    STATUS = NOMINATION_STATUS
+
+
+class Nomination(NominationMixin, Model):
 
     round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="nominations")
 
@@ -1481,13 +1498,18 @@ class Nomination(Model):
         Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
     )
 
-    state = FSMField(default="new")
+    # state = FSMField(default="new")
+    status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 
-    @transition(field=state, source="new", target="draft")
+    @transition(field=status, source=NOMINATION_STATUS.new, target=NOMINATION_STATUS.draft)
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
+    @transition(
+        field=status,
+        source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft, NOMINATION_STATUS.submitted],
+        target=NOMINATION_STATUS.submitted,
+    )
     def submit(self, *args, **kwargs):
         i, created = Invitation.get_or_create(
             type=INVITATION_TYPES.A,
@@ -1516,6 +1538,11 @@ class Nomination(Model):
 
     class Meta:
         db_table = "nomination"
+
+
+simple_history.register(
+    Nomination, inherit=True, table_name="nomination_history", bases=[NominationMixin, Model]
+)
 
 
 class IdentityVerification(Model):
