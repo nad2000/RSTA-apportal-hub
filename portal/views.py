@@ -31,7 +31,13 @@ from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django_tables2 import SingleTableView
-from extra_views import InlineFormSetFactory, ModelFormSetView
+from extra_views import (
+    CreateWithInlinesView,
+    InlineFormSetFactory,
+    InlineFormSetView,
+    ModelFormSetView,
+    UpdateWithInlinesView,
+)
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from sentry_sdk import last_event_id
@@ -2186,3 +2192,25 @@ class ConflictOfInterestView(CreateUpdateView):
         ]
         context["member_include"] = ["first_name", "last_name", "email"]
         return context
+
+
+class ScoreInline(InlineFormSetFactory):
+    model = models.Score
+    # fields = ['sku', 'price', 'name']
+    fields = ["criterion", "value", "comment",]
+
+# class EditEvaluation(InlineFormSetView):
+#     model = models.Evaluation
+#     inline_model = models.Score
+
+
+class CreateEvaluation(CreateWithInlinesView):
+    model = models.Evaluation
+    inlines = [ScoreInline]
+    fields = ["file", ]
+
+
+class UpdateEvaluation(UpdateWithInlinesView):
+    model = models.Evaluation
+    inlines = [ScoreInline]
+    fields = ["file", ]

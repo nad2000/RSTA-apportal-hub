@@ -1380,6 +1380,33 @@ class Criterion(Model):
         verbose_name_plural = _("criteria")
 
 
+class Evaluation(Model):
+    """Evaluation Score Sheet"""
+    panellist = ForeignKey(Panellist, on_delete=CASCADE, related_name="evaluations")
+    application = ForeignKey(Application, on_delete=CASCADE, related_name="evaluations")
+    file = PrivateFileField(
+        blank=True,
+        null=True,
+        verbose_name=_("Score sheet"),
+        help_text=_("Please upload completed application evaluation score sheet"),
+        upload_subfolder=lambda instance: ["score-sheet", hash_int(instance.application.code)],
+    )
+    scores = ManyToManyField(Criterion, blank=True, through="Score")
+
+    class Meta:
+        db_table = "evaluation"
+
+
+class Score(Model):
+    evaluation = ForeignKey(Evaluation, on_delete=CASCADE)
+    criterion = ForeignKey(Criterion, on_delete=CASCADE, related_name="scores")
+    value = PositiveIntegerField(_("Score"), default=0)
+    comment = TextField(null=True, default=True)
+
+    class Meta:
+        db_table = "score"
+
+
 class SchemeApplicationGroup(Base):
     scheme = ForeignKey(
         "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"

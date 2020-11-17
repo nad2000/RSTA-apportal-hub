@@ -26,6 +26,11 @@ urlpatterns = [
         include(
             [
                 path(
+                    "<int:application>/evaluation/~create",
+                    views.CreateEvaluation.as_view(),
+                    name="application-evaluation-create",
+                ),
+                path(
                     "<int:round>/~create",
                     views.ApplicationCreate.as_view(),
                     name="application-create",
