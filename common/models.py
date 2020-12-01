@@ -1,6 +1,7 @@
 from django.db.models import DateTimeField
 from django.db.models import Model as Base
 from model_utils import Choices
+from django.urls import reverse
 
 SEX_CHOICES = Choices("female", "male", "other")
 
@@ -63,6 +64,9 @@ class Model(TimeStampMixin, HelperMixin, Base):
 
     # TODO: figure out how to make generic table naming:
     # history = HistoricalRecords(inherit=True)
+
+    def get_absolute_url(self):
+        return reverse(self._meta.db_table.replace("_", "-"), args=[str(self.id)])
 
     class Meta:
         abstract = True

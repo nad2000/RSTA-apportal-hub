@@ -52,6 +52,10 @@ urlpatterns = [
             ]
         ),
     ),
+    path("evaluation/", include([
+        path("<int:pk>", views.EvaluationDetail.as_view(), name="evaluation"),
+        path("<int:pk>/~update", views.UpdateEvaluation.as_view(), name="evaluation-update"),
+    ])),
     path("myprofile/", views.user_profile, name="my-profile"),
     path("account/", views.AccountView.as_view(), name="account"),
     path(

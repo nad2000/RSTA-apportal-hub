@@ -29,6 +29,7 @@ from django.db.models import (
     PositiveSmallIntegerField,
     Q,
     TextField,
+    SmallIntegerField,
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -462,8 +463,8 @@ class Profile(Model):
 
     @property
     def protection_patterns(self):
-        return ProtectionPatternProfile.objects.filter(code__in=[3, 4, 5, 6, 7, 8, 9]).filter(
-            Q(profile=self) | Q(profile_id__isnull=True)
+        return ProtectionPatternProfile.where(
+            Q(code__in=[3, 4, 5, 6, 7, 8, 9]), Q(profile=self) | Q(profile_id__isnull=True)
         )
 
     def __str__(self):
@@ -657,6 +658,14 @@ class Application(Model):
     )
 
     state = FSMField(default="new")
+
+    def get_score_entries(self, user=None, panellist=None):
+        if not panellist:
+            panellist = Panellist.get(user=user, round=self.round)
+        return self.round.criteria.filter(
+            Q(scores__evaluation__panellist=panellist)
+            | Q(scores__evaluation__panellist__isnull=True)
+        ).prefetch_related("scores")
 
     def save(self, *args, **kwargs):
         if not self.number:
@@ -1373,35 +1382,89 @@ class Criterion(Model):
     round = ForeignKey(Round, on_delete=CASCADE, related_name="criteria")
     definition = TextField(max_length=200)
     comment = BooleanField(default=True, help_text=_("The panelist should comment their score"))
-    scale = PositiveSmallIntegerField(null=True, blank=True)
+    min_score = PositiveSmallIntegerField(default=0)
+    max_score = PositiveSmallIntegerField(default=10)
+    scale = SmallIntegerField(null=True, blank=True)
 
     class Meta:
         db_table = "criterion"
         verbose_name_plural = _("criteria")
 
+    def __str__(self):
+        return self.definition
 
-class Evaluation(Model):
+
+class EvaluationMixin:
+
+    STATUS = Choices(
+        (None, None),
+        ("new", _("new")),
+        ("draft", _("draft")),
+        ("submitted", _("submitted")),
+        ("accepted", _("accepted")),
+    )
+
+
+class Evaluation(EvaluationMixin, Model):
     """Evaluation Score Sheet"""
+
     panellist = ForeignKey(Panellist, on_delete=CASCADE, related_name="evaluations")
     application = ForeignKey(Application, on_delete=CASCADE, related_name="evaluations")
-    file = PrivateFileField(
-        blank=True,
-        null=True,
-        verbose_name=_("Score sheet"),
-        help_text=_("Please upload completed application evaluation score sheet"),
-        upload_subfolder=lambda instance: ["score-sheet", hash_int(instance.application.code)],
-    )
+    # file = PrivateFileField(
+    #     blank=True,
+    #     null=True,
+    #     verbose_name=_("Score sheet"),
+    #     help_text=_("Please upload completed application evaluation score sheet"),
+    #     upload_subfolder=lambda instance: ["score-sheet", hash_int(instance.application.code)],
+    # )
+    comment = TextField(_("Overall Comment"), null=True, blank=True)
     scores = ManyToManyField(Criterion, blank=True, through="Score")
+    total_score = PositiveIntegerField(_("Total Score"), default=0)
+    state = StateField(null=True, blank=True, default="new")
+
+    def calc_evaluation_score(self):
+        return sum(
+            s.value * s.criterion.scale if s.criterion.scale else s.value
+            for s in Score.where(evaluation=self)
+        )
+
+    @transition(field=state, source=["draft", "new"], target="draft")
+    def save_draft(self, *args, **kwargs):
+        breakpoint()
+        self.total_score = self.calc_evaluation_score()
+
+    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
+    def submit(self, *args, **kwargs):
+        breakpoint()
+        self.total_score = self.calc_evaluation_score()
+        if not self.file and not self.summary:
+            raise Exception(
+                _(
+                    "The application is not completed. Missing summary "
+                    "and/or uploaded application form"
+                )
+            )
+
+    def __str__(self):
+        return _("Evaluation of %s by %s") % (self.application, self.panellist)
 
     class Meta:
         db_table = "evaluation"
+
+
+simple_history.register(
+    Evaluation, inherit=True, table_name="evaluation_history", bases=[EvaluationMixin, Model]
+)
 
 
 class Score(Model):
     evaluation = ForeignKey(Evaluation, on_delete=CASCADE)
     criterion = ForeignKey(Criterion, on_delete=CASCADE, related_name="scores")
     value = PositiveIntegerField(_("Score"), default=0)
-    comment = TextField(null=True, default=True)
+    comment = TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.criterion.definition
 
     class Meta:
         db_table = "score"
@@ -1525,7 +1588,6 @@ class Nomination(NominationMixin, Model):
         Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
     )
 
-    # state = FSMField(default="new")
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 
     @transition(field=status, source=NOMINATION_STATUS.new, target=NOMINATION_STATUS.draft)

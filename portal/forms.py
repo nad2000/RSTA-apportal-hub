@@ -652,3 +652,52 @@ class ConflictOfInterestForm(forms.ModelForm):
         ]
 
         widgets = dict(comment=SummernoteInplaceWidget(), has_conflict=forms.CheckboxInput())
+
+
+class CriterionWidget(Widget):
+    # input_type = 'radio'
+    template_name = "portal/widgets/criterion.html"
+    # option_template_name = 'django/forms/widgets/radio_option.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value:
+            context["value_label"] = self.choices.queryset.filter(id=value).first().definition
+        return context
+
+
+class ScoreForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # breakpoint()
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        self.helper.form_tag = False
+        fields = [
+            Field("criterion"),
+            Field("value"),
+        ]
+        criterion = self.instance.criterion if hasattr(self.instance, "criterion") else self.initial.get("criterion")
+        if criterion:
+            self.fields["comment"].required = criterion.comment
+            self.comment_required = criterion.comment
+            # breakpoint()
+            if criterion.comment:
+                fields.append(Field("comment", required=True))
+            else:
+                fields.append(Field("comment"))
+        self.helper.layout = Layout(*fields)
+
+    class Meta:
+        model = models.Score
+        fields = [
+            "criterion",
+            "value",
+            "comment",
+        ]
+        widgets = dict(
+            criterion=CriterionWidget(),
+        )

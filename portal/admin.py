@@ -214,6 +214,7 @@ admin.site.register(models.Member)
 admin.site.register(models.Referee)
 admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
+admin.site.register(models.Score)
 
 
 @admin.register(models.MailLog)
@@ -286,3 +287,17 @@ class RoundAdmin(ImportExportModelAdmin):
         model = models.Criterion
 
     inlines = [CriterionInline, PanellistInline]
+
+
+@admin.register(models.Evaluation)
+class EvaluationAdmin(SimpleHistoryAdmin):
+    class ScoreInline(admin.StackedInline):
+        extra = 0
+        model = models.Score
+
+    inlines = [
+        ScoreInline,
+    ]
+
+#     def view_on_site(self, obj):
+#         return obj.get_absolute_url()

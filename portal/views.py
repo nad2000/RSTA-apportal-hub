@@ -15,7 +15,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Q, Subquery
-from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
+from django.forms import (
+    BooleanField,
+    DateInput,
+    Form,
+    HiddenInput,
+    RadioSelect,
+    TextInput,
+)
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -30,11 +37,11 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from django_summernote.widgets import SummernoteInplaceWidget
 from django_tables2 import SingleTableView
 from extra_views import (
     CreateWithInlinesView,
     InlineFormSetFactory,
-    InlineFormSetView,
     ModelFormSetView,
     UpdateWithInlinesView,
 )
@@ -2195,22 +2202,129 @@ class ConflictOfInterestView(CreateUpdateView):
 
 
 class ScoreInline(InlineFormSetFactory):
+
     model = models.Score
-    # fields = ['sku', 'price', 'name']
-    fields = ["criterion", "value", "comment",]
+    form_class = forms.ScoreForm
+    factory_kwargs = {
+        "max_num": None,
+        "can_order": False,
+        "can_delete": False,
+        "widgets": dict(
+            criterion=forms.CriterionWidget(),
+            # criterion=RadioSelect(attrs={"disabled": "disabled"}),
+            # criterion=HiddenInput()
+        ),
+    }
+    fields = [
+        "criterion",
+        "value",
+        "comment",
+    ]
+
+    def get_entries(self):
+        a = models.Application.get(self.kwargs.get("application"))
+        return a.get_score_entries(user=self.request.user).distinct()
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        if "application" in self.kwargs and self.request.method == "GET":
+            kwargs["extra"] = self.get_entries().count()
+        else:
+            kwargs["extra"] = 0
+        return kwargs
+
+    def get_initial(self):
+        if "application" in self.kwargs and self.request.method == "GET":
+            return [dict(criterion=e, value=0) for e in self.get_entries()]
+        return super().get_initial()
+
 
 # class EditEvaluation(InlineFormSetView):
 #     model = models.Evaluation
 #     inline_model = models.Score
 
 
-class CreateEvaluation(CreateWithInlinesView):
+class EvaluationMixin:
     model = models.Evaluation
-    inlines = [ScoreInline]
-    fields = ["file", ]
+    inline_model = models.Score
+    inlines = [
+        ScoreInline,
+    ]
+    fields = [
+        # "file",
+        "comment",
+    ]
+    widgets = dict(
+        comment=SummernoteInplaceWidget(),
+    )
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        if "save_draft" in self.request.POST:
+            self.object.save_draft()
+        else:
+            self.object.submit()
+        self.object.save()
+        return resp
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["application"] = (
+            models.Application.get(self.kwargs.get("application"))
+            if "application" in kwargs
+            else self.object.application
+        )
+        return data
 
 
-class UpdateEvaluation(UpdateWithInlinesView):
+class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesView):
+
+    def form_valid(self, form):
+        a = models.Application.get(self.kwargs.get("application"))
+        p = models.Panellist.where(round=a.round, user=self.request.user).first()
+        self.object.application = a
+        self.object.panellist = p
+        return super().form_valid(form)
+
+
+class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesView):
+
+    pass
+
+
+class EvaluationDetail(DetailView):
+
     model = models.Evaluation
-    inlines = [ScoreInline]
-    fields = ["file", ]
+    # template_name = "application_detail.html"
+
+    # def post(self, request, *args, **kwargs):
+
+    #     self.object = self.get_object()
+    #     member = self.object.members.filter(
+    #         has_authorized__isnull=True, user=self.request.user
+    #     ).first()
+    #     if "authorize_team_lead" in request.POST:
+    #         member.has_authorized = True
+    #         member.status = models.MEMBER_STATUS.authorized
+    #         # member.authorized_at = datetime.now()
+    #         member.save()
+    #     elif "turn_down" in request.POST:
+    #         member.has_authorized = False
+    #         member.status = models.MEMBER_STATUS.opted_out
+    #         member.save()
+    #         if self.object.submitted_by.email:
+    #             send_mail(
+    #                 _("A team member opted out of application"),
+    #                 _("Your team member %s has opted out of application") % member,
+    #                 settings.DEFAULT_FROM_EMAIL,
+    #                 recipient_list=[self.object.submitted_by.email],
+    #                 fail_silently=False,
+    #                 request=self.request,
+    #                 reply_to=settings.DEFAULT_FROM_EMAIL,
+    #             )
+
+    #     return self.get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
