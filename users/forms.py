@@ -40,25 +40,27 @@ class UserSignupForm(allauth_forms.SignupForm):
 
     # def signup(self, request, user):
     def custom_signup(self, request, user):
-
         user.is_approved = False
         user.save()
-        url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
-        html_body = render_to_string(
-            "account/email_approve_user.html", {"approval_url": url, "user": user}
-        )
-        admin_users = User.where(is_staff=True)
-        admin_emails = []
-        for u in admin_users:
-            admin_emails.append(u.email)
-        send_mail(
-            _("[Prime Minister's Science Prizes] New User Signed up to join the portal"),
-            "",
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list=admin_emails,
-            fail_silently=False,
-            html_message=html_body,
-        )
+        if '/onboard/' in request.POST.get('next'):
+            request.session["account_verified_email"] = user.email
+        else:
+            url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
+            html_body = render_to_string(
+                "account/email_approve_user.html", {"approval_url": url, "user": user}
+            )
+            admin_users = User.where(is_staff=True)
+            admin_emails = []
+            for u in admin_users:
+                admin_emails.append(u.email)
+            send_mail(
+                _("[Prime Minister's Science Prizes] New User Signed up to join the portal"),
+                "",
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=admin_emails,
+                fail_silently=False,
+                html_message=html_body,
+            )
         return user
 
 

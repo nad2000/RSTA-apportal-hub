@@ -33,7 +33,7 @@
 
               <input type="hidden"
                      name="{{ redirect_field_name }}"
-                     value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
+                     value="{% if redirect_field_value %}{{ redirect_field_value }}{% endif %}" />
 
               <!-- div class="avatar">
                 <img src="{% static 'images/avatar.png' %}" alt="Avatar" />
@@ -102,7 +102,7 @@
         <form id="signup_form" class="login-form" method="post" action="{% url 'account_signup' %}">
           {% csrf_token %}
           <input type="hidden" name="{{ redirect_field_name }}"
-                               value="{% url 'onboard' %}{% if redirect_field_value %}?next={{ redirect_field_value }}{% endif %}" />
+                               value="{% if redirect_field_value %}{{ redirect_field_value }}{% endif %}" />
 
           <a title="Google"
              class="btn btn-lg btn-google btn-block"
