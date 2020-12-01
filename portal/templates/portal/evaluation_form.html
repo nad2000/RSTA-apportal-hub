@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags static i18n crispy_forms_field %}
+
+{% block title %}{{ application }}{% endblock %}
+
+{% block content %}
+
+<form method="post">
+
+  {% csrf_token %}
+  {{ form.comment | as_crispy_field }}
+
+  {% for formset in inlines %}
+    {{ formset.management_form }}
+    <table class="table" style="width: 100%;">
+      <thead>
+        <tr>
+          <th>{% trans 'Criterion' %}</th>
+          <th>{% trans 'Score' %}<span class="asteriskField">*</span></th>
+          <th>{% trans 'Comment' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+          <tr>
+            <td class="form-group" style="max-width: 40%;">
+              {% crispy_field form.criterion %}
+            </td>
+            <td class="form-group" style="max-width: 4pc; min-width: 4pc;">
+              {% crispy_field form.value %}
+            </td>
+            <td class="form-group" style="max-width: 40%;">
+              {% crispy_field form.comment %}
+              {% if form.comment_required %}<span class="asteriskField">*</span>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+
+  <div class="buttonHolder">
+    <input type="submit" name="save_draft"
+      value="{% trans 'Save Draft' %}" class="btn btn btn-primary" id="submit-id-save_draft">
+    <input type="submit" name="submit" value="{% trans 'Submit' %}"
+      class="btn btn btn-outline-primary" id="submit-id-submit">
+    <a href="/applications/23" type="button" role="button" class="btn btn-secondary" id="cancel">
+      {% trans 'Cancel' %}
+    </a>
+  </div>
+
+</form>
+
+{% endblock %}
