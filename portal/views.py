@@ -15,14 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Q, Subquery
-from django.forms import (
-    BooleanField,
-    DateInput,
-    Form,
-    HiddenInput,
-    RadioSelect,
-    TextInput,
-)
+from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -2235,7 +2228,7 @@ class ScoreInline(InlineFormSetFactory):
 
     def get_initial(self):
         if "application" in self.kwargs and self.request.method == "GET":
-            return [dict(criterion=e, value=0) for e in self.get_entries()]
+            return [dict(criterion=e, value=e.min_score) for e in self.get_entries()]
         return super().get_initial()
 
 
@@ -2278,7 +2271,6 @@ class EvaluationMixin:
 
 
 class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesView):
-
     def form_valid(self, form):
         a = models.Application.get(self.kwargs.get("application"))
         p = models.Panellist.where(round=a.round, user=self.request.user).first()
