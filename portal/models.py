@@ -28,8 +28,8 @@ from django.db.models import (
     PositiveIntegerField,
     PositiveSmallIntegerField,
     Q,
-    TextField,
     SmallIntegerField,
+    TextField,
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
