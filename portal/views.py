@@ -2293,6 +2293,7 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
 
 
 class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesView):
+
     def get(self, *args, **kwargs):
         resp = super().get(*args, **kwargs)
         if self.object.state == "submitted":

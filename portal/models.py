@@ -1430,12 +1430,10 @@ class Evaluation(EvaluationMixin, Model):
 
     @transition(field=state, source=["draft", "new"], target="draft")
     def save_draft(self, *args, **kwargs):
-        breakpoint()
         self.total_score = self.calc_evaluation_score()
 
     @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
-        breakpoint()
         self.total_score = self.calc_evaluation_score()
         if not self.file and not self.summary:
             raise Exception(
