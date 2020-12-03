@@ -2271,6 +2271,19 @@ class EvaluationMixin:
 
 
 class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesView):
+    def get(self, *args, **kwargs):
+        if "application" in self.kwargs:
+            e = models.Evaluation.where(
+                application=self.kwargs.get("application"), panellist__user=self.request.user
+            ).first()
+            if e:
+                messages.warning(
+                    self.request,
+                    _("Evaluation scoring was already created"),
+                )
+                return redirect(reverse("evaluation-update", kwargs=dict(pk=e.id)))
+        return super().get(*args, **kwargs)
+
     def form_valid(self, form):
         a = models.Application.get(self.kwargs.get("application"))
         p = models.Panellist.where(round=a.round, user=self.request.user).first()
@@ -2280,8 +2293,19 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
 
 
 class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesView):
+    def get(self, *args, **kwargs):
+        resp = super().get(*args, **kwargs)
+        if self.object.state == "submitted":
+            messages.error(
+                self.request,
+                _(
+                    "Evaluation has been already submitted. "
+                    "It cannot be changed after it was submitted"
+                ),
+            )
+            return redirect(reverse("evaluation", kwargs=dict(pk=kwargs.get("pk"))))
 
-    pass
+        return resp
 
 
 class EvaluationDetail(DetailView):
