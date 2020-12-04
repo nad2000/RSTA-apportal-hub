@@ -129,14 +129,17 @@ class RoundTable(tables.Table):
         )
 
 
+def application_review_link(table, record):
+
+    return reverse(
+        "round-application-review",
+        kwargs={"round_id": record.round.id, "application_id": record.id},
+    )
+
+
 class RoundApplicationTable(tables.Table):
 
-    number = tables.Column(
-        linkify=lambda record: reverse(
-            "round-application-review",
-            kwargs={"round_id": record.round.id, "application_id": record.id},
-        )
-    )
+    number = tables.Column(linkify=application_review_link)
 
     class Meta:
         model = models.Application

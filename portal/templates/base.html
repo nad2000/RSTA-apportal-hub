@@ -253,15 +253,15 @@
         {% endif %}
 
         {% if formset.errors %}
+          {% include "formset_errors.html" %}
+        {% endif %}
 
-          {% for error in formset.errors %}
-            <div class="alert alert-danger">{{ error }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+        {% if inlines %}
+          {% for formset in inlines %}
+            {% if formset.errors %}
+              {% include "formset_errors.html" %}
+            {% endif %}
           {% endfor %}
-
-          {% for form in formset.forms %}
-            {% if form.errors %}{% include "form_errors.html" %}{% endif %}
-          {% endfor %}
-
         {% endif %}
 
         {% block page %}

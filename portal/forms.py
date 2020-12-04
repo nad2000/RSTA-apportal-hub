@@ -668,10 +668,11 @@ class CriterionWidget(Widget):
 
 class ScoreForm(forms.ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    value = forms.TypedChoiceField(choices=zip(range(1, 10), range(1, 10)))
 
-        # breakpoint()
+    def __init__(self, *args, **kwargs):
+        self.value = forms.TypedChoiceField(choices=range(10))
+        super().__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
@@ -680,15 +681,26 @@ class ScoreForm(forms.ModelForm):
             Field("criterion"),
             Field("value"),
         ]
-        criterion = self.instance.criterion if hasattr(self.instance, "criterion") else self.initial.get("criterion")
+        criterion = (
+            self.instance.criterion
+            if hasattr(self.instance, "criterion")
+            else self.initial.get("criterion")
+        )
         if criterion:
             self.fields["comment"].required = criterion.comment
             self.comment_required = criterion.comment
-            # breakpoint()
             if criterion.comment:
                 fields.append(Field("comment", required=True))
             else:
                 fields.append(Field("comment"))
+        self.fields["value"] = forms.TypedChoiceField(
+            choices=zip(
+                range(criterion.min_score, criterion.max_score + 1),
+                range(criterion.min_score, criterion.max_score + 1),
+            )
+            if criterion
+            else zip(range(11), range(11))
+        )
         self.helper.layout = Layout(*fields)
 
     class Meta:

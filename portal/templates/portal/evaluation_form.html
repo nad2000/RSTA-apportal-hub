@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags static i18n crispy_forms_field %}
+{% block localcss %}
+  {{ block.super }}
+<style>
+select {padding-right: 1px;}
+option {direction: rtl;}
+</style>
+{% endblock %}
+
 
 {% block title %}{{ application }}{% endblock %}
 
 {% block content %}
-
-  {% if form.errors %}
-    <p>get error</p>
-        {{form.errors}}
-  {% endif %}
 
 <form method="post">
 
@@ -27,26 +30,18 @@
       </thead>
       <tbody>
 
-          {% if formset.errors %}
-            <tr>
-              <td>
-                <p>get error</p> {{formset.errors}}
-              </td>
-            </tr>
-          {% endif %}
-
         {% for form in formset %}
           {% crispy_field form.id %}
           <tr>
-            <td class="form-group" style="max-width: 40%;">
+            <td class="form-group" style="width: 30%; max-width: 20pc;">
               {% crispy_field form.criterion %}
             </td>
-            <td class="form-group" style="max-width: 4pc; min-width: 4pc;">
+            <td class="form-group" style="width: 6pc;">
               {% crispy_field form.value %}
             </td>
-            <td class="form-group" style="max-width: 40%;">
+            <td class="form-group" style="max-width: 60%;">
               {% crispy_field form.comment %}
-              {% if form.comment_required %}<span class="asteriskField">*</span>{% endif %}
+              {% if form.comment_required %}<span class="asteriskField">* {% trans 'Commenting is mandatory' %}</span>{% endif %}
             </td>
           </tr>
         {% endfor %}
