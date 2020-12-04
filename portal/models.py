@@ -1352,8 +1352,24 @@ class Round(Model):
                 self.title = f"{self.title} {self.opens_on.year}"
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
         scheme = self.scheme
+        created_new = not(self.id)
+        if created_new:
+            last_round = Round.where(scheme=scheme).order_by("-id").first()
+
+        super().save(*args, **kwargs)
+
+        if created_new and last_round:
+            for c in last_round.criteria.all():
+                Criterion.create(
+                    round=self,
+                    definition=c.definition,
+                    comment=c.comment,
+                    min_score=c.min_score,
+                    max_score=c.max_score,
+                    scale=c.scale,
+                )
+
         if not scheme.current_round:
             scheme.current_round = self
             scheme.save(update_fields=["current_round"])
