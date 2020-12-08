@@ -47,8 +47,9 @@ class UserSignupForm(allauth_forms.SignupForm):
         is_invited = False
         if token:
             try:
-                check_invitation_url = request.build_absolute_uri(reverse("check-invitation",
-                                                                          kwargs=dict(email=user.email, token=token)))
+                check_invitation_url = request.build_absolute_uri(
+                    reverse("invitationi-check", kwargs=dict(email=user.email, token=token))
+                )
                 is_invited = requests.get(check_invitation_url, verify=False).json().get("result")
             except:
                 pass
@@ -56,9 +57,12 @@ class UserSignupForm(allauth_forms.SignupForm):
         if is_invited:
             request.session["account_verified_email"] = user.email
         else:
-            url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
+            url = request.build_absolute_uri(
+                reverse("profile-summary", kwargs=dict(user_id=user.id))
+            )
             html_body = render_to_string(
-                "account/email_approve_user.html", {"approval_url": url, "email": user.email, "username": user.username}
+                "account/email_approve_user.html",
+                {"approval_url": url, "email": user.email, "username": user.username},
             )
             admin_users = User.where(is_staff=True)
             admin_emails = []

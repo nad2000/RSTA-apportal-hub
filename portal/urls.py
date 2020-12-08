@@ -193,8 +193,15 @@ urlpatterns = [
             ]
         ),
     ),
-    path("invitation/~create", views.InvitationCreate.as_view(), name="invitation-create"),
-    path("checkInvitation/<token>/<email>", views.invitation_exists, name="check-invitation"),
+    path(
+        "invitation/",
+        include(
+            [
+                path("~create", views.InvitationCreate.as_view(), name="invitation-create"),
+                path("~check/<token>/<email>", views.invitation_exists, name="invitation-check"),
+            ]
+        ),
+    ),
     path("panellist/<int:round>/~invite", views.PanellistView.as_view(), name="panellist-invite"),
     path("round/<int:round>", views.round_detail, name="round-detail"),
     path(

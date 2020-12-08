@@ -35,7 +35,6 @@ from django_tables2 import SingleTableView
 from extra_views import (
     CreateWithInlinesView,
     InlineFormSetFactory,
-    InlineFormSetView,
     ModelFormSetView,
     UpdateWithInlinesView,
 )
@@ -337,7 +336,7 @@ def check_profile(request, token=None):
 def invitation_exists(request, email=None, token=None):
     try:
         models.Invitation.get(token=token, email=email)
-    except Exception as ex:
+    except:
         return HttpResponse(json.dumps({"result": False}), content_type="application/json")
     return HttpResponse(json.dumps({"result": True}), content_type="application/json")
 
