@@ -1,3 +1,4 @@
+import requests
 from allauth.account import forms as allauth_forms
 from captcha.fields import ReCaptchaField
 from django.conf import settings
@@ -40,25 +41,42 @@ class UserSignupForm(allauth_forms.SignupForm):
 
     # def signup(self, request, user):
     def custom_signup(self, request, user):
-
         user.is_approved = False
         user.save()
-        url = request.build_absolute_uri(reverse("profile-summary", kwargs=dict(user_id=user.id)))
-        html_body = render_to_string(
-            "account/email_approve_user.html", {"approval_url": url, "user": user}
-        )
-        admin_users = User.where(is_staff=True)
-        admin_emails = []
-        for u in admin_users:
-            admin_emails.append(u.email)
-        send_mail(
-            _("[Prime Minister's Science Prizes] New User Signed up to join the portal"),
-            "",
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list=admin_emails,
-            fail_silently=False,
-            html_message=html_body,
-        )
+        token = request.POST.get("next").split("/")[-1] if request.POST.get("next") else None
+        is_invited = False
+        if token:
+            try:
+                check_invitation_url = request.build_absolute_uri(
+                    reverse("invitationi-check", kwargs=dict(email=user.email, token=token))
+                )
+                is_invited = requests.get(check_invitation_url, verify=False).json().get("result")
+            except:
+                pass
+
+        if is_invited:
+            request.session["account_verified_email"] = user.email
+        else:
+            url = request.build_absolute_uri(
+                reverse("profile-summary", kwargs=dict(user_id=user.id))
+            )
+            html_body = render_to_string(
+                "account/email_approve_user.html",
+                {"approval_url": url, "email": user.email, "username": user.username},
+            )
+            admin_users = User.where(is_staff=True)
+            admin_emails = []
+            for u in admin_users:
+                admin_emails.append(u.email)
+
+            send_mail(
+                _(f"{settings.EMAIL_SUBJECT_PREFIX} New User Signed up to join the portal"),
+                "",
+                settings.DEFAULT_FROM_EMAIL,
+                recipient_list=admin_emails,
+                fail_silently=False,
+                html_message=html_body,
+            )
         return user
 
 

@@ -1,4 +1,5 @@
 import io
+import json
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
@@ -285,11 +286,17 @@ def test_task(req, message):
 
 @login_required
 def check_profile(request, token=None):
-
     next_url = request.GET.get("next")
     # TODO: refactor and move to the model the invitation handling:
     if token:
-        i = models.Invitation.get(token=token)
+        try:
+            i = models.Invitation.get(token=token, email=request.user.email)
+        except Exception as ex:
+            messages.warning(request, _(f"Unable to identify your invitation token: {ex} "
+                                        f"So your profile has not been approved by default, "
+                                        f"Admin is looking into your request. "
+                                        f"Approval will be based on you completing your below profile"))
+            return redirect(next_url or "home")
         u = User.get(request.user.id)
         if i.first_name and not u.first_name:
             u.first_name = i.first_name
@@ -297,6 +304,7 @@ def check_profile(request, token=None):
             u.middle_names = i.middle_names
         if i.last_name and not u.last_name:
             u.last_name = i.last_name
+        u.is_approved = True
         u.save()
         if i.email and u.email != i.email:
             ea, created = EmailAddress.objects.get_or_create(
@@ -324,6 +332,14 @@ def check_profile(request, token=None):
             + "?next="
             + (quote(next_url) if next_url else reverse("home"))
         )
+
+
+def invitation_exists(request, email=None, token=None):
+    try:
+        models.Invitation.get(token=token, email=email)
+    except:
+        return HttpResponse(json.dumps({"result": False}), content_type="application/json")
+    return HttpResponse(json.dumps({"result": True}), content_type="application/json")
 
 
 @login_required
@@ -1672,7 +1688,6 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         """Get the profile summary of user"""
 
         context = super().get_context_data(**kwargs)
-
         user = self.user
         profile = self.user.profile
 
@@ -1715,8 +1730,11 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
         """Get query set"""
         try:
             self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
+            if self.user and self.user.profile:
+                return self.user
         except:
-            raise Http404(_("No Profile summary found"))
+            raise Http404(_("No Profile summary found or User haven't completed his/her Profile. "
+                            "Please come back again!"))
         return self.user
 
 
