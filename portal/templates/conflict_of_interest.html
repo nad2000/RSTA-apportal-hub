@@ -3,6 +3,11 @@
 {% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 {% load i18n tags %}
 
+{% block css %}
+  {{ block.super }}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block content_header %}
   {# { round|title } #}
   {% trans 'Statement of Conflict of Interest' %}
@@ -55,4 +60,10 @@
       {% endblocktrans %}
     </div>
   {% endif %}
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
 {% endblock %}

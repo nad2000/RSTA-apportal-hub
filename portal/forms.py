@@ -46,6 +46,15 @@ YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", 
 # FileInput = partial(FileInput, attrs={"class": "custom-file-input"})
 
 
+class OppositeBooleanField(forms.BooleanField):
+    def prepare_value(self, value):
+        return not value  # toggle the value when loaded from the model
+
+    def to_python(self, value):
+        value = super(OppositeBooleanField, self).to_python(value)
+        return not value  # toggle the incoming value from form submission
+
+
 class Submit(BaseInput):
     """Submit button."""
 
@@ -620,13 +629,18 @@ class PanellistFormSetHelper(FormHelper):
 
 
 class ConflictOfInterestForm(forms.ModelForm):
+
+    has_conflict = OppositeBooleanField(
+            label=_("No Conflict of Interest"),
+            required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
         fields = [
-            Field("has_conflict"),
+            Field("has_conflict", data_toggle="toggle", template="portal/toggle.html"),
             Field("comment"),
         ]
         self.helper.layout = Layout(
