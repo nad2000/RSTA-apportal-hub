@@ -292,10 +292,15 @@ def check_profile(request, token=None):
         try:
             i = models.Invitation.get(token=token, email=request.user.email)
         except Exception as ex:
-            messages.warning(request, _(f"Unable to identify your invitation token: {ex} "
-                                        f"So your profile has not been approved by default, "
-                                        f"Admin is looking into your request. "
-                                        f"Approval will be based on you completing your below profile"))
+            messages.warning(
+                request,
+                _(
+                    f"Unable to identify your invitation token: {ex} "
+                    f"So your profile has not been approved by default, "
+                    f"Admin is looking into your request. "
+                    f"Approval will be based on you completing your below profile"
+                ),
+            )
             return redirect(next_url or "home")
         u = User.get(request.user.id)
         if i.first_name and not u.first_name:
@@ -1733,8 +1738,12 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
             if self.user and self.user.profile:
                 return self.user
         except:
-            raise Http404(_("No Profile summary found or User haven't completed his/her Profile. "
-                            "Please come back again!"))
+            raise Http404(
+                _(
+                    "No Profile summary found or User haven't completed his/her Profile. "
+                    "Please come back again!"
+                )
+            )
         return self.user
 
 
@@ -2311,7 +2320,6 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
 
 
 class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesView):
-
     def get(self, *args, **kwargs):
         resp = super().get(*args, **kwargs)
         if self.object.state == "submitted":
@@ -2363,3 +2371,39 @@ class EvaluationDetail(DetailView):
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     return context
+
+
+class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
+    model = models.ConflictOfInterest
+    exclude = ["panellist"]
+
+    def get_queryset(self):
+        round_id = self.kwargs["round"]
+        return (
+            super()
+            .get_queryset()
+            .filter(application__round=round_id, panellist__user=self.request.user)
+        )
+
+    def get_initial_queryset(self):
+        return models.Application.where(
+            ~Q(round__applications__conflict_of_interests__panellist__user=1),
+            round=self.kwargs["round"],
+        ).filter(round__applications__conflict_of_interests__panellist__user__isnull=True)
+
+    def get_initial(self):
+        if "round" in self.kwargs and self.request.method == "GET":
+            return [
+                dict(application=a)
+                for a in self.get_initial_queryset()
+            ]
+        return super().get_initial()
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs["extra"] = self.get_queryset().count() + self.get_initial_queryset().count()
+        # if "application" in self.kwargs and self.request.method == "GET":
+        #     kwargs["extra"] = self.get_entries().count()
+        # else:
+        #     kwargs["extra"] = 0
+        return kwargs

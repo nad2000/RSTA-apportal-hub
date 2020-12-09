@@ -207,7 +207,10 @@ urlpatterns = [
         ),
     ),
     path("panellist/<int:round>/~invite", views.PanellistView.as_view(), name="panellist-invite"),
-    path("round/<int:round>", views.round_detail, name="round-detail"),
+    path("round/<int:round>/", include([
+        path("", views.round_detail, name="round-detail"),
+        path("coi", views.RoundConflictOfInterestFormSetView.as_view(), name="round-coi"),
+    ])),
     path(
         "nominations/",
         include(
