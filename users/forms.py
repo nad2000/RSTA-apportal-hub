@@ -48,7 +48,7 @@ class UserSignupForm(allauth_forms.SignupForm):
         if token:
             try:
                 check_invitation_url = request.build_absolute_uri(
-                    reverse("invitationi-check", kwargs=dict(email=user.email, token=token))
+                    reverse("invitation-check", kwargs=dict(email=user.email, token=token))
                 )
                 is_invited = requests.get(check_invitation_url, verify=False).json().get("result")
             except:
