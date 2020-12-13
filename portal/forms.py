@@ -630,9 +630,7 @@ class PanellistFormSetHelper(FormHelper):
 
 class ConflictOfInterestForm(forms.ModelForm):
 
-    has_conflict = OppositeBooleanField(
-            label=_("No Conflict of Interest"),
-            required=True)
+    has_conflict = OppositeBooleanField(label=_("Conflict of Interest"), required=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -640,7 +638,15 @@ class ConflictOfInterestForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         fields = [
-            Field("has_conflict", data_toggle="toggle", template="portal/toggle.html"),
+            Field(
+                "has_conflict",
+                data_toggle="toggle",
+                template="portal/toggle.html",
+                data_on=_("No"),
+                data_off=_("Yes"),
+                data_onstyle="success",
+                data_offstyle="danger",
+            ),
             Field("comment"),
         ]
         self.helper.layout = Layout(
