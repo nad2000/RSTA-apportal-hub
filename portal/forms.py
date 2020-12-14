@@ -713,6 +713,7 @@ class ScoreForm(forms.ModelForm):
                 fields.append(Field("comment", required=True))
             else:
                 fields.append(Field("comment"))
+        self.fields['comment'].widget.attrs = {'rows': 5}
         self.fields["value"] = forms.TypedChoiceField(
             choices=zip(
                 range(criterion.min_score, criterion.max_score + 1),

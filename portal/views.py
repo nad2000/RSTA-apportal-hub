@@ -31,7 +31,6 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
-from django_summernote.widgets import SummernoteInplaceWidget
 from django_tables2 import SingleTableView
 from extra_views import (
     CreateWithInlinesView,
@@ -2231,8 +2230,6 @@ class ScoreInline(InlineFormSetFactory):
         "can_delete": False,
         "widgets": dict(
             criterion=forms.CriterionWidget(),
-            # criterion=RadioSelect(attrs={"disabled": "disabled"}),
-            # criterion=HiddenInput()
         ),
     }
     fields = [
@@ -2270,13 +2267,7 @@ class EvaluationMixin:
     inlines = [
         ScoreInline,
     ]
-    fields = [
-        # "file",
-        "comment",
-    ]
-    widgets = dict(
-        comment=SummernoteInplaceWidget(),
-    )
+    fields = ["comment"]
 
     def form_valid(self, form):
         resp = super().form_valid(form)
@@ -2393,10 +2384,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     def get_initial(self):
         if "round" in self.kwargs and self.request.method == "GET":
-            return [
-                dict(application=a)
-                for a in self.get_initial_queryset()
-            ]
+            return [dict(application=a) for a in self.get_initial_queryset()]
         return super().get_initial()
 
     def get_factory_kwargs(self):
