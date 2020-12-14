@@ -272,7 +272,8 @@ urlpatterns = [
             ]
         ),
     ),
-    path("", views.subscribe, name="comingsoon"),
+    # path("", views.subscribe, name="comingsoon"),
+    path("", views.index, name="root"),
     path("unsubscribe/<token>", views.unsubscribe, name="unsubscribe"),
     # path(
     #     "subscription/update/<int:pk>",
