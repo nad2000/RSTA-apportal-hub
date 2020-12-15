@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags static i18n crispy_forms_field %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
 {% block localcss %}
   {{ block.super }}
 <style>
@@ -12,7 +18,51 @@ option {direction: rtl;}
 {% block title %}{{ application }}{% endblock %}
 
 {% block content %}
-  {{ formset | crispy }}
+<form method="post">
+  {% csrf_token %}
+  {{ formset.management_form }}
+  <table class="table" style="width: 100%;">
+    <thead>
+      <tr>
+        <th>{% trans 'Applications' %}</th>
+        <th>{% trans 'Conflict of Interests' %}</th>
+        <th>{% trans 'Comment' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for form in formset %}
+        {{ form.id }}{{ form.panellist }}
+        <tr>
+          <td class="form-group" style="width: 30%; max-width: 20pc;">
+            {{ form.application }}
+          </td>
+          <td class="form-group" style="width: 6pc;">
+            {% crispy_field form.has_conflict 'data-toggle' 'toggle' 'data-on' yes_label 'data-off' no_label 'data-onstyle' 'danger' 'data-offstyle' 'success' %}
+          </td>
+          <td class="form-group" style="max-width: 60%;">
+            {% crispy_field form.comment %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="buttonHolder">
+    <input type="submit" name="save_draft"
+      value="{% trans 'Save' %}" class="btn btn btn-primary" id="submit-id-save_draft">
+    <a href="{% url 'home' %}" type="button" role="button" class="btn btn-secondary" id="cancel">
+      {% trans 'Cancel' %}
+    </a>
+    <a href="{% url 'export-score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-success" id="download-score-sheet">
+      {% trans 'Dowload Score Sheet' %}...
+    </a>
+  </div>
+</form>
 {% endblock %}
 
-
+{% block javascript %}
+  {{ block.super }}
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+{% endblock %}

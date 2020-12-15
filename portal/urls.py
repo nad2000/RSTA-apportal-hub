@@ -210,6 +210,7 @@ urlpatterns = [
     path("round/<int:round>/", include([
         path("", views.round_detail, name="round-detail"),
         path("coi", views.RoundConflictOfInterestFormSetView.as_view(), name="round-coi"),
+        path("scoresheet", views.export_score_sheet, name="export-score-sheet"),
     ])),
     path(
         "nominations/",

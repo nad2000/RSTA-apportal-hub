@@ -1,4 +1,5 @@
 import io
+import csv
 import json
 from datetime import timedelta
 from functools import wraps
@@ -16,7 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Q, Subquery
-from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
+from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput, ModelForm
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -2366,7 +2367,14 @@ class EvaluationDetail(DetailView):
 
 class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
     model = models.ConflictOfInterest
-    exclude = ["panellist"]
+    form_class = forms.RoundConflictOfInterestForm
+    exclude = []
+
+    def get_context_data(self, *args, **kwargs):
+        data = super().get_context_data(*args, **kwargs)
+        data["yes_label"] = _("Yes")
+        data["no_label"] = _("No")
+        return data
 
     def get_queryset(self):
         round_id = self.kwargs["round"]
@@ -2378,20 +2386,62 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     def get_initial_queryset(self):
         return models.Application.where(
-            ~Q(round__applications__conflict_of_interests__panellist__user=1),
+            ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
             round=self.kwargs["round"],
-        ).filter(round__applications__conflict_of_interests__panellist__user__isnull=True)
+        ).filter(round__applications__conflict_of_interests__panellist__user__isnull=True).distinct()
 
     def get_initial(self):
         if "round" in self.kwargs and self.request.method == "GET":
-            return [dict(application=a) for a in self.get_initial_queryset()]
+            panellist = models.Panellist.where(round=self.kwargs["round"], user=self.request.user).first()
+            return [dict(application=a, has_conflict=True, panellist=panellist) for a in self.get_initial_queryset()]
         return super().get_initial()
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
-        kwargs["extra"] = self.get_queryset().count() + self.get_initial_queryset().count()
+        kwargs["extra"] = self.get_initial_queryset().count()
         # if "application" in self.kwargs and self.request.method == "GET":
         #     kwargs["extra"] = self.get_entries().count()
         # else:
         #     kwargs["extra"] = 0
+        kwargs.update(
+            {
+                "widgets": {
+                    "application": forms.ReadOnlyApplicationWidget(),
+                    "panellist": forms.HiddenInput(),
+                    # "file": FileInput(),
+                },
+            }
+        )
         return kwargs
+
+
+@login_required
+def export_score_sheet(request, round):
+    r = models.Round.where(id=round).prefetch_related("criteria", "applications").first()
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="' + r.title + '.xls"'
+
+    writer = csv.writer(response)
+    headers = [
+        _("Proposal"),
+        _("Lead"),
+        _("Overall comment"),
+        _("Total"),
+    ]
+    for c in r.criteria.all():
+        headers.append(c.definition)
+        headers.append(f"{c.definition} Comment")
+    writer.writerow(headers)
+
+    for a in r.applications.all():
+        if not a.conflict_of_interests.all().filter(panellist__user=request.user, has_conflict=True).exists():
+            full_name = a.first_name
+            if a.middle_names:
+                full_name += f" {a.middle_names}"
+            full_name += f" {a.last_name}"
+            if a.title:
+                full_name = f"{a.title} {full_name}"
+
+            writer.writerow([a.number, full_name])
+
+    return response

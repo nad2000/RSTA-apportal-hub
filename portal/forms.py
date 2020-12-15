@@ -47,6 +47,7 @@ YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", 
 
 
 class OppositeBooleanField(forms.BooleanField):
+
     def prepare_value(self, value):
         return not value  # toggle the value when loaded from the model
 
@@ -630,7 +631,7 @@ class PanellistFormSetHelper(FormHelper):
 
 class ConflictOfInterestForm(forms.ModelForm):
 
-    has_conflict = OppositeBooleanField(label=_("Conflict of Interest"), required=True)
+    has_conflict = OppositeBooleanField(label=_("Conflict of Interest"), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -671,7 +672,7 @@ class ConflictOfInterestForm(forms.ModelForm):
             "has_conflict",
         ]
 
-        widgets = dict(comment=SummernoteInplaceWidget(), has_conflict=forms.CheckboxInput())
+        widgets = dict(comment=SummernoteInplaceWidget())
 
 
 class CriterionWidget(Widget):
@@ -683,6 +684,18 @@ class CriterionWidget(Widget):
         context = super().get_context(name, value, attrs)
         if value:
             context["value_label"] = self.choices.queryset.filter(id=value).first().definition
+        return context
+
+
+class ReadOnlyApplicationWidget(Widget):
+    # input_type = 'radio'
+    template_name = "portal/widgets/application.html"
+    # option_template_name = 'django/forms/widgets/radio_option.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        if value:
+            context["object"] = self.choices.queryset.filter(id=value).first()
         return context
 
 
@@ -713,7 +726,7 @@ class ScoreForm(forms.ModelForm):
                 fields.append(Field("comment", required=True))
             else:
                 fields.append(Field("comment"))
-        self.fields['comment'].widget.attrs = {'rows': 5}
+        self.fields["comment"].widget.attrs = {"rows": 5}
         self.fields["value"] = forms.TypedChoiceField(
             choices=zip(
                 range(criterion.min_score, criterion.max_score + 1),
@@ -733,4 +746,38 @@ class ScoreForm(forms.ModelForm):
         ]
         widgets = dict(
             criterion=CriterionWidget(),
+        )
+
+
+class RoundConflictOfInterestForm(forms.ModelForm):
+
+    has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
+
+    def form_valid(self, form):
+        resp = super().form_valid(form)
+        return resp
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["comment"].widget.attrs = {"rows": 5}
+
+        self.helper = FormHelper(self)
+        self.helper.include_media = False
+        fields = [
+            "application",
+            Field(
+                "has_conflict",
+                data_toggle="toggle",
+                template="portal/toggle.html",
+                data_on=_("Yes"),
+                data_off=_("No"),
+                data_onstyle="danger",
+                data_offstyle="success",
+            ),
+            "comment",
+            # Field("comment"),
+        ]
+        self.helper.layout = Layout(
+            *fields,
         )

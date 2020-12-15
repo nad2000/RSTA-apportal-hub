@@ -944,7 +944,7 @@ class ConflictOfInterest(Model):
         Panellist, null=True, blank=True, on_delete=CASCADE, related_name="conflict_of_interests"
     )
     application = ForeignKey(Application, on_delete=CASCADE, related_name="conflict_of_interests")
-    has_conflict = BooleanField(null=True, blank=True)
+    has_conflict = BooleanField(null=True, blank=True, default=True)
     comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
     statement_given_at = DateTimeField(auto_now_add=True, null=True, blank=True)
 
