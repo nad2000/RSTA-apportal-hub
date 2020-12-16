@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
-{% load render_table from django_tables2 %}
+{% load render_table export_url from django_tables2 %}
 
 {% block content %}
   {% render_table table %}
+
+  {% if view.export_formats %}
+    {% for format in view.export_formats %}
+      <a href="{% export_url format %}">
+          download  <code>.{{ format }}</code>
+      </a>
+    {% endfor %}
+  {% endif %}
+
 {% endblock %}

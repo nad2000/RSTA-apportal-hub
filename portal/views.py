@@ -32,6 +32,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
+from django_tables2.export import ExportMixin
 from django_tables2 import SingleTableView
 from extra_views import (
     CreateWithInlinesView,
@@ -2385,15 +2386,24 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         )
 
     def get_initial_queryset(self):
-        return models.Application.where(
-            ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
-            round=self.kwargs["round"],
-        ).filter(round__applications__conflict_of_interests__panellist__user__isnull=True).distinct()
+        return (
+            models.Application.where(
+                ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
+                round=self.kwargs["round"],
+            )
+            .filter(round__applications__conflict_of_interests__panellist__user__isnull=True)
+            .distinct()
+        )
 
     def get_initial(self):
         if "round" in self.kwargs and self.request.method == "GET":
-            panellist = models.Panellist.where(round=self.kwargs["round"], user=self.request.user).first()
-            return [dict(application=a, has_conflict=True, panellist=panellist) for a in self.get_initial_queryset()]
+            panellist = models.Panellist.where(
+                round=self.kwargs["round"], user=self.request.user
+            ).first()
+            return [
+                dict(application=a, has_conflict=True, panellist=panellist)
+                for a in self.get_initial_queryset()
+            ]
         return super().get_initial()
 
     def get_factory_kwargs(self):
@@ -2418,8 +2428,8 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 @login_required
 def export_score_sheet(request, round):
     r = models.Round.where(id=round).prefetch_related("criteria", "applications").first()
-    response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="' + r.title + '.xls"'
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = 'attachment; filename="' + r.title + '.xls"'
 
     writer = csv.writer(response)
     headers = [
@@ -2434,7 +2444,11 @@ def export_score_sheet(request, round):
     writer.writerow(headers)
 
     for a in r.applications.all():
-        if not a.conflict_of_interests.all().filter(panellist__user=request.user, has_conflict=True).exists():
+        if (
+            not a.conflict_of_interests.all()
+            .filter(panellist__user=request.user, has_conflict=True)
+            .exists()
+        ):
             full_name = a.first_name
             if a.middle_names:
                 full_name += f" {a.middle_names}"
@@ -2445,3 +2459,23 @@ def export_score_sheet(request, round):
             writer.writerow([a.number, full_name])
 
     return response
+
+
+class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, SingleTableView):
+
+    export_formats = ["csv"]
+    model = models.ConflictOfInterest
+    table_class = tables.RoundConflictOfInterstSatementTable
+    # template_name = "rounds_conflict_of_interest.html"
+    template_name = "table.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = self.model.where(application__round=self.kwargs.get("round")).select_related(
+            "application", "panellist"
+        )
+        for r in queryset:
+            yield dict(
+                number=r.application.number,
+                first_name=r.panellist.first_name or r.panellist.user.first_name,
+                last_name=r.panellist.last_name or r.panellist.user.last_name,
+            )

@@ -152,3 +152,20 @@ class RoundApplicationTable(tables.Table):
             "first_name",
             "last_name",
         )
+
+
+class RoundConflictOfInterstSatementTable(tables.Table):
+
+    number = tables.Column()
+    first_name = tables.Column()
+    last_name = tables.Column()
+
+    class Meta:
+        # model = models.ConflictOfInterest
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped"}
+        # fields = (
+        #     "number",
+        #     "first_name",
+        #     "last_name",
+        # )
