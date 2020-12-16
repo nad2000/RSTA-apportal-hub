@@ -726,7 +726,7 @@ class ScoreForm(forms.ModelForm):
                 fields.append(Field("comment", required=True))
             else:
                 fields.append(Field("comment"))
-        self.fields["comment"].widget.attrs = {"rows": 5}
+        self.fields["comment"].widget.attrs = {"rows": 3}
         self.fields["value"] = forms.TypedChoiceField(
             choices=zip(
                 range(criterion.min_score, criterion.max_score + 1),
@@ -760,7 +760,7 @@ class RoundConflictOfInterestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["comment"].widget.attrs = {"rows": 5}
+        self.fields["comment"].widget.attrs = {"rows": 3}
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
