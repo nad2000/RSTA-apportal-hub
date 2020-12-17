@@ -2463,19 +2463,36 @@ def export_score_sheet(request, round):
 
 class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, SingleTableView):
 
-    export_formats = ["csv"]
+    export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
     model = models.ConflictOfInterest
     table_class = tables.RoundConflictOfInterstSatementTable
     # template_name = "rounds_conflict_of_interest.html"
     template_name = "table.html"
 
+    @property
+    def title(self):
+        if "round" in self.kwargs:
+            return models.Round.get(self.kwargs.get("round")).title
+
+    @property
+    def export_name(self):
+        return models.Round.get(self.kwargs.get("round")).title if "round" in self.kwargs else "export"
+
     def get_queryset(self, *args, **kwargs):
         queryset = self.model.where(application__round=self.kwargs.get("round")).select_related(
             "application", "panellist"
         )
-        for r in queryset:
-            yield dict(
+        # for r in queryset:
+        #     yield dict(
+        #         number=r.application.number,
+        #         first_name=r.panellist.first_name or r.panellist.user.first_name,
+        #         last_name=r.panellist.last_name or r.panellist.user.last_name,
+        #     )
+        return [
+            dict(
                 number=r.application.number,
                 first_name=r.panellist.first_name or r.panellist.user.first_name,
                 last_name=r.panellist.last_name or r.panellist.user.last_name,
             )
+            for r in queryset
+        ]

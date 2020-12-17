@@ -1,15 +1,39 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load render_table export_url from django_tables2 %}
 
+{% block title %}
+  {% if view.title %}
+    {{ view.title }}
+  {% else %}
+    {{ super }}
+  {% endif %}
+{% endblock title %}
+
 {% block content %}
+
+  {% if view.title %}
+    <h1>{{ view.title }}</h1>
+  {% endif %}
+
   {% render_table table %}
 
   {% if view.export_formats %}
-    {% for format in view.export_formats %}
-      <a href="{% export_url format %}">
-          download  <code>.{{ format }}</code>
-      </a>
-    {% endfor %}
+    <form method="GET">
+      <div class="form-group row">
+        <div class="col" style="max-width: 7pc;">
+          <!-- label for="_export">{% trans 'Export Format' %}</label -->
+          <select class="form-control"  name="_export" id="_export">
+            {% for format in view.export_formats %}
+              <option value="{{ format }}">{{ format }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col">
+          <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
+        </div>
+      </div>
+    </form>
   {% endif %}
 
 {% endblock %}
