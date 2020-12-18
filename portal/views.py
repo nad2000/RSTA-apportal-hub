@@ -2476,7 +2476,11 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
 
     @property
     def export_name(self):
-        return models.Round.get(self.kwargs.get("round")).title if "round" in self.kwargs else "export"
+        return (
+            models.Round.get(self.kwargs.get("round")).title
+            if "round" in self.kwargs
+            else "export"
+        )
 
     def get_queryset(self, *args, **kwargs):
         queryset = self.model.where(application__round=self.kwargs.get("round")).select_related(
@@ -2491,8 +2495,13 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
         return [
             dict(
                 number=r.application.number,
-                first_name=r.panellist.first_name or r.panellist.user.first_name,
-                last_name=r.panellist.last_name or r.panellist.user.last_name,
+                first_name=r.panellist.first_name
+                or (r.panellist.user.first_name if r.panellist.user else ""),
+                middle_names=r.panellist.middle_names
+                or (r.panellist.user.middle_names if r.panellist.user else ""),
+                last_name=r.panellist.last_name
+                or (r.panellist.user.last_name if r.panellist.user else ""),
+                email=r.panellist.email or (r.panellist.user.email if r.panellist.user else ""),
             )
             for r in queryset
         ]

@@ -158,7 +158,9 @@ class RoundConflictOfInterstSatementTable(tables.Table):
 
     number = tables.Column()
     first_name = tables.Column()
+    middle_names = tables.Column()
     last_name = tables.Column()
+    email = tables.Column()
 
     class Meta:
         # model = models.ConflictOfInterest
