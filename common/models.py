@@ -1,7 +1,7 @@
 from django.db.models import DateTimeField
 from django.db.models import Model as Base
-from model_utils import Choices
 from django.urls import reverse
+from model_utils import Choices
 
 SEX_CHOICES = Choices("female", "male", "other")
 

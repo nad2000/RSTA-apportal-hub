@@ -5,6 +5,5 @@ from . import views
 urlpatterns = [
     path("rapidconnect/login/", views.login, name="rapidconnect_login"),
     path("rapidconnect/login/callback/", views.callback, name="rapidconnect_callback"),
-    # path("rapidconnect/login/", views.login, name="rapidconnect_login"),
-    # path("rapidconnect/callback/", views.callback, name="rapidconnect_callback"),
+    path("rapidconnect/logout/", views.logout, name="rapidconnect_logout"),
 ]
