@@ -992,9 +992,18 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
+        r = models.Round.get(kwargs["round"])
+        if r.panellists.all().filter(user=request.user).exists():
+            messages.error(
+                self.request,
+                _("You are a panellist for this round. You cannot apply for this round: %s")
+                % r.title,
+            )
+            return redirect("home")
+
         if "nomination" not in kwargs:
             a = (
-                models.Application.where(submitted_by=request.user, round_id=kwargs["round"])
+                models.Application.where(submitted_by=request.user, round=r)
                 .order_by("-id")
                 .first()
             )

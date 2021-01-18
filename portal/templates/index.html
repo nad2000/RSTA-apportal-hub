@@ -82,7 +82,13 @@
     <div class="card">
       <h5 class="card-header">
         {% trans "The Prime Minister's" %}
-        <b style="text-transform: uppercase;">{{ scheme.title }}</b>
+        <b style="text-transform: uppercase;">
+          {% if scheme.current_round %}
+            {{ scheme.current_round.title }}
+          {% else %}
+            {{ scheme.title }}
+          {% endif %}
+        </b>
       </h5>
       <div class="card-body">
         <p class="card-text">{{ scheme.description }}</p>
