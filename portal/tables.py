@@ -85,7 +85,7 @@ class TestimonyTable(tables.Table):
         attrs = {"class": "table table-striped"}
         fields = (
             "round",
-            "referee.application.application_tite",
+            "referee.application.application_title",
             "referee.application.submitted_by",
         )
 

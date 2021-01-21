@@ -607,9 +607,9 @@ class Nominee(Model):
 class Application(Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
-    application_tite = CharField(max_length=200, null=True, blank=True)
+    application_title = CharField(max_length=200, null=True, blank=True)
 
-    round = ForeignKey("Round", editable=False, on_delete=DO_NOTHING, related_name="applications")
+    round = ForeignKey("Round", on_delete=DO_NOTHING, related_name="applications")
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
     team_name = CharField(max_length=200, null=True, blank=True)
@@ -668,6 +668,8 @@ class Application(Model):
         ).prefetch_related("scores")
 
     def save(self, *args, **kwargs):
+        if not self.application_title:
+            self.application_title = self.round.title
         if not self.number:
             code = self.round.scheme.code
             org_code = self.org.get_code()
@@ -727,7 +729,7 @@ class Application(Model):
         pass
 
     def __str__(self):
-        title = self.application_tite or self.round.title
+        title = self.application_title or self.round.title
         if self.number:
             title = f"{title} ({self.number})"
         return title
