@@ -269,3 +269,11 @@ label {
   /* OPTIONAL pointer-events setting above blocks cursor setting, so set it here */
   cursor: not-allowed;
 }
+
+// Set max-with for ISO formated date value:
+input.form-control.datepicker {
+  width: 6em;
+}
+input.form-control.yearpicker {
+  width: 4em;
+}

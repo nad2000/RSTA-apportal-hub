@@ -12167,4 +12167,12 @@ label {
   cursor: not-allowed;
 }
 
+input.form-control.datepicker {
+  width: 6em;
+}
+
+input.form-control.yearpicker {
+  width: 4em;
+}
+
 /*# sourceMappingURL=project.css.map */
