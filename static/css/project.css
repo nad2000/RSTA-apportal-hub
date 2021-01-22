@@ -12175,4 +12175,10 @@ input.form-control.yearpicker {
   width: 4em;
 }
 
+#div_id_title div {
+  padding-left: 6px;
+  padding-right: 6px;
+  min-width: 4em;
+}
+
 /*# sourceMappingURL=project.css.map */

@@ -272,6 +272,7 @@ class ApplicationForm(forms.ModelForm):
                 ),
             ),
         )
+        self.helper.include_media = False
 
     class Meta:
         model = models.Application
