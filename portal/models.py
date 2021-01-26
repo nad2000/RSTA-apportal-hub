@@ -362,8 +362,30 @@ class ProfilePersonIdentifier(Model):
 
     def clean(self, *args, **kwargs):
         super().clean(*args, **kwargs)
-        if self.code and self.code.code == "02":
-            validate_orcid_id(self.value)
+        if self.code:
+            if self.code.code == "02":
+                validate_orcid_id(self.value)
+            elif self.code.code == "03":
+                v = self.value
+                if len(v) < 16:
+                    raise ValidationError(
+                        _("ISNI value %(value)s should be at least 16 charchters long."),
+                        params={"value": v},
+                    )
+                v = v[-16:].upper()
+                if not re.match(r"\d{15}[\dX]", v):
+                    raise ValidationError(
+                        _(
+                            "ISNI value %(value)s pattern in not valid. "
+                            "It should contain digits or 'X' as the final character."
+                        ),
+                        params={"value": v},
+                    )
+                if sum(int(c) for c in v[:15]) % 11 != (10 if v[-1] == "X" else int(v[-1])):
+                    raise ValidationError(
+                        _("ISNI value %(value)s checksum does not match the given control value."),
+                        params={"value": v},
+                    )
 
 
 class OrgIdentifierType(Model):
