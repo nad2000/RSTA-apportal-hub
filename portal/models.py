@@ -1,4 +1,5 @@
 import hashlib
+import re
 import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin, urlparse
@@ -222,6 +223,14 @@ class PersonIdentifierType(Model):
         ordering = ["description"]
 
 
+class PersonIdentifierPattern(Model):
+    person_identifier_type = ForeignKey(PersonIdentifierType, on_delete=CASCADE)
+    pattern = CharField(max_length=100)
+
+    class Meta:
+        db_table = "person_identifier_pattern"
+
+
 class IwiGroup(Model):
     code = CharField(max_length=4, primary_key=True)
     description = CharField(max_length=80)
@@ -307,6 +316,38 @@ class ProfileCareerStage(Model):
         db_table = "profile_career_stage"
 
 
+ORCID_ID_REGEX = re.compile(r"^([X\d]{4}-?){3}[X\d]{4}$")
+
+
+def validate_orcid_id(value):
+    """Sanitize and validate ORCID iD (both format and the check-sum)."""
+    if not value:
+        return
+
+    if "/" in value:
+        value = value.split("/")[-1]
+
+    if not ORCID_ID_REGEX.match(value):
+        raise ValidationError(
+            _(
+                "Invalid ORCID iD %(value)s. It should be in the form of 'xxxx-xxxx-xxxx-xxxx' where x is a digit."
+            ),
+            params={"value": value},
+        )
+    check = 0
+    for n in value:
+        if n == "-":
+            continue
+        check = (2 * check + int(10 if n == "X" else n)) % 11
+    if check != 1:
+        raise ValidationError(
+            _("Invalid ORCID iD %(value)s checksum. Make sure you have entered correct ORCID iD."),
+            params={"value": value},
+        )
+
+    return value
+
+
 class ProfilePersonIdentifier(Model):
     profile = ForeignKey(
         "Profile",
@@ -318,6 +359,11 @@ class ProfilePersonIdentifier(Model):
 
     class Meta:
         db_table = "profile_person_identifier"
+
+    def clean(self, *args, **kwargs):
+        super().clean(*args, **kwargs)
+        if self.code and self.code.code == "02":
+            validate_orcid_id(self.value)
 
 
 class OrgIdentifierType(Model):
@@ -1355,7 +1401,7 @@ class Round(Model):
 
     def save(self, *args, **kwargs):
         scheme = self.scheme
-        created_new = not(self.id)
+        created_new = not (self.id)
         if created_new:
             last_round = Round.where(scheme=scheme).order_by("-id").first()
 
