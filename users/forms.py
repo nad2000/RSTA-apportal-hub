@@ -1,4 +1,3 @@
-import requests
 from allauth.account import forms as allauth_forms
 from captcha.fields import ReCaptchaField
 from django.conf import settings
@@ -8,6 +7,7 @@ from django.core.mail import send_mail
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from portal.models import Invitation
 
 User = get_user_model()
 
@@ -39,20 +39,11 @@ class UserCreationForm(forms.UserCreationForm):
 class UserSignupForm(allauth_forms.SignupForm):
     captcha = ReCaptchaField()
 
-    # def signup(self, request, user):
     def custom_signup(self, request, user):
         user.is_approved = False
         user.save()
         token = request.POST.get("next").split("/")[-1] if request.POST.get("next") else None
-        is_invited = False
-        if token:
-            try:
-                check_invitation_url = request.build_absolute_uri(
-                    reverse("invitation-check", kwargs=dict(email=user.email, token=token))
-                )
-                is_invited = requests.get(check_invitation_url, verify=False).json().get("result")
-            except:
-                pass
+        is_invited = Invitation.where(token=token, email=user.email).exists() if token else False
 
         if is_invited:
             request.session["account_verified_email"] = user.email

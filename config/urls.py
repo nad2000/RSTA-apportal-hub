@@ -8,7 +8,7 @@ from django.views import defaults as default_views
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from rest_framework.authtoken.views import obtain_auth_token
-from users.views import LoginView
+from users.views import LoginView, SignupView
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
@@ -18,6 +18,7 @@ urlpatterns = [
     # User management
     path("users/", include("users.urls", namespace="users")),
     path("accounts/login/", view=LoginView.as_view(), name="account_login"),
+    path("accounts/signup/", view=SignupView.as_view(), name="account_signup"),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path("", include("portal.urls")),

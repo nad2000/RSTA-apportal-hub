@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
+from portal.models import Invitation
 
 from . import forms
 
@@ -86,3 +87,18 @@ class LoginView(allauth_views.LoginView):
         ret = super().get_context_data(**kwargs)
         ret["signup_form"] = forms.UserSignupForm()
         return ret
+
+
+class SignupView(allauth_views.SignupView):
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        invitation_token = self.request.session.get("invitation_token")
+        if invitation_token:
+            invitation = Invitation.where(token=invitation_token).first()
+            if invitation:
+                form = context["form"]
+                form.fields["email"].initial = invitation.email
+                form.fields["username"].initial = invitation.email.split("@")[0]
+
+        return context

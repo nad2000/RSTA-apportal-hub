@@ -1,6 +1,5 @@
 import csv
 import io
-import json
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
@@ -285,8 +284,15 @@ def test_task(req, message):
     return render(req, "index.html", locals())
 
 
-@login_required
 def check_profile(request, token=None):
+    if not request.user.is_authenticated:
+        if not (token and models.Invitation.where(token=token).exists()):
+            next_url = request.GET.get("onboard")
+            return redirect(reverse("account_login") + f"?next={quote(request.get_full_path())}")
+        if token:
+            request.session["invitation_token"] = token
+        return redirect(reverse("account_signup") + f"?next={quote(request.get_full_path())}")
+
     next_url = request.GET.get("next")
     # TODO: refactor and move to the model the invitation handling:
     if token:
@@ -338,14 +344,6 @@ def check_profile(request, token=None):
             + "?next="
             + (quote(next_url) if next_url else reverse("home"))
         )
-
-
-def invitation_exists(request, email=None, token=None):
-    try:
-        models.Invitation.get(token=token, email=email)
-    except:
-        return HttpResponse(json.dumps({"result": False}), content_type="application/json")
-    return HttpResponse(json.dumps({"result": True}), content_type="application/json")
 
 
 @login_required

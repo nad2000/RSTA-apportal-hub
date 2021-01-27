@@ -202,7 +202,6 @@ urlpatterns = [
         include(
             [
                 path("~create", views.InvitationCreate.as_view(), name="invitation-create"),
-                path("~check/<token>/<email>", views.invitation_exists, name="invitation-check"),
             ]
         ),
     ),
