@@ -153,9 +153,20 @@
               </a>
               </div>
             {% endif %}
-            <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-              > {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
-            </a>
+              <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
+                {% if not scheme.current_round.is_open %}
+                  disabled
+                  {% if scheme.current_round.will_open %}
+                    data-title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+                  {% else %}
+                    data-title="{% trans 'The application period closed on' %} {{ scheme.current_round.closes_on|date:'o-m-d'}}"
+                  {% endif %}
+                {% endif %}
+              >
+                <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}" style="text-transform: uppercase;"
+                {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
+                </a>
+              </div>
           {% else %}
             {% if request.user.is_superuser %}
               <a href="{% url 'admin:portal_round_change' object_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
