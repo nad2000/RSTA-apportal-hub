@@ -94,12 +94,15 @@
         <p class="card-text">{{ scheme.description }}</p>
         {% if scheme.current_round %}
           <p class="card-text">{% trans 'Application period' %}:
-          <strong>
+          <strong {% if not scheme.current_round.is_open %}class="badge-danger"{% endif %}>
             {{ scheme.current_round.opens_on|date:"c" }}
             {% if scheme.current_round.closes_on %}
               - {{ scheme.current_round.closes_on|date:"c" }}
             {% endif %}
           </strong>
+
+
+
           </p>
         {% endif %}
         {% if request.user.can_apply %}
