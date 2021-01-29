@@ -286,12 +286,18 @@ def test_task(req, message):
 
 def check_profile(request, token=None):
     if not request.user.is_authenticated:
-        if not (token and models.Invitation.where(token=token).exists()):
-            next_url = request.GET.get("onboard")
-            return redirect(reverse("account_login") + f"?next={quote(request.get_full_path())}")
+        invitation = models.Invitation.where(token=token).first()
+        user_exists = invitation and (
+            User.objects.filter(email=invitation.email).exists()
+            or EmailAddress.objects.filter(email=invitation.email).exists()
+        )
+
         if token:
             request.session["invitation_token"] = token
-        return redirect(reverse("account_signup") + f"?next={quote(request.get_full_path())}")
+        return redirect(
+            reverse("account_login" if user_exists else "account_signup")
+            + f"?next={quote(request.get_full_path())}"
+        )
 
     next_url = request.GET.get("next")
     # TODO: refactor and move to the model the invitation handling:

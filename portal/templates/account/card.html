@@ -129,13 +129,13 @@
           <div id="div_id_email" class="form-group">
             <label for="id_email" class=" requiredField">{% trans 'E-mail' %}<span class="asteriskField">*</span></label>
             <div> <input type="email" name="email"
-                                      value="{{ form.email.value }}"
+                                      value="{{ form.email.value|default_if_none:'' }}"
                                       placeholder="{% trans 'E-mail address' %}" class="textinput textInput form-control" required id="id_email"> </div></div>
           <div id="div_id_username" class="form-group"> <label for="id_username" class="requiredField">
               {% trans 'Username' %}
               <span class="asteriskField">*</span> </label>
             <div>
-              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value }}">
+              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value|default_if_none:'' }}">
             </div>
           </div>
 
@@ -147,13 +147,13 @@
 
           <div id="div_id_password1" class="form-group"> <label for="id_password1" class=" requiredField">
               Password<span class="asteriskField">*</span> </label> <div>
-              <input type="password" name="password1" placeholder="Password" class="textinput textInput form-control" required id="id_password1" value="{{ form.password1.value }}"> </div>
+              <input type="password" name="password1" placeholder="Password" class="textinput textInput form-control" required id="id_password1" value="{{ form.password1.value|default_if_none:'' }}"> </div>
 
           </div> <div id="div_id_password2" class="form-group">
             <label for="id_password2" class=" requiredField">
               Password (again)<span class="asteriskField">*</span> </label> <div class="">
               <input type="password" name="password2"
-                                    value="{{ form.password2.value }}"
+                                    value="{{ form.password2.value|default_if_none:'' }}"
                                     placeholder="Password (again)" class="textinput textInput form-control"
                                     required="" id="id_password2"> </div> </div>
 

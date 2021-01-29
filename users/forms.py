@@ -37,7 +37,12 @@ class UserCreationForm(forms.UserCreationForm):
 
 
 class UserSignupForm(allauth_forms.SignupForm):
+
     captcha = ReCaptchaField()
+    initial = {
+        "password1": "",
+        "password2": "",
+    }
 
     def custom_signup(self, request, user):
         user.is_approved = False
