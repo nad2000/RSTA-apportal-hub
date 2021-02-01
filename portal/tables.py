@@ -114,7 +114,11 @@ class ApplicationTable(tables.Table):
 class RoundTable(tables.Table):
 
     title = tables.Column(
-        linkify=lambda record: reverse("round-application-list", kwargs={"round_id": record.id})
+        linkify=lambda record: (
+            reverse("round-application-list", kwargs={"round_id": record.id})
+            if record.has_online_scoring
+            else reverse("round-coi", kwargs={"round": record.id})
+        )
     )
 
     class Meta:
