@@ -55,10 +55,19 @@ option {direction: rtl;}
       {% trans 'Cancel' %}
     </a>
     <a href="{% url 'export-score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-success" id="download-score-sheet">
-      {% trans 'Dowload Score Sheet' %}...
+      {% trans 'Download Score Sheet' %}...
     </a>
   </div>
 </form>
+
+{% if is_all_coi_statements_sumitted %}
+<hr>
+<form method="post">
+  {% csrf_token %}
+  <input class="btn btn-primary" type="submit" value="{% trans 'Upload the Score Sheet' %}">
+</form>
+{% endif %}
+
 {% endblock %}
 
 {% block javascript %}

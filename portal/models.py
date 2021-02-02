@@ -988,6 +988,16 @@ class Panellist(PanellistMixin, Model):
     last_name = CharField(max_length=150, null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
+    def has_all_coi_statements_submitted_for(self, round_id):
+        return not Application.where(
+            Q(round_id=round_id),
+            Q(conflict_of_interests__isnull=True)
+            | Q(
+                conflict_of_interests__has_conflict__isnull=True,
+                conflict_of_interests__panellist=self,
+            ),
+        ).exists()
+
     def __str__(self):
         return str(self.user)
 
@@ -1457,6 +1467,15 @@ class Round(Model):
         """The round will be open in the future."""
         today = date.today()
         return self.opens_on > today
+
+    def all_coi_statements_given_by(self, user):
+        return not self.applications.all().filter(
+            Q(conflict_of_interests__isnull=True)
+            | Q(
+                conflict_of_interests__has_conflict__isnull=True,
+                conflict_of_interests__panellist__user=user,
+            )
+        ).exists()
 
     class Meta:
         db_table = "round"

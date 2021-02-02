@@ -2380,6 +2380,7 @@ class EvaluationDetail(DetailView):
 
 
 class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
+
     model = models.ConflictOfInterest
     form_class = forms.RoundConflictOfInterestForm
     exclude = []
@@ -2388,6 +2389,14 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         data = super().get_context_data(*args, **kwargs)
         data["yes_label"] = _("Yes")
         data["no_label"] = _("No")
+
+        round_id = self.kwargs.get("round")
+        if round_id:
+            p = models.Panellist(user=self.request.user, round_id=round_id)
+            data["is_all_coi_statements_sumitted"] = p and p.has_all_coi_statements_submitted_for(
+                round_id
+            )
+
         return data
 
     def get_queryset(self):
