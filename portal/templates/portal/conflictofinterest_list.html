@@ -64,6 +64,7 @@ option {direction: rtl;}
 <hr>
 <form method="post">
   {% csrf_token %}
+  {% crispy_field score_sheet_form.file %}
   <input class="btn btn-primary" type="submit" value="{% trans 'Upload the Score Sheet' %}">
 </form>
 {% endif %}

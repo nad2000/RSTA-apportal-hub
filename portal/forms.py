@@ -782,3 +782,9 @@ class RoundConflictOfInterestForm(forms.ModelForm):
         self.helper.layout = Layout(
             *fields,
         )
+
+
+class ScoreSheetForm(forms.ModelForm):
+    class Meta:
+        model = models.ScoreSheet
+        fields = ["file"]

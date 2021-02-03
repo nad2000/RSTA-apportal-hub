@@ -2391,10 +2391,19 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         data["no_label"] = _("No")
 
         round_id = self.kwargs.get("round")
-        if round_id:
-            p = models.Panellist(user=self.request.user, round_id=round_id)
-            data["is_all_coi_statements_sumitted"] = p and p.has_all_coi_statements_submitted_for(
-                round_id
+        if (
+            round_id
+            and (p := models.Panellist(user=self.request.user, round_id=round_id))
+            and p.has_all_coi_statements_submitted_for(round_id)
+        ):
+            data["is_all_coi_statements_sumitted"] = True
+            score_sheet = models.ScoreSheet.where(panellist=p, round=round_id).first()
+            breakpoint()
+            data["score_sheet_form"] = forms.ScoreSheetForm(
+                self.request.POST,
+                self.request.FILES,
+                instance=score_sheet,
+                initial={"round": round_id, "panellist": p},
             )
 
         return data

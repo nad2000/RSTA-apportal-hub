@@ -5,7 +5,6 @@ from datetime import date, datetime
 from urllib.parse import urljoin, urlparse
 
 import simple_history
-from common.models import TITLES, Base, Model
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -39,6 +38,8 @@ from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
 from simple_history.models import HistoricalRecords
+
+from common.models import TITLES, Base, Model
 
 from .utils import send_mail
 
@@ -1469,13 +1470,17 @@ class Round(Model):
         return self.opens_on > today
 
     def all_coi_statements_given_by(self, user):
-        return not self.applications.all().filter(
-            Q(conflict_of_interests__isnull=True)
-            | Q(
-                conflict_of_interests__has_conflict__isnull=True,
-                conflict_of_interests__panellist__user=user,
+        return (
+            not self.applications.all()
+            .filter(
+                Q(conflict_of_interests__isnull=True)
+                | Q(
+                    conflict_of_interests__has_conflict__isnull=True,
+                    conflict_of_interests__panellist__user=user,
+                )
             )
-        ).exists()
+            .exists()
+        )
 
     class Meta:
         db_table = "round"
@@ -1832,3 +1837,22 @@ class MailLog(Model):
 
     class Meta:
         db_table = "mail_log"
+
+
+class ScoreSheet(Model):
+
+    panellist = ForeignKey(Panellist, null=True, on_delete=SET_NULL)
+    round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="score_sheets")
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: [
+            "score-sheeets",
+            instance.round.title.lower().replace(" ", "-")
+            if instance.round.title
+            else hash_int(instance.round.id),
+        ],
+        verbose_name=_("Score Sheet"),
+        help_text=_("Upload filled-in for all the applications in bulk"),
+    )
+
+    class Meta:
+        db_table = "score_sheet"
