@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import resolve_url
 from django.utils.translation import gettext as _
+
 from portal.models import Invitation
 
 

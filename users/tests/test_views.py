@@ -1,5 +1,6 @@
 import pytest
 from django.test import RequestFactory
+
 from portal.models import Profile
 from users.models import User
 from users.views import UserRedirectView, UserUpdateView
