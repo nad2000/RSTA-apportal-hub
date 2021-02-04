@@ -57,17 +57,13 @@ option {direction: rtl;}
     <a href="{% url 'export-score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-success" id="download-score-sheet">
       {% trans 'Download Score Sheet' %}...
     </a>
+    {% if is_all_coi_statements_sumitted %}
+      <a href="{% url 'score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-outline-success" id="download-score-sheet">
+        {% trans 'Uploade Score Sheet' %}...
+      </a>
+    {% endif %}
   </div>
 </form>
-
-{% if is_all_coi_statements_sumitted %}
-<hr>
-<form method="post">
-  {% csrf_token %}
-  {% crispy_field score_sheet_form.file %}
-  <input class="btn btn-primary" type="submit" value="{% trans 'Upload the Score Sheet' %}">
-</form>
-{% endif %}
 
 {% endblock %}
 

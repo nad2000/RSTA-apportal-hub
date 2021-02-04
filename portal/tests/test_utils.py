@@ -4,6 +4,7 @@
 from datetime import datetime
 
 import pytest
+
 from portal.utils.date_utils import PartialDate
 
 

@@ -111,15 +111,29 @@ class ApplicationTable(tables.Table):
         )
 
 
-class RoundTable(tables.Table):
-
-    title = tables.Column(
-        linkify=lambda record: (
-            reverse("round-application-list", kwargs={"round_id": record.id})
-            if record.has_online_scoring
-            else reverse("round-coi", kwargs={"round": record.id})
+def round_link(record, table, *args, **kwargs):
+    return (
+        reverse("round-application-list", kwargs={"round_id": record.id})
+        if record.has_online_scoring
+        else reverse(
+            "score-sheet"
+            if record.all_coi_statements_given_by(table.request.user)
+            else "round-coi",
+            kwargs={"round": record.id},
         )
     )
+
+
+class RoundTable(tables.Table):
+
+    # title = tables.Column(
+    #     linkify=lambda record, table, *args, **kwargs: (
+    #         reverse("round-application-list", kwargs={"round_id": record.id})
+    #         if record.has_online_scoring
+    #         else reverse("round-coi", kwargs={"round": record.id})
+    #     )
+    # )
+    title = tables.Column(linkify=round_link)
 
     class Meta:
         model = models.Round

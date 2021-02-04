@@ -1,6 +1,7 @@
 import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
+
 from portal.tasks import notify_user
 
 User = get_user_model()

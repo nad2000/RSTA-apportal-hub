@@ -47,7 +47,6 @@ YearInput = partial(forms.DateInput, attrs={"class": "form-control yearpicker", 
 
 
 class OppositeBooleanField(forms.BooleanField):
-
     def prepare_value(self, value):
         return not value  # toggle the value when loaded from the model
 
@@ -785,6 +784,16 @@ class RoundConflictOfInterestForm(forms.ModelForm):
 
 
 class ScoreSheetForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        # self.helper.form_id = 'id-exampleForm'
+        # self.helper.form_class = 'blueForms'
+        # self.helper.form_method = 'post'
+        # self.helper.form_action = 'submit_survey'
+
+        self.helper.add_input(Submit("submit", _("Upload the Score Sheet")))
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = models.ScoreSheet
         fields = ["file"]

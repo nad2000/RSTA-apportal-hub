@@ -4,6 +4,7 @@ import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
+
 from portal import models
 from portal.models import Ethnicity, Profile, Subscription
 

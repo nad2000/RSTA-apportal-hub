@@ -3,7 +3,6 @@ from hashlib import md5
 from urllib.parse import urlencode
 
 from allauth.socialaccount.models import SocialToken
-from common.models import TITLES, HelperMixin
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (
     SET_NULL,
@@ -15,6 +14,8 @@ from django.db.models import (
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
+
+from common.models import TITLES, HelperMixin
 
 
 class User(HelperMixin, AbstractUser):

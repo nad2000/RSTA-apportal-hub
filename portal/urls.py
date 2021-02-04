@@ -210,7 +210,8 @@ urlpatterns = [
         path("", views.round_detail, name="round-detail"),
         path("coi", views.RoundConflictOfInterestFormSetView.as_view(), name="round-coi"),
         path("coi/~list", views.RoundConflictOfInterstSatementList.as_view(), name="round-coi-list"),
-        path("scoresheet", views.export_score_sheet, name="export-score-sheet"),
+        path("scoresheet/~export", views.export_score_sheet, name="export-score-sheet"),
+        path("scoresheet", views.score_sheet, name="score-sheet"),
     ])),
     path(
         "nominations/",

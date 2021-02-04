@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+
 from portal.models import Invitation
 
 User = get_user_model()

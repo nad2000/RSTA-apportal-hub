@@ -1,4 +1,5 @@
 import pytest
+
 from portal.models import Invitation, Language, Organisation
 from users.models import User
 

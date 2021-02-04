@@ -2397,14 +2397,6 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             and p.has_all_coi_statements_submitted_for(round_id)
         ):
             data["is_all_coi_statements_sumitted"] = True
-            score_sheet = models.ScoreSheet.where(panellist=p, round=round_id).first()
-            breakpoint()
-            data["score_sheet_form"] = forms.ScoreSheetForm(
-                self.request.POST,
-                self.request.FILES,
-                instance=score_sheet,
-                initial={"round": round_id, "panellist": p},
-            )
 
         return data
 
@@ -2536,3 +2528,38 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
             )
             for r in queryset
         ]
+
+
+@login_required
+def score_sheet(request, round):
+    if (
+        (round := models.Round.where(pk=round).first())
+        and (panellist := models.Panellist.where(user=request.user, round_id=round).first())
+        and panellist.has_all_coi_statements_submitted_for(round)
+    ):
+        score_sheet = models.ScoreSheet.where(panellist=panellist, round=round).first()
+        form = forms.ScoreSheetForm(
+            request.POST or None,
+            request.FILES or None,
+            instance=score_sheet,
+            initial={"round": round, "panellist": panellist},
+        )
+        form.round = round
+        form.panellist = panellist
+        if form.is_valid():
+            form.save(commit=False)
+            form.instance.round = round
+            form.instance.panellist = panellist
+            form.save()
+        return render(request, "score_sheet.html", locals())
+
+    messages.error(
+        request,
+        _(
+            "You have not yet submitted all statements of the conflict of interests. "
+            "Please submit the statements for all the applcation submitted in the round."
+        ),
+    )
+    return redirect(
+        reverse("round-coi", kwargs=dict(round=round)) + "?next=" + quote(request.get_full_path())
+    )
