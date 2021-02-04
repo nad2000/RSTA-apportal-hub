@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags static i18n crispy_forms_field %}
+
+{% block title %}{{ panellist }}{% endblock %}
+
+{% block content %}
+
+<div class="jumbotron">
+  <h1 class="display-4">{% trans 'Score Sheet Upload' %}</h1>
+<p class="lead">{% blocktrans %}Here you can uploade a score sheet for the all application you gave the statement of the conflict of interest in the round "{{ round }}"{% endblocktrans %}</p>
+  <hr class="my-4">
+  <p>{% blocktrans %}Your can amend and resubmit the statements of the conflict of interest for the round "{{ round }}"{% endblocktrans %}</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'round-coi' round=round.id %}" role="button">{% trans 'Conflict of Interests' %}</a>
+</div>
+
+  {% crispy form %}
+
+{% endblock %}
