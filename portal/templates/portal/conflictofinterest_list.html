@@ -16,6 +16,7 @@ option {direction: rtl;}
 
 
 {% block title %}{{ application }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 
 {% block content %}
 <form method="post">

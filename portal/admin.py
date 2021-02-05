@@ -216,6 +216,7 @@ admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
 admin.site.register(models.Score)
 admin.site.register(models.ConflictOfInterest)
+admin.site.register(models.ScoreSheet)
 
 
 @admin.register(models.MailLog)

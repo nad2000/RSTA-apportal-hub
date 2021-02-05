@@ -2550,7 +2550,10 @@ def score_sheet(request, round):
             form.save(commit=False)
             form.instance.round = round
             form.instance.panellist = panellist
-            form.save()
+            score_sheet = form.save()
+            if score_sheet:
+                return redirect(request.get_full_path())
+
         return render(request, "score_sheet.html", locals())
 
     messages.error(

@@ -2,6 +2,7 @@
 {% load crispy_forms_tags static i18n crispy_forms_field %}
 
 {% block title %}{{ panellist }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 
 {% block content %}
 
