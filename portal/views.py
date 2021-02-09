@@ -2383,6 +2383,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     model = models.ConflictOfInterest
     form_class = forms.RoundConflictOfInterestForm
+    is_paginated = True
     exclude = []
 
     def get_context_data(self, *args, **kwargs):
@@ -2397,6 +2398,8 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             and p.has_all_coi_statements_submitted_for(round_id)
         ):
             data["is_all_coi_statements_sumitted"] = True
+        if round_id:
+            data["round"] = models.Round.get(round_id)
 
         return data
 
@@ -2409,12 +2412,25 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         )
 
     def get_initial_queryset(self):
+        # return (
+        #     models.Application.where(
+        #         ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
+        #         round=self.kwargs["round"],
+        #     )
+        #     .filter(
+        #         Q(round__applications__conflict_of_interests__panellist__isnull=True)
+        #         | Q(round__applications__conflict_of_interests__panellist__user__isnull=True)
+        #     )
+        #     .distinct()
+        # )
+
         return (
-            models.Application.where(
-                ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
-                round=self.kwargs["round"],
+            models.Application.objects.select_related("round")
+            .filter(round=self.kwargs["round"], round__panellists__user=self.request.user)
+            .filter(
+                Q(conflict_of_interests__isnull=True)
+                | ~Q(conflict_of_interests__panellist__user=self.request.user)
             )
-            .filter(round__applications__conflict_of_interests__panellist__user__isnull=True)
             .distinct()
         )
 

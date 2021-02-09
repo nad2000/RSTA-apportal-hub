@@ -695,7 +695,9 @@ class ReadOnlyApplicationWidget(Widget):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         if value:
-            context["object"] = self.choices.queryset.filter(id=value).first()
+            context["object"] = (
+                self.choices.queryset.select_related("round").filter(id=value).first()
+            )
         return context
 
 
@@ -759,6 +761,10 @@ class RoundConflictOfInterestForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # instance = getattr(self, "instance", None)
+        # if instance and instance.id:
+        #     self.fields["application"]
 
         self.fields["comment"].widget.attrs = {"rows": 3}
 

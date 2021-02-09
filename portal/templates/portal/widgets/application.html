@@ -1,4 +1,13 @@
 {% with id=widget.attrs.id %}
-  <b> {{ object }} </b>
+  <b>
+
+    {% if object.title %}
+      {{ object.title }}
+    {% else %}
+      {{ object.round }}
+    {% endif %}
+    (<a href="{% url 'application' pk=object.id %}">{{ object.number }}</a>)
+
+  </b>
   <input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
 {% endwith %}
