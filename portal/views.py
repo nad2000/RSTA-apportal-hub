@@ -2383,7 +2383,6 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     model = models.ConflictOfInterest
     form_class = forms.RoundConflictOfInterestForm
-    is_paginated = True
     exclude = []
 
     def get_context_data(self, *args, **kwargs):
@@ -2409,6 +2408,8 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             super()
             .get_queryset()
             .filter(application__round=round_id, panellist__user=self.request.user)
+            .prefetch_related("application")
+            .order_by("application__number")
         )
 
     def get_initial_queryset(self):

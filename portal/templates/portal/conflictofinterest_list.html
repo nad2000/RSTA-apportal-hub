@@ -19,6 +19,46 @@ option {direction: rtl;}
 {% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 
 {% block content %}
+
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <li class="page-item">
+      <a class="page-link" href="?page=1">First</a>
+    </li>
+    <li class="page-item{% if page_obj.has_previous %} disabled{% endif %}">
+      <a
+        class="page-link"
+        {% if page_obj.has_previous  %}
+          href="?page={{ page_obj.previous_page_number }}"
+        {% else %}
+          href="#"
+        {% endif %}
+        tabindex="-1"
+      >{% trans 'Previous' %}</a>
+    </li>
+
+    {% for p in paginator.page_range %}
+      <li class="page-item{% if page_obj.number == p %} active{% endif %}">
+        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+      </li>
+    {% endfor %}
+
+    <li class="page-item">
+      <a
+        class="page-link{% if page_obj.has_next %} disabled{% endif %}"
+        {% if page_obj.has_next  %}
+          href="?page={{ page_obj.next_page_number }}"
+        {% else %}
+          href="#"
+        {% endif %}
+        >{% trans 'Next' %}</a>
+    </li>
+    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+  </ul>
+</nav>
+{% endif %}
+
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
@@ -36,7 +76,28 @@ option {direction: rtl;}
         {{ form.id }}{{ form.panellist }}
         <tr>
           <td class="form-group" style="width: 30%; max-width: 20pc;">
-            {{ form.application }}
+
+
+
+            {% with a=form.instance.application|default:form.initial.application %}
+              {% with widget=form.application.widget %}
+  <b>
+
+    {% if a.application_title %}
+      {{ a.application_title }}
+    {% else %}
+      {{ round }}
+    {% endif %}
+    (<a href="{% url 'application' pk=a.id %}">{{ a.number }}</a>)
+
+  </b>
+  <input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+
+  {% endwith %}
+{% endwith %}
+
+
+
           </td>
           <td class="form-group" style="width: 6pc;">
             {% crispy_field form.has_conflict 'data-toggle' 'toggle' 'data-on' yes_label 'data-off' no_label 'data-onstyle' 'danger' 'data-offstyle' 'success' %}
