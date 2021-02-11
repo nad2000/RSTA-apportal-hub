@@ -2456,7 +2456,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "application": forms.ReadOnlyApplicationWidget(),
+                    "application": forms.HiddenInput(),
                     "panellist": forms.HiddenInput(),
                     # "file": FileInput(),
                 },

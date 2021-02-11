@@ -73,30 +73,23 @@ option {direction: rtl;}
     <tbody>
 
       {% for form in formset %}
-        {{ form.id }}{{ form.panellist }}
+        {{ form.id }}{{ form.panellist }}{{ form.application }}
         <tr>
           <td class="form-group" style="width: 30%; max-width: 20pc;">
 
-
-
             {% with a=form.instance.application|default:form.initial.application %}
-              {% with widget=form.application.widget %}
-  <b>
+              <b>
 
-    {% if a.application_title %}
-      {{ a.application_title }}
-    {% else %}
-      {{ round }}
-    {% endif %}
-    (<a href="{% url 'application' pk=a.id %}">{{ a.number }}</a>)
+                {% if a.application_title %}
+                  {{ a.application_title }}
+                {% else %}
+                  {{ round }}
+                {% endif %}
+                (<a href="{% url 'application' pk=a.id %}">{{ a.number }}</a>)
 
-  </b>
-  <input type="hidden" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+              </b>
 
-  {% endwith %}
-{% endwith %}
-
-
+            {% endwith %}
 
           </td>
           <td class="form-group" style="width: 6pc;">
