@@ -41,3 +41,17 @@ def is_disabled_readonly_checkbox(value):
 def is_readonly_nullbooleanfield(value):
     attrs = value.field.widget.attrs
     return isinstance(value.field.widget, NullBooleanSelect) and attrs.get("readonly")
+
+
+@register.filter()
+def member_with_email(value):
+    output = value.first_name or value.user.first_name
+
+    if value.middle_names or value.user.middle_names:
+        output += f" {value.middle_names or value.user.middle_names}"
+
+    output += f" {value.last_name or value.user.last_name} ({value.email or value.user.email})"
+    if value.role:
+        output += f", {value.role}"
+
+    return output

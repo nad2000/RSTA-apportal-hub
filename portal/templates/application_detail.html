@@ -11,10 +11,6 @@
       {{ block.super }}
     {% endblock %}
     {% crispy form %}
-    {% block javascript %}
-      {{ block.super }}
-      {{ form.media.js }}
-    {% endblock %}
   {% endif %}
 
   {#{ block.super }#}
@@ -26,7 +22,15 @@
           <tr>
             <th style="width: 21%; min-width: 160px; max-width: 180px;">
               {% trans 'Number' %}</th>
-            <td>{{ a.number }} </td>
+            <td>
+              {% if request.user.is_superuser %}
+                <a href="{% url 'admin:portal_application_change' object_id=a.id %}">
+                  {{ a.number }}
+                </a>
+              {% else %}
+                {{ a.number }}
+              {% endif %}
+            </td>
           </tr>
 
           {% if a.submitted_by %}
@@ -47,10 +51,6 @@
           </tr>
 
           {% if a.is_team_application %}
-            <tr>
-              <th>{% trans 'Is Team Application' %}</th>
-              <td>{{ a.is_team_application }}</td>
-            </tr>
 
             <tr>
               <th>{% trans 'Team Name' %}</th>
@@ -60,13 +60,11 @@
             <tr>
               <th>{% trans 'Team:' %}</th>
               <td>
-                {% if m.members.count %}
-                  <ul>
-                  {% for m in a.members %}
-                    <li>{{ m }}</li>
+                <ul>
+                  {% for m in a.members.all %}
+                    <li>{{ m|member_with_email }}</li>
                   {% endfor %}
-                  </ul>
-                {% endif %}
+                </ul>
               </td>
             </tr>
           {% endif %}
@@ -168,6 +166,44 @@
 
     </tbody>
   </table>
-{% endwith %}
 
+
+  <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
+      {% if was_submitted %}
+        disabled
+        data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+      {% elif not is_owner %}
+        disabled
+        data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
+      {% else %}
+        data-title="{% trans 'Modify your application and continue application process' %}"
+      {% endif %}
+  >
+
+    <a href="{% url update_view_name pk=a.pk %}"
+        class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
+    >{% trans update_button_name %}
+    </a>
+
+  </div>
+
+  {% if export_button_view_name %}
+    <a class="btn btn-primary" href="{% url export_button_view_name pk=a.pk %}">{% trans 'Export' %}</a>
+  {% endif %}
+
+{% endwith %}
 {% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% if form %}
+    {{ form.media.js }}
+  {% endif %}
+  <script>
+    $(document).ready(function(){
+        $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+    });
+  </script>
+{% endblock javascript %}
+
+

@@ -803,6 +803,11 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
+        context["is_owner"] = (
+            self.object.submitted_by == self.request.user
+            or self.object.members.all().filter(user=self.request.user).exists()
+        )
+        context["was_submitted"] = self.object.state == "submitted"
         return context
 
 
