@@ -820,6 +820,7 @@ class ApplicationView(LoginRequiredMixin):
     def get_initial(self):
         user = self.request.user
         initial = super().get_initial()
+        initial["round"] = self.round.id
         if not (self.object and self.object.id):
             initial["user"] = user
             initial["email"] = user.email
@@ -1467,7 +1468,6 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                 "labels": {"role": "Position"},
             }
         )
-        # breakpoint()
         return kwargs
 
     def get_queryset(self):

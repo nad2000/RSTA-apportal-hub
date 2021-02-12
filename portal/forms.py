@@ -275,7 +275,7 @@ class ApplicationForm(forms.ModelForm):
 
     class Meta:
         model = models.Application
-        exclude = ["organisation", "state"]
+        exclude = ["organisation", "state", "round"]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
@@ -287,6 +287,7 @@ class ApplicationForm(forms.ModelForm):
             summary=SummernoteInplaceWidget(),
             summary_en=SummernoteInplaceWidget(),
             summary_mi=SummernoteInplaceWidget(),
+            # round=HiddenInput(),
         )
 
 
