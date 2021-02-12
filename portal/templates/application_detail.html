@@ -20,7 +20,7 @@
     <tbody>
 
           <tr>
-            <th style="width: 21%; min-width: 160px; max-width: 180px;">
+            <th class="table-dark" scope="row" style="width: 21%; min-width: 160px; max-width: 180px;">
               {% trans 'Number' %}</th>
             <td>
               {% if request.user.is_superuser %}
@@ -35,30 +35,30 @@
 
           {% if a.submitted_by %}
             <tr>
-              <th>{% trans 'Submitted By' %}</th>
+              <th class="table-dark" class="thead-dark" scope="row">{% trans 'Submitted By' %}</th>
               <td>{{ a.submitted_by }}</td>
             </tr>
           {% endif %}
 
           <tr>
-            <th>{% trans 'Application Title' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Application Title' %}</th>
             <td>{{ a.application_title }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Round' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Round' %}</th>
             <td>{{ a.round }}</td>
           </tr>
 
           {% if a.is_team_application %}
 
             <tr>
-              <th>{% trans 'Team Name' %}</th>
+              <th class="table-dark" scope="row">{% trans 'Team Name' %}</th>
               <td>{{ a.team_name|default:'' }}</td>
             </tr>
 
             <tr>
-              <th>{% trans 'Team:' %}</th>
+              <th class="table-dark" scope="row">{% trans 'Team:' %}</th>
               <td>
                 <ul>
                   {% for m in a.members.all %}
@@ -70,7 +70,7 @@
           {% endif %}
 
           <tr>
-            <th>{% trans 'Applicant' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Applicant' %}</th>
             <td>
               {% if a.title %}{{ a.title }} {% endif %}
               {{ a.first_name }}
@@ -80,48 +80,48 @@
           </tr>
 
           <tr>
-            <th>{% trans 'Organisation' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Organisation' %}</th>
           <td>{% if a.org %}{{ a.org }}{% else %}{{ a.organisation|default:'' }}{% endif %}
             </td>
           </tr>
 
           <tr>
-            <th>{% trans 'Position' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Position' %}</th>
             <td>{{ a.position|default:'' }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Postal Address' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Postal Address' %}</th>
             <td>{{ a.postal_address }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'City' %}</th>
+            <th class="table-dark" scope="row">{% trans 'City' %}</th>
             <td>{{ a.city }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'State' %}</th>
+            <th class="table-dark" scope="row">{% trans 'State' %}</th>
             <td>{{ a.state }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Postcode' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Postcode' %}</th>
             <td>{{ a.postcode }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Daytime Phone Number' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Daytime Phone Number' %}</th>
             <td>{{ a.daytime_phone_number }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Mobile Phone Number' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Mobile Phone Number' %}</th>
             <td>{{ a.mobile_phone_number }}</td>
           </tr>
 
           <tr>
-            <th>{% trans 'Email Address' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Email Address' %}</th>
             <td>{{ a.email_address }}</td>
           </tr>
 
@@ -130,7 +130,7 @@
 
               {% if a.summary_en %}
                 <tr>
-                  <th>{% trans 'Summary (English)' %}</th>
+                  <th class="table-dark" scope="row">{% trans 'Summary (English)' %}</th>
                   <td>
                     {{ a.summary_en|safe }}
                   </td>
@@ -139,7 +139,7 @@
 
               {% if a.summary_mi %}
                 <tr>
-                  <th>{% trans 'Summary (Maori)' %}</th>
+                  <th class="table-dark" scope="row">{% trans 'Summary (Maori)' %}</th>
                   <td>
                     {{ a.summary_mi|safe }}
                   </td>
@@ -148,19 +148,19 @@
 
             {% elif a.summary %}
               <tr>
-                <th>{% trans 'Summary' %}</th>
+                <th class="table-dark" scope="row">{% trans 'Summary' %}</th>
                 <td>{{ a.summary|safe }}</td>
               </tr>
             {% endif %}
         {% endif %}
 
         <tr>
-          <th>{% trans 'Filled-In Entry Form' %}</th>
+          <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form' %}</th>
           <td>TODO</td>
         </tr>
 
         <tr>
-          <th>{% trans 'Photo Identity' %}</th>
+          <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
           <td>TODO</td>
         </tr>
 
