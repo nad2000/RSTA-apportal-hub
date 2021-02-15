@@ -47,9 +47,11 @@
           {% trans 'Application Drafts' %}
         </strong></h5>
       {% for a in draft_applications %}
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
-        </ul>
+        {% if a and a.id %}
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+          </ul>
+        {% endif %}
       {% endfor %}
       <!-- div class="card-body">
         <h5 class="card-title">Success card title</h5>
@@ -64,9 +66,11 @@
           {% trans 'Current Submitted Applications' %}
         </strong></h5>
       {% for a in current_applications %}
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
-        </ul>
+        {% if a and a.id %}
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+          </ul>
+        {% endif %}
       {% endfor %}
       <!-- div class="card-body">
         <h5 class="card-title">Success card title</h5>
@@ -131,7 +135,7 @@
                    data-title="{% trans 'Modify your application and continue application process' %}"
                  {% endif %}
               >
-              <a href="{% url 'application-update' pk=scheme.application.id %}"
+            <a href="{% if scheme.application and scheme.application.id %}{% url 'application-update' pk=scheme.application.id %}{% else %}#{% endif %}"
                  class="btn btn-primary{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
                  style="text-transform: uppercase;"
               > {% trans "Continue" %} <b>{% trans "Application" %}</b>

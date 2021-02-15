@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags static i18n crispy_forms_field %}
+{% load crispy_forms_tags static i18n crispy_forms_field tags %}
 
 {% block css %}
   {{ block.super }}
@@ -79,16 +79,22 @@ option {direction: rtl;}
 
             {% with a=form.instance.application|default:form.initial.application %}
               <b>
-
                 {% if a.application_title %}
                   {{ a.application_title }}
                 {% else %}
                   {{ round }}
                 {% endif %}
                 (<a href="{% url 'application' pk=a.id %}">{{ a.number }}</a>)
-
               </b>
 
+              <ul>
+                <li>{{ a|person_with_email }}</li>
+                {% if a.is_team_application %}
+                  {% for m in a.members.all %}
+                    <li>{{ m|person_with_email }}</li>
+                  {% endfor %}
+                {% endif %}
+              </ul>
             {% endwith %}
 
           </td>

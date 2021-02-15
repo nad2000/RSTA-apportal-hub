@@ -198,15 +198,17 @@
 
         {% if outstanding_authorization_requests %}
           {% for o in outstanding_authorization_requests %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-              {% trans "You have a team representative authorization request that hasn't been accepted yet." %}
-              <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
-                {% trans 'Please click here to review the request' %}!
-              </a>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+            {% if o.application and o.application.id %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {% trans "You have a team representative authorization request that hasn't been accepted yet." %}
+                <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
+                  {% trans 'Please click here to review the request' %}!
+                </a>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            {% endif %}
           {% endfor %}
         {% endif %}
 

@@ -44,14 +44,22 @@ def is_readonly_nullbooleanfield(value):
 
 
 @register.filter()
-def member_with_email(value):
-    output = value.first_name or value.user.first_name
+def person_with_email(value):
 
-    if value.middle_names or value.user.middle_names:
-        output += f" {value.middle_names or value.user.middle_names}"
+    if hasattr(value, "user"):
+        u = value.user
+    elif hasattr(value, "submitted_by"):
+        u = value.submitted_by
+    else:
+        u = None
+    output = f"{value.title} " if hasattr(value, "title") and value.title else ""
+    output += value.first_name or (u.first_name if u else "")
+
+    if (hasattr(value, "middle_names") and value.middle_names) or (u.middle_names if u else ""):
+        output += f" {value.middle_names or (u.middle_names if u else '')}"
 
     output += f" {value.last_name or value.user.last_name} ({value.email or value.user.email})"
-    if value.role:
+    if hasattr(value, "role") and value.role:
         output += f", {value.role}"
 
     return output
