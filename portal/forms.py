@@ -752,6 +752,18 @@ class ScoreForm(forms.ModelForm):
         )
 
 
+class ThreeValuedBooleanField(forms.BooleanField):
+    def to_python(self, value):
+        """Return a Python boolean object."""
+        if value is None or (isinstance(value, str) and value.lower() in ["null", "none", "nil"]):
+            return None
+        if isinstance(value, str) and value.lower() in ("false", "0"):
+            value = False
+        else:
+            value = bool(value)
+        return super().to_python(value)
+
+
 class RoundConflictOfInterestForm(forms.ModelForm):
 
     has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)

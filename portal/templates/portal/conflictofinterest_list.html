@@ -59,6 +59,23 @@ option {direction: rtl;}
 </nav>
 {% endif %}
 
+
+
+        <div class="form-group">
+        	<label for="fun" class="col-sm-4 col-md-4 control-label text-right">Is it fun ?</label>
+    		<div class="col-sm-7 col-md-7">
+    			<div class="input-group">
+    				<div id="radioBtn" class="btn-group">
+    					<a class="btn btn-primary btn-sm active" data-toggle="fun" data-title="Y">YES</a>
+                        <a class="btn btn-primary btn-sm notActive" data-toggle="fun" data-title="X">I don't know</a>
+    					<a class="btn btn-primary btn-sm notActive" data-toggle="fun" data-title="N">NO</a>
+    				</div>
+    				<input type="hidden" name="fun" id="fun">
+    			</div>
+    		</div>
+    	</div>
+
+
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}

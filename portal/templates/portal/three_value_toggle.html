@@ -1,0 +1,13 @@
+<div class="checkbox">
+  <input
+    type="checkbox"
+    {% if field.value %}checked{% endif %}
+    {% if flat_attrs %}{{ flat_attrs }}{% else %}data-toggle="toggle"{% endif %}
+    name="{{ field.html_name }}"
+    id="{% if field.auto_id %}{{ field.auto_id }}{% else %}has_protection_patterns{% endif %}">
+  {% if field.label %}
+    <label for="{{ field.id_for_label }}" class="{% if 'form-horizontal' in form_class %}col-form-label {% endif %}{{ label_class }}">
+      {{ field.label|safe }}
+    </label>
+  {% endif %}
+</div>
