@@ -11,6 +11,10 @@
 <style>
 select {padding-right: 1px;}
 option {direction: rtl;}
+#radioBtn .notActive{
+    color: #3276b1;
+    background-color: #fff;
+}
 </style>
 {% endblock %}
 
@@ -59,21 +63,82 @@ option {direction: rtl;}
 </nav>
 {% endif %}
 
+<div class="form-group">
+  <div class="col-12">
+    <div class="input-group">
+      <div id="radioBtn" class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-success" data-toggle="fun" data-title="0">{% trans 'NO' %}</button>
+        <button type="button" class="btn btn-outline-secondary" data-toggle="fun" data-title="none">{% trans 'N/A' %}</button>
+        <button type="button" class="btn btn-outline-danger" data-toggle="fun" data-title="1">{% trans 'YES' %}</button>
+      </div>
+      <label for="fun" class="col-sm-9 col-md-9 control-label">
+        {% trans 'I have or do not have a conflict of interest in respoect to all the applications' %}
+      </label>
+    </div>
+  </div>
+</div>
 
+<script>
+  $(document).ready(function () {
+    function toggleOutline(el) {
+      var current=el.attr("class").split(" ")[1];
+      var parts=current.split("-");
+      var newClass=((parts[1]=='outline') ? [parts[0], parts[2]]: [parts[0], 'outline', parts[1]]).join('-');
+      el.removeClass(current);
+      el.addClass(newClass);
+    };
+    function setOutline(el) {
+      var classes=el.attr("class");
+      if (classes.includes("outline")) return;
+      var current=classes.split(" ")[1];
+      var parts=current.split("-");
+      var newClass=([parts[0], 'outline', parts[1]]).join('-');
+      el.removeClass(current);
+      el.addClass(newClass);
+    };
+    function unsetOutline(el) {
+      var classes=el.attr("class");
+      if (!classes.includes("outline")) return;
+      var current=classes.split(" ")[1];
+      var parts=current.split("-");
+      var newClass=([parts[0], parts[2]]).join('-');
+      el.removeClass(current);
+      el.addClass(newClass);
+    };
 
-        <div class="form-group">
-        	<label for="fun" class="col-sm-4 col-md-4 control-label text-right">Is it fun ?</label>
-    		<div class="col-sm-7 col-md-7">
-    			<div class="input-group">
-    				<div id="radioBtn" class="btn-group">
-    					<a class="btn btn-primary btn-sm active" data-toggle="fun" data-title="Y">YES</a>
-                        <a class="btn btn-primary btn-sm notActive" data-toggle="fun" data-title="X">I don't know</a>
-    					<a class="btn btn-primary btn-sm notActive" data-toggle="fun" data-title="N">NO</a>
-    				</div>
-    				<input type="hidden" name="fun" id="fun">
-    			</div>
-    		</div>
-    	</div>
+    $('#radioBtn button').on('click', function() {
+      var sel = $(this).data('title');
+      var tog = $(this).data('toggle');
+      // $('#'+tog).prop('value', sel);
+      if ($(this).attr("class").includes("outline")) {
+        toggleOutline($(this));
+        // $(this).parent().find("button").each(function() {toggleOutline($(this));});
+        $(this).siblings("button").each(function() {setOutline($(this));});
+      }
+      // $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
+      //$('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
+      $(".three-value-choice input[type='hidden']").each(function() {
+        $(this).prop("value", sel);
+      });
+      $('.three-value-choice button').each(function() {
+        if ($(this).data("title") == sel) unsetOutline($(this)); else setOutline($(this));
+      });
+    });
+
+    $('.three-value-choice button').on('click', function(){
+      var sel = $(this).data('title');
+      if ($(this).attr("class").includes("outline")) {
+        toggleOutline($(this));
+        // $(this).parent().find("button").each(function() {toggleOutline($(this));});
+        $(this).siblings("button").each(function() {setOutline($(this));});
+      }
+      // $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
+      //$('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
+      $(this).siblings("input[type='hidden']").prop("value", sel);
+    });
+
+  });
+</script>
 
 
 <form method="post">
@@ -113,11 +178,18 @@ option {direction: rtl;}
                 {% endif %}
               </ul>
             {% endwith %}
+          </td>
 
-          </td>
           <td class="form-group" style="width: 6pc;">
-            {% crispy_field form.has_conflict 'data-toggle' 'toggle' 'data-on' yes_label 'data-off' no_label 'data-onstyle' 'danger' 'data-offstyle' 'success' %}
+            {#% crispy_field form.has_conflict 'data-toggle' 'toggle' 'data-on' yes_label 'data-off' no_label 'data-onstyle' 'danger' 'data-offstyle' 'success' %#}
+            <div class="btn-group three-value-choice" role="group">
+              {{ form.has_conflict }}
+              <button type="button" class="btn btn-{% if form.has_conflict.value != False %}outline-{% endif %}success" data-toggle="fun" data-title="0">{% trans 'NO' %}</button>
+              <button type="button" class="btn btn-{% if form.has_conflict.value is not None %}outline-{% endif %}secondary" data-toggle="fun" data-title="none">{% trans 'N/A' %}</button>
+              <button type="button" class="btn btn-{% if form.has_conflict.value != True %}outline-{% endif %}danger" data-toggle="fun" data-title="1">{% trans 'YES' %}</button>
+            </div>
           </td>
+
           <td class="form-group" style="max-width: 60%;">
             {% crispy_field form.comment %}
           </td>

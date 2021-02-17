@@ -2462,6 +2462,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             {
                 "widgets": {
                     "application": forms.HiddenInput(),
+                    "has_conflict": forms.HiddenInput(),
                     "panellist": forms.HiddenInput(),
                     # "file": FileInput(),
                 },

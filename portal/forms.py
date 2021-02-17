@@ -766,7 +766,12 @@ class ThreeValuedBooleanField(forms.BooleanField):
 
 class RoundConflictOfInterestForm(forms.ModelForm):
 
-    has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
+    has_conflict = ThreeValuedBooleanField(
+            label=_("Conflict of Interest"),
+            required=False,
+            widget=forms.HiddenInput())
+    # has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
+    # has_conflict = forms.HiddenInput()
 
     def form_valid(self, form):
         resp = super().form_valid(form)
@@ -785,15 +790,16 @@ class RoundConflictOfInterestForm(forms.ModelForm):
         self.helper.include_media = False
         fields = [
             "application",
-            Field(
-                "has_conflict",
-                data_toggle="toggle",
-                template="portal/toggle.html",
-                data_on=_("Yes"),
-                data_off=_("No"),
-                data_onstyle="danger",
-                data_offstyle="success",
-            ),
+            "has_conflict",
+            # Field(
+            #     "has_conflict",
+            #     data_toggle="toggle",
+            #     template="portal/toggle.html",
+            #     data_on=_("Yes"),
+            #     data_off=_("No"),
+            #     data_onstyle="danger",
+            #     data_offstyle="success",
+            # ),
             "comment",
             # Field("comment"),
         ]

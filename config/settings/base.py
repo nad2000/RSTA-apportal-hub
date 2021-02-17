@@ -400,3 +400,6 @@ RECAPTCHA_USE_SSL = True
 ACCOUNT_FORMS = {
     "signup": "users.forms.UserSignupForm",
 }
+
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 4000
