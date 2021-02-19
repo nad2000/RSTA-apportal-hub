@@ -716,7 +716,6 @@ class InvitationCreate(CreateView):
 #         formset = ProfileCareerStageFormSet(queryset=queryset)
 #     elif request.method == "POST":
 #         formset = ProfileCareerStageFormSet(request.POST)
-#         breakpoint()
 #         if formset.is_valid():
 #             for form in formset.save(commit=False):
 #                 if not hasattr(form, "profile") or not form.profile:
@@ -998,7 +997,6 @@ class ApplicationCreate(ApplicationView, CreateView):
     # form_class = forms.ApplicationForm
 
     # def form_invalid(self, form):
-    #     breakpoint()
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
@@ -2390,18 +2388,30 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
     form_class = forms.RoundConflictOfInterestForm
     exclude = []
 
+    def post(self, *args, **kwargs):
+        resp = super().post(*args, **kwargs)
+        return resp
+
     def get_context_data(self, *args, **kwargs):
         data = super().get_context_data(*args, **kwargs)
         data["yes_label"] = _("Yes")
         data["no_label"] = _("No")
 
         round_id = self.kwargs.get("round")
-        if (
-            round_id
-            and (p := models.Panellist(user=self.request.user, round_id=round_id))
-            and p.has_all_coi_statements_submitted_for(round_id)
-        ):
-            data["is_all_coi_statements_sumitted"] = True
+        if round_id and (p := models.Panellist.get(user=self.request.user, round_id=round_id)):
+            if p.has_all_coi_statements_submitted_for(round_id):
+                data["is_all_coi_statements_sumitted"] = True
+
+            for row in (
+                models.ConflictOfInterest.where(
+                    panellist=p,
+                    application__round_id=round_id,
+                )
+                .values("has_conflict")
+                .annotate(count=Count("*"))
+            ):
+                data[f"has_conflict_{row['has_conflict']}"] = (row["count"] != 0)
+
         if round_id:
             data["round"] = models.Round.get(round_id)
 
@@ -2417,34 +2427,37 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             .order_by("application__number")
         )
 
-    def get_initial_queryset(self):
-        # return (
-        #     models.Application.where(
-        #         ~Q(round__applications__conflict_of_interests__panellist__user=self.request.user),
-        #         round=self.kwargs["round"],
-        #     )
-        #     .filter(
-        #         Q(round__applications__conflict_of_interests__panellist__isnull=True)
-        #         | Q(round__applications__conflict_of_interests__panellist__user__isnull=True)
-        #     )
-        #     .distinct()
-        # )
+    @property
+    def panellist(self):
+        if "round" in self.kwargs:
+            return models.Panellist.get(round=self.kwargs["round"], user=self.request.user)
+        else:
+            return None
 
-        return (
-            models.Application.objects.select_related("round")
-            .filter(round=self.kwargs["round"], round__panellists__user=self.request.user)
-            .filter(
-                Q(conflict_of_interests__isnull=True)
-                | ~Q(conflict_of_interests__panellist__user=self.request.user)
+    def get_initial_queryset(self):
+
+        if (panellist := self.panellist) and self.request.method == "GET":
+            return (
+                models.Application.objects.select_related("round")
+                .filter(round=self.kwargs["round"], round__panellists=panellist)
+                .filter(conflict_of_interests__panellist=panellist)
+                .filter(
+                    Q(
+                        Q(conflict_of_interests__isnull=True)
+                        | ~Q(conflict_of_interests__panellist=panellist)
+                    ),
+                )
+                .distinct()
             )
-            .distinct()
-        )
+        else:
+            return models.Application.objects.none()
 
     def get_initial(self):
-        if "round" in self.kwargs and self.request.method == "GET":
-            panellist = models.Panellist.where(
-                round=self.kwargs["round"], user=self.request.user
-            ).first()
+        if (
+            "round" in self.kwargs
+            and self.request.method == "GET"
+            and (panellist := self.panellist)
+        ):
             return [
                 dict(application=a, has_conflict=True, panellist=panellist)
                 for a in self.get_initial_queryset()
@@ -2587,5 +2600,7 @@ def score_sheet(request, round):
         ),
     )
     return redirect(
-        reverse("round-coi", kwargs=dict(round=round)) + "?next=" + quote(request.get_full_path())
+        reverse("round-coi", kwargs=dict(round=round.id))
+        + "?next="
+        + quote(request.get_full_path())
     )

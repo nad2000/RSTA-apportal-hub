@@ -990,14 +990,15 @@ class Panellist(PanellistMixin, Model):
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
     def has_all_coi_statements_submitted_for(self, round_id):
-        return not Application.where(
+        q = Application.where(
             Q(round_id=round_id),
             Q(conflict_of_interests__isnull=True)
             | Q(
                 conflict_of_interests__has_conflict__isnull=True,
                 conflict_of_interests__panellist=self,
             ),
-        ).exists()
+        )
+        return not q.exists()
 
     def __str__(self):
         return str(self.user)

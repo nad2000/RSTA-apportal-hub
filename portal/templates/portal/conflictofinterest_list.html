@@ -11,10 +11,6 @@
 <style>
 select {padding-right: 1px;}
 option {direction: rtl;}
-#radioBtn .notActive{
-    color: #3276b1;
-    background-color: #fff;
-}
 </style>
 {% endblock %}
 
@@ -28,7 +24,7 @@ option {direction: rtl;}
 <nav aria-label="Page navigation example">
   <ul class="pagination justify-content-center">
     <li class="page-item">
-      <a class="page-link" href="?page=1">First</a>
+      <a class="page-link" href="?page=1">{% trans 'First' %}</a>
     </li>
     <li class="page-item{% if page_obj.has_previous %} disabled{% endif %}">
       <a
@@ -58,6 +54,7 @@ option {direction: rtl;}
         {% endif %}
         >{% trans 'Next' %}</a>
     </li>
+
     <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
   </ul>
 </nav>
@@ -67,9 +64,9 @@ option {direction: rtl;}
   <div class="col-12">
     <div class="input-group">
       <div id="radioBtn" class="btn-group" role="group">
-        <button type="button" class="btn btn-outline-success" data-toggle="fun" data-title="0">{% trans 'NO' %}</button>
-        <button type="button" class="btn btn-outline-secondary" data-toggle="fun" data-title="none">{% trans 'N/A' %}</button>
-        <button type="button" class="btn btn-outline-danger" data-toggle="fun" data-title="1">{% trans 'YES' %}</button>
+        <button type="button" class="btn btn-{% if not is_all_coi_statements_sumitted or not has_conflict_False %}outline-{% endif %}success" data-toggle="fun" data-title="0">{% trans 'No' %}</button>
+        <button type="button" class="btn btn-{% if is_all_coi_statements_sumitted %}outline-{% endif %}secondary" data-toggle="fun" data-title="none">{% trans 'Reset' %}</button>
+        <button type="button" class="btn btn-{% if not is_all_coi_statements_sumitted or not has_conflict_True %}outline-{% endif %}danger" data-toggle="fun" data-title="1">{% trans 'Yes' %}</button>
       </div>
       <label for="fun" class="col-sm-9 col-md-9 control-label">
         {% trans 'I have or do not have a conflict of interest in respoect to all the applications' %}
@@ -109,19 +106,15 @@ option {direction: rtl;}
     $('#radioBtn button').on('click', function() {
       var sel = $(this).data('title');
       var tog = $(this).data('toggle');
-      // $('#'+tog).prop('value', sel);
       if ($(this).attr("class").includes("outline")) {
         toggleOutline($(this));
-        // $(this).parent().find("button").each(function() {toggleOutline($(this));});
         $(this).siblings("button").each(function() {setOutline($(this));});
       }
-      // $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
-      //$('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
-      $(".three-value-choice input[type='hidden']").each(function() {
-        $(this).prop("value", sel);
-      });
       $('.three-value-choice button').each(function() {
         if ($(this).data("title") == sel) unsetOutline($(this)); else setOutline($(this));
+      });
+      $(".three-value-choice").each(function() {
+        $(this).siblings("input[type='hidden']").prop("value", sel);
       });
     });
 
@@ -129,22 +122,18 @@ option {direction: rtl;}
       var sel = $(this).data('title');
       if ($(this).attr("class").includes("outline")) {
         toggleOutline($(this));
-        // $(this).parent().find("button").each(function() {toggleOutline($(this));});
         $(this).siblings("button").each(function() {setOutline($(this));});
       }
-      // $('a[data-toggle="'+tog+'"]').not('[data-title="'+sel+'"]').removeClass('active').addClass('notActive');
-      //$('a[data-toggle="'+tog+'"][data-title="'+sel+'"]').removeClass('notActive').addClass('active');
-      $(this).siblings("input[type='hidden']").prop("value", sel);
+      $(this).parent().siblings("input[type='hidden']").prop("value", sel);
     });
-
   });
 </script>
-
 
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
   <table class="table" style="width: 100%;">
+
     <thead>
       <tr>
         <th>{% trans 'Applications' %}</th>
@@ -152,8 +141,8 @@ option {direction: rtl;}
         <th>{% trans 'Comment' %}</th>
       </tr>
     </thead>
-    <tbody>
 
+    <tbody>
       {% for form in formset %}
         {{ form.id }}{{ form.panellist }}{{ form.application }}
         <tr>
@@ -181,12 +170,11 @@ option {direction: rtl;}
           </td>
 
           <td class="form-group" style="width: 6pc;">
-            {#% crispy_field form.has_conflict 'data-toggle' 'toggle' 'data-on' yes_label 'data-off' no_label 'data-onstyle' 'danger' 'data-offstyle' 'success' %#}
+            {{ form.has_conflict }}
             <div class="btn-group three-value-choice" role="group">
-              {{ form.has_conflict }}
-              <button type="button" class="btn btn-{% if form.has_conflict.value != False %}outline-{% endif %}success" data-toggle="fun" data-title="0">{% trans 'NO' %}</button>
-              <button type="button" class="btn btn-{% if form.has_conflict.value is not None %}outline-{% endif %}secondary" data-toggle="fun" data-title="none">{% trans 'N/A' %}</button>
-              <button type="button" class="btn btn-{% if form.has_conflict.value != True %}outline-{% endif %}danger" data-toggle="fun" data-title="1">{% trans 'YES' %}</button>
+              <button type="button" class="btn btn-{% if form.has_conflict.value != False %}outline-{% endif %}success" data-toggle="fun" data-title="0">{% trans 'No' %}</button>
+              <button type="button" class="btn btn-{% if form.has_conflict.value is not None %}outline-{% endif %}secondary" data-toggle="fun" data-title="none">{% trans 'n/a' %}</button>
+              <button type="button" class="btn btn-{% if form.has_conflict.value != True %}outline-{% endif %}danger" data-toggle="fun" data-title="1">{% trans 'Yes' %}</button>
             </div>
           </td>
 

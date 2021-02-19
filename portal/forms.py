@@ -773,10 +773,6 @@ class RoundConflictOfInterestForm(forms.ModelForm):
     # has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
     # has_conflict = forms.HiddenInput()
 
-    def form_valid(self, form):
-        resp = super().form_valid(form)
-        return resp
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
