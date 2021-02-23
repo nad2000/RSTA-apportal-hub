@@ -16,7 +16,7 @@
   {#{ block.super }#}
 
   {% with a=object %}
-  <table class="table table-bordered searchable">
+  <table class="details table table-bordered searchable">
     <tbody>
 
           <tr>
@@ -118,13 +118,23 @@
 
         <tr>
           <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form' %}</th>
-          <td colspan="3">TODO</td>
+          <td colspan="3">
+                {% if a.file %}<a href="{{ a.file.url }}" target="_blank">
+                    {{ a.file.name }}
+              </a>{% else %}{% trans 'N/A' %}{% endif %}
+          </td>
         </tr>
 
-        <tr>
-          <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
-          <td colspan="3">TODO</td>
-        </tr>
+        {% if request.user.is_staff or request.user.is_superuser %}
+            <tr>
+              <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
+              <td colspan="3">
+                {% if a.photo_identity %}<a href="{{ a.photo_identity.url }}" target="_blank">
+                    {{ a.photo_identity.name }}
+              </a>{% else %}{% trans 'N/A' %}{% endif %}
+              </td>
+            </tr>
+        {% endif %}
 
     </tbody>
   </table>

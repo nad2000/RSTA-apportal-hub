@@ -1968,8 +1968,8 @@ pre code {
 
 .table .thead-dark th {
   color: #fff;
-  background-color: #3E3F3A;
-  border-color: #52534c;
+  background-color: #025764;
+  border-color: #02788a;
 }
 .table .thead-light th {
   color: #495057;
@@ -1979,12 +1979,12 @@ pre code {
 
 .table-dark {
   color: #fff;
-  background-color: #3E3F3A;
+  background-color: #025764;
 }
 .table-dark th,
 .table-dark td,
 .table-dark thead th {
-  border-color: #52534c;
+  border-color: #02788a;
 }
 .table-dark.table-bordered {
   border: 0;
@@ -12179,6 +12179,22 @@ input.form-control.yearpicker {
   padding-left: 6px;
   padding-right: 6px;
   min-width: 4em;
+}
+
+table.details {
+  overflow: hidden;
+  border-radius: 13px;
+  -moz-border-radius: 13px;
+  boder: solit;
+}
+
+table.details td,
+table.details th {
+  padding: 10px;
+}
+
+table.details tr:last-child > td {
+  border-bottom: solid;
 }
 
 /*# sourceMappingURL=project.css.map */

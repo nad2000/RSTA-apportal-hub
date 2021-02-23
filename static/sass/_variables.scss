@@ -82,6 +82,15 @@ $headings-color: theme-color("primary");
 $mint-green: #d6e9c6;
 $dark-pink: #eed3d7;
 
+// $table-dark-color:            $white !default;
+// $table-dark-bg:               $gray-800 !default;
+// $table-dark-bg:               saturate($primary, 20%);
+$table-dark-bg:               darken($primary, 5%);
+// $table-dark-accent-bg:        rgba($white, .05) !default;
+// $table-dark-hover-color:      $table-dark-color !default;
+// $table-dark-hover-bg:         rgba($white, .075) !default;
+$table-dark-border-color:     lighten($table-dark-bg, 7.5%);
+
 $theme-colors: (
   "orcid": $orcid,
   "mint-green": $mint-green,

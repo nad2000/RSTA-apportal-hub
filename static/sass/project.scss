@@ -284,3 +284,21 @@ input.form-control.yearpicker {
     padding-right: 6px;
     min-width: 4em;
 }
+
+// Entry detail table
+table.details {
+  overflow: hidden;
+  border-radius: 8px;
+  -moz-border-radius: 8px;
+  //  border-spacing: 0;
+  boder: solit;
+}
+
+table.details td,
+table.details th {
+  padding: 10px;
+}
+table.details tr:last-child > td {
+  // border-bottom: none;
+  border-bottom: solid;
+}

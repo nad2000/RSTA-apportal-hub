@@ -1981,12 +1981,14 @@ class TestimonyList(LoginRequiredMixin, SingleTableView):
 
 class TestimonyDetail(DetailView):
 
-    model = Testimony
+    model = models.Testimony
     template_name = "testimony_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["extra_object"] = self.get_object().referee.application
+        referee = self.get_object().referee
+        if referee.application_id:
+            context["extra_object"] = referee.application
         if self.get_object().state == "new":
             context["update_view_name"] = f"{self.model.__name__.lower()}-create"
             context["update_button_name"] = _("Add Testimony")
