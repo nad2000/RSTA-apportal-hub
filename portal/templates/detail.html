@@ -8,6 +8,7 @@
     {{ object }}
   </h1>
 
+  <div class="table-responsive">
   <table class="table table-bordered searchable">
     <tbody>
 
@@ -19,6 +20,11 @@
             <td>
               {% if field.name == "summary" %}
                 {{ object|field_value:field.name|safe }}
+                {% if field|is_file_field %}
+                  <a href="{{ object|field_file_url:field.name }}" target="_blank">{{ object|field_file_name:field.name }}</a>
+                {% else %}
+                  {% trans 'N/A' %}
+                {% endif %}
               {% else %}
                 {{ object|field_value:field.name }}
               {% endif %}
@@ -30,12 +36,14 @@
 
     </tbody>
   </table>
+  </div>
   {% if extra_object %}
   <h1>
     {{ extra_object }}
   </h1>
 
-  <table class="details table table-bordered searchable">
+  <div class="table-responsive">
+  <table class="table table-bordered searchable">
     <tbody>
 
       {% for field in extra_object|fields %}
@@ -56,6 +64,7 @@
       {% endfor %}
     </tbody>
   </table>
+  </div>
   {% endif %}
 
   {% if update_view_name %}

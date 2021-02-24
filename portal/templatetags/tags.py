@@ -1,3 +1,4 @@
+import django.db.models.fields.files
 from django import forms, template
 from django.db import models
 from django.forms.widgets import NullBooleanSelect
@@ -14,6 +15,18 @@ def field_value(value, name):
     if isinstance(f, models.BooleanField):
         return _("yes") if v else _("no")
     return v
+
+
+@register.filter()
+def field_file_name(value, name):
+    v = getattr(value, name)
+    return v.name if v else None
+
+
+@register.filter()
+def field_file_url(value, name):
+    v = getattr(value, name)
+    return v.url if v else None
 
 
 @register.filter()
@@ -41,6 +54,11 @@ def is_disabled_readonly_checkbox(value):
 def is_readonly_nullbooleanfield(value):
     attrs = value.field.widget.attrs
     return isinstance(value.field.widget, NullBooleanSelect) and attrs.get("readonly")
+
+
+@register.filter()
+def is_file_field(value):
+    return isinstance(value, django.db.models.fields.files.FieldFile)
 
 
 @register.filter()

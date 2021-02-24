@@ -3,20 +3,20 @@
 {% load i18n crispy_forms_tags tags %}
 {% block sidebar %}{% include 'sidebar.html' with categrory="applications" %}{% endblock sidebar %}
 
+{% if form %}
+  {% block css %}
+    {{ form.media.css }}
+    {{ block.super }}
+  {% endblock %}
+{% endif %}
+
 {% block content %}
 
-  {% if form %}
-    {% block css %}
-      {{ form.media.css }}
-      {{ block.super }}
-    {% endblock %}
-    {% crispy form %}
-  {% endif %}
-
-  {#{ block.super }#}
+  {% if form %}{% crispy form %}{% endif %}
 
   {% with a=object %}
-  <table class="details table table-bordered searchable">
+  <div class="table-responsive">
+  <table class="table table-bordered searchable">
     <tbody>
 
           <tr>
@@ -138,6 +138,7 @@
 
     </tbody>
   </table>
+  </div>
 
   <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
       {% if was_submitted %}
