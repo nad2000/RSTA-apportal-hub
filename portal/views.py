@@ -5,6 +5,7 @@ from functools import wraps
 from urllib.parse import quote
 
 import django.utils.translation
+import django_tables2
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
@@ -46,14 +47,7 @@ from weasyprint import HTML
 
 from . import forms, models, tables
 from .forms import Submit
-from .models import (
-    Application,
-    Profile,
-    ProfileCareerStage,
-    Subscription,
-    Testimony,
-    User,
-)
+from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tasks import notify_user
 from .utils import send_mail
 from .utils.orcid import OrcidHelper
@@ -2527,6 +2521,7 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
     export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
     model = models.ConflictOfInterest
     table_class = tables.RoundConflictOfInterstSatementTable
+    paginator_class = django_tables2.paginators.LazyPaginator
     # template_name = "rounds_conflict_of_interest.html"
     template_name = "table.html"
 
@@ -2556,6 +2551,8 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
         return [
             dict(
                 number=r.application.number,
+                application=r.application,
+                has_conflict=r.has_conflict,
                 first_name=r.panellist.first_name
                 or (r.panellist.user.first_name if r.panellist.user else ""),
                 middle_names=r.panellist.middle_names

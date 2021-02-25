@@ -188,6 +188,15 @@
               <b>{% trans "Panellist" %}</b>
             </a>
           {% endif %}
+
+          {% if request.user.is_staff %}
+            <a href="{% url 'round-coi-list' round=scheme.current_round.id %}" class="btn btn-outline-primary" style="text-transform: uppercase;"
+
+              > {% trans "Conflicts of" %}
+              <b>{% trans "Interest" %}</b>
+            </a>
+          {% endif %}
+
         {% else %}
           <span>
             <strong>

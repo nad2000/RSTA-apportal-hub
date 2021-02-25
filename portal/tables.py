@@ -174,11 +174,21 @@ class RoundApplicationTable(tables.Table):
 
 class RoundConflictOfInterstSatementTable(tables.Table):
 
-    number = tables.Column()
+    number = tables.Column(linkify=lambda record: record["application"].get_absolute_url())
+    # number = tables.Column()
+    has_conflict = tables.Column()
+    # application = tables.Column()
     first_name = tables.Column()
     middle_names = tables.Column()
     last_name = tables.Column()
     email = tables.Column()
+
+    def render_has_conflict(self, value):
+        if value is None:
+            return _("N/A")
+        elif value:
+            return _("Yes")
+        return _("No")
 
     class Meta:
         # model = models.ConflictOfInterest
