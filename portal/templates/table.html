@@ -43,6 +43,7 @@
 
   {% if view.export_formats %}
     <form method="GET">
+    <input type="hidden" name="show_only_conflicts" value="{% if show_only_conflicts %}1{% else %}0{% endif %}" >
       <div class="form-group row">
         <div class="col" style="max-width: 7pc;">
           <!-- label for="_export">{% trans 'Export Format' %}</label -->
