@@ -17,6 +17,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, F, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -2406,7 +2407,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
                 .values("has_conflict")
                 .annotate(count=Count("*"))
             ):
-                data[f"has_conflict_{row['has_conflict']}"] = (row["count"] != 0)
+                data[f"has_conflict_{row['has_conflict']}"] = row["count"] != 0
 
         if round_id:
             data["round"] = models.Round.get(round_id)
@@ -2526,6 +2527,15 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
     template_name = "table.html"
 
     @property
+    def show_only_conflicts(self):
+        return bool(self.request.GET.get("show_only_conflicts"))
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["show_only_conflicts"] = self.show_only_conflicts
+        return data
+
+    @property
     def title(self):
         if "round" in self.kwargs:
             return models.Round.get(self.kwargs.get("round")).title
@@ -2539,30 +2549,20 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
         )
 
     def get_queryset(self, *args, **kwargs):
-        queryset = self.model.where(application__round=self.kwargs.get("round")).select_related(
-            "application", "panellist"
-        )
-        # for r in queryset:
-        #     yield dict(
-        #         number=r.application.number,
-        #         first_name=r.panellist.first_name or r.panellist.user.first_name,
-        #         last_name=r.panellist.last_name or r.panellist.user.last_name,
-        #     )
-        return [
-            dict(
-                number=r.application.number,
-                application=r.application,
-                has_conflict=r.has_conflict,
-                first_name=r.panellist.first_name
-                or (r.panellist.user.first_name if r.panellist.user else ""),
-                middle_names=r.panellist.middle_names
-                or (r.panellist.user.middle_names if r.panellist.user else ""),
-                last_name=r.panellist.last_name
-                or (r.panellist.user.last_name if r.panellist.user else ""),
-                email=r.panellist.email or (r.panellist.user.email if r.panellist.user else ""),
+        queryset = (
+            self.model.where(application__round=self.kwargs.get("round"))
+            .select_related("application", "panellist")
+            .annotate(
+                number=F("application__number"),
+                first_name=Coalesce("panellist__first_name", "panellist__user__first_name"),
+                middle_names=Coalesce("panellist__middle_names", "panellist__user__middle_names"),
+                last_name=Coalesce("panellist__last_name", "panellist__user__last_name"),
+                email=Coalesce("panellist__email", "panellist__user__email"),
             )
-            for r in queryset
-        ]
+        )
+        if self.show_only_conflicts:
+            queryset = queryset.filter(Q(has_conflict=True) | Q(has_conflict=1))
+        return queryset
 
 
 @login_required

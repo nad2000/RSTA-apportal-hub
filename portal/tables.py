@@ -174,10 +174,8 @@ class RoundApplicationTable(tables.Table):
 
 class RoundConflictOfInterstSatementTable(tables.Table):
 
-    number = tables.Column(linkify=lambda record: record["application"].get_absolute_url())
-    # number = tables.Column()
+    number = tables.Column(linkify=lambda record: record.application.get_absolute_url())
     has_conflict = tables.Column()
-    # application = tables.Column()
     first_name = tables.Column()
     middle_names = tables.Column()
     last_name = tables.Column()
@@ -191,11 +189,5 @@ class RoundConflictOfInterstSatementTable(tables.Table):
         return _("No")
 
     class Meta:
-        # model = models.ConflictOfInterest
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped"}
-        # fields = (
-        #     "number",
-        #     "first_name",
-        #     "last_name",
-        # )

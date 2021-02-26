@@ -16,6 +16,20 @@
     <h1>{{ view.title }}</h1>
   {% endif %}
 
+  {% if "show_only_conflicts" in context or "show_only_conflicts" in request.GET %}
+    <form method="GET">
+      <div class="form-group form-check">
+        <input
+          {% if show_only_conflicts or request.GET.show_only_conflicts %}checked{% endif %}
+          type="checkbox"
+          class="form-check-input"
+          id="show-only-conflicts"
+          name="show_only_conflicts">
+        <label class="form-check-label" for="exampleCheck1">{% trans 'Show Only Conflicts' %}</label>
+      </div>
+    </form>
+  {% endif %}
+
   {% render_table table %}
 
   {% if view.export_formats %}
