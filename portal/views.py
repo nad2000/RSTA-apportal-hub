@@ -804,7 +804,6 @@ class ApplicationDetail(DetailView):
         context["is_owner"] = is_owner
         context["was_submitted"] = self.object.state == "submitted"
         if not is_owner:
-            breakpoint()
             context["show_basic_details"] = not models.ConflictOfInterest.where(
                 application=self.object,
                 panellist__user=self.request.user,
