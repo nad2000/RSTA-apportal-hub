@@ -87,53 +87,55 @@
             <td>{{ a.mobile_phone_number }}</td>
           </tr>
 
-          {% if a.summary or a.summary_en or a.summary_mi %}
-            {% if a.is_bilingual_summary %}
+          {% if not show_basic_details %}
+            {% if a.summary or a.summary_en or a.summary_mi %}
+              {% if a.is_bilingual_summary %}
 
-              {% if a.summary_en %}
+                {% if a.summary_en %}
+                  <tr>
+                    <th class="table-dark" scope="row">{% trans 'Summary (English)' %}</th>
+                    <td colspan="3">
+                      {{ a.summary_en|safe }}
+                    </td>
+                  </tr>
+                {% endif %}
+
+                {% if a.summary_mi %}
+                  <tr>
+                    <th class="table-dark" scope="row">{% trans 'Summary (Maori)' %}</th>
+                    <td colspan="3">
+                      {{ a.summary_mi|safe }}
+                    </td>
+                  </tr>
+                {% endif %}
+
+              {% elif a.summary %}
                 <tr>
-                  <th class="table-dark" scope="row">{% trans 'Summary (English)' %}</th>
-                  <td colspan="3">
-                    {{ a.summary_en|safe }}
-                  </td>
+                  <th class="table-dark" scope="row">{% trans 'Summary' %}</th>
+                  <td colspan="3">{{ a.summary|safe }}</td>
                 </tr>
               {% endif %}
+          {% endif %}
 
-              {% if a.summary_mi %}
-                <tr>
-                  <th class="table-dark" scope="row">{% trans 'Summary (Maori)' %}</th>
-                  <td colspan="3">
-                    {{ a.summary_mi|safe }}
-                  </td>
-                </tr>
-              {% endif %}
-
-            {% elif a.summary %}
-              <tr>
-                <th class="table-dark" scope="row">{% trans 'Summary' %}</th>
-                <td colspan="3">{{ a.summary|safe }}</td>
-              </tr>
-            {% endif %}
+          <tr>
+            <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form' %}</th>
+            <td colspan="3">
+                  {% if a.file %}<a href="{{ a.file.url }}" target="_blank">
+                      {{ a.file.name }}
+                </a>{% else %}{% trans 'N/A' %}{% endif %}
+            </td>
+          </tr>
         {% endif %}
 
-        <tr>
-          <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form' %}</th>
-          <td colspan="3">
-                {% if a.file %}<a href="{{ a.file.url }}" target="_blank">
-                    {{ a.file.name }}
-              </a>{% else %}{% trans 'N/A' %}{% endif %}
-          </td>
-        </tr>
-
         {% if request.user.is_staff or request.user.is_superuser %}
-            <tr>
-              <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
-              <td colspan="3">
-                {% if a.photo_identity %}<a href="{{ a.photo_identity.url }}" target="_blank">
-                    {{ a.photo_identity.name }}
-              </a>{% else %}{% trans 'N/A' %}{% endif %}
-              </td>
-            </tr>
+          <tr>
+            <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
+            <td colspan="3">
+              {% if a.photo_identity %}<a href="{{ a.photo_identity.url }}" target="_blank">
+                  {{ a.photo_identity.name }}
+            </a>{% else %}{% trans 'N/A' %}{% endif %}
+            </td>
+          </tr>
         {% endif %}
 
     </tbody>

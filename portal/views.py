@@ -797,11 +797,20 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        context["is_owner"] = (
+        is_owner = (
             self.object.submitted_by == self.request.user
             or self.object.members.all().filter(user=self.request.user).exists()
         )
+        context["is_owner"] = is_owner
         context["was_submitted"] = self.object.state == "submitted"
+        if not is_owner:
+            breakpoint()
+            context["show_basic_details"] = not models.ConflictOfInterest.where(
+                application=self.object,
+                panellist__user=self.request.user,
+                has_conflict=False,
+                has_conflict__isnull=False,
+            ).exists()
         return context
 
 
