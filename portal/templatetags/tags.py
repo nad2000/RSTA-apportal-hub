@@ -1,4 +1,5 @@
-import django.db.models.fields.files
+import os
+
 from django import forms, template
 from django.db import models
 from django.forms.widgets import NullBooleanSelect
@@ -58,7 +59,7 @@ def is_readonly_nullbooleanfield(value):
 
 @register.filter()
 def is_file_field(value):
-    return isinstance(value, django.db.models.fields.files.FieldFile)
+    return isinstance(value, models.FileField)
 
 
 @register.filter()
@@ -81,3 +82,8 @@ def person_with_email(value):
         output += f", {value.role}"
 
     return output
+
+
+@register.filter()
+def basename(value):
+    return os.path.basename(value) if value else ""
