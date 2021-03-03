@@ -1529,7 +1529,7 @@ class Evaluation(EvaluationMixin, Model):
     #     upload_subfolder=lambda instance: ["score-sheet", hash_int(instance.application.code)],
     # )
     comment = TextField(_("Overall Comment"), null=True, blank=True)
-    scores = ManyToManyField(Criterion, blank=True, through="Score")
+    # scores = ManyToManyField(Criterion, blank=True, through="Score")
     total_score = PositiveIntegerField(_("Total Score"), default=0)
     state = StateField(null=True, blank=True, default="new")
 
@@ -1567,7 +1567,7 @@ simple_history.register(
 
 
 class Score(Model):
-    evaluation = ForeignKey(Evaluation, on_delete=CASCADE)
+    evaluation = ForeignKey(Evaluation, on_delete=CASCADE, related_name="scores")
     criterion = ForeignKey(Criterion, on_delete=CASCADE, related_name="scores")
     value = PositiveIntegerField(_("Score"), default=0)
     comment = TextField(null=True, blank=True)
