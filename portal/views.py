@@ -2612,3 +2612,57 @@ def score_sheet(request, round):
         + "?next="
         + quote(request.get_full_path())
     )
+
+
+class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
+
+    export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
+    model = models.Application
+    # table_class = tables.RoundConflictOfInterstSatementTable
+    paginator_class = django_tables2.paginators.LazyPaginator
+    # template_name = "rounds_conflict_of_interest.html"
+    template_name = "table.html"
+
+    @property
+    def show_only_conflicts(self):
+        show_only_conflicts = self.request.GET.get("show_only_conflicts")
+        return show_only_conflicts != "0" and bool(show_only_conflicts)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["show_only_conflicts"] = self.show_only_conflicts
+        return data
+
+    @property
+    def title(self):
+        if "round" in self.kwargs:
+            return models.Round.get(self.kwargs.get("round")).title
+
+    @property
+    def export_name(self):
+        return (
+            models.Round.get(self.kwargs.get("round")).title
+            if "round" in self.kwargs
+            else "export"
+        )
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = self.model.where(
+            Q(round_id=self.kwargs.get("round")),
+            Q(round_id=F("round__panellists__round_id")),
+            Q(evaluations__id=F("evaluations__scores__evaluation__id"))
+            | Q(evaluations__id__isnull=True),
+        ).annotate(
+            first_name=Coalesce(
+                "round__panellist__first_name", "round__panellist__user__first_name"
+            ),
+            middle_names=Coalesce(
+                "round__panellist__middle_names", "round__panellist__user__middle_names"
+            ),
+            last_name=Coalesce("round__panellist__last_name", "round__panellist__user__last_name"),
+            email=Coalesce("round__panellist__email", "round__panellist__user__email"),
+            score=F("evaluations__scores__value"),
+        )
+        if self.show_only_conflicts:
+            queryset = queryset.filter(Q(has_conflict=True) | Q(has_conflict=1))
+        return queryset
