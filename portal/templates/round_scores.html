@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
+
+{% block content %}
+
+  <ul class="nav nav-tabs" id="panellist-tab" role="tablist">
+    {% for panellist in data %}
+      <li class="nav-item">
+        <a
+          id="panellist-{{ panellist.id }}-tab"
+          data-toggle="tab"
+          href="#panellist-{{ panellist.id }}"
+          role="tab"
+          aria-controls="{{ panellist.full_name }}"
+          {% if not selected_panellist_id %}
+            aria-selected="{% if forloop.first %}true{% else %}flase{% endif %}"
+            class="nav-link{% if forloop.first %} active{% endif %}"
+          {% else %}
+            aria-selected="{% if selected_panellist_id == panellis.id %}true{% else %}flase{% endif %}"
+            class="nav-link{% if selected_panellist_id == panellis.id %} active{% endif %}"
+          {% endif %}
+        >
+          {{ panellist.full_name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+<div class="tab-content" id="panellist-tab-content">
+  {% for panellist in data %}
+    <div
+      {% if not selected_panellist_id %}
+        class="tab-pane fade{% if forloop.first %} show active{% endif %}"
+      {% else %}
+        class="tab-pane fade{% if selected_panellist_id == panellis.id %} show active{% endif %}"
+      {% endif %}
+      id="panellist-{{ panellist.id }}" role="tabpanel"
+      aria-labelledby="panellist-{{ panellist.id }}-tab">
+
+      <table>
+
+        {% for evaluation in panellist.evaluations.all %}
+          <tr>
+
+            <td>
+              {{ evaluation.application.number }}
+            </td>
+
+            {% for score in evaluation.scores.all %}
+              <td>
+                {{ score.value }}
+              </td>
+            {% endfor %}
+
+          </tr>
+        {% endfor %}
+      </table>
+
+
+    </div>
+  {% endfor %}
+</div>
+
+<script>
+  $(document).ready(function(){
+    $('#panellist-tab a').on('click', function (e) {
+      e.preventDefault()
+      $(this).tab('show')
+    });
+  });
+</script>
+
+
+{% endblock %}
+
