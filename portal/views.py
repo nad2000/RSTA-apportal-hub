@@ -3,6 +3,7 @@ import io
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
+from itertools import groupby
 
 import django.utils.translation
 import django_tables2
@@ -2647,22 +2648,79 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
         )
 
     def get_queryset(self, *args, **kwargs):
-        queryset = self.model.where(
-            Q(round_id=self.kwargs.get("round")),
+
+        round_id = self.kwargs.get("round")
+        criteria = models.Criterion.where(round_id=round_id)
+        definitions = {c.id: c.definition for c in criteria}
+        scales = {c.id: c.scale for c in criteria}
+
+        q = self.model.where(
+            Q(round_id=round_id),
             Q(round_id=F("round__panellists__round_id")),
             Q(evaluations__id=F("evaluations__scores__evaluation__id"))
             | Q(evaluations__id__isnull=True),
         ).annotate(
-            first_name=Coalesce(
-                "round__panellist__first_name", "round__panellist__user__first_name"
-            ),
-            middle_names=Coalesce(
-                "round__panellist__middle_names", "round__panellist__user__middle_names"
-            ),
-            last_name=Coalesce("round__panellist__last_name", "round__panellist__user__last_name"),
-            email=Coalesce("round__panellist__email", "round__panellist__user__email"),
-            score=F("evaluations__scores__value"),
+            # panellist_first_name=Coalesce(
+            #     "round__panellist__first_name", "round__panellist__user__first_name"
+            # ),
+            # panellist_middle_names=Coalesce(
+            #     "round__panellist__middle_names", "round__panellist__user__middle_names"
+            # ),
+            # panellist_last_name=Coalesce("round__panellist__last_name", "round__panellist__user__last_name"),
+            # panellist_email=Coalesce("round__panellist__email", "round__panellist__user__email"),
+            value=F("evaluations__scores__value"),
+            comment=F("evaluations__scores__comment"),
+            scale=F("evaluations__scores__criterion__scale"),
         )
-        if self.show_only_conflicts:
-            queryset = queryset.filter(Q(has_conflict=True) | Q(has_conflict=1))
-        return queryset
+        # data = groupby(q, lambda r: (r.id, r.round__panellists__id))
+        # data = [
+        #         k[0], k[1],
+        #     groupby(q, lambda r: (r.id, r.round__panellists__id))
+        # ]
+
+        # breakpoint()
+        # return q
+
+
+def round_scores(request, round):
+
+    criteria = models.Criterion.where(round_id=round)
+
+    q = list(
+        models.Application.where(
+            Q(round_id=round),
+            Q(round_id=F("round__panellists__round_id")),
+            Q(evaluations__id=F("evaluations__scores__evaluation__id"))
+            | Q(evaluations__id__isnull=True),
+        ).annotate(
+            panellist_first_name=Coalesce(
+                "round__panellists__first_name", "round__panellists__user__first_name"
+            ),
+            panellist_middle_names=Coalesce(
+                "round__panellists__middle_names", "round__panellists__user__middle_names"
+            ),
+            panellist_last_name=Coalesce(
+                "round__panellists__last_name", "round__panellists__user__last_name"
+            ),
+            panellist_email=Coalesce("round__panellists__email", "round__panellists__user__email"),
+            value=F("evaluations__scores__value"),
+            comment=F("evaluations__scores__comment"),
+            scale=F("evaluations__scores__criterion__scale"),
+        )
+    )
+    data = [
+        # (k, sum(r.value * r.scale if r.scale else r.value for r in rows), rows)
+        (k, sum(r.value * r.scale if r.scale else r.value for r in rows), list(rows))
+        for k, rows in groupby(
+            q,
+            lambda r: (
+                r.id,
+                r.panellist_email,
+                r.panellist_first_name,
+                r.panellist_middle_names,
+                r.panellist_last_name,
+            ),
+        )
+    ]
+
+    return render(request, "round_scores.html", locals())

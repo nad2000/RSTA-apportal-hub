@@ -3,6 +3,7 @@ import re
 import secrets
 from datetime import date, datetime
 from urllib.parse import urljoin, urlparse
+from itertools import groupby
 
 import simple_history
 from django.conf import settings
@@ -22,6 +23,7 @@ from django.db.models import (
     DateTimeField,
     DecimalField,
     EmailField,
+    F,
     ForeignKey,
     ManyToManyField,
     OneToOneField,
@@ -31,6 +33,7 @@ from django.db.models import (
     SmallIntegerField,
     TextField,
 )
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
@@ -1482,6 +1485,49 @@ class Round(Model):
             )
             .exists()
         )
+
+    def score_summary(self):
+
+        criteria = round.creiteria
+
+        q = list(
+            Application.where(
+                Q(round_id=round),
+                Q(round_id=F("round__panellists__round_id")),
+                Q(evaluations__id=F("evaluations__scores__evaluation__id"))
+                | Q(evaluations__id__isnull=True),
+            ).annotate(
+                panellist_first_name=Coalesce(
+                    "round__panellists__first_name", "round__panellists__user__first_name"
+                ),
+                panellist_middle_names=Coalesce(
+                    "round__panellists__middle_names", "round__panellists__user__middle_names"
+                ),
+                panellist_last_name=Coalesce(
+                    "round__panellists__last_name", "round__panellists__user__last_name"
+                ),
+                panellist_email=Coalesce(
+                    "round__panellists__email", "round__panellists__user__email"
+                ),
+                value=F("evaluations__scores__value"),
+                comment=F("evaluations__scores__comment"),
+                scale=F("evaluations__scores__criterion__scale"),
+            ).order_by("number")
+        )
+        data = [
+            # (k, sum(r.value * r.scale if r.scale else r.value for r in rows), rows)
+            (k, sum(r.value * r.scale if r.scale else r.value for r in rows), list(rows))
+            for k, rows in groupby(
+                q,
+                lambda r: (
+                    r.id,
+                    r.panellist_email,
+                    r.panellist_first_name,
+                    r.panellist_middle_names,
+                    r.panellist_last_name,
+                ),
+            )
+        ]
 
     class Meta:
         db_table = "round"

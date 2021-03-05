@@ -226,7 +226,8 @@ urlpatterns = [
                 ),
                 path("scoresheet/~export", views.export_score_sheet, name="export-score-sheet"),
                 path("scoresheet", views.score_sheet, name="score-sheet"),
-                path("scores/~list", views.RoundScoreList.as_view(), name="scores-list"),
+                # path("scores/~list", views.RoundScoreList.as_view(), name="scores-list"),
+                path("scores/~list", views.round_scores, name="scores-list"),
             ]
         ),
     ),
