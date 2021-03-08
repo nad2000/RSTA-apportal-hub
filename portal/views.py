@@ -16,8 +16,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Prefetch, Q, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models import Case, Count, F, Prefetch, Q, Subquery, Sum, When
+from django.db.models.functions import Cast, Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -2712,14 +2712,34 @@ def round_scores(request, round):
         .prefetch_related(
             # "evaluations",
             Prefetch(
-                "evaluations", queryset=models.Evaluation.objects.order_by("application__number")
+                "evaluations",
+                queryset=models.Evaluation.objects.annotate(
+                    total=Sum(
+                        Case(
+                            When(
+                                Q(scores__criterion__scale__isnull=True)
+                                | Q(scores__criterion__scale=0),
+                                then=F("scores__value"),
+                            ),
+                            default=F("scores__value")
+                            * Cast(
+                                "scores__criterion__scale",
+                                output_field=models.PositiveIntegerField(),
+                            ),
+                        )
+                    )
+                ).order_by("application__number"),
             ),
             # "evaluations__application",
             Prefetch(
                 "evaluations__application", queryset=models.Application.objects.order_by("-number")
             ),
             "evaluations__scores",
-            "evaluations__scores__criterion",
+            # "evaluations__scores__criterion",
+            Prefetch(
+                "evaluations__scores__criterion",
+                queryset=models.Criterion.where(round_id=F("round_id")).order_by("definition"),
+            ),
         )
         .order_by(
             Coalesce("first_name", "user__first_name"),
@@ -2727,6 +2747,7 @@ def round_scores(request, round):
             # "evaluations__application__number",
         )
     )
+    # breakpoint()
 
     # data = [
     #     # (k, sum(r.value * r.scale if r.scale else r.value for r in rows), rows)

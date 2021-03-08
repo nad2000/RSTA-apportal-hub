@@ -242,7 +242,7 @@ TEMPLATES = [
             ],
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
-                "django.template.context_processors.debug",
+                # "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.i18n",
@@ -256,7 +256,11 @@ TEMPLATES = [
     },
     {
         "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [str(APPS_DIR / "templates/j2")],
+        "DIRS": [str(APPS_DIR / "jinja2")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "environment": "jinja2_env.environment",
+        },
     },
 ]
 

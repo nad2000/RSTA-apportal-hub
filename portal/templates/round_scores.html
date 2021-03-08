@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-
-{% load static i18n %}
+{% load tags i18n %}
 
 {% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 
@@ -40,25 +39,42 @@
       id="panellist-{{ panellist.id }}" role="tabpanel"
       aria-labelledby="panellist-{{ panellist.id }}-tab">
 
-      <table>
+      <table class="table table-striped table-bordered">
 
-        {% for evaluation in panellist.evaluations.all %}
+        <thead>
           <tr>
+            <th></th>
+            <th>{% trans 'Total' %}</th>
 
-            <td>
-              {{ evaluation.application.number }}
-            </td>
-
-            {% for score in evaluation.scores.all %}
-              <td>
-                {{ score.value }}
-              </td>
+            {% for c in criteria %}
+              <th>{{ c.definition }}</th>
             {% endfor %}
 
           </tr>
-        {% endfor %}
-      </table>
+        </thead>
 
+        <tbody>
+          {% for evaluation in panellist.evaluations.all %}
+            <tr>
+
+              <td>
+                {{ evaluation.application.number }}
+              </td>
+
+              <td>
+                {{ evaluation.total }}
+              </td>
+
+              {% for score in evaluation.scores.all|all_scores:criteria %}
+                <td>
+                  {{ score.value }}
+                </td>
+              {% endfor %}
+
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
     </div>
   {% endfor %}
@@ -73,6 +89,4 @@
   });
 </script>
 
-
 {% endblock %}
-

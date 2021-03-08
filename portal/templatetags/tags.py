@@ -87,3 +87,13 @@ def person_with_email(value):
 @register.filter()
 def basename(value):
     return os.path.basename(value) if value else ""
+
+
+@register.filter()
+def all_scores(value, criteria):
+    """Get full list of the scores based on the list of the criteria"""
+    scores = {s["criterion_id"]: s for s in value.values()}
+    for c in criteria:
+        score = scores.get(c.id, {})
+        score["criterion"] = c
+        yield score
