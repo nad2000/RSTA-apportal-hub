@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% load tags i18n %}
 
+{% block head_title %}{{ round|title }}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with categrory="reviews" %}{% endblock sidebar %}
 
 {% block content %}
+
+  <h1>{{ round|title }}</h1>
 
   <ul class="nav nav-tabs" id="panellist-tab" role="tablist">
     {% for panellist in data %}

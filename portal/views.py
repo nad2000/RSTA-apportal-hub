@@ -2683,34 +2683,13 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
 
 def round_scores(request, round):
 
+    round = get_object_or_404(models.Round, pk=round)
     criteria = models.Criterion.where(round_id=round)
 
-    # q = list(
-    #     models.Application.where(
-    #         Q(round_id=round),
-    #         Q(round_id=F("round__panellists__round_id")),
-    #         Q(evaluations__id=F("evaluations__scores__evaluation__id"))
-    #         | Q(evaluations__id__isnull=True),
-    #     ).annotate(
-    #         panellist_first_name=Coalesce(
-    #             "round__panellists__first_name", "round__panellists__user__first_name"
-    #         ),
-    #         panellist_middle_names=Coalesce(
-    #             "round__panellists__middle_names", "round__panellists__user__middle_names"
-    #         ),
-    #         panellist_last_name=Coalesce(
-    #             "round__panellists__last_name", "round__panellists__user__last_name"
-    #         ),
-    #         panellist_email=Coalesce("round__panellists__email", "round__panellists__user__email"),
-    #         value=F("evaluations__scores__value"),
-    #         comment=F("evaluations__scores__comment"),
-    #         scale=F("evaluations__scores__criterion__scale"),
-    #     )
-    # )
     q = (
-        models.Panellist.where(round=round)
+        round.panellists.all()
+        # models.Panellist.where(round=round)
         .prefetch_related(
-            # "evaluations",
             Prefetch(
                 "evaluations",
                 queryset=models.Evaluation.objects.annotate(
@@ -2730,39 +2709,19 @@ def round_scores(request, round):
                     )
                 ).order_by("application__number"),
             ),
-            # "evaluations__application",
             Prefetch(
                 "evaluations__application", queryset=models.Application.objects.order_by("-number")
             ),
             "evaluations__scores",
-            # "evaluations__scores__criterion",
             Prefetch(
                 "evaluations__scores__criterion",
                 queryset=models.Criterion.where(round_id=F("round_id")).order_by("definition"),
             ),
-        )
-        .order_by(
+        ).order_by(
             Coalesce("first_name", "user__first_name"),
             Coalesce("last_name", "user__last_name"),
-            # "evaluations__application__number",
         )
     )
-    # breakpoint()
-
-    # data = [
-    #     # (k, sum(r.value * r.scale if r.scale else r.value for r in rows), rows)
-    #     (k, sum(r.value * r.scale if r.scale else r.value for r in rows), list(rows))
-    #     for k, rows in groupby(
-    #         q,
-    #         lambda r: (
-    #             r.id,
-    #             r.panellist_email,
-    #             r.panellist_first_name,
-    #             r.panellist_middle_names,
-    #             r.panellist_last_name,
-    #         ),
-    #     )
-    # ]
     data = q
 
     return render(request, "round_scores.html", locals())

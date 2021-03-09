@@ -92,8 +92,6 @@ def basename(value):
 @register.filter()
 def all_scores(value, criteria):
     """Get full list of the scores based on the list of the criteria"""
-    scores = {s["criterion_id"]: s for s in value.values()}
+    scores = {s.criterion_id: s for s in value}
     for c in criteria:
-        score = scores.get(c.id, {})
-        score["criterion"] = c
-        yield score
+        yield scores.get(c.id, {"criteria": c})
