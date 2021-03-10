@@ -16,21 +16,30 @@ from django.db.models import (
     CASCADE,
     DO_NOTHING,
     SET_NULL,
+    Avg,
     BooleanField,
+    Case,
     CharField,
+    Count,
     DateField,
     DateTimeField,
     DecimalField,
     EmailField,
+    F,
     ForeignKey,
     ManyToManyField,
     OneToOneField,
     PositiveIntegerField,
     PositiveSmallIntegerField,
+    Prefetch,
     Q,
     SmallIntegerField,
+    Subquery,
+    Sum,
     TextField,
+    When,
 )
+from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
@@ -1495,6 +1504,72 @@ class Round(Model):
                 )
             )
             .exists()
+        )
+
+    @property
+    def avg_scores(self):
+
+        return Application.objects.raw(
+            """SELECT a.*, t.total
+            FROM application AS a JOIN (
+                SELECT et.application_id, avg(et.total) AS total
+                FROM (
+                    SELECT e.id, e.application_id, sum(
+                        CASE
+                            WHEN c.scale IS NULL OR c.scale=0 THEN s.value
+                            ELSE c.scale*s.value
+                        END
+                    ) AS total
+                    FROM evaluation AS e JOIN score AS s ON s.evaluation_id=e.id
+                        JOIN application AS a ON a.id=e.application_id
+                        JOIN criterion AS c ON c.id=s.criterion_id
+                    WHERE a.round_id=%s
+                    GROUP BY e.id, e.application_id) AS et
+                GROUP BY et.application_id
+            ) AS t ON t.application_id=a.id
+            WHERE a.round_id=%s
+            ORDER BY a.number""",
+            [self.id, self.id],
+        )
+
+    @property
+    def scores(self):
+        """Return list of all panellists and the scores given."""
+        return (
+            self.panellists.all()
+            .prefetch_related(
+                Prefetch(
+                    "evaluations",
+                    queryset=Evaluation.objects.annotate(
+                        total=Sum(
+                            Case(
+                                When(
+                                    Q(scores__criterion__scale__isnull=True)
+                                    | Q(scores__criterion__scale=0),
+                                    then=F("scores__value"),
+                                ),
+                                default=F("scores__value")
+                                * Cast(
+                                    "scores__criterion__scale",
+                                    output_field=PositiveIntegerField(),
+                                ),
+                            )
+                        )
+                    ).order_by("application__number"),
+                ),
+                Prefetch(
+                    "evaluations__application",
+                    queryset=Application.objects.order_by("-number"),
+                ),
+                "evaluations__scores",
+                Prefetch(
+                    "evaluations__scores__criterion",
+                    queryset=Criterion.where(round_id=F("round_id")).order_by("definition"),
+                ),
+            ).order_by(
+                Coalesce("first_name", "user__first_name"),
+                Coalesce("last_name", "user__last_name"),
+            )
         )
 
     class Meta:

@@ -9,7 +9,7 @@
   <h1>{{ round|title }}</h1>
 
   <ul class="nav nav-tabs" id="panellist-tab" role="tablist">
-    {% for panellist in data %}
+    {% for panellist in round.scores %}
       <li class="nav-item">
         <a
           id="panellist-{{ panellist.id }}-tab"
@@ -29,10 +29,23 @@
         </a>
       </li>
     {% endfor %}
+      <li class="nav-item">
+        <a
+          id="panellist-total-tab"
+          data-toggle="tab"
+          href="#panellist-total"
+          role="tab"
+          aria-controls="{% trans 'Total' %}"
+          aria-selected="{% if selected_panellist_id == 'total' %}true{% else %}flase{% endif %}"
+          class="nav-link{% if selected_panellist_id == 'total' %} active{% endif %}"
+        >
+          {% trans 'Total' %}
+        </a>
+      </li>
   </ul>
 
 <div class="tab-content" id="panellist-tab-content">
-  {% for panellist in data %}
+  {% for panellist in round.scores %}
     <div
       {% if not selected_panellist_id %}
         class="tab-pane fade{% if forloop.first %} show active{% endif %}"
@@ -46,7 +59,7 @@
 
         <thead>
           <tr>
-            <th></th>
+            <th>{% trans 'Application' %}</th>
             <th>{% trans 'Total' %}</th>
 
             {% for c in criteria %}
@@ -64,12 +77,12 @@
                 {{ evaluation.application.number }}
               </td>
 
-              <td>
+              <td class="text-right">
                 {{ evaluation.total }}
               </td>
 
               {% for score in evaluation.scores.all|all_scores:criteria %}
-                <td>
+                <td class="text-right">
                   {{ score.value }}
                 </td>
               {% endfor %}
@@ -81,6 +94,33 @@
 
     </div>
   {% endfor %}
+
+  <div
+    class="tab-pane fade{% if selected_panellist_id == 'total' %} show active{% endif %}"
+    id="panellist-total" role="tabpanel"
+    aria-labelledby="panellist-total-tab">
+
+    <table class="table table-striped table-bordered">
+
+      <thead>
+        <tr>
+          <th>{% trans 'Application' %}</th>
+          <th>{% trans 'Total Score' %}</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for t in round.avg_scores %}
+          <tr>
+            <td> {{ t.number }} </td>
+            <td class="text-right"> {{ t.total|floatformat }} </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+
 </div>
 
 <script>

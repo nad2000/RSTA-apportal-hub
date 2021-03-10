@@ -6,6 +6,7 @@ from urllib.parse import quote
 
 import django.utils.translation
 import django_tables2
+import tablib
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
@@ -16,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Case, Count, F, Prefetch, Q, Subquery, Sum, When
+from django.db.models import Avg, Case, Count, F, Prefetch, Q, Subquery, Sum, When
 from django.db.models.functions import Cast, Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
@@ -2681,47 +2682,10 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
         return q
 
 
+@login_required
 def round_scores(request, round):
 
     round = get_object_or_404(models.Round, pk=round)
     criteria = models.Criterion.where(round_id=round)
-
-    q = (
-        round.panellists.all()
-        # models.Panellist.where(round=round)
-        .prefetch_related(
-            Prefetch(
-                "evaluations",
-                queryset=models.Evaluation.objects.annotate(
-                    total=Sum(
-                        Case(
-                            When(
-                                Q(scores__criterion__scale__isnull=True)
-                                | Q(scores__criterion__scale=0),
-                                then=F("scores__value"),
-                            ),
-                            default=F("scores__value")
-                            * Cast(
-                                "scores__criterion__scale",
-                                output_field=models.PositiveIntegerField(),
-                            ),
-                        )
-                    )
-                ).order_by("application__number"),
-            ),
-            Prefetch(
-                "evaluations__application", queryset=models.Application.objects.order_by("-number")
-            ),
-            "evaluations__scores",
-            Prefetch(
-                "evaluations__scores__criterion",
-                queryset=models.Criterion.where(round_id=F("round_id")).order_by("definition"),
-            ),
-        ).order_by(
-            Coalesce("first_name", "user__first_name"),
-            Coalesce("last_name", "user__last_name"),
-        )
-    )
-    data = q
 
     return render(request, "round_scores.html", locals())
