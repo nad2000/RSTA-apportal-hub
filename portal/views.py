@@ -17,8 +17,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Avg, Case, Count, F, Prefetch, Q, Subquery, Sum, When
-from django.db.models.functions import Cast, Coalesce
+from django.db.models import Count, F, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
@@ -2680,6 +2680,58 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
 
         # breakpoint()
         return q
+
+
+@login_required
+def round_scores_export(request, round):
+
+    file_type = request.GET.get("type", "xls")
+    round = get_object_or_404(models.Round, pk=round)
+    criteria = models.Criterion.where(round=round)
+
+    book = tablib.Databook()
+
+    titles = []
+    for panellist in round.scores:
+        title = f"{panellist.full_name} ({panellist.email or panellist.user.email})"
+        if len(title) > 31:
+            if file_type == "xls":
+                title = title[:31]
+            else:
+                title = title[:27] + "..."
+
+        for i in range(1, 10):
+            if title.lower() not in titles:
+                break
+            title = f"{title[:-4]} ({i})"
+        titles.append(title.lower())
+
+        sheet = tablib.Dataset(
+            title=title,
+            headers=[
+                _("Application"),
+                _("Total"),
+                *(c for (c,) in criteria.values_list("definition")),
+            ],
+        )
+        book.add_sheet(sheet)
+
+    sheet = tablib.Dataset(
+        title=_("Total"),
+        headers=[_("Application"), _("Total Scores")])
+    for row in round.avg_scores:
+        sheet.append((row.number, row.total))
+    book.add_sheet(sheet)
+
+    filename = str(round).replace(" ", "-").lower() + "-scores." + file_type
+    response = HttpResponse(
+        book.export(file_type),
+        content_type="application/vnd.ms-excel"
+        if file_type == "xls"
+        else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
 
 
 @login_required

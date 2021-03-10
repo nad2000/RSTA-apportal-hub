@@ -228,6 +228,7 @@ urlpatterns = [
                 path("scoresheet", views.score_sheet, name="score-sheet"),
                 # path("scores/~list", views.RoundScoreList.as_view(), name="scores-list"),
                 path("scores/~list", views.round_scores, name="scores-list"),
+                path("scores/~export", views.round_scores_export, name="scores-export"),
             ]
         ),
     ),
