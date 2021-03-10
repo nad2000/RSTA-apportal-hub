@@ -123,6 +123,13 @@
 
 </div>
 
+<a class="btn btn-primary" href="{% url 'scores-export' round=round.id %}?type=xls" role="button">
+  {% trans 'Export XLS' %}
+</a>
+<a class="btn btn-primary" href="{% url 'scores-export' round=round.id %}?type=xlsx" role="button">
+  {% trans 'Export XLSX' %}
+</a>
+
 <script>
   $(document).ready(function(){
     $('#panellist-tab a').on('click', function (e) {
