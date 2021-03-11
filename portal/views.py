@@ -2694,16 +2694,17 @@ def round_scores_export(request, round):
     titles = []
     for panellist in round.scores:
         title = f"{panellist.full_name} ({panellist.email or panellist.user.email})"
-        if len(title) > 31:
-            if file_type == "xls":
-                title = title[:31]
-            else:
-                title = title[:27] + "..."
+        if file_type != "ods":
+            if len(title) > 31:
+                if file_type == "xls":
+                    title = title[:31]
+                else:
+                    title = title[:27] + "..."
 
         for i in range(1, 10):
             if title.lower() not in titles:
                 break
-            title = f"{title[:-4]} ({i})"
+            title = f"{title[:-2]}_{i}"
         titles.append(title.lower())
 
         sheet = tablib.Dataset(
@@ -2716,20 +2717,20 @@ def round_scores_export(request, round):
         )
         book.add_sheet(sheet)
 
-    sheet = tablib.Dataset(
-        title=_("Total"),
-        headers=[_("Application"), _("Total Scores")])
+    sheet = tablib.Dataset(title=_("Total"), headers=[_("Application"), _("Total Scores")])
     for row in round.avg_scores:
         sheet.append((row.number, row.total))
     book.add_sheet(sheet)
 
+    if file_type == "xls":
+        content_type = "application/vnd.ms-excel"
+    elif file_type == "xlsx":
+        content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    elif file_type == "ods":
+        content_type = "application/vnd.oasis.opendocument.spreadsheet"
+
     filename = str(round).replace(" ", "-").lower() + "-scores." + file_type
-    response = HttpResponse(
-        book.export(file_type),
-        content_type="application/vnd.ms-excel"
-        if file_type == "xls"
-        else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    )
+    response = HttpResponse(book.export(file_type), content_type=content_type)
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
 

@@ -123,11 +123,23 @@
 
 </div>
 
-<a class="btn btn-primary" href="{% url 'scores-export' round=round.id %}?type=xls" role="button">
-  {% trans 'Export XLS' %}
+<a class="btn btn-primary"
+  href="{% url 'scores-export' round=round.id %}?type=xls"
+  role="button"
+  data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2003 format' %}">
+  {% trans 'Export' %} <strong>XLS</strong>
 </a>
-<a class="btn btn-primary" href="{% url 'scores-export' round=round.id %}?type=xlsx" role="button">
-  {% trans 'Export XLSX' %}
+<a class="btn btn-primary"
+   href="{% url 'scores-export' round=round.id %}?type=xlsx"
+   role="button"
+   data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2007+ format' %}">
+  {% trans 'Export' %} <strong>XLSX</strong>
+</a>
+<a class="btn btn-primary"
+   href="{% url 'scores-export' round=round.id %}?type=ods"
+   role="button"
+   data-toggle="tooltip" title="{% trans 'Export in ODF Spreadsheet format' %}">
+  {% trans 'Export' %} <strong>ODS</strong>
 </a>
 
 <script>
