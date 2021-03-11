@@ -2711,15 +2711,17 @@ def round_scores_export(request, round):
             title=title,
             headers=[
                 _("Application"),
+                _("Lead"),
+                _("Overall Comment"),
                 _("Total"),
                 *(c for (c,) in criteria.values_list("definition")),
             ],
         )
         book.add_sheet(sheet)
 
-    sheet = tablib.Dataset(title=_("Total"), headers=[_("Application"), _("Total Scores")])
+    sheet = tablib.Dataset(title=_("Total"), headers=[_("Application"), _("Lead"), _("Total Scores")])
     for row in round.avg_scores:
-        sheet.append((row.number, row.total))
+        sheet.append((row.number, row.lead, row.total))
     book.add_sheet(sheet)
 
     if file_type == "xls":

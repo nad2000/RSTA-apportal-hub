@@ -809,6 +809,17 @@ class Application(Model):
             title = f"{title} ({self.number})"
         return title
 
+    @property
+    def lead(self):
+        value = self.first_name or self.submitted_by and self.submitted_by.first_name
+        if middle_names := self.middle_names or self.submitted_by and self.submitted_by.middle_names:
+            value = f"{value} {middle_names}"
+        return f"{value} {self.last_name or self.submitted_by and self.submitted_by.last_name}"
+
+    @property
+    def lead_with_email(self):
+        return f"{self.lead} ({self.submitted_by and self.submitted_by.email or self.email})"
+
     def get_absolute_url(self):
         return reverse("application", args=[str(self.id)])
 

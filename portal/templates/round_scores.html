@@ -60,10 +60,13 @@
         <thead>
           <tr>
             <th>{% trans 'Application' %}</th>
+            <th>{% trans 'Lead' %}</th>
+            <th>{% trans 'Overall Comment' %}</th>
             <th>{% trans 'Total' %}</th>
 
             {% for c in criteria %}
               <th>{{ c.definition }}</th>
+              <th>{{ c.definition }} {% trans 'Comment' %}</th>
             {% endfor %}
 
           </tr>
@@ -77,6 +80,14 @@
                 {{ evaluation.application.number }}
               </td>
 
+              <td>
+                {{ evaluation.application|person_with_email }}
+              </td>
+
+              <td>
+                {{ evaluation.comment }}
+              </td>
+
               <td class="text-right">
                 {{ evaluation.total }}
               </td>
@@ -84,6 +95,9 @@
               {% for score in evaluation.scores.all|all_scores:criteria %}
                 <td class="text-right">
                   {{ score.value }}
+                </td>
+                <td>
+                  {{ score.comment|safe }}
                 </td>
               {% endfor %}
 
@@ -105,6 +119,7 @@
       <thead>
         <tr>
           <th>{% trans 'Application' %}</th>
+          <th>{% trans 'Lead' %}</th>
           <th>{% trans 'Total Score' %}</th>
         </tr>
       </thead>
@@ -113,6 +128,7 @@
         {% for t in round.avg_scores %}
           <tr>
             <td> {{ t.number }} </td>
+            <td> {{ t|person_with_email }} </td>
             <td class="text-right"> {{ t.total|floatformat }} </td>
           </tr>
         {% endfor %}
