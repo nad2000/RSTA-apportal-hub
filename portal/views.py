@@ -2692,8 +2692,9 @@ def round_scores_export(request, round):
     book = tablib.Databook()
 
     titles = []
-    for panellist in round.scores:
-        title = f"{panellist.full_name} ({panellist.email or panellist.user.email})"
+    for p in round.scores:
+        title = p.full_name
+
         if file_type != "ods":
             if len(title) > 31:
                 if file_type == "xls":
@@ -2701,25 +2702,48 @@ def round_scores_export(request, round):
                 else:
                     title = title[:27] + "..."
 
-        for i in range(1, 10):
-            if title.lower() not in titles:
-                break
-            title = f"{title[:-2]}_{i}"
-        titles.append(title.lower())
+            for i in range(1, 10):
+                if title.lower() not in titles:
+                    break
+                title = f"{title[:-2]}_{i}"
+            titles.append(title.lower())
 
-        sheet = tablib.Dataset(
-            title=title,
-            headers=[
-                _("Application"),
-                _("Lead"),
-                _("Overall Comment"),
-                _("Total"),
-                *(c for (c,) in criteria.values_list("definition")),
-            ],
+        data = (
+            (
+                e.application.number,
+                e.application.lead,
+                e.comment,
+                e.total,
+                *(
+                    v
+                    for s in e.all_scores(criteria)
+                    for v in (("", "") if isinstance(s, dict) else (s.value, s.comment))
+                ),
+            )
+            for e in p.evaluations.all()
         )
-        book.add_sheet(sheet)
 
-    sheet = tablib.Dataset(title=_("Total"), headers=[_("Application"), _("Lead"), _("Total Scores")])
+        book.add_sheet(
+            tablib.Dataset(
+                *data,
+                title=title,
+                headers=[
+                    _("Application"),
+                    _("Lead"),
+                    _("Overall Comment"),
+                    _("Total"),
+                    *(
+                        v
+                        for (c,) in criteria.values_list("definition")
+                        for v in (c, f"{c} {_('Comment')}")
+                    ),
+                ],
+            )
+        )
+
+    sheet = tablib.Dataset(
+        title=_("Total"), headers=[_("Application"), _("Lead"), _("Total Scores")]
+    )
     for row in round.avg_scores:
         sheet.append((row.number, row.lead, row.total))
     book.add_sheet(sheet)

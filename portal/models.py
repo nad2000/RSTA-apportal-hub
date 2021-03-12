@@ -1651,6 +1651,15 @@ class Evaluation(EvaluationMixin, Model):
                 )
             )
 
+    def all_scores(self, criteria=None):
+        """Get full list of the scores based on the list of the criteria"""
+        if not criteria:
+            criteria = self.application.round.criteria.all().order_by("definition")
+
+        scores = {s.criterion_id: s for s in self.scores.all()}
+        for c in criteria:
+            yield scores.get(c.id, {"criteria": c})
+
     def __str__(self):
         return _("Evaluation of %s by %s") % (self.application, self.panellist)
 

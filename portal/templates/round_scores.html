@@ -25,7 +25,7 @@
             class="nav-link{% if selected_panellist_id == panellis.id %} active{% endif %}"
           {% endif %}
         >
-          {{ panellist.full_name }}
+          {{ panellist|person_name }}
         </a>
       </li>
     {% endfor %}
@@ -81,7 +81,7 @@
               </td>
 
               <td>
-                {{ evaluation.application|person_with_email }}
+                {{ evaluation.application|person_name }}
               </td>
 
               <td>
@@ -92,7 +92,7 @@
                 {{ evaluation.total }}
               </td>
 
-              {% for score in evaluation.scores.all|all_scores:criteria %}
+              {% for score in evaluation|all_scores:criteria %}
                 <td class="text-right">
                   {{ score.value }}
                 </td>
@@ -128,7 +128,7 @@
         {% for t in round.avg_scores %}
           <tr>
             <td> {{ t.number }} </td>
-            <td> {{ t|person_with_email }} </td>
+            <td> {{ t|person_name }} </td>
             <td class="text-right"> {{ t.total|floatformat }} </td>
           </tr>
         {% endfor %}

@@ -63,7 +63,7 @@ def is_file_field(value):
 
 
 @register.filter()
-def person_with_email(value):
+def person_name(value, with_email=False):
 
     if hasattr(value, "user"):
         u = value.user
@@ -71,17 +71,27 @@ def person_with_email(value):
         u = value.submitted_by
     else:
         u = None
+
     output = f"{value.title} " if hasattr(value, "title") and value.title else ""
-    output += value.first_name or (u.first_name if u else "")
+    output += value.first_name or u and u.first_name
 
-    if (hasattr(value, "middle_names") and value.middle_names) or (u.middle_names if u else ""):
-        output += f" {value.middle_names or (u.middle_names if u else '')}"
+    if middle_names := u and u.middle_names or hasattr(value, "middle_names") and value.middle_names:
+        output = f"{output} {middle_names}"
 
-    output += f" {value.last_name or value.user.last_name} ({value.email or value.user.email})"
-    if hasattr(value, "role") and value.role:
-        output += f", {value.role}"
+    output = f"{output} {u and u.last_name or value.last_name}"
+    if with_email:
+        output = f"{output} ({u and u.email or value.email})"
+
+    if role := hasattr(value, "role") and value.role:
+        output = f"{output}, {role}"
 
     return output
+
+
+@register.filter()
+def person_with_email(value):
+
+    return person_name(value, with_email=True)
 
 
 @register.filter()
@@ -92,6 +102,4 @@ def basename(value):
 @register.filter()
 def all_scores(value, criteria):
     """Get full list of the scores based on the list of the criteria"""
-    scores = {s.criterion_id: s for s in value}
-    for c in criteria:
-        yield scores.get(c.id, {"criteria": c})
+    yield from value.all_scores(criteria)
