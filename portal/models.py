@@ -1740,7 +1740,7 @@ class SchemeApplication(Model):
 
     @classmethod
     def get_data(cls, user):
-        cls.objects.raw(
+        return cls.objects.raw(
             """
             SELECT
                 s.id,

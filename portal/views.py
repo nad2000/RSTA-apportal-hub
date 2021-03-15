@@ -2445,18 +2445,20 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     def get_initial_queryset(self):
 
+        from django.db.models import Exists
+        from django.db.models import OuterRef
+
         if (panellist := self.panellist) and self.request.method == "GET":
             return (
                 models.Application.objects.select_related("round")
                 .filter(round=self.kwargs["round"], round__panellists=panellist)
-                .filter(conflict_of_interests__panellist=panellist)
                 .filter(
-                    Q(
-                        Q(conflict_of_interests__isnull=True)
-                        | ~Q(conflict_of_interests__panellist=panellist)
-                    ),
+                    ~Q(Exists(models.ConflictOfInterest.where(
+                        application=OuterRef("pk"),
+                        panellist=panellist
+                    )))
                 )
-                .distinct()
+                .order_by("number")
             )
         else:
             return models.Application.objects.none()
