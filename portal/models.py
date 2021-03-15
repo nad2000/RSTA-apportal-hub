@@ -1738,6 +1738,45 @@ class SchemeApplication(Model):
         related_name="+",
     )
 
+    @classmethod
+    def get_data(cls, user):
+        cls.objects.raw(
+            """
+            SELECT
+                s.id,
+                s.title,
+                s.title_en,
+                s.title_mi,
+                s.guidelines,
+                s.description,
+                s.description_en,
+                s.description_mi,
+                EXISTS(
+                    SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
+                    WHERE sg.scheme_id=s.id AND ag.name='APPLICANT') AS can_be_applied_to,
+                EXISTS(
+                    SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
+                    WHERE sg.scheme_id=s.id AND ag.name='NOMINATOR') AS can_be_nominated_to,
+                a.created_at,
+                a.updated_at,
+                a.id AS application_id,
+                a.number AS application_number,
+                a.submitted_by_id AS application_submitted_by_id,
+                s.current_round_id,
+                m.user_id AS member_user_id
+            FROM scheme AS s LEFT JOIN round AS r ON r.id = s.current_round_id
+            LEFT JOIN application AS a ON a.round_id = r.id
+            LEFT JOIN member AS m
+                ON m.application_id = a.id AND (m.user_id IS NULL OR m.user_id != a.submitted_by_id)
+            LEFT JOIN (
+                SELECT max(a.id) AS id, a.round_id FROM application AS a LEFT JOIN member AS m
+                    ON m.application_id = a.id
+                WHERE m.user_id IS NULL OR m.user_id != a.submitted_by_id
+                GROUP BY a.round_id, a.submitted_by_id, m.id) AS la
+                ON la.round_id = r.id AND la.id = a.id
+            WHERE m.id IS NULL OR m.user_id IS NOT NULL;
+        """, user.id)
+
     class Meta:
         managed = False
         db_table = "scheme_application_view"

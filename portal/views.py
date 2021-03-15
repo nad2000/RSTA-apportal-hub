@@ -265,6 +265,9 @@ def index(request):
             # )
             .distinct()
         )
+        panellist_of_rounds = [
+            p[0] for p in models.Panellist.where(user=request.user).values_list("round_id")
+        ]
     else:
         messages.info(
             request,

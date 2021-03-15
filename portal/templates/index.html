@@ -98,15 +98,12 @@
         <p class="card-text">{{ scheme.description }}</p>
         {% if scheme.current_round %}
           <p class="card-text">{% trans 'Application period' %}:
-          <strong {% if not scheme.current_round.is_open %}class="badge-danger"{% endif %}>
-            {{ scheme.current_round.opens_on|date:"c" }}
-            {% if scheme.current_round.closes_on %}
-              - {{ scheme.current_round.closes_on|date:"c" }}
-            {% endif %}
-          </strong>
-
-
-
+            <strong {% if not scheme.current_round.is_open %}class="badge-danger"{% endif %}>
+              {{ scheme.current_round.opens_on|date:"c" }}
+              {% if scheme.current_round.closes_on %}
+                - {{ scheme.current_round.closes_on|date:"c" }}
+              {% endif %}
+            </strong>
           </p>
         {% endif %}
         {% if request.user.can_apply %}
@@ -143,18 +140,20 @@
               </div>
             {% else %}
               <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
-                {% if not scheme.current_round.is_open %}
+                {% if scheme.current_round.id in panellist_of_rounds %}
+                  disabled
+                  data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
+                {% elif not scheme.current_round.is_open %}
                   disabled
                   {% if scheme.current_round.will_open %}
                     data-title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
                   {% else %}
-                    data-title="{% trans 'The application period closed on' %} {{ scheme.current_round.closes_on|date:'o-m-d'}}"
                   {% endif %}
                 {% else %}
                    data-title="{% trans 'Start a new application' %}"
                 {% endif %}
               >
-              <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}"
+              <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.current_round.id in panellist_of_rounds %}disabled{% endif %}"
                 style="text-transform: uppercase;"
                 {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
               </a>
