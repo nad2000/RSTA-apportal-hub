@@ -2315,6 +2315,14 @@ class EvaluationMixin:
         return data
 
 
+@login_required
+def edit_evaluation(request, pk):
+    """Redirect either to create or update an evaluation."""
+    if e := models.Evaluation.where(application=pk, panellist__user=request.user).first():
+        return redirect(reverse("evaluation-update", kwargs=dict(pk=e.id)))
+    return redirect(reverse("application-evaluation-create", kwargs=dict(application=pk)))
+
+
 class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesView):
     def get(self, *args, **kwargs):
         if "application" in self.kwargs:
@@ -2453,10 +2461,13 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
                 models.Application.objects.select_related("round")
                 .filter(round=self.kwargs["round"], round__panellists=panellist)
                 .filter(
-                    ~Q(Exists(models.ConflictOfInterest.where(
-                        application=OuterRef("pk"),
-                        panellist=panellist
-                    )))
+                    ~Q(
+                        Exists(
+                            models.ConflictOfInterest.where(
+                                application=OuterRef("pk"), panellist=panellist
+                            )
+                        )
+                    )
                 )
                 .order_by("number")
             )

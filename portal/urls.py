@@ -31,6 +31,11 @@ urlpatterns = [
                     name="application-evaluation-create",
                 ),
                 path(
+                    "<int:pk>/evaluation/~edit",
+                    views.edit_evaluation,
+                    name="application-evaluation",
+                ),
+                path(
                     "<int:round>/~create",
                     views.ApplicationCreate.as_view(),
                     name="application-create",

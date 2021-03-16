@@ -80,9 +80,27 @@
   {% endif %}
 
   {% if update_view_name %}
-    <a class="btn btn-primary" href="{% url update_view_name pk=object.pk %}">{% trans update_button_name %}</a>
+    <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
+        {% if object.state == "submitted" or object.status == "submitted" %}
+          disabled
+          data-title="{% trans 'The entry has been already submitted and cannot be modified.' %}"
+        {% endif %}
+      >
+      <a class="btn btn-primary{% if object.state == "submitted" or object.status == "submitted" %} disabled{% endif %}"
+        href="{% url update_view_name pk=object.pk %}">{% trans update_button_name %}</a>
+      </div>
   {% endif %}
+
   {% if export_button_view_name %}
     <a class="btn btn-primary" href="{% url export_button_view_name pk=object.pk %}">{% trans 'Export' %}</a>
   {% endif %}
 {% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function(){
+        $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+    });
+  </script>
+{% endblock javascript %}

@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags static %}
+{% load crispy_forms_tags static i18n %}
 
 {% block head_title %}{{ object }}{% endblock %}
 
 {% block css %}
+  <!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@3/dark.css" -->
+  <!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" -->
   {{ form.media.css }}
   {{ block.super }}
 {% endblock %}
@@ -57,6 +59,7 @@
 
 {% block javascript %}
   {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js" integrity="sha256-92U7H+uBjYAJfmb+iNPi7DPoj795ZCTY4ZYmplsn/fQ=" crossorigin="anonymous"></script>
   <!-- JS -->
   {{ form.media.js }}
   <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>
@@ -67,4 +70,36 @@
     $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
     });
     </script -->
+    <!-- script>
+      $(document).ready(function(){
+        $("input[name='submit']").click(function(even) {
+          // event.preventDefault();
+          var thisForm = this.form;
+          return Swal.fire({
+            title: "{% trans 'Are you sure you wish to submit the form?' %}",
+            text: "{% trans 'After the submitting this form You will not be able to revert the submission and make any changes!' %}",
+            icon: 'warning',
+            showCancelButton: true,
+            // animation: false,
+            // buttonsStyling: false,
+            // confirmButtonColor: '#3085d6',
+            // cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, submit it!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              Swal.fire(
+                "{% trans 'Submitted!' %}",
+                "{% trans 'The firm has been submitted.' %}",
+                'success'
+              );
+              // thisForm.submit();
+              return true;
+            } else {
+              return false;
+            }
+          });
+        });
+      });
+    </script -->
+
 {% endblock %}

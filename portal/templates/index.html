@@ -153,10 +153,10 @@
                    data-title="{% trans 'Start a new application' %}"
                 {% endif %}
               >
-              <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.current_round.id in panellist_of_rounds %}disabled{% endif %}"
-                style="text-transform: uppercase;"
-                {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
-              </a>
+                <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.current_round.id in panellist_of_rounds %}disabled{% endif %}"
+                  style="text-transform: uppercase;"
+                  {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                </a>
               </div>
             {% endif %}
               <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
@@ -173,6 +173,15 @@
                 {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
                 </a>
               </div>
+
+              {% if scheme.current_round.id in panellist_of_rounds %}
+                {% if scheme.application %}
+                  <a href="{% url 'application-evaluation' pk=scheme.application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
+                {% elif scheme.current_round %}
+                  <a href="{% url 'round-application-list' round_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Applications" %}</b></a>
+                {% endif %}
+              {% endif %}
+
           {% else %}
             {% if request.user.is_superuser %}
               <a href="{% url 'admin:portal_round_change' object_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
