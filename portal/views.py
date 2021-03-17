@@ -574,13 +574,20 @@ def invite_referee(request, application):
 
 def get_or_create_team_member_invitation(member):
 
+    u = member.user or models.User.objects.filter(email=member.email).first()
+    if not u and (ea := EmailAddress.objects.filter(email=member.email).first()):
+        u = ea.user
+    first_name = member.first_name or u and u.first_name or ""
+    last_name = member.last_name or u and u.last_name or ""
+    middle_names = member.middle_names or u and u.middle_names or ""
+
     if hasattr(member, "invitation"):
         i = member.invitation
         if member.email != i.email:
             i.email = member.email
-            i.first_name = member.first_name
-            i.middle_names = member.middle_names
-            i.last_name = member.last_name
+            i.first_name = first_name
+            i.middle_names = middle_names
+            i.last_name = last_name
             i.sent_at = None
             i.status = models.Invitation.STATUS.submitted
             i.save()
@@ -592,14 +599,21 @@ def get_or_create_team_member_invitation(member):
             email=member.email,
             defaults=dict(
                 application=member.application,
-                first_name=member.first_name,
-                middle_names=member.middle_names,
-                last_name=member.last_name,
+                first_name=first_name,
+                middle_names=middle_names,
+                last_name=last_name,
             ),
         )
 
 
 def get_or_create_referee_invitation(referee, by=None):
+
+    u = referee.user or models.User.objects.filter(email=referee.email).first()
+    if not u and (ea := EmailAddress.objects.filter(email=referee.email).first()):
+        u = ea.user
+    first_name = referee.first_name or u and u.first_name or ""
+    last_name = referee.last_name or u and u.last_name or ""
+    middle_names = referee.middle_names or u and u.middle_names or ""
 
     if hasattr(referee, "invitation"):
         i = referee.invitation
@@ -607,9 +621,9 @@ def get_or_create_referee_invitation(referee, by=None):
             if by:
                 i.inviter = by
             i.email = referee.email
-            i.first_name = referee.first_name
-            i.middle_names = referee.middle_names
-            i.last_name = referee.last_name
+            i.first_name = first_name
+            i.middle_names = middle_names
+            i.last_name = last_name
             i.sent_at = None
             i.status = models.Invitation.STATUS.submitted
             i.save()
@@ -623,9 +637,9 @@ def get_or_create_referee_invitation(referee, by=None):
             defaults=dict(
                 inviter=by,
                 application=referee.application,
-                first_name=referee.first_name,
-                middle_names=referee.middle_names,
-                last_name=referee.last_name,
+                first_name=first_name,
+                middle_names=middle_names,
+                last_name=last_name,
             ),
         )
 
@@ -652,13 +666,21 @@ def invite_panellist(request, round):
 
 
 def get_or_create_panellist_invitation(panellist):
+
+    u = panellist.user or models.User.objects.filter(email=panellist.email).first()
+    if not u and (ea := EmailAddress.objects.filter(email=panellist.email).first()):
+        u = ea.user
+    first_name = panellist.first_name or u and u.first_name or ""
+    last_name = panellist.last_name or u and u.last_name or ""
+    middle_names = panellist.middle_names or u and u.middle_names or ""
+
     if hasattr(panellist, "invitation"):
         i = panellist.invitation
         if panellist.email != i.email:
             i.email = panellist.email
-            i.first_name = panellist.first_name
-            i.middle_names = panellist.middle_names
-            i.last_name = panellist.last_name
+            i.first_name = first_name
+            i.middle_names = middle_names
+            i.last_name = last_name
             i.sent_at = None
             i.status = models.Invitation.STATUS.submitted
             i.save()
@@ -671,9 +693,9 @@ def get_or_create_panellist_invitation(panellist):
             defaults=dict(
                 panellist=panellist,
                 round=panellist.round,
-                first_name=panellist.first_name,
-                middle_names=panellist.middle_names,
-                last_name=panellist.last_name,
+                first_name=first_name,
+                middle_names=middle_names,
+                last_name=last_name,
             ),
         )
 
@@ -1380,20 +1402,29 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
     def formset_valid(self, formset):
         url_name = self.request.resolver_match.url_name
         profile = self.request.user.profile
-        if url_name == "profile-employments":
+        if "complete" in self.request.POST:
             profile.is_employments_completed = True
-        if url_name == "profile-professional-records":
             profile.is_professional_bodies_completed = True
-        if url_name == "profile-career-stages":
             profile.is_career_stages_completed = True
-        if url_name == "profile-external-ids":
             profile.is_external_ids_completed = True
-        if url_name == "profile-cvs":
             profile.is_cvs_completed = True
-        if url_name == "profile-academic-records":
             profile.is_academic_records_completed = True
-        if url_name == "profile-recognitions":
             profile.is_recognitions_completed = True
+        else:
+            if url_name == "profile-employments":
+                profile.is_employments_completed = True
+            if url_name == "profile-professional-records":
+                profile.is_professional_bodies_completed = True
+            if url_name == "profile-career-stages":
+                profile.is_career_stages_completed = True
+            if url_name == "profile-external-ids":
+                profile.is_external_ids_completed = True
+            if url_name == "profile-cvs":
+                profile.is_cvs_completed = True
+            if url_name == "profile-academic-records":
+                profile.is_academic_records_completed = True
+            if url_name == "profile-recognitions":
+                profile.is_recognitions_completed = True
         profile.save()
         return super().formset_valid(formset)
 
@@ -2453,8 +2484,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     def get_initial_queryset(self):
 
-        from django.db.models import Exists
-        from django.db.models import OuterRef
+        from django.db.models import Exists, OuterRef
 
         if (panellist := self.panellist) and self.request.method == "GET":
             return (

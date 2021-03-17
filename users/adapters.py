@@ -69,11 +69,22 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         return getattr(settings, "ACCOUNT_ALLOW_REGISTRATION", True)
 
     def populate_user(self, request, sociallogin, data):
+
         user = super().populate_user(request, sociallogin, data)
+
+        email = data.get("email") or self.invitation and self.invitation.email
+        if not user.username and email:
+            user.username = email.split("@")[0]
+        elif data.get("name"):
+            user.username = data["name"]
+
         user.name = data.get("name")
         user.orcid = data.get("orcid")
         user.is_approved = True
         self.handle_invitation(request, sociallogin)
         if not user.email and self.invitation:
             user.email = self.invitation.email
+        else:
+            user.email = email
+
         return user

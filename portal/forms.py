@@ -402,6 +402,14 @@ class ProfileSectionFormSetHelper(FormHelper):
             )
             previous_button.input_type = "submit"
             self.add_input(previous_button)
+            complete_button = Button(
+                "complete", _("Complete"),
+                data_toggle="tooltip",
+                title=_("Skip the rest of the profile sections and complete the profile now"),
+                css_class="btn btn-outline-secondary"
+            )
+            complete_button.input_type = "submit"
+            self.add_input(complete_button)
             # self.add_input(add_more_button)
             if next_step:
                 next_button = Button(

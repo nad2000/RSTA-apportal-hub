@@ -48,6 +48,8 @@ class StatusColumn(tables.Column):
             css_classes = "fa fa-ban text-danger text-center"
         elif value == "bounced":
             css_classes = "fa fa-exclamation-triangle text-danger text-center"
+        elif value == "submitted":
+            css_classes = "fa fa-check text-success text-center"
 
         return mark_safe(f'<i class="{css_classes}" aria-hidden="true"></i>')
 

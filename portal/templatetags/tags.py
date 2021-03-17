@@ -73,12 +73,12 @@ def person_name(value, with_email=False):
         u = None
 
     output = f"{value.title} " if hasattr(value, "title") and value.title else ""
-    output += value.first_name or u and u.first_name
+    output += value.first_name or u and u.first_name or ""
 
-    if middle_names := u and u.middle_names or hasattr(value, "middle_names") and value.middle_names:
+    if middle_names := u and u.middle_names or hasattr(value, "middle_names") and value.middle_names or "":
         output = f"{output} {middle_names}"
 
-    output = f"{output} {u and u.last_name or value.last_name}"
+    output = f"{output} {u and u.last_name or value.last_name or ''}"
     if with_email:
         output = f"{output} ({u and u.email or value.email})"
 
