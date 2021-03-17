@@ -20,7 +20,24 @@ ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["pmscienceprizes.org.n
 # DATABASES["default"]["ATOMIC_REQUESTS"] = True  # noqa F405
 # DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)  # noqa F405
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(ROOT_DIR / "db.sqlite3"),}
+    # "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": str(ROOT_DIR / "db.sqlite3"),}
+
+     "default": {
+         "ENGINE": "django.db.backends.mysql",
+         "NAME": "pmspp",
+         "USER": "pmspp",
+         "PASSWORD": "<your mysql DB password>",
+         # "HOST": "rad42.mysql.pythonanywhere-services.com",
+         "OPTIONS": {
+             "init_command": "SET sql_mode='ANSI,STRICT_TRANS_TABLES'; SET default_storage_engine=INNODB",
+         },
+     }
+
+    #  "default": {
+    #      "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #      "NAME": "pmspp",
+    #      "USER": "pmspp",
+    #  }
 }
 
 # CACHES
