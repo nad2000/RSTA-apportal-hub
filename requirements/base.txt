@@ -1,4 +1,4 @@
-pytz>=2019.3,<2020.1  # https://github.com/stub42/pytz
+# pytz>=2019.3,<2020.1  # https://github.com/stub42/pytz
 python-slugify>=4.0.0,<5.0.0  # https://github.com/un33k/python-slugify
 Pillow>=7.0.0,<8.0.0  # https://github.com/python-pillow/Pillow
 rcssmin>=1.0.6,<2.0.0  # https://github.com/ndparker/rcssmin
@@ -50,3 +50,9 @@ jinja2>=2.11.2,<2.12.0
 django-weasyprint==1.0.1
 html2text==2020.1.16
 PyPdf2==1.26.0
+
+# Limited requrement for pgadmin4:
+pytz<2021
+pyopenssl<20.0.0
+cryptography<=3.0
+sqlalchemy<1.4.0

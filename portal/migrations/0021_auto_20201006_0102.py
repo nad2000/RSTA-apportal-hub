@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             """
-            SET sql_mode='ANSI_QUOTES';
+            -- SET sql_mode='ANSI_QUOTES';
             ALTER TABLE round ADD COLUMN has_online_scoring BOOL DEFAULT true;
             ALTER TABLE round_history ADD COLUMN has_online_scoring BOOL DEFAULT true;
             """,
