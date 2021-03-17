@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import builtins
 import logging
 import os
-import sys
-
-from pgadmin.utils import env, IS_WIN, fs_short_path
 
 SERVER_MODE = True
 
 # Name of the application to display in the UI
-APP_NAME = 'PMSPP pgAdmin 4'
-APP_ICON = 'pg-icon'
+APP_NAME = "PMSPP pgAdmin 4"
+APP_ICON = "pg-icon"
 
 ##########################################################################
 # Misc stuff
@@ -19,17 +15,17 @@ APP_ICON = 'pg-icon'
 
 # Languages we support in the UI
 LANGUAGES = {
-    'en': 'English',
+    "en": "English",
     # 'mi': 'Maori',
 }
 
 # DO NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
 # List of modules to skip when dynamically loading
-## MODULE_BLACKLIST = ['test']
+# MODULE_BLACKLIST = ['test']
 
 # DO NOT CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
 # List of treeview browser nodes to skip when dynamically loading
-## NODE_BLACKLIST = []
+# NODE_BLACKLIST = []
 
 ##########################################################################
 # Server settings
@@ -53,7 +49,7 @@ SERVER_MODE = True
 
 # HTTP headers to search for CSRF token when it is not provided in the form.
 # Default is ['X-CSRFToken', 'X-CSRF-Token']
-WTF_CSRF_HEADERS = ['X-pgA-CSRFToken']
+WTF_CSRF_HEADERS = ["X-pgA-CSRFToken"]
 
 
 # This param is used to validate ALLOWED_HOSTS for the application
@@ -66,19 +62,18 @@ ALLOWED_HOSTS = []
 
 
 # Add the internal version param to below extensions only
-APP_VERSION_EXTN = ('.css', '.js', '.html', '.svg', '.png', '.gif', '.ico')
+APP_VERSION_EXTN = (".css", ".js", ".html", ".svg", ".png", ".gif", ".ico")
 
 # Data directory for storage of config settings etc. This shouldn't normally
 # need to be changed - it's here as various other settings depend on it.
 # On Windows, we always store data in %APPDATA%\pgAdmin. On other platforms,
 # if we're in server mode we use /var/lib/pgadmin, otherwise ~/.pgadmin
-DATA_DIR = '/home/app/prod/pgadmin4'
+DATA_DIR = "/home/app/prod/pgadmin4"
 
 # An optional login banner to show security warnings/disclaimers etc. at
 # login and password recovery etc. HTML may be included for basic formatting,
 # For example:
-LOGIN_BANNER = "<h4>Authorised Users Only!</h4>" \
-               "Unauthorised use is strictly forbidden."
+LOGIN_BANNER = "<h4>Authorised Users Only!</h4>" "Unauthorised use is strictly forbidden."
 # LOGIN_BANNER = ""
 
 ##########################################################################
@@ -100,12 +95,12 @@ CONSOLE_LOG_LEVEL = logging.WARNING
 FILE_LOG_LEVEL = logging.WARNING
 
 # Log format.
-CONSOLE_LOG_FORMAT = '%(asctime)s: %(levelname)s\t%(name)s:\t%(message)s'
-FILE_LOG_FORMAT = '%(asctime)s: %(levelname)s\t%(name)s:\t%(message)s'
+CONSOLE_LOG_FORMAT = "%(asctime)s: %(levelname)s\t%(name)s:\t%(message)s"
+FILE_LOG_FORMAT = "%(asctime)s: %(levelname)s\t%(name)s:\t%(message)s"
 
 # Log file name. This goes in the data directory, except on non-Windows
 # platforms in server mode.
-LOG_FILE = os.path.join(DATA_DIR, 'pgadmin4.log')
+LOG_FILE = os.path.join(DATA_DIR, "pgadmin4.log")
 
 
 ##########################################################################
@@ -115,7 +110,7 @@ LOG_FILE = os.path.join(DATA_DIR, 'pgadmin4.log')
 # The default path to the SQLite database used to store user accounts and
 # settings. This default places the file in the same directory as this
 # config file, but generates an absolute path for use througout the app.
-SQLITE_PATH = os.path.join(DATA_DIR, 'pgadmin4.db')
+SQLITE_PATH = os.path.join(DATA_DIR, "pgadmin4.db")
 
 # SQLITE_TIMEOUT will define how long to wait before throwing the error -
 # OperationError due to database lock. On slower system, you may need to change
@@ -150,9 +145,9 @@ MAX_QUERY_HIST_STORED = 20
 # SESSION_DB_PATH = '/run/shm/pgAdmin4_session'
 #
 ##########################################################################
-SESSION_DB_PATH = os.path.join(DATA_DIR, 'sessions')
+SESSION_DB_PATH = os.path.join(DATA_DIR, "sessions")
 
-SESSION_COOKIE_NAME = 'pga4_session'
+SESSION_COOKIE_NAME = "pga4_session"
 
 ##########################################################################
 # Mail server settings
@@ -161,12 +156,12 @@ SESSION_COOKIE_NAME = 'pga4_session'
 # These settings are used when running in web server mode for confirming
 # and resetting passwords etc.
 # See: http://pythonhosted.org/Flask-Mail/ for more info
-MAIL_SERVER = 'localhost'
+MAIL_SERVER = "localhost"
 MAIL_PORT = 25
 MAIL_USE_SSL = False
 MAIL_USE_TLS = False
-MAIL_USERNAME = ''
-MAIL_PASSWORD = ''
+MAIL_USERNAME = ""
+MAIL_PASSWORD = ""
 MAIL_DEBUG = False
 
 # Flask-Security overrides Flask-Mail's MAIL_DEFAULT_SENDER setting, so
@@ -178,12 +173,9 @@ SECURITY_EMAIL_SENDER = "no-reply@prod.prodata.nz"
 ##########################################################################
 
 # These settings define the content of password reset emails
-SECURITY_EMAIL_SUBJECT_PASSWORD_RESET = "Password reset instructions for %s" \
-                                        % APP_NAME
-SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE = "Your %s password has been reset" \
-                                         % APP_NAME
-SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE = \
-    "Your password for %s has been changed" % APP_NAME
+SECURITY_EMAIL_SUBJECT_PASSWORD_RESET = "Password reset instructions for %s" % APP_NAME
+SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE = "Your %s password has been reset" % APP_NAME
+SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE = "Your password for %s has been changed" % APP_NAME
 
 
 ##########################################################################
@@ -197,7 +189,7 @@ SECURITY_EMAIL_SUBJECT_PASSWORD_CHANGE_NOTICE = \
 # 2. Set path manually like
 # STORAGE_DIR = "/path/to/directory/"
 ##########################################################################
-STORAGE_DIR = os.path.join(DATA_DIR, 'storage')
+STORAGE_DIR = os.path.join(DATA_DIR, "storage")
 
 ##########################################################################
 # Default locations for binary utilities (pg_dump, pg_restore etc)
@@ -214,18 +206,14 @@ STORAGE_DIR = os.path.join(DATA_DIR, 'storage')
 # $DIR/../../SharedSupport
 #
 ##########################################################################
-DEFAULT_BINARY_PATHS = {
-    "pg": "",
-    "ppas": "",
-    "gpdb": ""
-}
+DEFAULT_BINARY_PATHS = {"pg": "", "ppas": "", "gpdb": ""}
 
 ##########################################################################
 # Test settings - used primarily by the regression suite, not for users
 ##########################################################################
 
 # The default path for SQLite database for testing
-TEST_SQLITE_PATH = os.path.join(DATA_DIR, 'test_pgadmin4.db')
+TEST_SQLITE_PATH = os.path.join(DATA_DIR, "test_pgadmin4.db")
 
 ##########################################################################
 # Allows flask application to response to the each request asynchronously
@@ -252,19 +240,17 @@ SHOW_GRAVATAR_IMAGE = True
 ##########################################################################
 # Set cookie path and options
 ##########################################################################
-COOKIE_DEFAULT_PATH = '/'
+COOKIE_DEFAULT_PATH = "/"
 COOKIE_DEFAULT_DOMAIN = None
 SESSION_COOKIE_DOMAIN = None
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 
 #########################################################################
 # Skip storing session in files and cache for specific paths
 #########################################################################
-SESSION_SKIP_PATHS = [
-    '/misc/ping'
-]
+SESSION_SKIP_PATHS = ["/misc/ping"]
 
 ##########################################################################
 # Session expiration support
@@ -327,4 +313,4 @@ ENHANCED_COOKIE_PROTECTION = True
 # ['ldap', 'internal']. pgAdmin will authenticate the user with ldap first,
 # in case of failure internal authentication will be done.
 
-AUTHENTICATION_SOURCES = ['internal']
+AUTHENTICATION_SOURCES = ["internal"]
