@@ -2819,3 +2819,41 @@ def round_scores(request, round):
     criteria = models.Criterion.where(round_id=round)
 
     return render(request, "round_scores.html", locals())
+
+
+class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
+
+    export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
+    model = models.Application
+    table_class = tables.RoundSummaryTable
+    paginator_class = django_tables2.paginators.LazyPaginator
+    # template_name = "rounds_conflict_of_interest.html"
+    template_name = "table.html"
+
+    @property
+    def show_only_conflicts(self):
+        show_only_conflicts = self.request.GET.get("show_only_conflicts")
+        return show_only_conflicts != "0" and bool(show_only_conflicts)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["show_only_conflicts"] = self.show_only_conflicts
+        return data
+
+    @property
+    def title(self):
+        if "round" in self.kwargs:
+            return models.Round.get(self.kwargs.get("round")).title
+
+    @property
+    def export_name(self):
+        return (
+            models.Round.get(self.kwargs.get("round")).title
+            if "round" in self.kwargs
+            else "export"
+        ) + "-summary"
+
+    def get_queryset(self, *args, **kwargs):
+
+        round = get_object_or_404(models.Round, pk=self.kwargs.get("round"))
+        return round.summary

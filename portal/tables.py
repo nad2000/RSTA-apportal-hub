@@ -192,4 +192,19 @@ class RoundConflictOfInterstSatementTable(tables.Table):
 
     class Meta:
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
+
+
+class RoundSummaryTable(tables.Table):
+
+    number = tables.Column(linkify=lambda record: record.get_absolute_url())
+    referees = tables.Column(empty_values=(), verbose_name=_("Referees"), orderable=False)
+
+    def render_referees(self, record):
+        return f"{record.submitted_reference_count}/{record.referee_count}"
+
+    class Meta:
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped table-bordered"}
+        model = models.Application
+        fields = ["number", "referee_count", "submitted_reference_count"]

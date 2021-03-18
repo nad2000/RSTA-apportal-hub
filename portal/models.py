@@ -1582,6 +1582,24 @@ class Round(Model):
             )
         )
 
+    @property
+    def summary(self):
+        return Application.objects.raw(
+            """
+            WITH summary AS (
+                SELECt a.id, count(r.id) AS referee_count,
+                    sum(CASE WHEN r.status='testified' OR has_testifed THEN 1 ELSE 0 END) AS submitted_reference_count
+                FROM application AS a
+                    LEFT JOIN referee AS r ON r.application_id=a.id
+                WHERE a.round_id=%s
+                GROUP BY a.id
+            )
+            SELECT a.*, s.referee_count, s.submitted_reference_count
+            FROM application AS a JOIN summary AS s ON s.id=a.id
+            WHERE a.round_id=%s
+            """,
+            [self.id, self.id])
+
     class Meta:
         db_table = "round"
 
