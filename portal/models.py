@@ -1022,10 +1022,12 @@ class Panellist(PanellistMixin, Model):
 
     @property
     def full_name(self):
-        full_name = self.first_name or self.user.first_name
-        if self.middle_names or self.user.middle_names:
+        full_name = self.first_name or self.user and self.user.first_name or ""
+        if self.middle_names or self.user and self.user.middle_names:
             full_name += f" {(self.middle_names or self.user.middle_names)}"
-        return f"{full_name} {self.last_name or self.user.last_name}"
+        if self.last_name or self.user and self.user.last_name:
+            full_name += f" {self.last_name or self.user.last_name}"
+        return full_name
 
     @property
     def full_name_with_email(self):
