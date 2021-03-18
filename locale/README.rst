@@ -3,4 +3,4 @@ Translations
 
 Translations will be placed in this folder when running::
 
-    python manage.py makemessages
+    ./manage.py makemessages  -i docs -i genkey -i rapidconnect -i venv -l mi
