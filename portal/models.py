@@ -1550,13 +1550,13 @@ class Round(Model):
             .prefetch_related(
                 Prefetch(
                     "evaluations",
-                    queryset=Evaluation.objects.annotate(
+                    queryset=Evaluation.objects.filter(application__round=self).annotate(
                         total=Sum(
                             Case(
                                 When(
                                     Q(scores__criterion__scale__isnull=True)
                                     | Q(scores__criterion__scale=0),
-                                    then=F("scores__value"),
+                                    then=F("scores__value")
                                 ),
                                 default=F("scores__value")
                                 * Cast(
