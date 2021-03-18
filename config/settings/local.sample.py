@@ -92,4 +92,5 @@ RECAPTCHA_USE_SSL = True
 ACCOUNT_FORMS = {
         "signup": "users.forms.UserSignupForm",
 }
+ORCID_BASE_URL = "https://sandbox.orcid.org/"
 ORCID_API_BASE = "https://pub.sandbox.orcid.org/v3.0/"

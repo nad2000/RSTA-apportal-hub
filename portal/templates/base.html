@@ -51,7 +51,7 @@
         <div class="mb-0">
 
           <header class="header">
-            <a href="#" style="margin-left: 24px;">
+            <a href="{% url 'home' %}" style="margin-left: 24px;">
               <img id="logo"
                    src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
             </a>
@@ -114,7 +114,7 @@
                           <i class="fas fa-id-badge"></i> {% trans "My Profile" %}
                         </a>
 
-                        <a class="dropdown-item" href="{% url 'account_logout' %}" id="account_logout">
+                        <a class="dropdown-item" href="{% url 'logout' %}" id="logout">
                           <i class="fas fa-sign-out-alt"></i> {% trans "Sign Out" %}
                         </a>
 
@@ -334,6 +334,12 @@
         });
       </script>
       {% endcompress %}
+      {% if request.GET.logout %}
+        <script>
+          $.ajax({url: '{{ settings.ORCID_BASE_URL }}' + 'userStatus.json?logUserOut=true', dataType: 'jsonp'});
+          $.ajax({url: '{{ settings.RAPIDCONNECT_LOGOUT }}?return=' + document.location.href});
+        </script>
+      {% endif %}
 
     {% endblock javascript %}
   {% endblock %}

@@ -107,6 +107,11 @@ def shoud_be_onboarded(function):
     return wrap
 
 
+def logout(request):
+    return_url = request.build_absolute_uri(reverse("account_logout"))
+    return redirect(f"{settings.RAPIDCONNECT_LOGOUT}?return={return_url}")
+
+
 def should_be_approved(function):
     """
     Check if the authentication user is approved.  If not then display a

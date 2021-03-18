@@ -154,12 +154,14 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
+# LOGIN_REDIRECT_URL = "users:redirect"
+LOGIN_REDIRECT_URL = "home"
 # ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 ACCOUNT_LOGOUT_ON_GET = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
-LOGOUT_REDIRECT_URL = "home"
+# LOGOUT_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "/accounts/login/?logout=1"
 ACCOUNT_LOGOUT_REDIRECT_URL = LOGOUT_REDIRECT_URL
 HTTP_BASIC_AUTH_URL = "/auth"
 
@@ -391,7 +393,10 @@ SUMMERNOTE_CONFIG = {"iframe": True}
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 
+ORCID_BASE_URL = "https://orcid.org/"
 ORCID_API_BASE = "https://pub.orcid.org/v3.0/"
+
+RAPIDCONNECT_LOGOUT = "https://rapidconnect.tuakiri.ac.nz/logout"
 
 DATE_FORMAT = "%Y-%m-%d"
 TIME_FORMAT = "%H:%M"
