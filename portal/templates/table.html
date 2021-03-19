@@ -16,7 +16,7 @@
     <h1>{{ view.title }}</h1>
   {% endif %}
 
-  {% if show_only_conflicts or show_only_conflicts == False or "show_only_conflicts" in request.GET %}
+  {% if add_show_only_conflicts_filter %}
     <form method="GET">
       <div class="form-group form-check">
         <input

@@ -2594,6 +2594,7 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["show_only_conflicts"] = self.show_only_conflicts
+        data["add_show_only_conflicts_filter"] = True
         return data
 
     @property

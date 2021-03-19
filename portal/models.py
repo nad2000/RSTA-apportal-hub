@@ -1594,8 +1594,15 @@ class Round(Model):
                 WHERE a.round_id=%s
                 GROUP BY a.id
             )
-            SELECT a.*, s.referee_count, s.submitted_reference_count
+            SELECT
+                a.*,
+                s.referee_count,
+                s.submitted_reference_count,
+                u.is_identity_verified,
+                p.is_accepted
             FROM application AS a JOIN summary AS s ON s.id=a.id
+                LEFT JOIN users_user AS u ON u.id = a.submitted_by_id
+                LEFT JOIN profile AS p ON p.user_id = u.id
             WHERE a.round_id=%s
             """,
             [self.id, self.id])
