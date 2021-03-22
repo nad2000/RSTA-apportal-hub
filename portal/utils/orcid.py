@@ -62,20 +62,35 @@ class OrcidHelper:
     def fetch_and_load_orcid_data(self):
         """Fetch the data from orcid. ["employment", "education", "qualification"]"""
         orcid = self.user.orcid
-        if not orcid and self.user.profile:
-            ppi = (
-                models.ProfilePersonIdentifier.where(profile=self.user.profile, code__code="02")
+        if (
+            not orcid
+            and self.user.profile
+            and (
+                ppi := models.ProfilePersonIdentifier.where(
+                    profile=self.user.profile, code__code="02"
+                )
                 .order_by("-id")
                 .first()
             )
-            if ppi:
-                orcid = ppi.value
+        ):
+            orcid = ppi.value
+        if not orcid and (
+            sa := self.user.socialaccount_set.all()
+            .filter(provider="orcid")
+            .order_by("-id")
+            .first()
+        ):
+            orcid = sa.uid
 
         if orcid:
             if orcid.startswith("https://"):
                 url = orcid
             else:
                 url = urljoin(settings.ORCID_API_BASE, orcid)
+
+            if not self.user.orcid:
+                self.user.orcid = orcid
+                self.user.save()
 
             access_token = self.user.orcid_access_token
             url = urljoin(settings.ORCID_API_BASE, orcid)
