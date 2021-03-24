@@ -140,7 +140,7 @@
               </div>
             {% else %}
               <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
-                {% if scheme.current_round.id in panellist_of_rounds %}
+                {% if scheme.is_panellist %}
                   disabled
                   data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
                 {% elif not scheme.current_round.is_open %}
@@ -153,7 +153,7 @@
                    data-title="{% trans 'Start a new application' %}"
                 {% endif %}
               >
-                <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.current_round.id in panellist_of_rounds %}disabled{% endif %}"
+                <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.is_panellist %}disabled{% endif %}"
                   style="text-transform: uppercase;"
                   {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
                 </a>
@@ -174,7 +174,7 @@
                 </a>
               </div>
 
-              {% if scheme.current_round.id in panellist_of_rounds %}
+              {% if scheme.is_panellist %}
                 {% if scheme.application %}
                   <a href="{% url 'application-evaluation' pk=scheme.application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
                 {% elif scheme.current_round %}

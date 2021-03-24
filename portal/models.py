@@ -1736,8 +1736,8 @@ class SchemeApplication(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
-    can_be_applied_to = BooleanField(null=True, blank=True)
-    can_be_nominated_to = BooleanField(null=True, blank=True)
+    # can_be_applied_to = BooleanField(null=True, blank=True)
+    # can_be_nominated_to = BooleanField(null=True, blank=True)
     application = ForeignKey(
         Application,
         null=True,
@@ -1764,12 +1764,24 @@ class SchemeApplication(Model):
         db_index=False,
         related_name="+",
     )
+    panellist = ForeignKey(
+        Panellist,
+        null=True,
+        blank=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
+    )
+    is_panellist = BooleanField(
+        null=True,
+        blank=True)
 
     @classmethod
     def get_data(cls, user):
         return cls.objects.raw(
             """
-            SELECT
+            SELECT DISTINCT
                 s.id,
                 s.title,
                 s.title_en,
@@ -1778,31 +1790,49 @@ class SchemeApplication(Model):
                 s.description,
                 s.description_en,
                 s.description_mi,
-                EXISTS(
+                /* EXISTS(
                     SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
                     WHERE sg.scheme_id=s.id AND ag.name='APPLICANT') AS can_be_applied_to,
                 EXISTS(
                     SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
-                    WHERE sg.scheme_id=s.id AND ag.name='NOMINATOR') AS can_be_nominated_to,
+                    WHERE sg.scheme_id=s.id AND ag.name='NOMINATOR') AS can_be_nominated_to, */
                 a.created_at,
                 a.updated_at,
                 a.id AS application_id,
                 a.number AS application_number,
                 a.submitted_by_id AS application_submitted_by_id,
                 s.current_round_id,
-                m.user_id AS member_user_id
-            FROM scheme AS s LEFT JOIN round AS r ON r.id = s.current_round_id
+                m.user_id AS member_user_id,
+                p.id AS panellist_id,
+                p.id IS NOT NULL AS is_panellist
+            FROM scheme AS s
+            LEFT JOIN round AS r ON r.id = s.current_round_id
             LEFT JOIN application AS a ON a.round_id = r.id
             LEFT JOIN member AS m
-                ON m.application_id = a.id AND (m.user_id IS NULL OR m.user_id != a.submitted_by_id)
+                ON m.application_id = a.id
+                AND (m.user_id IS NULL
+                    OR (m.user_id != a.submitted_by_id
+                    AND (m.user_id = %s OR a.submitted_by_id = %s)
+                ))
             LEFT JOIN (
-                SELECT max(a.id) AS id, a.round_id FROM application AS a LEFT JOIN member AS m
+                SELECT max(a.id) AS id, a.round_id
+                FROM application AS a LEFT JOIN member AS m
                     ON m.application_id = a.id
-                WHERE m.user_id IS NULL OR m.user_id != a.submitted_by_id
+                WHERE m.user_id IS NULL
+                    OR (m.user_id != a.submitted_by_id
+                    AND (m.user_id = %s OR a.submitted_by_id = %s))
                 GROUP BY a.round_id, a.submitted_by_id, m.id) AS la
                 ON la.round_id = r.id AND la.id = a.id
-            WHERE m.id IS NULL OR m.user_id IS NOT NULL;
-        """, user.id)
+            LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
+            WHERE m.id IS NULL
+                OR (m.user_id = %s)
+                OR (a.id IS NULL OR a.submitted_by_id = %s);
+        """, [
+                user.id, user.id,
+                user.id, user.id,
+                user.id, user.id,
+                user.id,
+            ])
 
     class Meta:
         managed = False

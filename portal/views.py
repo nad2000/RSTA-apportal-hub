@@ -5,6 +5,7 @@ from functools import wraps
 from urllib.parse import quote
 
 import django.utils.translation
+from django.db.models import prefetch_related_objects
 import django_tables2
 import tablib
 from allauth.account.models import EmailAddress
@@ -260,19 +261,8 @@ def index(request):
             )
             three_days_ago = timezone.now() - timedelta(days=3)
 
-        schemes = (
-            # models.SchemeApplication.where(groups__in=request.user.groups.all())
-            models.SchemeApplication.objects.select_related("current_round")
-            # .filter(
-            #     Q(application__isnull=True)
-            #     | Q(application__submitted_by=request.user)
-            #     | Q(member_user=request.user)
-            # )
-            .distinct()
-        )
-        panellist_of_rounds = [
-            p[0] for p in models.Panellist.where(user=request.user).values_list("round_id")
-        ]
+        schemes = models.SchemeApplication.get_data(request.user)
+        prefetch_related_objects(schemes, "current_round")
     else:
         messages.info(
             request,
