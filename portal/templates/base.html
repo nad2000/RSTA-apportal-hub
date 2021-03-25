@@ -337,7 +337,6 @@
       {% if request.GET.logout %}
         <script>
           $.ajax({url: '{{ settings.ORCID_BASE_URL }}' + 'userStatus.json?logUserOut=true', dataType: 'jsonp'});
-          $.ajax({url: '{{ settings.RAPIDCONNECT_LOGOUT }}?return=' + document.location.href});
         </script>
       {% endif %}
 
