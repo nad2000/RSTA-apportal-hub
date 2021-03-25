@@ -33,7 +33,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
     def pre_social_login(self, request, sociallogin):
         user = sociallogin.user
-        if user.id:
+        if user.id or not user.email:
             return
         try:
             # lookup for a user by the primary email
