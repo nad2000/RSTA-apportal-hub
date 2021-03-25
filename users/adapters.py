@@ -1,14 +1,18 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.models import EmailAddress
+from allauth.account.utils import perform_login
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.utils import email_address_exists
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import resolve_url
 from django.utils.translation import gettext as _
 
 from portal.models import Invitation
+
+User = get_user_model()
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -26,6 +30,27 @@ class AccountAdapter(DefaultAccountAdapter):
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     invitation = None
+
+    def pre_social_login(self, request, sociallogin):
+        user = sociallogin.user
+        if user.id:
+            return
+        try:
+            # lookup for a user by the primary email
+            u = User.where(email=user.email).first()
+            # lookup for a user by other email addresses
+            if not u and (
+                ea := EmailAddress.objects.filter(email=user.email).order_by("-id").first()
+            ):
+                u = ea.user
+            # elif sa := SocialAccount.objects.filter(email=user.email).first():
+            #     u = sa.user
+
+            if u:
+                sociallogin.state["process"] = "connect"
+                perform_login(request, u, "none")
+        except u.DoesNotExist:
+            pass
 
     def handle_invitation(self, request, sociallogin):
         # This should be done somewhere else:
