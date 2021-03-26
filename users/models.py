@@ -98,6 +98,14 @@ class User(HelperMixin, AbstractUser):
 
                 return access_token
 
+    @property
+    def has_orcid_account(self):
+        return self.socialaccount_set.all().filter(provider="orcid").exists()
+
+    @property
+    def has_rapidconnect_account(self):
+        return self.socialaccount_set.all().filter(provider="rapidconnect").exists()
+
     @cached_property
     def avatar(self):
         return self.image_url(size=38)

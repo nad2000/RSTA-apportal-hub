@@ -114,7 +114,9 @@
                           <i class="fas fa-id-badge"></i> {% trans "My Profile" %}
                         </a>
 
-                        <a class="dropdown-item" href="{% url 'logout' %}" id="logout">
+                        <a class="dropdown-item"
+                         href="{% if request.user.has_rapidconnect_account %}{% url 'logout' %}{% else %}{% url 'account_logout' %}{% endif %}"
+                         id="logout">
                           <i class="fas fa-sign-out-alt"></i> {% trans "Sign Out" %}
                         </a>
 

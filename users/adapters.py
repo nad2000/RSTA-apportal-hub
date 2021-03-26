@@ -24,6 +24,11 @@ class AccountAdapter(DefaultAccountAdapter):
             return resolve_url("profile-create")
         return url
 
+    def pre_authenticate(self, request, **credentials):
+        if "logout_from_orcid" in request.session:
+            del request.session["logout_from_orcid"]
+        super().pre_authenticate(request, **credentials)
+
     def confirm_email(self, request, email_address):
         return super().confirm_email(request, email_address)
 

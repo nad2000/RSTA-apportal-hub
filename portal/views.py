@@ -110,8 +110,11 @@ def shoud_be_onboarded(function):
 
 @login_required
 def logout(request):
-    return_url = request.build_absolute_uri(reverse("account_logout"))
-    return redirect(f"{settings.RAPIDCONNECT_LOGOUT}?return={return_url}")
+    account_logout = reverse("account_logout")
+    if request.user.has_rapidconnect_account:
+        return_url = request.build_absolute_uri(account_logout)
+        return redirect(f"{settings.RAPIDCONNECT_LOGOUT}?return={return_url}")
+    return redirect(account_logout)
 
 
 def should_be_approved(function):
