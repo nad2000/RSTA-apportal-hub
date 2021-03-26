@@ -108,6 +108,7 @@ def shoud_be_onboarded(function):
     return wrap
 
 
+@login_required
 def logout(request):
     return_url = request.build_absolute_uri(reverse("account_logout"))
     return redirect(f"{settings.RAPIDCONNECT_LOGOUT}?return={return_url}")
@@ -1405,6 +1406,8 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             profile.is_cvs_completed = True
             profile.is_academic_records_completed = True
             profile.is_recognitions_completed = True
+            if not self.success_url:
+                self.success_url = reverse("home")
         else:
             if url_name == "profile-employments":
                 profile.is_employments_completed = True
