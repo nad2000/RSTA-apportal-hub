@@ -2211,6 +2211,15 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     table_class = tables.RoundApplicationTable
     template_name = "rounds.html"
 
+    def get(self, request, *args, **kwargs):
+        if r := get_object_or_404(models.Round, pk=self.kwargs.get("round_id")):
+            if not r.has_online_scoring:
+                if not r.all_coi_statements_given_by(request.user):
+                    return redirect(reverse("round-coi", kwargs=dict(round=r.id)))
+                else:
+                    return redirect(reverse("score-sheet", kwargs=dict(round=r.id)))
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self, *args, **kwargs):
         queryset = self.model.where(round=self.kwargs.get("round_id"))
         return queryset
@@ -2226,17 +2235,18 @@ class ConflictOfInterestView(CreateUpdateView):
         round_id = kwargs.get("round_id")
         application_id = kwargs.get("application_id")
         panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
-        conflict_of_interest = self.model.where(application_id=application_id, panellist=panellist)
-        if conflict_of_interest:
-            if conflict_of_interest.first().has_conflict:
+        if coi := self.model.where(application_id=application_id, panellist=panellist).first():
+            if coi.has_conflict:
                 messages.warning(
                     self.request, _("You have conflict of interest for this application.")
                 )
                 return HttpResponseRedirect(
                     reverse("round-application-list", kwargs=dict(round_id=round_id))
                 )
-            else:
-                return HttpResponseRedirect(reverse("application", kwargs=dict(pk=application_id)))
+            elif coi.has_conflict is not None:
+                return HttpResponseRedirect(
+                    reverse("application-evaluation", kwargs=dict(pk=application_id))
+                )
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -2447,7 +2457,9 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
         data["no_label"] = _("No")
 
         round_id = self.kwargs.get("round")
-        if round_id and (p := models.Panellist.get(user=self.request.user, round_id=round_id)):
+        if round_id and (
+            p := models.Panellist.where(user=self.request.user, round_id=round_id).first()
+        ):
             if p.has_all_coi_statements_submitted_for(round_id):
                 data["is_all_coi_statements_sumitted"] = True
 
@@ -2478,8 +2490,10 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
     @property
     def panellist(self):
-        if "round" in self.kwargs:
-            return models.Panellist.get(round=self.kwargs["round"], user=self.request.user)
+        if "round" in self.kwargs and (
+            p := models.Panellist.where(round=self.kwargs["round"], user=self.request.user).first()
+        ):
+            return p
         else:
             return None
 
@@ -2539,9 +2553,17 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
 @login_required
 def export_score_sheet(request, round):
-    r = models.Round.where(id=round).prefetch_related("criteria", "applications").first()
+    r = (
+        models.Round.where(id=round)
+        .order_by("-id")
+        .prefetch_related("criteria", "applications")
+        .first()
+    )
+    filename = r.title.lower().replace(" ", "-")
+    filename += "-" + request.user.full_name.lower().replace(" ", "-")
+
     response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = 'attachment; filename="' + r.title + '.xls"'
+    response["Content-Disposition"] = 'attachment; filename="' + filename + '.xls"'
 
     writer = csv.writer(response)
     headers = [

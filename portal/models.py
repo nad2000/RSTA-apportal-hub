@@ -35,6 +35,7 @@ from django.db.models import (
     Sum,
     TextField,
     When,
+    prefetch_related_objects,
 )
 from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse
@@ -1038,11 +1039,13 @@ class Panellist(PanellistMixin, Model):
 
     @classmethod
     def outstanding_requests(cls, user):
-        return Invitation.objects.raw(
+        q = Invitation.objects.raw(
             "SELECT DISTINCT p.* FROM panellist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
-            "WHERE (p.user_id=%s OR ae.user_id=%s)",
+            "WHERE (p.user_id=%s OR ae.user_id=%s) AND p.status <> 'submitted' AND p.status IS NOT NULL",
             [user.id, user.id],
         )
+        prefetch_related_objects(q, "round")
+        return q
 
     class Meta:
         db_table = "panellist"
@@ -1064,7 +1067,9 @@ class ConflictOfInterest(Model):
     statement_given_at = DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return _("Statement of Conflict of Interest of %s") % self.panellist.user
+        return _("Statement of Conflict of Interest of %s") % (
+            self.panellist.user if self.panellist.user else self.panellist
+        )
 
     class Meta:
         db_table = "conflict_of_interest"
@@ -1504,6 +1509,7 @@ class Round(Model):
         return self.opens_on > today
 
     def all_coi_statements_given_by(self, user):
+
         return (
             not self.applications.all()
             .filter(
