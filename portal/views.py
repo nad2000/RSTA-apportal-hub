@@ -2623,8 +2623,11 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
     model = models.ConflictOfInterest
     table_class = tables.RoundConflictOfInterstSatementTable
     paginator_class = django_tables2.paginators.LazyPaginator
-    # template_name = "rounds_conflict_of_interest.html"
     template_name = "table.html"
+
+    @property
+    def round(self):
+        return models.Round.get(self.kwargs.get("round"))
 
     @property
     def show_only_conflicts(self):
@@ -2635,6 +2638,8 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
         data = super().get_context_data(**kwargs)
         data["show_only_conflicts"] = self.show_only_conflicts
         data["add_show_only_conflicts_filter"] = True
+        data["rounds"] = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        data["round"] = self.round
         return data
 
     @property
@@ -2868,17 +2873,10 @@ class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
     model = models.Application
     table_class = tables.RoundSummaryTable
     paginator_class = django_tables2.paginators.LazyPaginator
-    # template_name = "rounds_conflict_of_interest.html"
-    template_name = "round_summary.html"
-
-    # @property
-    # def show_only_conflicts(self):
-    #     show_only_conflicts = self.request.GET.get("show_only_conflicts")
-    #     return show_only_conflicts != "0" and bool(show_only_conflicts)
+    template_name = "table.html"
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        # data["show_only_conflicts"] = self.show_only_conflicts
         data["rounds"] = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
         data["round"] = self.round
         return data

@@ -12,6 +12,24 @@
 
 {% block content %}
 
+  {% if rounds %}
+    {% with request.resolver_match.view_name as view_name %}
+      <div class="dropdown show">
+
+        <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ round.title|default:view.title }}
+        </a>
+
+        <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
+          {% for r in rounds %}
+            <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
+          {% endfor %}
+        </div>
+
+      </div>
+    {% endwith %}
+  {% endif %}
+
   {% if view.title %}
     <h1>{{ view.title }}</h1>
   {% endif %}
