@@ -192,9 +192,24 @@ option {direction: rtl;}
     <a href="{% url 'home' %}" type="button" role="button" class="btn btn-secondary" id="cancel">
       {% trans 'Cancel' %}
     </a>
-    <a href="{% url 'export-score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-success" id="download-score-sheet">
-      {% trans 'Download Score Sheet' %}...
-    </a>
+    {% if round.score_sheet_template %}
+      <a
+          href="{{ round.score_sheet_template.url }}"
+          type="button" role="button"
+          class="btn btn-success" id="download-score-sheet"
+          data-toggle="tooltip" title="{% trans 'Download score sheet template' %}"
+      >
+        {% trans 'Download Score Sheet' %}...
+      </a>
+    {% else %}
+      <a
+          href="{% url 'export-score-sheet' round=view.kwargs.round %}"
+          type="button" role="button" class="btn btn-success" id="download-score-sheet"
+          data-toggle="tooltip" title="{% trans 'Download generated score sheet' %}"
+      >
+        {% trans 'Download Score Sheet' %}...
+      </a>
+    {% endif %}
     {% if is_all_coi_statements_sumitted %}
       <a href="{% url 'score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-outline-success" id="download-score-sheet">
         {% trans 'Uploade Score Sheet' %}...
