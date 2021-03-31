@@ -11,7 +11,11 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.mail import mail_admins
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    FileExtensionValidator,
+    MaxValueValidator,
+    MinValueValidator,
+)
 from django.db.models import (
     CASCADE,
     DO_NOTHING,
@@ -24,6 +28,7 @@ from django.db.models import (
     DecimalField,
     EmailField,
     F,
+    FileField,
     ForeignKey,
     ManyToManyField,
     OneToOneField,
@@ -1453,6 +1458,11 @@ class Scheme(Model):
         db_table = "scheme"
 
 
+def round_score_sheet_template_path(instance, filename):
+    title = (instance.title or instance.scheme.title).lower().replace(" ", "-")
+    return f"rounds/{title}/{filename}"
+
+
 class Round(Model):
 
     title = CharField(max_length=100, null=True, blank=True)
@@ -1460,7 +1470,13 @@ class Round(Model):
     opens_on = DateField(null=True, blank=True)
     closes_on = DateField(null=True, blank=True)
     has_online_scoring = BooleanField(default=True)
-
+    score_sheet_template = FileField(
+        null=True,
+        blank=True,
+        upload_to=round_score_sheet_template_path,
+        verbose_name=_("Score Sheet Template"),
+        validators=[FileExtensionValidator(allowed_extensions=["xls", "xlsx"])]
+    )
     history = HistoricalRecords(table_name="round_history")
 
     def clean(self):
