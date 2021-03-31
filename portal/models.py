@@ -817,7 +817,8 @@ class Application(Model):
 
     @property
     def lead(self):
-        value = self.first_name or self.submitted_by and self.submitted_by.first_name
+        value = f"{self.title} " if self.title else ""
+        value += self.first_name or self.submitted_by and self.submitted_by.first_name
         if middle_names := self.middle_names or self.submitted_by and self.submitted_by.middle_names:
             value = f"{value} {middle_names}"
         return f"{value} {self.last_name or self.submitted_by and self.submitted_by.last_name}"
@@ -1626,6 +1627,7 @@ class Round(Model):
                 LEFT JOIN users_user AS u ON u.id = a.submitted_by_id
                 LEFT JOIN profile AS p ON p.user_id = u.id
             WHERE a.round_id=%s
+            ORDER BY a.number
             """,
             [self.id, self.id])
 

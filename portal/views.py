@@ -2553,45 +2553,67 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
 
 @login_required
 def export_score_sheet(request, round):
+
+    file_type = request.GET.get("type", "xlsx")
     r = (
         models.Round.where(id=round)
         .order_by("-id")
         .prefetch_related("criteria", "applications")
         .first()
     )
-    filename = r.title.lower().replace(" ", "-")
-    filename += "-" + request.user.full_name.lower().replace(" ", "-")
 
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = 'attachment; filename="' + filename + '.xls"'
+    book = tablib.Databook()
+    title = r.title or r.scheme.title
+    if file_type != "ods":
+        if len(title) > 31:
+            if file_type == "xls":
+                title = title[:31]
+            else:
+                title = title[:27] + "..."
 
-    writer = csv.writer(response)
     headers = [
-        _("Proposal"),
+        _("Proposal/Application"),
         _("Lead"),
-        _("Overall comment"),
+        _("Overall Comment"),
         _("Total"),
+        *(v for (c,) in r.criteria.values_list("definition") for v in (c, f"{c} {_('Comment')}")),
     ]
-    for c in r.criteria.all():
-        headers.append(c.definition)
-        headers.append(f"{c.definition} Comment")
-    writer.writerow(headers)
+    dummy = ("",) * (len(headers) - 2)
 
-    for a in r.applications.all():
-        if (
+    data = [
+        (
+            a.number,
+            a.lead,
+            *dummy,
+        )
+        for a in r.applications.all().order_by("number")
+        if request.user.is_staff
+        or request.user.is_superuser
+        or (
             not a.conflict_of_interests.all()
             .filter(panellist__user=request.user, has_conflict=True)
             .exists()
-        ):
-            full_name = a.first_name
-            if a.middle_names:
-                full_name += f" {a.middle_names}"
-            full_name += f" {a.last_name}"
-            if a.title:
-                full_name = f"{a.title} {full_name}"
+        )
+    ]
 
-            writer.writerow([a.number, full_name])
+    book.add_sheet(
+        tablib.Dataset(
+            *data,
+            title=title,
+            headers=headers,
+        )
+    )
 
+    if file_type == "xls":
+        content_type = "application/vnd.ms-excel"
+    elif file_type == "xlsx":
+        content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    elif file_type == "ods":
+        content_type = "application/vnd.oasis.opendocument.spreadsheet"
+
+    filename = str(r).replace(" ", "-").lower() + "-template." + file_type
+    response = HttpResponse(book.export(file_type), content_type=content_type)
+    response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
 
 
@@ -2755,7 +2777,7 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
 @login_required
 def round_scores_export(request, round):
 
-    file_type = request.GET.get("type", "xls")
+    file_type = request.GET.get("type", "xlsx")
     round = get_object_or_404(models.Round, pk=round)
     criteria = models.Criterion.where(round=round)
 
@@ -2847,22 +2869,27 @@ class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
     table_class = tables.RoundSummaryTable
     paginator_class = django_tables2.paginators.LazyPaginator
     # template_name = "rounds_conflict_of_interest.html"
-    template_name = "table.html"
+    template_name = "round_summary.html"
 
-    @property
-    def show_only_conflicts(self):
-        show_only_conflicts = self.request.GET.get("show_only_conflicts")
-        return show_only_conflicts != "0" and bool(show_only_conflicts)
+    # @property
+    # def show_only_conflicts(self):
+    #     show_only_conflicts = self.request.GET.get("show_only_conflicts")
+    #     return show_only_conflicts != "0" and bool(show_only_conflicts)
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["show_only_conflicts"] = self.show_only_conflicts
+        # data["show_only_conflicts"] = self.show_only_conflicts
+        data["rounds"] = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        data["round"] = self.round
         return data
 
     @property
     def title(self):
-        if "round" in self.kwargs:
-            return models.Round.get(self.kwargs.get("round")).title
+        return self.round.title or self.round.scheme.title
+
+    @property
+    def round(self):
+        return models.Round.get(self.kwargs.get("round"))
 
     @property
     def export_name(self):

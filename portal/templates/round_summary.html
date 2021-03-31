@@ -1,0 +1,21 @@
+{% extends 'table.html' %}
+{% load i18n %}
+{% load render_table export_url from django_tables2 %}
+
+{% block content %}
+
+  <div class="dropdown show">
+    <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      {{ round.title }}
+    </a>
+
+    <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
+      {% for r in rounds %}
+        <a class="dropdown-item" href="{% url 'round-summary' round=r.id %}">{{ r.title }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {{ block.super }}
+
+{% endblock %}
