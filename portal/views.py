@@ -1,11 +1,9 @@
-import csv
 import io
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
 
 import django.utils.translation
-from django.db.models import prefetch_related_objects
 import django_tables2
 import tablib
 from allauth.account.models import EmailAddress
@@ -18,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Q, Subquery
+from django.db.models import Count, F, Q, Subquery, prefetch_related_objects
 from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
@@ -2862,6 +2860,7 @@ def round_scores_export(request, round):
 def round_scores(request, round):
 
     round = get_object_or_404(models.Round, pk=round)
+    rounds = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
     criteria = models.Criterion.where(round_id=round)
 
     return render(request, "round_scores.html", locals())
