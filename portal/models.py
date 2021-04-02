@@ -853,13 +853,12 @@ class Application(Model):
     def user_draft_applications(cls, user):
         return cls.user_applications(user, ["draft", "new"])
 
-    @classmethod
-    def get_application_testimony(cls, app):
+    def get_testimonies(self):
         return Testimony.objects.raw(
             "SELECT DISTINCT tm.* FROM referee AS r JOIN application AS app ON "
             "app.id = r.application_id LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
             "WHERE (r.application_id=%s OR app.id=%s) AND r.has_testifed IS NOT NULL",
-            [app.id, app.id],
+            [self.id, self.id],
         )
 
     class Meta:

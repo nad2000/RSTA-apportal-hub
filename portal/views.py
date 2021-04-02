@@ -50,7 +50,7 @@ from . import forms, models, tables
 from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .tasks import notify_user
-from .utils import send_mail
+from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
 
 
@@ -2088,7 +2088,7 @@ class ApplicationExportView(ExportView):
     def get_objects(self, pk):
         app = self.model.get(id=pk)
         objects = [app]
-        testimonies = models.Application.get_application_testimony(app)
+        testimonies = app.get_testimonies()
         objects.extend(testimonies)
         return objects
 
@@ -2097,7 +2097,7 @@ class ApplicationExportView(ExportView):
         app = self.model.get(id=pk)
         if app.file:
             attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.file))
-        testimonies = models.Application.get_application_testimony(app)
+        testimonies = app.get_testimonies()
         for t in testimonies:
             if t.file:
                 attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file))
@@ -2106,6 +2106,39 @@ class ApplicationExportView(ExportView):
 
     def get_filename(self, pk):
         return self.model.get(id=pk).number
+
+    def get(self, request, pk):
+        a = get_object_or_404(models.Application, pk=pk)
+        # workaround to allow access to the dev server itself:
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+        try:
+            attachments = self.get_attachments(pk)
+            pdf_file_merger = PdfFileMerger()
+            number = vignere.encode(a.number)
+            summary_url = request.build_absolute_uri(
+                reverse("application-exported-view", kwargs={"number": number})
+            )
+            html = HTML(summary_url)
+            pdf_object = html.write_pdf(presentational_hints=True)
+            # converting pdf bytes to stream which is required for pdf merger.
+            pdf_stream = io.BytesIO(pdf_object)
+            pdf_file_merger.append(pdf_stream)
+            for i in attachments:
+                pdf_file_merger.append(PdfFileReader(i, "rb"))
+            pdf_content = io.BytesIO()
+            pdf_file_merger.write(pdf_content)
+            pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
+            pdf_response[
+                "Content-Disposition"
+            ] = f"attachment; filename={self.get_filename(pk)}.pdf"
+            return pdf_response
+        except Exception as ex:
+            messages.warning(
+                self.request,
+                _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
+            )
+            return redirect(self.request.META.get("HTTP_REFERER"))
 
 
 class TestimonyExportView(ExportView, TestimonyDetail):
@@ -2636,7 +2669,9 @@ class RoundConflictOfInterstSatementList(LoginRequiredMixin, ExportMixin, Single
         data = super().get_context_data(**kwargs)
         data["show_only_conflicts"] = self.show_only_conflicts
         data["add_show_only_conflicts_filter"] = True
-        data["rounds"] = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        data["rounds"] = (
+            models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        )
         data["round"] = self.round
         return data
 
@@ -2773,7 +2808,6 @@ class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
         #     groupby(q, lambda r: (r.id, r.round__panellists__id))
         # ]
 
-        # breakpoint()
         return q
 
 
@@ -2876,7 +2910,9 @@ class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["rounds"] = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        data["rounds"] = (
+            models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+        )
         data["round"] = self.round
         return data
 
@@ -2900,3 +2936,16 @@ class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
 
         round = get_object_or_404(models.Round, pk=self.kwargs.get("round"))
         return round.summary
+
+
+def application_summary(request, number, lang=None):
+    number = vignere.decode(number)
+    a = get_object_or_404(models.Application, number=number)
+    return HttpResponse(a.summary)
+
+
+def application_exported_view(request, number, lang=None):
+    number = vignere.decode(number)
+    a = get_object_or_404(models.Application, number=number)
+    objects = [a, *a.get_testimonies()]
+    return render(request, "application-export.html", locals())
