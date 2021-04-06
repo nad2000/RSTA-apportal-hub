@@ -1747,15 +1747,25 @@ class SchemeApplicationGroup(Base):
 
 
 class SchemeApplication(Model):
-    title = CharField(max_length=100)
-    groups = ManyToManyField(
-        Group,
+    scheme = ForeignKey(
+        Scheme,
+        null=True,
         blank=True,
-        verbose_name=_("who starts"),
-        through=SchemeApplicationGroup,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
     )
-    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
-    description = TextField(_("short description"), max_length=1000, null=True, blank=True)
+    # title = CharField(max_length=100)
+    # groups = ManyToManyField(
+    #     Group,
+    #     blank=True,
+    #     verbose_name=_("who starts"),
+    #     through=SchemeApplicationGroup,
+    # )
+    # guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    # description = TextField(_("short description"), max_length=1000, null=True, blank=True)
+
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
@@ -1802,17 +1812,19 @@ class SchemeApplication(Model):
 
     @classmethod
     def get_data(cls, user):
-        return cls.objects.raw(
+        q = cls.objects.raw(
             """
             SELECT DISTINCT
                 s.id,
-                s.title,
+                s.id AS scheme_id,
+                /* s.title,
                 s.title_en,
                 s.title_mi,
-                s.guidelines,
+                s.guidelines
                 s.description,
                 s.description_en,
-                s.description_mi,
+                s.description_mi, */
+                count(*) OVER (PARTITION by s.id ORDER BY s.id) AS "count",
                 /* EXISTS(
                     SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
                     WHERE sg.scheme_id=s.id AND ag.name='APPLICANT') AS can_be_applied_to,
@@ -1849,18 +1861,22 @@ class SchemeApplication(Model):
             LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
             WHERE m.id IS NULL
                 OR (m.user_id = %s)
-                OR (a.id IS NULL OR a.submitted_by_id = %s);
+                OR (a.id IS NULL OR a.submitted_by_id = %s)
+            ORDER BY s.title;
         """, [
                 user.id, user.id,
                 user.id, user.id,
                 user.id, user.id,
                 user.id,
             ])
+        prefetch_related_objects(q, "application")
+        prefetch_related_objects(q, "current_round")
+        prefetch_related_objects(q, "scheme")
+        return q
 
     class Meta:
         managed = False
-        db_table = "scheme_application_view"
-        ordering = ["title"]
+        # db_table = "scheme_application_view"
 
 
 NOMINATION_STATUS = Choices(

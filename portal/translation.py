@@ -28,12 +28,12 @@ class CriterionTranslationOptions(TranslationOptions):
 simple_history.register(models.Criterion, inherit=True, table_name="criterion_history")
 
 
-@register(models.SchemeApplication)
-class SchemeApplicationTranslationOptions(TranslationOptions):
-    fields = (
-        "title",
-        "description",
-    )
+# @register(models.SchemeApplication)
+# class SchemeApplicationTranslationOptions(TranslationOptions):
+#     fields = (
+#         "title",
+#         "description",
+#     )
 
 
 @register(models.ProtectionPattern)

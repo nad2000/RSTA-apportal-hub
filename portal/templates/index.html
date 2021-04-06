@@ -79,7 +79,7 @@
     </div>
   {% endif %}
 
-  {% for scheme in schemes %}
+  {% for s in schemes %}
 
   <div class="row">
     <div class="col mb-3">
@@ -87,118 +87,118 @@
       <h5 class="card-header">
         {% trans "The Prime Minister's" %}
         <b style="text-transform: uppercase;">
-          {% if scheme.current_round %}
-            {{ scheme.current_round.title }}
+          {% if s.current_round %}
+            {{ s.current_round.title }}
           {% else %}
-            {{ scheme.title }}
+            {{ s.title }}
           {% endif %}
         </b>
       </h5>
       <div class="card-body">
-        <p class="card-text">{{ scheme.description }}</p>
-        {% if scheme.current_round %}
+        <p class="card-text">{{ s.scheme.description }}</p>
+        {% if s.current_round %}
           <p class="card-text">{% trans 'Application period' %}:
-            <strong {% if not scheme.current_round.is_open %}class="badge-danger"{% endif %}>
-              {{ scheme.current_round.opens_on|date:"c" }}
-              {% if scheme.current_round.closes_on %}
-                - {{ scheme.current_round.closes_on|date:"c" }}
+            <strong {% if not s.current_round.is_open %}class="badge-danger"{% endif %}>
+              {{ s.current_round.opens_on|date:"c" }}
+              {% if s.current_round.closes_on %}
+                - {{ s.current_round.closes_on|date:"c" }}
               {% endif %}
             </strong>
           </p>
         {% endif %}
         {% if request.user.can_apply %}
-          <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
+          <a href="{{ s.scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
             {% trans "Read" %} <b>{% trans "More" %}</b>
           </a>
         {% else %}
           <button type="button" class="btn btn-outline-primary"
                                 data-toggle="modal"
                                 data-target="#roundDetail"
-                                data-round-id="{{ scheme.current_round.id }}"
-                                data-round-title="{{ scheme.current_round.title }}"
+                                data-round-id="{{ s.current_round.id }}"
+                                data-round-title="{{ s.current_round.title }}"
                                 style="text-transform: uppercase;">
             {% trans "Show" %} <b>{% trans "Details" %}</b>
           </button>
         {% endif %}
 
-        {% if scheme.current_round %}
+        {% if s.current_round %}
           {% if request.user.can_apply %}
-            {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
-              <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
-                 {% if scheme.application.state == 'submitted'%}
+            {% if s.application and s.application.submitted_by == request.user or s.application and s.member_user == request.user %}
+              <div class="tooltip-wrapper{% if s.application.state == 'submitted'%} disabled{% endif %}"
+                 {% if s.application.state == 'submitted'%}
                    disabled
                    data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
                  {% else %}
                    data-title="{% trans 'Modify your application and continue application process' %}"
                  {% endif %}
               >
-            <a href="{% if scheme.application and scheme.application.id %}{% url 'application-update' pk=scheme.application.id %}{% else %}#{% endif %}"
-                 class="btn btn-primary{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
+            <a href="{% if s.application and s.application.id %}{% url 'application-update' pk=s.application.id %}{% else %}#{% endif %}"
+                 class="btn btn-primary{% if s.application.state == 'submitted'%} disabled{% endif %}"
                  style="text-transform: uppercase;"
               > {% trans "Continue" %} <b>{% trans "Application" %}</b>
               </a>
               </div>
             {% else %}
-              <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
-                {% if scheme.is_panellist %}
+              <div class="tooltip-wrapper{% if not s.current_round.is_open %} disabled{% endif %}"
+                {% if s.is_panellist %}
                   disabled
                   data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
-                {% elif not scheme.current_round.is_open %}
+                {% elif not s.current_round.is_open %}
                   disabled
-                  {% if scheme.current_round.will_open %}
-                    data-title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+                  {% if s.current_round.will_open %}
+                    data-title="{% trans 'The application will be open on' %} {{ s.current_round.opens_on|date:'o-m-d'}}"
                   {% else %}
                   {% endif %}
                 {% else %}
                    data-title="{% trans 'Start a new application' %}"
                 {% endif %}
               >
-                <a href="{% url 'application-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open or scheme.is_panellist %}disabled{% endif %}"
+                <a href="{% url 'application-create' round=s.current_round.id %}" class="btn btn-primary {% if not s.current_round.is_open or s.is_panellist %}disabled{% endif %}"
                   style="text-transform: uppercase;"
-                  {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                  {% if not s.current_round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
                 </a>
               </div>
             {% endif %}
-              <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %}"
-                {% if not scheme.current_round.is_open %}
+              <div class="tooltip-wrapper{% if not s.current_round.is_open %} disabled{% endif %}"
+                {% if not s.current_round.is_open %}
                   disabled
-                  {% if scheme.current_round.will_open %}
-                    data-title="{% trans 'The application will be open on' %} {{ scheme.current_round.opens_on|date:'o-m-d'}}"
+                  {% if s.current_round.will_open %}
+                    data-title="{% trans 'The application will be open on' %} {{ s.current_round.opens_on|date:'o-m-d'}}"
                   {% else %}
-                    data-title="{% trans 'The application period closed on' %} {{ scheme.current_round.closes_on|date:'o-m-d'}}"
+                    data-title="{% trans 'The application period closed on' %} {{ s.current_round.closes_on|date:'o-m-d'}}"
                   {% endif %}
                 {% endif %}
               >
-                <a href="{% url 'nomination-create' round=scheme.current_round.id %}" class="btn btn-primary {% if not scheme.current_round.is_open %}disabled{% endif %}" style="text-transform: uppercase;"
-                {% if not scheme.current_round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
+                <a href="{% url 'nomination-create' round=s.current_round.id %}" class="btn btn-primary {% if not s.current_round.is_open %}disabled{% endif %}" style="text-transform: uppercase;"
+                {% if not s.current_round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
                 </a>
               </div>
 
-              {% if scheme.is_panellist %}
-                {% if scheme.application %}
-                  <a href="{% url 'application-evaluation' pk=scheme.application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
-                {% elif scheme.current_round %}
-                  <a href="{% url 'round-application-list' round_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Applications" %}</b></a>
+              {% if s.is_panellist %}
+                {% if s.application %}
+                  <a href="{% url 'application-evaluation' pk=s.application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
+                {% elif s.current_round %}
+                  <a href="{% url 'round-application-list' round_id=s.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Applications" %}</b></a>
                 {% endif %}
               {% endif %}
 
           {% else %}
             {% if request.user.is_superuser %}
-              <a href="{% url 'admin:portal_round_change' object_id=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+              <a href="{% url 'admin:portal_round_change' object_id=s.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
                 > {% trans "Edit" %} <b>{% trans "Round" %}</b>
               </a>
             {% endif %}
           {% endif %}
 
           {% if request.user.is_staff %}
-            <a href="{% url 'panellist-invite' round=scheme.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+            <a href="{% url 'panellist-invite' round=s.current_round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
               > {% trans "Invite" %}
               <b>{% trans "Panellist" %}</b>
             </a>
           {% endif %}
 
           {% if request.user.is_staff %}
-            <a href="{% url 'round-coi-list' round=scheme.current_round.id %}" class="btn btn-outline-primary" style="text-transform: uppercase;"
+            <a href="{% url 'round-coi-list' round=s.current_round.id %}" class="btn btn-outline-primary" style="text-transform: uppercase;"
 
               > {% trans "Conflicts of" %}
               <b>{% trans "Interest" %}</b>
