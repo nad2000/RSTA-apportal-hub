@@ -186,6 +186,11 @@
                     {% endif %}
                   {% endif %}
 
+                  {% if round and count > 1 %}
+                    <a href="{% url 'applications' %}?round={{ round.id }}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Show" %} <b>{% trans "Applications" %}</b></a>
+                  {% endif %}
+
+
               {% else %}
                 {% if request.user.is_superuser %}
                   <a href="{% url 'admin:portal_round_change' object_id=round.id %}" class="btn btn-primary" style="text-transform: uppercase;"

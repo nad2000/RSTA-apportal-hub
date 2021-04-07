@@ -14,7 +14,7 @@
         <li class="nav-item" id="nominations-draft">
           <a
             class="nav-link"
-            href="{% url 'applications-draft' %}"
+            href="{% url 'applications-draft' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
             title="{% trans 'Saved application drafts' %}"
             data-toggle="tooltip"
             >{% trans 'Drafts' %}</a>
@@ -22,7 +22,7 @@
         <li class="nav-item">
           <a
             class="nav-link"
-            href="{% url 'applications-submitted' %}"
+            href="{% url 'applications-submitted' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
             title="{% trans 'Submitted and previous applications' %}"
             data-toggle="tooltip"
             >{% trans 'Submitted' %}</a>

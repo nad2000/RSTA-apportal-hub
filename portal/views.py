@@ -1225,7 +1225,14 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
         if not u.is_superuser or not u.is_staff:
-            queryset = queryset.filter(Q(submitted_by=u))
+            queryset = queryset.filter(
+                Q(submitted_by=u)
+                | Q(members__user=u)
+                | Q(referees__user=u)
+                | Q(round__panellists__user=u)
+            )
+        if "round" in self.request.GET:
+            queryset = queryset.filter(round=self.request.GET["round"])
         state = self.request.path.split("/")[-1]
         if state == "draft":
             queryset = queryset.filter(state__in=[state, "new"])
@@ -2112,6 +2119,7 @@ class ApplicationExportView(ExportView):
         a = get_object_or_404(models.Application, pk=pk)
         # workaround to allow access to the dev server itself:
         import ssl
+
         ssl._create_default_https_context = ssl._create_unverified_context
         try:
             attachments = self.get_attachments(pk)
