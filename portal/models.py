@@ -847,7 +847,9 @@ class Application(Model):
                 sql += " AND a.state=%s"
                 params.append(state)
 
-        return cls.objects.raw(sql, params)
+        q = cls.objects.raw(sql, params)
+        prefetch_related_objects(q, "round")
+        return q
 
     @classmethod
     def user_draft_applications(cls, user):
@@ -908,7 +910,7 @@ class Member(MemberMixin, Model):
 
     @classmethod
     def outstanding_requests(cls, user):
-        return Invitation.objects.raw(
+        return cls.objects.raw(
             "SELECT DISTINCT m.* FROM member AS m JOIN account_emailaddress AS ae ON ae.email = m.email "
             "WHERE (m.user_id=%s OR ae.user_id=%s) AND has_authorized IS NULL",
             [user.id, user.id],
@@ -1326,7 +1328,7 @@ class Invitation(Model):
 
     @classmethod
     def outstanding_invitations(cls, user):
-        return Invitation.objects.raw(
+        return cls.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
             "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired')",
             [user.id],
@@ -1766,8 +1768,8 @@ class SchemeApplication(Model):
     # guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     # description = TextField(_("short description"), max_length=1000, null=True, blank=True)
 
-    current_round = OneToOneField(
-        "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
+    current_round = ForeignKey(
+        "Round", blank=True, null=True, on_delete=DO_NOTHING, related_name="+"
     )
     # can_be_applied_to = BooleanField(null=True, blank=True)
     # can_be_nominated_to = BooleanField(null=True, blank=True)

@@ -1,6 +1,7 @@
 import io
 from datetime import timedelta
 from functools import wraps
+from itertools import groupby
 from urllib.parse import quote
 
 import django.utils.translation
@@ -16,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Q, Subquery, prefetch_related_objects
+from django.db.models import Count, F, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
@@ -263,8 +264,8 @@ def index(request):
             )
             three_days_ago = timezone.now() - timedelta(days=3)
 
-        schemes = models.SchemeApplication.get_data(request.user)
-        prefetch_related_objects(schemes, "current_round")
+        schemes = models.SchemeApplication.get_data(user)
+        schemes = groupby(schemes, lambda s: {"scheme": s.scheme, "count": s.count})
     else:
         messages.info(
             request,
