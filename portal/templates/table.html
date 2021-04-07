@@ -22,7 +22,7 @@
 
         <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
           {% for r in rounds %}
-            <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r|title }}</a>
+            <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
           {% endfor %}
         </div>
 
