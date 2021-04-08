@@ -4,7 +4,7 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    <a href="{% url 'index' %}">
+  <a href="{% if request.user.is_staff or request.user.is_admin %}{% url 'applications' %}{% else %}{% url 'index' %}{% endif %}">
       {% trans 'Applications' %}
     </a>
   </div>

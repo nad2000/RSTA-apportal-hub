@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static tags %}
+{% load i18n static tags bootstrap4 %}
 {% load render_table export_url from django_tables2 %}
 
 {% block localcss %}
@@ -61,6 +61,13 @@
           });
         });
       </script>
+  {% endif %}
+
+  {% if filter and not filter_disabled %}
+    <form action="" method="GET" class="form form-inline">
+      {% bootstrap_form filter.form layout='inline' %}
+      {% bootstrap_button 'Filter' %}
+    </form>
   {% endif %}
 
   {% render_table table %}

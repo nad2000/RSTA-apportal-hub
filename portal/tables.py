@@ -64,7 +64,7 @@ class NominationTable(tables.Table):
     class Meta:
         model = models.Nomination
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "status",
             "round",
@@ -84,7 +84,7 @@ class TestimonyTable(tables.Table):
     class Meta:
         model = models.Testimony
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "round",
             "referee.application.application_title",
@@ -92,18 +92,22 @@ class TestimonyTable(tables.Table):
         )
 
 
+def application_link(table, record, value):
+    if record.state == "submitted":
+        return record.get_absolute_url()
+    else:
+        return reverse("application-update", kwargs={"pk": record.id})
+
+
 class ApplicationTable(tables.Table):
 
-    round = tables.Column(
-        linkify=lambda record: record.get_absolute_url()
-        if record.state == "submitted"
-        else reverse("application-update", kwargs={"pk": record.id})
-    )
+    number = tables.Column(linkify=application_link)
+    round = tables.Column(linkify=application_link)
 
     class Meta:
         model = models.Application
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "number",
             "round",
@@ -140,7 +144,7 @@ class RoundTable(tables.Table):
     class Meta:
         model = models.Round
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "title",
             "scheme",
@@ -149,7 +153,7 @@ class RoundTable(tables.Table):
         )
 
 
-def application_review_link(table, record):
+def application_review_link(table, record, value):
 
     return reverse(
         "round-application-review",
@@ -164,7 +168,7 @@ class RoundApplicationTable(tables.Table):
     class Meta:
         model = models.Application
         template_name = "django_tables2/bootstrap4.html"
-        attrs = {"class": "table table-striped"}
+        attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "number",
             "round",

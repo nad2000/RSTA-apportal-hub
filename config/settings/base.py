@@ -129,6 +129,8 @@ THIRD_PARTY_APPS = [
     "fsm_admin",
     "django_fsm",
     "django_summernote",
+    "django_filters",
+    "bootstrap4",
 ]
 
 LOCAL_APPS = [

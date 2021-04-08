@@ -5,6 +5,7 @@ from itertools import groupby
 from urllib.parse import quote
 
 import django.utils.translation
+import django_filters
 import django_tables2
 import tablib
 from allauth.account.models import EmailAddress
@@ -34,7 +35,8 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
-from django_tables2 import SingleTableView
+from django_filters.views import FilterView
+from django_tables2 import SingleTableMixin, SingleTableView
 from django_tables2.export import ExportMixin
 from extra_views import (
     CreateWithInlinesView,
@@ -1215,11 +1217,27 @@ class ApplicationCreate(ApplicationView, CreateView):
 #         return super().formset_valid(formset)
 
 
-class ApplicationList(LoginRequiredMixin, SingleTableView):
+class ApplicationFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Application
+        fields = {
+                "number": ["contains"],
+                "application_title": ["contains"],
+                "last_name": ["contains"],
+                "first_name": ["contains"],
+                "members__last_name": ["contains"],
+                "members__first_name": ["contains"],
+        }
+
+
+class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
 
     model = models.Application
     table_class = tables.ApplicationTable
-    template_name = "applications.html"
+    extra_context = {"category": "applications"}
+    template_name = "table.html"
+    filterset_class = ApplicationFilter
+    paginator_class = django_tables2.paginators.LazyPaginator
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -1239,6 +1257,24 @@ class ApplicationList(LoginRequiredMixin, SingleTableView):
         elif state == "submitted":
             queryset = queryset.filter(state=state)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        u = self.request.user
+        if not (
+            u.is_staff
+            or u.is_superuser
+            or (
+                "round" in self.request.GET
+                and models.Panellist.where(
+                    round=self.request.GET["round"], user=self.request.user
+                ).exists()
+            )
+        ):
+            context["filter_disabled"] = True
+            self.table_pagination = False
+
+        return context
 
 
 @login_required
