@@ -96,3 +96,5 @@ $theme-colors: (
   "mint-green": $mint-green,
   "dark-pink": $dark-pink
 );
+
+$tooltip-bg:                    darken($primary, 16%) !default;
