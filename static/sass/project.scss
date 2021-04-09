@@ -39,7 +39,7 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
+ //  margin-bottom: 60px;
 }
 
 .asteriskField {
@@ -229,30 +229,55 @@ label {
 	border:1px solid #fadf98;
 }
 
+@media (min-width: 768px) {
+  footer .footer-right {
+      text-align: right;
+  }
+  footer .footer-left {
+      text-align: left;
+  }
+}
+
+footer h2,h3,h4 {
+    color: white;
+    text-align: center;
+}
+
+footer a:active, footer a:focus, footer a:hover {
+    color: #e0ec9f;
+    border-bottom-color: #e0ec9f;
+    text-decoration: none;
+}
+footer a {
+    color: white;
+    border-bottom: 1px dashed white;
+    text-decoration: none;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
-  color: #ffffff;
-  background-color: #829c00;
-  // background-color: #f5f5f5;
-  // background-color: theme-color-level($mint-green, $alert-bg-level);
-}
+// .footer {
+//   position: absolute;
+//   bottom: 0;
+//   width: 100%;
+//   /* Set the fixed height of the footer here */
+//   height: 60px;
+//   line-height: 60px; /* Vertically center the text there */
+//   color: #ffffff;
+//   background-color: #829c00;
+//   // background-color: #f5f5f5;
+//   // background-color: theme-color-level($mint-green, $alert-bg-level);
+// }
 
 
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
-.footer > .container {
-  padding-right: 15px;
-  padding-left: 15px;
-}
+// .footer > .container {
+//   padding-right: 15px;
+//   padding-left: 15px;
+// }
 
 // Tooltip on disabled buttons: https://stackoverflow.com/a/19938049/235362
 .tooltip-wrapper {

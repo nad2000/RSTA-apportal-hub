@@ -1,0 +1,246 @@
+{% load static i18n account socialaccount %}
+<!-- Footer -->
+<footer class="bg-success text-center text-white" style="box-shadow: 0px 0px 19px rgb(0 0 0 / 10%);">
+  <!-- Grid container -->
+  <div class="container p-4">
+
+    <!-- Section: Social media -->
+    <section class="mb-4">
+      <!-- Facebook -->
+      <!-- a class="btn btn-primary btn-floating m-1" style="background-color: #3b5998" href="#!" role="button"><i class="fab fa-facebook-f"></i></a -->
+
+      <!-- Twitter -->
+      <!-- a class="btn btn-primary btn-floating m-1" style="background-color: #55acee" href="#!" role="button"><i class="fab fa-twitter"></i></a -->
+
+      <!-- Google -->
+      <a class="btn btn-primary btn-floating m-1"
+        style="border-color: white;background-color: #ea4335"
+        href="{% provider_login_url 'google' process=process scope=scope auth_params=auth_params %}"
+        role="button">
+        <i class="fab fa-google"></i>
+      </a>
+
+      <!-- Orcid -->
+      <a class="btn btn-primary btn-floating m-1"
+        style="background-color: #a6ce39; border-color: white;padding-left: 10px;padding-right: 10px;"
+        href="{% provider_login_url 'orcid' process=process scope=scope auth_params=auth_params %}"
+        role="button">
+        <img style="height: 22px;" src="{% static 'images/orcid-logo-white.png' %}">
+      </a>
+
+      <!-- Rapidconnect -->
+      <a class="btn btn-primary btn-floating m-1"
+        style="background-color: #c5f4ff; border-color: white; padding-left: 10px;padding-right: 10px;"
+        href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}"
+        role="button">
+        <img style="height: 22px;" src="{% static 'images/tuakiri.jpeg' %}">
+      </a>
+
+
+      <!-- Instagram -->
+      <!-- a class="btn btn-primary btn-floating m-1" style="background-color: #ac2bac" href="#!" role="button"><i class="fab fa-instagram"></i></a -->
+
+      <!-- Linkedin -->
+      <!-- a class="btn btn-primary btn-floating m-1" style="background-color: #0082ca" href="#!" role="button"><i class="fab fa-linkedin-in"></i></a -->
+      <!-- Github -->
+      <!-- a class="btn btn-primary btn-floating m-1" style="background-color: #333333" href="#!" role="button"><i class="fab fa-github"></i></a -->
+    </section>
+    <!-- Section: Social media -->
+
+
+    <!-- Section: Form -->
+    <section class="">
+      <form action="">
+        <!--Grid row-->
+        <div class="row d-flex justify-content-center">
+          <!--Grid column-->
+          <div class="col-auto">
+            <p class="pt-2">
+              <strong>Sign up for our newsletter</strong>
+            </p>
+          </div>
+          <!--Grid column-->
+
+          <!--Grid column-->
+          <div class="col-md-5 col-12">
+            <!-- Email input -->
+            <div class="form-outline form-white mb-4">
+              <input type="email"
+                     id="form5Example2"
+                     placeholder="{% trans 'Email address' %}"
+                      class="form-control" />
+              <!-- label class="form-label" for="form5Example2">Email address</label -->
+            </div>
+          </div>
+          <!--Grid column-->
+
+          <!--Grid column-->
+          <div class="col-auto">
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-outline-light mb-4">
+              Subscribe
+            </button>
+          </div>
+          <!--Grid column-->
+        </div>
+        <!--Grid row-->
+      </form>
+    </section>
+    <!-- Section: Form -->
+
+
+    <!-- Section: Text -->
+    <!-- section class="mb-4">
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt
+        distinctio earum repellat quaerat voluptatibus placeat nam,
+        commodi optio pariatur est quia magnam eum harum corrupti dicta,
+        aliquam sequi voluptate quas.
+      </p>
+    </section -->
+    <!-- Section: Text -->
+
+    <!-- Section: Contact Info -->
+    <section class="">
+      <div class="row">
+
+        <div class="footer-col footer-left col-sm-6">
+          <div class="widget text-2 widget_text">
+            <div class="textwidget"><p>The Prime Minister’s Science Prizes is administered by the<br>
+            <strong><a href="http://www.royalsociety.org.nz/">Royal Society Te Apārangi.</a></strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-col footer-right col-sm-6">
+          <div class="widget text-3 widget_text">
+            <div class="textwidget"><strong>The Prime Minister’s Science Prizes Secretariat</strong><br>
+              PO Box 598 |  Wellington 6001<br>
+              Tel: (04) 472 7421<br>
+              <a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- div class="col-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Links</h5>
+
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#!" class="text-white">Link 1</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 2</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 3</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 4</a>
+            </li>
+          </ul>
+        </div -->
+
+      </div>
+    </section>
+
+    <!-- Section: Links -->
+    <!-- section class="">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Links</h5>
+
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#!" class="text-white">Link 1</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 2</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 3</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 4</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Links</h5>
+
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#!" class="text-white">Link 1</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 2</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 3</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 4</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Links</h5>
+
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#!" class="text-white">Link 1</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 2</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 3</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 4</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Links</h5>
+
+          <ul class="list-unstyled mb-0">
+            <li>
+              <a href="#!" class="text-white">Link 1</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 2</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 3</a>
+            </li>
+            <li>
+              <a href="#!" class="text-white">Link 4</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section -->
+    <!-- Section: Links -->
+
+  </div>
+  <!-- Grid container -->
+
+  <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2021 Copyright: <a href="https://www.royalsociety.org.nz/" class="text-white" >
+      {% trans 'Royal Society Te Apārangi' %}
+    </a>
+    <a class="text-white" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
+      <img src="{% static 'images/CC-BY-icon-88x31.png' %}" alt="CC-BY">
+    </a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+<!-- Footer -->

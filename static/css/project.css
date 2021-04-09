@@ -11971,7 +11971,6 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
 }
 
 .asteriskField {
@@ -12129,28 +12128,37 @@ label {
   border: 1px solid #fadf98;
 }
 
-/* Sticky footer styles
--------------------------------------------------- */
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px;
-  /* Vertically center the text there */
-  color: #ffffff;
-  background-color: #829c00;
+@media (min-width: 768px) {
+  footer .footer-right {
+    text-align: right;
+  }
+
+  footer .footer-left {
+    text-align: left;
+  }
+}
+footer h2, h3, h4 {
+  color: white;
+  text-align: center;
 }
 
+footer a:active, footer a:focus, footer a:hover {
+  color: #e0ec9f;
+  border-bottom-color: #e0ec9f;
+  text-decoration: none;
+}
+
+footer a {
+  color: white;
+  border-bottom: 1px dashed white;
+  text-decoration: none;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
 /* Custom page CSS
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
-.footer > .container {
-  padding-right: 15px;
-  padding-left: 15px;
-}
-
 .tooltip-wrapper {
   display: inline-block;
   /* display: block works as well */
@@ -12183,8 +12191,8 @@ input.form-control.yearpicker {
 
 table.details {
   overflow: hidden;
-  border-radius: 13px;
-  -moz-border-radius: 13px;
+  border-radius: 8px;
+  -moz-border-radius: 8px;
   boder: solit;
 }
 
