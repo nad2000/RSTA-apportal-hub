@@ -76,6 +76,7 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"  # 31-bit
 DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///portal")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
