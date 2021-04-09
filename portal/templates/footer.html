@@ -1,6 +1,7 @@
 {% load static i18n account socialaccount %}
 <!-- Footer -->
 <footer class="bg-success text-center text-white" style="box-shadow: 0px 0px 19px rgb(0 0 0 / 10%);">
+  {% if not request.user.is_authenticated %}
   <!-- Grid container -->
   <div class="container p-4">
 
@@ -89,7 +90,6 @@
     </section>
     <!-- Section: Form -->
 
-
     <!-- Section: Text -->
     <!-- section class="mb-4">
       <p>
@@ -122,26 +122,6 @@
             </div>
           </div>
         </div>
-
-
-        <!-- div class="col-6 mb-4 mb-md-0">
-          <h5 class="text-uppercase">Links</h5>
-
-          <ul class="list-unstyled mb-0">
-            <li>
-              <a href="#!" class="text-white">Link 1</a>
-            </li>
-            <li>
-              <a href="#!" class="text-white">Link 2</a>
-            </li>
-            <li>
-              <a href="#!" class="text-white">Link 3</a>
-            </li>
-            <li>
-              <a href="#!" class="text-white">Link 4</a>
-            </li>
-          </ul>
-        </div -->
 
       </div>
     </section>
@@ -228,11 +208,14 @@
     </section -->
     <!-- Section: Links -->
 
-  </div>
-  <!-- Grid container -->
+  </div> <!-- Grid container -->
+  {% endif %}
 
   <!-- Copyright -->
-  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+  <div
+    class="text-center p-3"
+    {% if not request.user.is_authenticated %}style="background-color: rgba(0, 0, 0, 0.2);"{% endif %}
+   >
     © 2021 Copyright: <a href="https://www.royalsociety.org.nz/" class="text-white" >
       {% trans 'Royal Society Te Apārangi' %}
     </a>
