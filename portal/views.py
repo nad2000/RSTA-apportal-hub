@@ -23,7 +23,7 @@ from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils import timezone
@@ -1221,12 +1221,12 @@ class ApplicationFilter(django_filters.FilterSet):
     class Meta:
         model = models.Application
         fields = {
-                "number": ["contains"],
-                "application_title": ["contains"],
-                "last_name": ["contains"],
-                "first_name": ["contains"],
-                "members__last_name": ["contains"],
-                "members__first_name": ["contains"],
+            "number": ["contains"],
+            "application_title": ["contains"],
+            "last_name": ["contains"],
+            "first_name": ["contains"],
+            "members__last_name": ["contains"],
+            "members__first_name": ["contains"],
         }
 
 
@@ -2153,37 +2153,24 @@ class ApplicationExportView(ExportView):
 
     def get(self, request, pk):
         a = get_object_or_404(models.Application, pk=pk)
-        # workaround to allow access to the dev server itself:
-        import ssl
 
-        ssl._create_default_https_context = ssl._create_unverified_context
-        try:
-            attachments = self.get_attachments(pk)
-            pdf_file_merger = PdfFileMerger()
-            number = vignere.encode(a.number)
-            summary_url = request.build_absolute_uri(
-                reverse("application-exported-view", kwargs={"number": number})
-            )
-            html = HTML(summary_url)
-            pdf_object = html.write_pdf(presentational_hints=True)
-            # converting pdf bytes to stream which is required for pdf merger.
-            pdf_stream = io.BytesIO(pdf_object)
-            pdf_file_merger.append(pdf_stream)
-            for i in attachments:
-                pdf_file_merger.append(PdfFileReader(i, "rb"))
-            pdf_content = io.BytesIO()
-            pdf_file_merger.write(pdf_content)
-            pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
-            pdf_response[
-                "Content-Disposition"
-            ] = f"attachment; filename={self.get_filename(pk)}.pdf"
-            return pdf_response
-        except Exception as ex:
-            messages.warning(
-                self.request,
-                _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
-            )
-            return redirect(self.request.META.get("HTTP_REFERER"))
+        # try:
+
+        pdf_content = io.BytesIO()
+        breakpoint()
+        a.to_pdf(request).write(pdf_content)
+        # pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
+        pdf_content.seek(0)
+        pdf_response = FileResponse(pdf_content, content_type="application/pdf")
+        pdf_response["Content-Disposition"] = f"attachment; filename={a.number}.pdf"
+        return pdf_response
+
+        # except Exception as ex:
+        #     messages.warning(
+        #         self.request,
+        #         _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
+        #     )
+        #     return redirect(self.request.META.get("HTTP_REFERER"))
 
 
 class TestimonyExportView(ExportView, TestimonyDetail):

@@ -1,4 +1,5 @@
 import hashlib
+import io
 import re
 import secrets
 from datetime import date, datetime
@@ -49,11 +50,13 @@ from django_fsm import FSMField, transition
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
+from PyPDF2 import PdfFileMerger
 from simple_history.models import HistoricalRecords
+from weasyprint import HTML
 
 from common.models import TITLES, Base, Model
 
-from .utils import send_mail
+from .utils import send_mail, vignere
 
 GENDERS = Choices(
     (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
@@ -161,6 +164,25 @@ def hash_int(value):
 
 
 User = get_user_model()
+
+
+class FullNameMixin:
+
+    @property
+    def full_name(self):
+        full_name = self.first_name or self.user and self.user.first_name or ""
+        if self.middle_names or self.user and self.user.middle_names:
+            full_name += f" {(self.middle_names or self.user.middle_names)}"
+        if self.last_name or self.user and self.user.last_name:
+            full_name += f" {self.last_name or self.user.last_name}"
+        return full_name
+
+    @property
+    def full_name_with_email(self):
+        full_name = self.first_name or self.user.first_name
+        if self.middle_names or self.user.middle_names:
+            full_name += f" {(self.middle_names or self.user.middle_names)}"
+        return f"{full_name} {self.last_name or self.user.last_name} ({self.email or self.user.email})"
 
 
 class Subscription(Model):
@@ -863,6 +885,45 @@ class Application(Model):
             [self.id, self.id],
         )
 
+    def to_pdf(self, request=None):
+        """Create PDF file for expor and return PdfFileMerger"""
+
+        import ssl
+
+        attachments = []
+        if self.file:
+            attachments.append((_("Application Form"), settings.PRIVATE_STORAGE_ROOT + "/" + str(self.file)))
+        attachments.extend(
+            (
+                _("Testimony Form Submitted By %s") % t.referee.full_name,
+                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file)
+            ) for t in self.get_testimonies() if t.file
+        )
+
+        ssl._create_default_https_context = ssl._create_unverified_context
+        pdf_file_merger = PdfFileMerger()
+        pdf_file_merger.addMetadata({"/Title": f"{self.number}: {self.application_title or self.round.title}"})
+        pdf_file_merger.addMetadata({"/Author": self.lead_with_email})
+        pdf_file_merger.addMetadata({"/Subject": self.round.title})
+        pdf_file_merger.addMetadata({"/Number": self.number})
+        # pdf_file_merger.addMetadata({"/Keywords": self.round.title})
+
+        number = vignere.encode(self.number)
+        url = reverse("application-exported-view", kwargs={"number": number})
+        if request:
+            summary_url = request.build_absolute_uri(url)
+        else:
+            summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+        html = HTML(summary_url)
+        pdf_object = html.write_pdf(presentational_hints=True)
+        # converting pdf bytes to stream which is required for pdf merger.
+        pdf_stream = io.BytesIO(pdf_object)
+        pdf_file_merger.append(pdf_stream, bookmark=(self.application_title or self.round.title), import_bookmarks=True)
+        for title, a in attachments:
+            # pdf_file_merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
+            pdf_file_merger.append(a, bookmark=title, import_bookmarks=True)
+        return pdf_file_merger
+
     class Meta:
         db_table = "application"
 
@@ -941,7 +1002,7 @@ class RefereeMixin:
     STATUS = REFEREE_STATUS
 
 
-class Referee(RefereeMixin, Model):
+class Referee(RefereeMixin, FullNameMixin, Model):
     """Application referee."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="referees")
@@ -997,7 +1058,7 @@ class PanellistMixin:
     STATUS = PANELLIST_STATUS
 
 
-class Panellist(PanellistMixin, Model):
+class Panellist(PanellistMixin, FullNameMixin, Model):
     """Round Panellist."""
 
     status = StateField(null=True, blank=True)
@@ -1027,22 +1088,6 @@ class Panellist(PanellistMixin, Model):
 
     def __str__(self):
         return str(self.user)
-
-    @property
-    def full_name(self):
-        full_name = self.first_name or self.user and self.user.first_name or ""
-        if self.middle_names or self.user and self.user.middle_names:
-            full_name += f" {(self.middle_names or self.user.middle_names)}"
-        if self.last_name or self.user and self.user.last_name:
-            full_name += f" {self.last_name or self.user.last_name}"
-        return full_name
-
-    @property
-    def full_name_with_email(self):
-        full_name = self.first_name or self.user.first_name
-        if self.middle_names or self.user.middle_names:
-            full_name += f" {(self.middle_names or self.user.middle_names)}"
-        return f"{full_name} {self.last_name or self.user.last_name} ({self.email or self.user.email})"
 
     @classmethod
     def outstanding_requests(cls, user):
