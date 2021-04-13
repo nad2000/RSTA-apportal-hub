@@ -55,7 +55,11 @@ urlpatterns = [
                     views.ApplicationExportView.as_view(),
                     name="application-export",
                 ),
-                path("<number>/exported-view", views.application_exported_view, name="application-exported-view"),
+                path(
+                    "<number>/exported-view",
+                    views.application_exported_view,
+                    name="application-exported-view",
+                ),
                 path("<number>/summary", views.application_summary, name="application-summary"),
             ]
         ),
@@ -240,6 +244,11 @@ urlpatterns = [
                 path("summary", views.RoundSummary.as_view(), name="round-summary"),
             ]
         ),
+    ),
+    path(
+        "round/<int:pk>/applications/~export",
+        views.RoundExportView.as_view(),
+        name="round-application-export",
     ),
     path(
         "nominations/",

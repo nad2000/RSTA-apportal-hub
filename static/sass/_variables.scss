@@ -98,3 +98,6 @@ $theme-colors: (
 );
 
 $tooltip-bg:                    darken($primary, 16%) !default;
+
+$alert-border-width:            medium !default;
+$alert-border-level:            -6 !default;

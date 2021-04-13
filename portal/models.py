@@ -901,12 +901,13 @@ class Application(Model):
         )
 
         ssl._create_default_https_context = ssl._create_unverified_context
-        pdf_file_merger = PdfFileMerger()
-        pdf_file_merger.addMetadata({"/Title": f"{self.number}: {self.application_title or self.round.title}"})
-        pdf_file_merger.addMetadata({"/Author": self.lead_with_email})
-        pdf_file_merger.addMetadata({"/Subject": self.round.title})
-        pdf_file_merger.addMetadata({"/Number": self.number})
-        # pdf_file_merger.addMetadata({"/Keywords": self.round.title})
+
+        merger = PdfFileMerger()
+        merger.addMetadata({"/Title": f"{self.number}: {self.application_title or self.round.title}"})
+        merger.addMetadata({"/Author": self.lead_with_email})
+        merger.addMetadata({"/Subject": self.round.title})
+        merger.addMetadata({"/Number": self.number})
+        # merger.addMetadata({"/Keywords": self.round.title})
 
         number = vignere.encode(self.number)
         url = reverse("application-exported-view", kwargs={"number": number})
@@ -918,11 +919,11 @@ class Application(Model):
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
         pdf_stream = io.BytesIO(pdf_object)
-        pdf_file_merger.append(pdf_stream, bookmark=(self.application_title or self.round.title), import_bookmarks=True)
+        merger.append(pdf_stream, bookmark=(self.application_title or self.round.title), import_bookmarks=True)
         for title, a in attachments:
-            # pdf_file_merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
-            pdf_file_merger.append(a, bookmark=title, import_bookmarks=True)
-        return pdf_file_merger
+            # merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
+            merger.append(a, bookmark=title, import_bookmarks=True)
+        return merger
 
     class Meta:
         db_table = "application"

@@ -2083,7 +2083,7 @@ class TestimonyDetail(DetailView):
         return context
 
 
-class ExportView(LoginRequiredMixin, View):
+class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
     model = None
     template = "pdf_export_template.html"
 
@@ -2128,6 +2128,20 @@ class ApplicationExportView(ExportView):
     """Application PDF export view"""
 
     model = models.Application
+    permission_denied_message = _("Only the round panellist and staff can export the application")
+
+    def test_func(self):
+        u = self.request.user
+        # staff, superuser, or a panellist of the round
+        return (
+            u.is_staff
+            or u.is_superuser
+            or (
+                "pk" in self.kwargs
+                and (a := get_object_or_404(models.Application, pk=self.kwargs["pk"]))
+                and a.round.panellists.all().where(user=u).exists()
+            )
+        )
 
     def get_objects(self, pk):
         app = self.model.get(id=pk)
@@ -2157,13 +2171,69 @@ class ApplicationExportView(ExportView):
         # try:
 
         pdf_content = io.BytesIO()
-        breakpoint()
         a.to_pdf(request).write(pdf_content)
         # pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
         pdf_content.seek(0)
         pdf_response = FileResponse(pdf_content, content_type="application/pdf")
         pdf_response["Content-Disposition"] = f"attachment; filename={a.number}.pdf"
         return pdf_response
+
+        # except Exception as ex:
+        #     messages.warning(
+        #         self.request,
+        #         _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
+        #     )
+        #     return redirect(self.request.META.get("HTTP_REFERER"))
+
+
+class RoundExportView(ExportView):
+    """Round (all applications within the round) PDF export view"""
+
+    model = models.Round
+    permission_denied_message = _("Only the round panellist and staff can export the application")
+
+    @property
+    def round(self):
+        return get_object_or_404(models.Round, pk=self.kwargs["pk"])
+
+    def test_func(self):
+        u = self.request.user
+        # staff, superuser, or a panellist of the round
+        return u.is_staff or u.is_superuser or self.round.panellists.all().where(user=u).exists()
+
+    @property
+    def filename(self):
+        return (self.round.title or self.round.scheme.title).lower().replace(" ", "-")
+
+    def get(self, request, pk):
+
+        round = self.round
+
+        merger = PdfFileMerger()
+        merger.addMetadata({"/Title": f"{round.title or self.round.scheme.title}"})
+        merger.addMetadata({"/Subject": f"{round.title or self.round.scheme.title}"})
+
+        numbers = []
+        for a in self.round.applications.all().order_by("number"):
+
+            numbers.append(a.number)
+            content = io.BytesIO()
+            a.to_pdf(request).write(content)
+            content.seek(0)
+            merger.append(
+                content,
+                bookmark=f"{a.number}: {a.application_title or round.title}",
+                import_bookmarks=True,
+            )
+        merger.addMetadata({"/Keywords": ", ".join(numbers)})
+
+        content = io.BytesIO()
+        merger.write(content)
+        content.seek(0)
+
+        response = FileResponse(content, content_type="application/pdf")
+        response["Content-Disposition"] = f"attachment; filename={self.filename}.pdf"
+        return response
 
         # except Exception as ex:
         #     messages.warning(
