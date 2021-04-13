@@ -709,7 +709,7 @@ class Nominee(Model):
 
 class Application(Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
-    submitted_by = ForeignKey(User, null=True, blank=True, editable=False, on_delete=SET_NULL)
+    submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     application_title = CharField(max_length=200, null=True, blank=True)
 
     round = ForeignKey("Round", on_delete=DO_NOTHING, related_name="applications")
@@ -1828,32 +1828,32 @@ class SchemeApplication(Model):
         related_name="+",
     )
     application_number = CharField(max_length=24, null=True, blank=True)
-    application_submitted_by = ForeignKey(
-        User,
-        blank=True,
-        on_delete=DO_NOTHING,
-        db_constraint=False,
-        db_index=False,
-        related_name="+",
-    )
-    member_user = ForeignKey(
-        User,
-        null=True,
-        blank=True,
-        on_delete=DO_NOTHING,
-        db_constraint=False,
-        db_index=False,
-        related_name="+",
-    )
-    panellist = ForeignKey(
-        Panellist,
-        null=True,
-        blank=True,
-        on_delete=DO_NOTHING,
-        db_constraint=False,
-        db_index=False,
-        related_name="+",
-    )
+    # application_submitted_by = ForeignKey(
+    #     User,
+    #     blank=True,
+    #     on_delete=DO_NOTHING,
+    #     db_constraint=False,
+    #     db_index=False,
+    #     related_name="+",
+    # )
+    # member_user = ForeignKey(
+    #     User,
+    #     null=True,
+    #     blank=True,
+    #     on_delete=DO_NOTHING,
+    #     db_constraint=False,
+    #     db_index=False,
+    #     related_name="+",
+    # )
+    # panellist = ForeignKey(
+    #     Panellist,
+    #     null=True,
+    #     blank=True,
+    #     on_delete=DO_NOTHING,
+    #     db_constraint=False,
+    #     db_index=False,
+    #     related_name="+",
+    # )
     is_panellist = BooleanField(
         null=True,
         blank=True)
@@ -1879,15 +1879,16 @@ class SchemeApplication(Model):
                 EXISTS(
                     SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
                     WHERE sg.scheme_id=s.id AND ag.name='NOMINATOR') AS can_be_nominated_to, */
-                a.created_at,
-                a.updated_at,
+                -- a.created_at,
+                -- a.updated_at,
                 a.id AS application_id,
-                a.number AS application_number,
-                a.submitted_by_id AS application_submitted_by_id,
+                -- a.number AS application_number,
+                -- a.submitted_by_id AS application_submitted_by_id,
                 s.current_round_id,
-                m.user_id AS member_user_id,
-                p.id AS panellist_id,
-                p.id IS NOT NULL AS is_panellist
+                -- m.user_id AS member_user_id,
+                -- p.id AS panellist_id,
+                p.id IS NOT NULL AS is_panellist,
+                EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted
             FROM scheme AS s
             LEFT JOIN round AS r ON r.id = s.current_round_id
             LEFT JOIN application AS a ON a.round_id = r.id
@@ -1915,7 +1916,7 @@ class SchemeApplication(Model):
                 user.id, user.id,
                 user.id, user.id,
                 user.id, user.id,
-                user.id,
+                user.id, user.id,
             ])
         prefetch_related_objects(q, "application")
         prefetch_related_objects(q, "current_round")

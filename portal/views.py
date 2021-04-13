@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, F, Q, Subquery
+from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
@@ -267,7 +267,19 @@ def index(request):
             three_days_ago = timezone.now() - timedelta(days=3)
 
         schemes = models.SchemeApplication.get_data(user)
-        schemes = groupby(schemes, lambda s: {"scheme": s.scheme, "count": s.count})
+
+        schemes = (
+            (key, next(records) if key["count"] == 1 else None)
+            for key, records in groupby(
+                schemes,
+                lambda s: {
+                    "scheme": s.scheme,
+                    "count": s.count,
+                    "is_panellist": s.is_panellist,
+                    "has_submitted": s.has_submitted,
+                },
+            )
+        )
     else:
         messages.info(
             request,
@@ -1245,9 +1257,9 @@ class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
         if not u.is_superuser or not u.is_staff:
             queryset = queryset.filter(
                 Q(submitted_by=u)
-                | Q(members__user=u)
-                | Q(referees__user=u)
-                | Q(round__panellists__user=u)
+                | Exists(models.Member.where(user=u, application=OuterRef("pk")))
+                | Exists(models.Referee.where(user=u, application=OuterRef("pk")))
+                | Exists(models.Panellist.where(user=u, round=OuterRef("round_id")))
             )
         if "round" in self.request.GET:
             queryset = queryset.filter(round=self.request.GET["round"])

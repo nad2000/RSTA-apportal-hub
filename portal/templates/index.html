@@ -81,9 +81,8 @@
     </div>
   {% endif %}
 
-  {% for key, records in schemes %}
-    {% with round=key.scheme.current_round scheme=key.scheme count=key.count %}
-
+  {% for key, record in schemes %}
+    {% with round=key.scheme.current_round scheme=key.scheme count=key.count application=record.application is_panellist=key.is_panellist has_submitted=key.has_submitted %}
       <div class="row">
         <div class="col mb-3">
         <div class="card">
@@ -99,7 +98,8 @@
             </b>
           </h5>
           <div class="card-body">
-            <p class="card-text">{{ scheme.description }}</p>
+
+          <p class="card-text"> {{ scheme.description }}</p>
             {% if round %}
               <p class="card-text">{% trans 'Application period' %}:
                 <strong {% if not round.is_open %}class="badge-danger"{% endif %}>
@@ -129,16 +129,16 @@
             {% if round %}
               {% if request.user.can_apply %}
 
-                {% if scheme.application and scheme.application.submitted_by == request.user or scheme.application and scheme.member_user == request.user %}
-                  <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
-                    {% if scheme.application.state == 'submitted'%}
+                {% if application and not is_panellist %}
+                  <div class="tooltip-wrapper{% if application.state == 'submitted'%} disabled{% endif %}"
+                    {% if application.state == 'submitted'%}
                       disabled
                       data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
                     {% else %}
                       data-title="{% trans 'Modify your application and continue application process' %}"
                     {% endif %}
                   >
-                <a href="{% if scheme.application and scheme.application.id %}{% url 'application-update' pk=scheme.application.id %}{% else %}#{% endif %}"
+                <a href="{% if application and application.id %}{% url 'application-update' pk=application.id %}{% else %}#{% endif %}"
                     class="btn btn-primary{% if s.application.state == 'submitted'%} disabled{% endif %}"
                     style="text-transform: uppercase;"
                   > {% trans "Continue" %} <b>{% trans "Application" %}</b>
@@ -146,7 +146,7 @@
                   </div>
                 {% else %}
                   <div class="tooltip-wrapper{% if not round.is_open %} disabled{% endif %}"
-                    {% if s.is_panellist %}
+                    {% if is_panellist %}
                       disabled
                       data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
                     {% elif not round.is_open %}
@@ -155,11 +155,14 @@
                         data-title="{% trans 'The application will be open on' %} {{ round.opens_on|date:'o-m-d'}}"
                       {% else %}
                       {% endif %}
+                    {% elif has_submitted %}
+                      disabled
+                      data-title="{% trans 'You have already submited one application in this round' %}"
                     {% else %}
                       data-title="{% trans 'Start a new application' %}"
                     {% endif %}
                   >
-                    <a href="{% url 'application-create' round=round.id %}" class="btn btn-primary {% if not round.is_open or s.is_panellist %}disabled{% endif %}"
+                    <a href="{% url 'application-create' round=round.id %}" class="btn btn-primary {% if not round.is_open or s.is_panellist or has_submitted %}disabled{% endif %}"
                       style="text-transform: uppercase;"
                       {% if not round.is_open %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
                     </a>
