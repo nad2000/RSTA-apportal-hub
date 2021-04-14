@@ -1230,16 +1230,39 @@ class ApplicationCreate(ApplicationView, CreateView):
 
 
 class ApplicationFilter(django_filters.FilterSet):
+
+    # @property
+    # def qs(self):
+    #     parent = super().qs
+    #     breakpoint()
+    #     author = getattr(self.request, 'user', None)
+    #     return parent.filter(is_published=True) | parent.filter(author=author)
+
+    application_filter = django_filters.CharFilter(
+        method="set_filter", label=_("application filter")
+    )
+
     class Meta:
         model = models.Application
-        fields = {
-            "number": ["contains"],
-            "application_title": ["contains"],
-            "last_name": ["contains"],
-            "first_name": ["contains"],
-            "members__last_name": ["contains"],
-            "members__first_name": ["contains"],
-        }
+        fields = ["application_filter"]
+        # fields = {
+        #     "number": ["contains"],
+        #     "application_title": ["contains"],
+        #     "last_name": ["contains"],
+        #     "first_name": ["contains"],
+        #     "members__last_name": ["contains"],
+        #     "members__first_name": ["contains"],
+        # }
+
+    def set_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(application_title__icontains=value)
+            | Q(number__icontains=value)
+            | Q(first_name__icontains=value)
+            | Q(last_name__icontains=value)
+            | Q(Exists(models.Member.where(first_name__icontains=value, application=OuterRef("pk"))))
+            | Q(Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk"))))
+        )
 
 
 class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
