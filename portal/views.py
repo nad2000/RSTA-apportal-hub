@@ -1239,20 +1239,12 @@ class ApplicationFilter(django_filters.FilterSet):
     #     return parent.filter(is_published=True) | parent.filter(author=author)
 
     application_filter = django_filters.CharFilter(
-        method="set_filter", label=_("application filter")
+        method="set_filter", label=_("Application Filter")
     )
 
     class Meta:
         model = models.Application
         fields = ["application_filter"]
-        # fields = {
-        #     "number": ["contains"],
-        #     "application_title": ["contains"],
-        #     "last_name": ["contains"],
-        #     "first_name": ["contains"],
-        #     "members__last_name": ["contains"],
-        #     "members__first_name": ["contains"],
-        # }
 
     def set_filter(self, queryset, name, value):
         return queryset.filter(
@@ -1260,8 +1252,14 @@ class ApplicationFilter(django_filters.FilterSet):
             | Q(number__icontains=value)
             | Q(first_name__icontains=value)
             | Q(last_name__icontains=value)
-            | Q(Exists(models.Member.where(first_name__icontains=value, application=OuterRef("pk"))))
-            | Q(Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk"))))
+            | Q(
+                Exists(
+                    models.Member.where(first_name__icontains=value, application=OuterRef("pk"))
+                )
+            )
+            | Q(
+                Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk")))
+            )
         )
 
 
@@ -1283,6 +1281,11 @@ class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
                 | Exists(models.Member.where(user=u, application=OuterRef("pk")))
                 | Exists(models.Referee.where(user=u, application=OuterRef("pk")))
                 | Exists(models.Panellist.where(user=u, round=OuterRef("round_id")))
+                | Exists(
+                    models.ConflictOfInterest.where(
+                        has_conflict=False, panellist__user=u, application=OuterRef("pk")
+                    )
+                )
             )
         if "round" in self.request.GET:
             queryset = queryset.filter(round=self.request.GET["round"])

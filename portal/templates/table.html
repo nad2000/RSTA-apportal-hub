@@ -86,9 +86,9 @@
   {% endif %}
 
   {% if filter and not filter_disabled %}
-    <form action="" method="GET" class="form form-inline">
-      {% bootstrap_form filter.form layout='inline' %}
-      {% bootstrap_button 'Filter' %}
+    <form action="" method="GET" class="form form-inline mb-3" autocomplete="on">
+      {% bootstrap_field filter.form.application_filter show_label=False %}
+      {% bootstrap_button 'Filter' extra_classes='ml-1' %}
     </form>
   {% endif %}
 
