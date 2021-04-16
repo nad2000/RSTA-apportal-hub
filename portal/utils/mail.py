@@ -61,12 +61,11 @@ def send_mail(
 
     for r in recipient_list:
         models.MailLog.create(
-            user=request and request.user,
+            user=request.user if request and request.user.is_authenticated else None,
             recipient=r,
             sender=from_email,
             subject=subject,
             was_sent_successfully=resp,
-            # error=resp.error,
             token=token,
             invitation=invitation,
         )

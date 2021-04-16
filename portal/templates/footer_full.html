@@ -8,7 +8,8 @@
 
     <!-- Section: Form -->
     <section class="">
-      <form action="">
+      <form action="{% url 'subscribtion' %}" method="POST" autocomplete="on">
+        {% csrf_token %}
         <!--Grid row-->
         <div class="row d-flex justify-content-center">
           <!--Grid column-->
@@ -24,9 +25,11 @@
             <!-- Email input -->
             <div class="form-outline form-white mb-4">
               <input type="email"
+                     required
                      id="subscribtion-email"
+                     name="email"
                      placeholder="{% trans 'Email address' %}"
-                      class="form-control" />
+                     class="form-control" />
               <!-- label class="form-label" for="form5Example2">Email address</label -->
             </div>
           </div>
