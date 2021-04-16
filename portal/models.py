@@ -189,6 +189,7 @@ class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
+    is_confirmed = BooleanField(null=True, blank=True, default=True)
 
     def __str__(self):
         return self.name or self.email

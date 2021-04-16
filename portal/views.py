@@ -217,8 +217,25 @@ def subscribe(request):
         email = request.POST["email"]
         name = request.POST.get("name")
         Subscription.objects.get_or_create(email=email, defaults=dict(name=name))
+        messages.info(request, _("Confirmation e-mail sent to %s.") % email)
+        token = models.get_unique_mail_token()
+        send_mail(
+            _("Please confirm subscription"),
+            _("Your team member %s has opted out of application") % email,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+            request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
+        )
 
-    return render(request, "pages/comingsoon.html", locals())
+    return_url = request.GET.get("next") or request.META.get("HTTP_REFERER")
+    return render(request, "account/verification_sent.html", locals())
+
+
+def subscribe_confirm(request, token):
+
+    pass
 
 
 def unsubscribe(request, token):

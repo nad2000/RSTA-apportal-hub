@@ -1,6 +1,7 @@
 from urllib.parse import urljoin
 
 import html2text
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import mail
 from django.urls import reverse
@@ -13,16 +14,17 @@ __send_mail = mail.send_mail
 def send_mail(
     subject,
     message,
-    from_email,
-    recipient_list,
+    from_email=settings.DEFAULT_FROM_EMAIL,
+    recipient_list=None,
     fail_silently=False,
     auth_user=None,
     auth_password=None,
     connection=None,
     html_message=None,
     request=None,
-    reply_to=None,
+    reply_to=settings.DEFAULT_FROM_EMAIL,
     invitation=None,
+    token=None,
 ):
 
     if not message and html_message:
@@ -31,7 +33,8 @@ def send_mail(
     if message and not html_message:
         html_message = f"<html><body><pre>{message}</pre></body></html>"
 
-    token = models.get_unique_mail_token()
+    if not token:
+        token = models.get_unique_mail_token()
     headers = {"Message-ID": f"{token}@pmscienceprizes.org.nz"}
     url = reverse("unsubscribe", kwargs=dict(token=token))
     if request:
@@ -48,7 +51,7 @@ def send_mail(
         from_email,
         recipient_list,
         headers=headers,
-        reply_to=[reply_to or from_email]
+        reply_to=[reply_to or from_email],
     )
 
     if html_message:
