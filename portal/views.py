@@ -239,7 +239,6 @@ def subscribe(request):
 @require_http_methods(["GET", "POST"])
 def confirm_subscription(request, token):
 
-    breakpoint()
     log_entry = get_object_or_404(models.MailLog, token=token)
     subscription = get_object_or_404(models.Subscription, email=log_entry.recipient)
     if request.method == "POST":
