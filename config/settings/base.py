@@ -303,6 +303,9 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = "nad2000@gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_SUBJECT_PREFIX = env(
+    "DJANGO_EMAIL_SUBJECT_PREFIX", default="[Prime Minister's Science Prizes]"
+)
 
 # ADMIN
 # ------------------------------------------------------------------------------

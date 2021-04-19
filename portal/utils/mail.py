@@ -46,7 +46,7 @@ def send_mail(
     headers = {"Message-ID": f"<{token}@{domain}>", "List-Unsubscribe": f"<{url}>"}
 
     msg = mail.EmailMultiAlternatives(
-        subject,
+        f"{settings.EMAIL_SUBJECT_PREFIX} {subject}",
         message,
         from_email,
         recipient_list,
