@@ -189,7 +189,7 @@ class Subscription(Model):
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
-    is_confirmed = BooleanField(null=True, blank=True, default=True)
+    is_confirmed = BooleanField(null=True, blank=True)
 
     def __str__(self):
         return self.name or self.email
@@ -2116,7 +2116,7 @@ class MailLog(Model):
 
     sent_at = DateTimeField(auto_now_add=True)
     user = ForeignKey(User, null=True, on_delete=SET_NULL)
-    recipient = CharField(max_length=200)
+    recipient = CharField(max_length=200, db_index=True)
     sender = CharField(max_length=200)
     subject = CharField(max_length=100)
     was_sent_successfully = BooleanField(null=True)

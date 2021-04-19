@@ -25,23 +25,23 @@ def send_mail(
     reply_to=settings.DEFAULT_FROM_EMAIL,
     invitation=None,
     token=None,
+    convert_to_html=False,
 ):
 
     if not message and html_message:
         message = html2text.html2text(html_message)
 
-    if message and not html_message:
+    if message and not html_message and convert_to_html:
         html_message = f"<html><body><pre>{message}</pre></body></html>"
 
+    domain = request and request.get_host().split(":")[0] or Site.objects.get_current().domain
     if not token:
         token = models.get_unique_mail_token()
-    headers = {"Message-ID": f"{token}@pmscienceprizes.org.nz"}
+    headers = {"Message-ID": f"{token}@{domain}"}
     url = reverse("unsubscribe", kwargs=dict(token=token))
     if request:
-        domain = request.get_host().split(":")[0]
-        url = request.build_absolute_uri(reverse("unsubscribe", kwargs=dict(token=token)))
+        url = request.build_absolute_uri(url)
     else:
-        domain = Site.objects.get_current().domain
         url = f"https://{urljoin(domain, url)}"
     headers = {"Message-ID": f"<{token}@{domain}>", "List-Unsubscribe": f"<{url}>"}
 

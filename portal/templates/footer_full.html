@@ -8,7 +8,7 @@
 
     <!-- Section: Form -->
     <section class="">
-      <form action="{% url 'subscribtion' %}" method="POST" autocomplete="on">
+      <form action="{% url 'subscription' %}" method="POST" autocomplete="on">
         {% csrf_token %}
         <!--Grid row-->
         <div class="row d-flex justify-content-center">
@@ -26,11 +26,10 @@
             <div class="form-outline form-white mb-4">
               <input type="email"
                      required
-                     id="subscribtion-email"
+                     id="subscription-email"
                      name="email"
                      placeholder="{% trans 'Email address' %}"
                      class="form-control" />
-              <!-- label class="form-label" for="form5Example2">Email address</label -->
             </div>
           </div>
           <!--Grid column-->
@@ -68,7 +67,7 @@
         <div class="footer-col footer-left col-sm-6">
           <div class="widget text-2 widget_text">
             <div class="textwidget"><p>The Prime Minister’s Science Prizes is administered by the<br>
-            <strong><a href="http://www.royalsociety.org.nz/">Royal Society Te Apārangi.</a></strong></p>
+            <strong><a href="http://www.royalsociety.org.nz/">Royal Society Te Apārangi</a>.</strong></p>
             </div>
           </div>
         </div>

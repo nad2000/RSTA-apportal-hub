@@ -220,28 +220,48 @@ def subscribe(request):
         form.save()
         messages.info(request, _("Confirmation e-mail sent to %s.") % email)
         token = models.get_unique_mail_token()
+        url = reverse("subscription-confirmation", kwargs=dict(token=token))
+        url = request.build_absolute_uri(url)
+        # return_url = request.GET.get("next") or request.META.get("HTTP_REFERER")
+        # url = f"{url}?next={return_url}"
         send_mail(
             _("Please confirm subscription"),
-            _("Your team member %s has opted out of application") % email,
+            _("Please confirm your subscription to our newsletter: %s") % url,
             recipient_list=[email],
             fail_silently=False,
+            token=token,
             request=request,
         )
 
-    return_url = request.GET.get("next") or request.META.get("HTTP_REFERER")
     return render(request, "account/verification_sent.html", locals())
 
 
-def subscribe_confirm(request, token):
+@require_http_methods(["GET", "POST"])
+def confirm_subscription(request, token):
 
-    pass
+    breakpoint()
+    log_entry = get_object_or_404(models.MailLog, token=token)
+    subscription = get_object_or_404(models.Subscription, email=log_entry.recipient)
+    if request.method == "POST":
+        is_confirmed = bool(request.POST.get("subscribe"))
+        subscription.is_confirmed = is_confirmed
+        subscription.save()
+        messages.info(
+            request,
+            _("Thank you for subscribing to our newsletter.")
+            if is_confirmed
+            else _("We will miss You"),
+        )
+        return redirect("index")
+    messages.info(request, _("Thank you for subscribing to our newsletter."))
+    return render(request, "confirmation.html", locals())
 
 
 def unsubscribe(request, token):
 
     get_object_or_404(models.MailLog, token=token)
-    messages.success(request, _("We will missed You"))
-    return render(request, "pages/comingsoon.html", locals())
+    messages.success(request, _("We will miss You"))
+    return redirect("index")
 
 
 @login_required

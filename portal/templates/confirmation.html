@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Subscription confirmation" %}{% endblock title %}
+{% block sidebar %}{% endblock sidebar %}
+
+{% block page %}
+  <div class="row">
+    <div class="col-2"></div>
+    <div class="col-8">
+
+      <div class="jumbotron">
+        <h1 class="display-4">{% trans 'Please confirm your subscription' %}</h1>
+        <!--p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+        <hr class="my-4">
+        <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+        <p class="lead" -->
+        <p>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="submit" name="subscribe" class="btn btn-primary btn-lg" value="{% trans 'Yes, subscribe me' %}">
+          <input type="submit" name="unsubscribe" class="btn btn-outline-danger btn-lg" value="{% trans 'No, do not subscribe me' %}">
+        </form>
+        </p>
+      </div>
+
+    </div>
+    <div class="col-2"></div>
+  </div>
+{% endblock page %}

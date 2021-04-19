@@ -312,7 +312,8 @@ urlpatterns = [
         ),
     ),
     # path("", views.subscribe, name="comingsoon"),
-    path("subscribe/", views.subscribe, name="subscribtion"),
+    path("subscribe/", views.subscribe, name="subscription"),
+    path("confirm/<token>", views.confirm_subscription, name="subscription-confirmation"),
     path("", views.index, name="root"),
     path("unsubscribe/<token>", views.unsubscribe, name="unsubscribe"),
     # path(
