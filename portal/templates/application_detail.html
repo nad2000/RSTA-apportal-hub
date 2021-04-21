@@ -142,39 +142,39 @@
   </table>
   </div>
 
-  <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
-      {% if was_submitted %}
-        disabled
-        data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
-      {% elif not is_owner %}
-        disabled
-        data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
-      {% else %}
-        data-title="{% trans 'Modify your application and continue application process' %}"
-      {% endif %}
-  >
+  <div class="buttonHolder mb-5 mt-3 float-right">
 
-    <a href="{% url update_view_name pk=a.pk %}"
-        class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
-    >{% trans update_button_name %}
-    </a>
-
-  </div>
-
-  {% if export_button_view_name %}
-
-    <div class="tooltip-wrapper{% if show_basic_details %} disabled{% endif %}"
-        {% if show_basic_details %}
+    <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
+        {% if was_submitted %}
           disabled
-          data-title="{% trans 'Only the applicants and the panellists that submitted a statement of conflict of interest can export the application' %}"
+          data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+        {% elif not is_owner %}
+          disabled
+          data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
         {% else %}
-          data-title="{% trans 'Export the application into a consolidated PDF file' %}"
+          data-title="{% trans 'Modify your application and continue application process' %}"
         {% endif %}
     >
-    <a class="btn btn-primary{% if show_basic_details %} disabled{% endif %}" href="{% url export_button_view_name pk=a.pk %}">{% trans 'Export' %}</a>
+      <a href="{% url update_view_name pk=a.pk %}"
+          class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
+      >{% trans update_button_name %}
+      </a>
     </div>
 
-  {% endif %}
+    {% if export_button_view_name %}
+      <div class="tooltip-wrapper{% if show_basic_details %} disabled{% endif %}"
+          {% if show_basic_details %}
+            disabled
+            data-title="{% trans 'Only the applicants and the panellists that submitted a statement of conflict of interest can export the application' %}"
+          {% else %}
+            data-title="{% trans 'Export the application into a consolidated PDF file' %}"
+          {% endif %}
+      >
+      <a class="btn btn-primary{% if show_basic_details %} disabled{% endif %}" href="{% url export_button_view_name pk=a.pk %}">{% trans 'Export' %}</a>
+      </div>
+    {% endif %}
+
+  </div>
 
 {% endwith %}
 {% endblock %}

@@ -298,6 +298,7 @@ class ApplicationForm(forms.ModelForm):
                     </a>"""
                     % _("Cancel")
                 ),
+                css_class="buttonHolder mb-5 float-right"
             ),
         )
         self.helper.include_media = False
