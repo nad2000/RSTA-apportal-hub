@@ -40,6 +40,7 @@ from django.db.models import (
     SmallIntegerField,
     Sum,
     TextField,
+    URLField,
     When,
     prefetch_related_objects,
 )
@@ -760,6 +761,10 @@ class Application(Model):
         verbose_name=_("Photo Identity"),
         help_text=_("Please upload a scanned copy of your passport in PDF, JPG, or PNG format"),
     )
+    presentation_url = URLField(
+        null=True, blank=True,
+        verbose_name=_("Presentation URL"),
+        help_text=_("Please enter the URL of the upload presentation video"))
 
     state = FSMField(default="new")
 
@@ -778,16 +783,11 @@ class Application(Model):
             code = self.round.scheme.code
             org_code = self.org.get_code()
             year = f"{self.round.opens_on.year}"
-            last_number = (
-                Application.where(
-                    round=self.round,
-                    number__isnull=False,
-                    number__istartswith=f"{code}-{org_code}-{year}",
-                )
-                .order_by("-number")
-                .values("number")
-                .first()
-            )
+            last_number = Application.where(
+                round=self.round,
+                number__isnull=False,
+                number__istartswith=f"{code}-{org_code}-{year}",
+            ).order_by("-number").values("number").first()
             application_number = (
                 int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
             )

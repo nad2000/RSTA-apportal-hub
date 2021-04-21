@@ -162,13 +162,14 @@ class ApplicationForm(forms.ModelForm):
         language = initial.get("language", "en")
 
         self.helper = FormHelper(self)
+        instance = self.instance
         # self.helper.help_text_inline = True
         # self.helper.html5_required = True
 
         fields = [
             Fieldset(
                 _("Team representative")
-                if self.instance.is_team_application
+                if instance and instance.is_team_application
                 else _("Individual applicant"),
                 Row(
                     Column("title", css_class="form-group col-1 mb-0"),
@@ -202,9 +203,7 @@ class ApplicationForm(forms.ModelForm):
             # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
         round = (
-            models.Round.get(self.initial["round"])
-            if "round" in self.initial
-            else self.instance.round
+            models.Round.get(self.initial["round"]) if "round" in self.initial else instance.round
         )
         if round.scheme.team_can_apply:
             fields.extend(
@@ -214,6 +213,21 @@ class ApplicationForm(forms.ModelForm):
                     ),
                     Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
+            )
+        summary_fields = [
+            Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+            Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
+            Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+        ]
+        if round.scheme.presentation_required:
+            self.fields["presentation_url"].required = True
+            summary_fields.insert(
+                0,
+                Field(
+                    "presentation_url",
+                    data_toggle="tooltip",
+                    title=self.fields["presentation_url"].help_text,
+                ),
             )
         tabs = [
             Tab(
@@ -226,10 +240,9 @@ class ApplicationForm(forms.ModelForm):
                 Div(TableInlineFormset("referees"), css_id="referees"),
             ),
             Tab(
-                _("Summary"),
-                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-                Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
-                Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+                _("Summary and Forms"),
+                css_id="summary",
+                *summary_fields,
             ),
         ]
         if user and not user.is_identity_verified:
@@ -239,7 +252,23 @@ class ApplicationForm(forms.ModelForm):
                     Field(
                         "photo_identity",
                         data_toggle="tooltip",
-                        title=self.fields["photo_identity"].help_text,
+                        title=_(
+                            "Please upload a scanned copy of the passport of the team lead in PDF, JPG, or PNG format"
+                        ),
+                    ),
+                    css_id="id-verification",
+                ),
+            )
+        if round.scheme.animal_ethics_required:
+            tabs.append(
+                Tab(
+                    _("Animal Ethics"),
+                    Field(
+                        "photo_identity",
+                        data_toggle="tooltip",
+                        title=_(
+                            "Please upload a scanned copy of the passport of the team lead in PDF, JPG, or PNG format"
+                        ),
                     ),
                     css_id="id-verification",
                 ),
@@ -403,10 +432,11 @@ class ProfileSectionFormSetHelper(FormHelper):
             previous_button.input_type = "submit"
             self.add_input(previous_button)
             complete_button = Button(
-                "complete", _("Complete"),
+                "complete",
+                _("Complete"),
                 data_toggle="tooltip",
                 title=_("Skip the rest of the profile sections and complete the profile now"),
-                css_class="btn btn-outline-secondary"
+                css_class="btn btn-outline-secondary",
             )
             complete_button.input_type = "submit"
             self.add_input(complete_button)
@@ -775,9 +805,8 @@ class ThreeValuedBooleanField(forms.BooleanField):
 class RoundConflictOfInterestForm(forms.ModelForm):
 
     has_conflict = ThreeValuedBooleanField(
-            label=_("Conflict of Interest"),
-            required=False,
-            widget=forms.HiddenInput())
+        label=_("Conflict of Interest"), required=False, widget=forms.HiddenInput()
+    )
     # has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
     # has_conflict = forms.HiddenInput()
 
