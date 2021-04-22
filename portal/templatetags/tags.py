@@ -1,4 +1,5 @@
 import os
+from urllib.parse import parse_qs
 
 from django import forms, template
 from django.db import models
@@ -103,3 +104,15 @@ def basename(value):
 def all_scores(value, criteria):
     """Get full list of the scores based on the list of the criteria"""
     yield from value.all_scores(criteria)
+
+
+@register.filter()
+def youtube_video_id(value):
+    """Get full list of the scores based on the list of the criteria"""
+    # https://www.youtube.com/watch?v=NsUWXo8M7UA
+    # https://youtu.be/NsUWXo8M7UA
+    # https://www.youtube.com/embed/NsUWXo8M7UA
+    url, query = value.split("?")
+    if query and (qs := parse_qs(query)) and "v" in qs:
+        return qs["v"][0]
+    return url.split("/")[-1]

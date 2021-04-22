@@ -97,19 +97,20 @@
   {% if view.export_formats %}
     <form method="GET">
     <input type="hidden" name="show_only_conflicts" value="{% if show_only_conflicts %}1{% else %}0{% endif %}" >
-      <div class="form-group row">
-        <div class="col" style="max-width: 7pc;">
+
+    <div class="buttonHolder mb-5 mt-3 float-right" style="display: inline-flex;">
+
           <!-- label for="_export">{% trans 'Export Format' %}</label -->
-          <select class="form-control"  name="_export" id="_export">
+          <select class="form-control mr-1"  name="_export" id="_export">
             {% for format in view.export_formats %}
               <option value="{{ format }}">{{ format }}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="col">
           <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
-        </div>
-      </div>
+
+    </div>
+
+
     </form>
   {% endif %}
 
