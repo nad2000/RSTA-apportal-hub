@@ -37,17 +37,31 @@
           <tr>
             <td colspan="4">
 
-              {% if "youtube" in a.presentation_url %}
+              {% if "youtube" in a.presentation_url or "vimeo" in a.presentation_url %}
+
                 <iframe
-                  width="560"
-                  height="315"
-                  src="https://www.youtube.com/embed/{{ a.presentation_url|youtube_video_id }}"
-                  title="YouTube video player"
+                src="{% if "vimeo" in a.presentation_url %}https://player.vimeo.com/video/{% else %}https://www.youtube.com/embed/{% endif %}{{ a.presentation_url|video_id }}"
+                  title="{% trans 'Vimeo video player' %}"
+                  width="640"
+                  height="360"
                   frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen
                 ></iframe>
+
+              {% else %}
+                <video
+                  width="640"
+                  height="360"
+                  controls
+                >
+                  <source src="{{ a.presentation_url }}">
+                  {% trans 'Your browser does not support the video tag.' %}
+                </video>
+
               {% endif %}
+
+              <p><a href="{{ a.presentation_url }}">{{ a.application_title|default:a.presentation_url }}</a>.</p>
 
             </td>
           </tr>

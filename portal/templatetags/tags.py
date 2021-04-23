@@ -107,12 +107,14 @@ def all_scores(value, criteria):
 
 
 @register.filter()
-def youtube_video_id(value):
+def video_id(value):
     """Get full list of the scores based on the list of the criteria"""
     # https://www.youtube.com/watch?v=NsUWXo8M7UA
     # https://youtu.be/NsUWXo8M7UA
     # https://www.youtube.com/embed/NsUWXo8M7UA
-    url, query = value.split("?")
-    if query and (qs := parse_qs(query)) and "v" in qs:
+    # https://vimeo.com/60803861
+    url, *rest = value.split("?")
+
+    if rest and (qs := parse_qs(rest[0])) and "v" in qs:
         return qs["v"][0]
     return url.split("/")[-1]
