@@ -1395,7 +1395,7 @@ class Testimony(Model):
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
         verbose_name=_("endorsement, testimony, or feedback"),
-        help_text=_("endorsement, testimony, or feedback"),
+        help_text=_("Please upload your endorsement, testimony, or feedback"),
         upload_subfolder=lambda instance: [
             "testimonies",
             hash_int(instance.referee.id * instance.referee.application.id),
@@ -1796,6 +1796,7 @@ class SchemeApplicationGroup(Base):
 
 
 class SchemeApplication(Model):
+    title = CharField(max_length=100)
     scheme = ForeignKey(
         Scheme,
         null=True,
@@ -1865,6 +1866,7 @@ class SchemeApplication(Model):
             """
             SELECT DISTINCT
                 s.id,
+                COALESCE(r.title, s.title) AS title,
                 s.id AS scheme_id,
                 /* s.title,
                 s.title_en,
@@ -1912,7 +1914,7 @@ class SchemeApplication(Model):
             WHERE m.id IS NULL
                 OR (m.user_id = %s)
                 OR (a.id IS NULL OR a.submitted_by_id = %s)
-            ORDER BY s.title;
+            ORDER BY 2;
         """, [
                 user.id, user.id,
                 user.id, user.id,
