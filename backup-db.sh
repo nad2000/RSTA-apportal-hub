@@ -1,0 +1,15 @@
+# MAILTO=
+# SHELL=/bin/bash
+TS_LABEL=$(date +%FT%s)
+PATH=/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin:$HOME/.local/bin:$HOME/bin:$PATH:/usr/local/bin
+DATA_DIR="$(psql  -U postgres postgres -0 -z -q  -t  -c 'show data_directory;'|tr -d ' ')"
+
+[ ! -f docker-compose.yml ] && cd $HOME
+psql -U postgres -c "VACUUM FULL ANALYZE;"
+psql -U postgres -c "SELECT pg_start_backup('$TS_LABEL', false);"
+sudo bash -c 'sync; echo 3 > /proc/sys/vm/drop_caches'
+sudo -u postgres XZ_OPT="-9 --memory=135000000" tar -C "$DATA_DIR" -cJf ./backup/$TS_LABEL.tar.xz ./
+# sudo -u chmod g+w ./backup/$TS_LABEL.tar.xz 
+mv ./backup/$TS_LABEL.tar.xz ./archive/
+psql -U postgres -c "SELECT pg_stop_backup();"
+find ./archive -mtime +10 -exec rm {} \;
