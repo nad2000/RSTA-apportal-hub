@@ -1,3 +1,12 @@
+Message Flow
+====
+
+Outbound
+----
+
+.. image:: https://docs.google.com/drawings/d/e/2PACX-1vRR5kbkMGEWTFvSG9zlg0fmutP5lbuvk3jDqWeFVjusc-anxVbb56TU4hqwnHv22XF5LmKEWAKLGcJg/pub?w=919&h=368
+
+
 POSTFIX
 =======
 
