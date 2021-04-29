@@ -36,9 +36,11 @@ if __name__ == "__main__":
     to = msg["to"]
     subject = msg["subject"]
     body = msg["body"]
+    message_id = msg["references"] or msg["in-reply-to"]
 
     for part in msg.walk():
-        message_id = part["message-id"]
+        if not message_id:
+            message_id = part["message-id"]
         if not message_id:
             continue
         message_id = message_id.split("@")[0][1:]
@@ -54,6 +56,8 @@ if __name__ == "__main__":
                     ml.invitation.bounce()
                     ml.invitation.save()
             break
+        else:
+            message_id = None
 
     # with open("%s-%s.txt" % (msg["from"], subject), "w") as f:
     #     f.write(full_msg)
