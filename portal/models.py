@@ -1875,7 +1875,7 @@ class SchemeApplication(Model):
                 s.description,
                 s.description_en,
                 s.description_mi, */
-                count(*) OVER (PARTITION by s.id ORDER BY s.id) AS "count",
+                count(*) OVER (PARTITION by s.id ORDER BY a.id DESC) AS "count",
                 /* EXISTS(
                     SELECt 1 FROM scheme_group AS sg LEFT JOIN  auth_group AS ag ON ag.id = sg.group_id
                     WHERE sg.scheme_id=s.id AND ag.name='APPLICANT') AS can_be_applied_to,
