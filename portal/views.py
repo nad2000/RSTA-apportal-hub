@@ -1542,7 +1542,19 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             if url_name == "profile-recognitions":
                 profile.is_recognitions_completed = True
         profile.save()
-        return super().formset_valid(formset)
+        resp = super().formset_valid(formset)
+        if hasattr(formset, "deleted_objects"):
+            if len(formset.deleted_objects) == 1:
+                messages.info(
+                    self.request,
+                    _("Record deleted: %s") % formset.deleted_objects[0],
+                )
+            elif len(formset.deleted_objects) > 1:
+                messages.info(
+                    self.request,
+                    _("%d records deleted") % len(formset.deleted_objects),
+                )
+        return resp
 
     # def construct_formset(self):
     #     formset = super().construct_formset()
