@@ -568,9 +568,10 @@ class Profile(Model):
 
     @property
     def protection_patterns(self):
-        return ProtectionPatternProfile.where(
-            Q(code__in=[3, 4, 5, 6, 7, 8, 9]), Q(profile=self) | Q(profile_id__isnull=True)
-        )
+        return ProtectionPatternProfile.get_data(self)
+        # return ProtectionPatternProfile.where(
+        #     Q(code__in=[3, 4, 5, 6, 7, 8, 9]), Q(profile=self) | Q(profile_id__isnull=True)
+        # )
 
     def __str__(self):
 
@@ -639,9 +640,32 @@ class ProtectionPatternProfile(Model):
     profile = ForeignKey(Profile, null=True, on_delete=DO_NOTHING)
     expires_on = DateField(null=True, blank=True)
 
+    @classmethod
+    def get_data(cls, profile):
+        q = cls.objects.raw(
+            """
+            SELECT
+                pp.description,
+                pp.pattern,
+                pp.description_en,
+                pp.description_mi,
+                pp.code,
+                ppp.expires_on,
+                ppp.profile_id,
+                ppp.created_at,
+                ppp.updated_at
+            FROM protection_pattern AS pp
+            LEFT JOIN profile_protection_pattern AS ppp
+                ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
+            WHERE pp.code IN (3, 4, 5, 6, 7, 8, 9)
+            """, [profile.id])
+
+        prefetch_related_objects(q, "profile")
+        return q
+
     class Meta:
         managed = False
-        db_table = "protection_pattern_profile_view"
+        # db_table = "protection_pattern_profile_view"
         ordering = ["description"]
 
 
