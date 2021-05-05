@@ -1,3 +1,4 @@
+distro<1.6.0
 # pytz>=2019.3,<2020.1  # https://github.com/stub42/pytz
 python-slugify>=4.0.0,<5.0.0  # https://github.com/un33k/python-slugify
 Pillow>=8.0.0,<8.2.0  # https://github.com/python-pillow/Pillow

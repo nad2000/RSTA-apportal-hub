@@ -14,7 +14,7 @@ from crispy_forms.helper import FormHelper
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -52,6 +52,7 @@ from weasyprint import HTML
 from . import forms, models, tables
 from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
+from .pyinfo import info
 from .tasks import notify_user
 from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
@@ -67,6 +68,14 @@ def handler500(request, *args, **argv):
         },
         status=500,
     )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def pyinfo(request, message=None):
+    """Show Python and runtime environment and settings or test exception handling."""
+    if message:
+        raise Exception(message)
+    return render(request, "pyinfo.html", info)
 
 
 def shoud_be_onboarded(function):

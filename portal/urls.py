@@ -328,6 +328,8 @@ urlpatterns = [
     # ),
     # path("subscriptions", views.SubscriptionList.as_view(), name="subscription-list"),
     path("api/", include(apis.router.urls)),
+    path("pyinfo/", views.pyinfo),
+    path("pyinfo/<message>", views.pyinfo),
 ]
 
 if settings.SENTRY_DSN:
