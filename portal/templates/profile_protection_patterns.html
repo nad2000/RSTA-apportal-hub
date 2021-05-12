@@ -9,13 +9,14 @@
 {% endblock %}
 
 {% block section %}
-  <form method="post" style="max-width: 440px;">{% csrf_token %}
+  <form method="post" style="max-width: 440px;" id="pattern-form">
+    {% csrf_token %}
     <div class="checkbox">
       <input
-        type="checkbox" {% if profile.has_protection_patterns %}checked{% endif %}
-        data-toggle="toggle" name="has_protection_patterns" id="has_protection_patterns">
-      <label for="has_protection_patterns">
-        {% trans 'Enable protection patterns' %}
+        type="checkbox" {% if not profile.has_protection_patterns %}checked{% endif %}
+        data-toggle="toggle" name="no_protection_needed" id="no_protection_needed">
+      <label for="no_protection_needed">
+        {% trans 'No Protection needed' %}
       </label>
     </div>
     <hr />
@@ -58,11 +59,11 @@
       <script>
         $(function() {
           {% if not profile.has_protection_patterns %}$("#patterns input").prop('disabled', true);{% endif %}
-          $('#has_protection_patterns').change(function() {
-            var is_disabled = !($(this).prop('checked'));
+          $('#no_protection_needed').change(function() {
+            var is_disabled = ($(this).prop('checked'));
             $("#patterns input").prop('disabled', is_disabled);
             if (is_disabled) {
-              $("form").submit();
+              $("#pattern-form").submit();
             }
           })
         })

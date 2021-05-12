@@ -569,9 +569,6 @@ class Profile(Model):
     @property
     def protection_patterns(self):
         return ProtectionPatternProfile.get_data(self)
-        # return ProtectionPatternProfile.where(
-        #     Q(code__in=[3, 4, 5, 6, 7, 8, 9]), Q(profile=self) | Q(profile_id__isnull=True)
-        # )
 
     def __str__(self):
 

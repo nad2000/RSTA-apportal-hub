@@ -460,11 +460,11 @@ class ProfileView:
 def profile_protection_patterns(request):
     profile = request.profile
     if request.method == "POST":
-        has_protection_patterns = "has_protection_patterns" in request.POST
-        profile.has_protection_patterns = has_protection_patterns
+        no_protection_needed = "no_protection_needed" in request.POST
+        profile.has_protection_patterns = not no_protection_needed
         profile.save()
 
-        if has_protection_patterns:
+        if not no_protection_needed:
             rp = request.POST
             pp_codes = rp.getlist("pp_code")
             expires_on_dates = rp.getlist("expires_on")
