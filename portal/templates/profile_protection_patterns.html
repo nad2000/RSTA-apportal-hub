@@ -64,6 +64,9 @@
             $("#patterns input").prop('disabled', is_disabled);
             if (is_disabled) {
               $("#pattern-form").submit();
+            } else {
+              $('#ppEnabled-6').prop('checked', true);
+              $('#ppEnabled-7').prop('checked', true);
             }
           })
         })

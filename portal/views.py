@@ -461,14 +461,16 @@ def profile_protection_patterns(request):
     profile = request.profile
     if request.method == "POST":
         no_protection_needed = "no_protection_needed" in request.POST
+        rp = request.POST
+        pp_codes = rp.getlist("pp_code")
+        pp_flags = {ppc: f"pp_enabled:{ppc}" in rp.keys() for ppc in pp_codes}
+        if not no_protection_needed and not any(pp_flags.values()):
+            no_protection_needed = True
         profile.has_protection_patterns = not no_protection_needed
         profile.save()
 
         if not no_protection_needed:
-            rp = request.POST
-            pp_codes = rp.getlist("pp_code")
             expires_on_dates = rp.getlist("expires_on")
-            pp_flags = {ppc: f"pp_enabled:{ppc}" in rp.keys() for ppc in pp_codes}
             for idx, ppc in enumerate(pp_codes):
                 if pp_flags[ppc]:
                     ppp, _ = models.ProfileProtectionPattern.objects.get_or_create(
@@ -483,6 +485,8 @@ def profile_protection_patterns(request):
                     models.ProfileProtectionPattern.where(
                         protection_pattern_id=ppc, profile=profile
                     ).delete()
+        else:
+            models.ProfileProtectionPattern.where(profile=profile).delete()
 
     protection_patterns = profile.protection_patterns
     return render(request, "profile_protection_patterns.html", locals())
