@@ -105,10 +105,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         email = data.get("email") or self.invitation and self.invitation.email
         if not user.username and email:
             user.username = email.split("@")[0]
-        elif data.get("name"):
+        elif "name" in data:
             user.username = data["name"]
 
-        user.name = data.get("name")
+        user.name = data.get("name") or user.full_name
         user.orcid = data.get("orcid")
         user.is_approved = True
         self.handle_invitation(request, sociallogin)

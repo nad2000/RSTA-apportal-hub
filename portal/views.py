@@ -377,6 +377,8 @@ def check_profile(request, token=None):
             u.middle_names = i.middle_names
         if i.last_name and not u.last_name:
             u.last_name = i.last_name
+        if not u.name:
+            u.name = u.full_name
         u.is_approved = True
         u.save()
         if i.email and u.email != i.email:
