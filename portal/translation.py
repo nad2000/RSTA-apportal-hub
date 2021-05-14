@@ -38,4 +38,15 @@ simple_history.register(models.Criterion, inherit=True, table_name="criterion_hi
 
 @register(models.ProtectionPattern)
 class ProtectionPatternOptions(TranslationOptions):
-    fields = ("description",)
+    fields = (
+        "description",
+        "comment",
+    )
+
+
+@register(models.ProtectionPatternProfile)
+class ProtectionPatternProfileOptions(TranslationOptions):
+    fields = (
+        "description",
+        "comment",
+    )

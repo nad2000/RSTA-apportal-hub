@@ -287,6 +287,7 @@ class ProtectionPattern(Model):
     code = PositiveSmallIntegerField(primary_key=True)
     description = CharField(max_length=80)
     pattern = CharField(max_length=80)
+    comment = TextField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.description
@@ -634,6 +635,7 @@ class ProtectionPatternProfile(Model):
     code = PositiveSmallIntegerField(primary_key=True)
     description = CharField(max_length=80)
     pattern = CharField(max_length=80)
+    comment = TextField(null=True, blank=True)
     profile = ForeignKey(Profile, null=True, on_delete=DO_NOTHING)
     expires_on = DateField(null=True, blank=True)
 
@@ -642,11 +644,13 @@ class ProtectionPatternProfile(Model):
         q = cls.objects.raw(
             """
             SELECT
+                pp.code,
                 pp.description,
                 pp.pattern,
                 pp.description_en,
                 pp.description_mi,
-                pp.code,
+                pp.comment_en,
+                pp.comment_mi,
                 ppp.expires_on,
                 ppp.profile_id,
                 ppp.created_at,
@@ -654,7 +658,7 @@ class ProtectionPatternProfile(Model):
             FROM protection_pattern AS pp
             LEFT JOIN profile_protection_pattern AS ppp
                 ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
-            WHERE pp.code IN (3, 4, 5, 6, 7, 8, 9)
+            WHERE pp.code IN (3, 4, 5, 6, 7, 9)
             """, [profile.id])
 
         prefetch_related_objects(q, "profile")
@@ -662,8 +666,6 @@ class ProtectionPatternProfile(Model):
 
     class Meta:
         managed = False
-        # db_table = "protection_pattern_profile_view"
-        ordering = ["description"]
 
 
 class AcademicRecord(Model):

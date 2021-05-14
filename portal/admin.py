@@ -117,7 +117,7 @@ class IwiGroupAdmin(ImportExportModelAdmin):
 
 
 @admin.register(models.ProtectionPattern)
-class ProtectionPatternAdmin(ImportExportModelAdmin):
+class ProtectionPatternAdmin(TranslationAdmin, ImportExportModelAdmin):
     class ProtectionPatternResource(CodeResource):
         class Meta:
             model = models.ProtectionPattern
@@ -125,6 +125,28 @@ class ProtectionPatternAdmin(ImportExportModelAdmin):
     search_fields = ["description", "pattern"]
     list_display = ["code", "description", "pattern"]
     resource_class = ProtectionPatternResource
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": (
+                    "code",
+                    "description",
+                    "pattern",
+                )
+            },
+        ),
+        (
+            _("Comment"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "comment_en",
+                    "comment_mi",
+                ),
+            },
+        ),
+    ]
 
 
 @admin.register(models.OrgIdentifierType)
@@ -300,6 +322,7 @@ class EvaluationAdmin(SimpleHistoryAdmin):
     inlines = [
         ScoreInline,
     ]
+
 
 #     def view_on_site(self, obj):
 #         return obj.get_absolute_url()
