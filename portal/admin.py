@@ -212,16 +212,44 @@ class ProfileAdmin(SimpleHistoryAdmin):
         return obj.get_absolute_url()
 
 
+class StaffPermsMixin:
+
+    def get_model_perms(self, request):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return {"add": True, "change": True, "delete": True, "view": True}
+        return super().get_model_perms(request)
+
+    def has_add_permission(self, request, *args):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_add_permission(request, *args)
+
+    def has_change_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_delete_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_view_permission(request, obj)
+
+
 @admin.register(models.Application)
-class ApplicationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
+class ApplicationAdmin(StaffPermsMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
 
     summernote_fields = ["summary"]
 
-    class MemberInline(admin.TabularInline):
+    class MemberInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Member
 
-    class RefereeInline(admin.TabularInline):
+    class RefereeInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Referee
 
