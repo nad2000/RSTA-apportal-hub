@@ -660,8 +660,8 @@ class ProtectionPatternProfile(Model):
             LEFT JOIN profile_protection_pattern AS ppp
                 ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
             WHERE pp.code IN (3, 4, 5, 6, 7, 9)
-            ORDER BY %s
-            """, [profile.id, f"description_{get_language()}"])
+            ORDER BY description_""" + get_language(),
+            [profile.id])
 
         prefetch_related_objects(q, "profile")
         return q
