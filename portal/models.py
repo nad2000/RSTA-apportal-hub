@@ -1307,7 +1307,8 @@ class Invitation(Model):
         return resp
 
     @transition(
-        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.accepted
+        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted, STATUS.bounced],
+        target=STATUS.accepted
     )
     def accept(self, request=None, by=None):
         if not by:
