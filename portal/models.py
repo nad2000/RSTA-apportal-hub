@@ -1402,8 +1402,9 @@ class Invitation(Model):
     def outstanding_invitations(cls, user):
         return cls.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
-            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired')",
-            [user.id],
+            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') "
+            "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired')",
+            [user.id, user.email],
         )
 
     def __str__(self):

@@ -358,7 +358,13 @@ def check_profile(request, token=None):
     # TODO: refactor and move to the model the invitation handling:
     if token:
         try:
-            i = models.Invitation.get(token=token, email=request.user.email)
+            u = request.user
+            i = models.Invitation.objects.raw(
+                "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
+                "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') AND i.token=%s "
+                "UNION SELECT * FROM invitation WHERE email=%s AND token=%s",
+                [u.id, token, u.email, token],
+            )[0]
         except Exception as ex:
             messages.warning(
                 request,

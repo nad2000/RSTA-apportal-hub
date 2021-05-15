@@ -175,8 +175,13 @@
         {% if outstanding_invitations %}
           {% for oi in outstanding_invitations %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% if oi.created_at >= three_days_ago %}
+                <span class="badge badge-primary">{% trans 'New' %}</span>
+              {% endif %}
               {% trans "You have an invitation that hasn't been accepted yet." %}
-              <a href="{% url 'onboard-with-token' token=oi.token %}" class="alert-link">{% trans 'Please click here to accept it' %}!</a>
+              <a href="{% url 'onboard-with-token' token=oi.token %}" class="alert-link">
+                {% trans 'Please click here to accept it' %}!
+              </a>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
