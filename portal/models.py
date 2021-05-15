@@ -46,6 +46,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse
+from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from model_utils import Choices
@@ -659,7 +660,8 @@ class ProtectionPatternProfile(Model):
             LEFT JOIN profile_protection_pattern AS ppp
                 ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
             WHERE pp.code IN (3, 4, 5, 6, 7, 9)
-            """, [profile.id])
+            ORDER BY %s
+            """, [profile.id, f"description_{get_language()}"])
 
         prefetch_related_objects(q, "profile")
         return q
