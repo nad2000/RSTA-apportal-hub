@@ -370,7 +370,10 @@ class RoundAdmin(ImportExportModelAdmin):
 
 
 @admin.register(models.Evaluation)
-class EvaluationAdmin(SimpleHistoryAdmin):
+class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
+
+    fsm_field = ["state"]
+
     class ScoreInline(admin.StackedInline):
         extra = 0
         model = models.Score
