@@ -742,6 +742,7 @@ class Application(PersonMixin, Model):
         null=True,
         on_delete=SET_NULL,
         verbose_name="organisation",
+        related_name="applications",
     )
     organisation = CharField(max_length=200)
     position = CharField(max_length=80)
