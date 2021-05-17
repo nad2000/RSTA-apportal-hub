@@ -306,8 +306,10 @@ class ConflictOfInterestAdmin(StaffPermsMixin, SummernoteModelAdmin):
 
 
 @admin.register(models.MailLog)
-class MailLogAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
+
     search_fields = ["token", "recipient"]
+    list_filter = ["sent_at", "updated_at", "was_sent_successfully"]
     date_hierarchy = "sent_at"
 
 
