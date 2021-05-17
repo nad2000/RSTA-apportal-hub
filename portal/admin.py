@@ -15,6 +15,33 @@ admin.site.site_header = _("Portal Administration")
 admin.site.site_title = _("Portal Administration")
 
 
+class StaffPermsMixin:
+    def get_model_perms(self, request):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return {"add": True, "change": True, "delete": True, "view": True}
+        return super().get_model_perms(request)
+
+    def has_add_permission(self, request, *args):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_add_permission(request, *args)
+
+    def has_change_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_delete_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
+            return True
+        return super().has_view_permission(request, obj)
+
+
 @admin.register(models.Subscription)
 class SubscriptionAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ["email", "name"]
@@ -183,7 +210,8 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
 
 
 @admin.register(models.Profile)
-class ProfileAdmin(SimpleHistoryAdmin):
+class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
+
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
@@ -210,33 +238,6 @@ class ProfileAdmin(SimpleHistoryAdmin):
 
     def view_on_site(self, obj):
         return obj.get_absolute_url()
-
-
-class StaffPermsMixin:
-    def get_model_perms(self, request):
-        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
-            return {"add": True, "change": True, "delete": True, "view": True}
-        return super().get_model_perms(request)
-
-    def has_add_permission(self, request, *args):
-        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
-            return True
-        return super().has_add_permission(request, *args)
-
-    def has_change_permission(self, request, obj=None):
-        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
-            return True
-        return super().has_change_permission(request, obj)
-
-    def has_delete_permission(self, request, obj=None):
-        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
-            return True
-        return super().has_delete_permission(request, obj)
-
-    def has_view_permission(self, request, obj=None):
-        if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
-            return True
-        return super().has_view_permission(request, obj)
 
 
 @admin.register(models.Application)
@@ -274,10 +275,26 @@ class ApplicationAdmin(
 
 admin.site.register(models.Award)
 # admin.site.register(models.Member)
-admin.site.register(models.Referee)
-admin.site.register(models.Panellist)
 admin.site.register(models.Score)
 admin.site.register(models.ScoreSheet)
+
+
+@admin.register(models.Referee)
+class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    list_display = ["application", "full_name", "status", "testified_at"]
+    fsm_field = ["status"]
+    search_fields = ["first_name", "last_name"]
+    list_filter = ["application__round", "created_at", "testified_at", "status"]
+    date_hierarchy = "testified_at"
+
+
+@admin.register(models.Panellist)
+class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    list_display = ["full_name", "round", "status"]
+    fsm_field = ["status"]
+    search_fields = ["first_name", "last_name"]
+    list_filter = ["round", "created_at", "updated_at", "status"]
+    date_hierarchy = "created_at"
 
 
 @admin.register(models.IdentityVerification)
