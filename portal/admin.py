@@ -41,6 +41,9 @@ class StaffPermsMixin:
             return True
         return super().has_view_permission(request, obj)
 
+    def has_module_permission(self, request):
+        return request.user.is_active and (request.user.is_superuser or request.user.is_staff)
+
 
 @admin.register(models.Subscription)
 class SubscriptionAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
