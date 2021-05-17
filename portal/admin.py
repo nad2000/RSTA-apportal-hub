@@ -246,7 +246,7 @@ class ApplicationAdmin(
 
     date_hierarchy = "created_at"
     list_display = ["number", "application_title", "full_name", "org"]
-    list_filter = ["round", "state"]
+    list_filter = ["round", "state", "created_at", "updated_at"]
     readonly_fields = ["created_at", "updated_at"]
     search_fields = [
         "first_name",
@@ -284,7 +284,7 @@ admin.site.register(models.ScoreSheet)
 class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_display = ["user", "application"]
     search_fields = ["user__first_name", "user__last_name", "application__application_title"]
-    list_filter = ["application__round"]
+    list_filter = ["application__round", "created_at", "updated_at"]
     date_hierarchy = "created_at"
 
 
@@ -300,7 +300,7 @@ class ConflictOfInterestAdmin(StaffPermsMixin, SummernoteModelAdmin):
         "has_conflict",
         "panellist",
     ]
-    list_filter = ["application__round"]
+    list_filter = ["application__round", "created_at", "updated_at"]
     search_fields = ["panellist__first_name", "panellist__last_name"]
     date_hierarchy = "created_at"
 
@@ -326,7 +326,8 @@ class OrganisationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 
 @admin.register(models.Invitation)
-class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
+class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmin):
+
     fsm_field = ["status"]
     list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
     list_filter = ["type", "status", "created_at", "updated_at"]
