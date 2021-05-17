@@ -19,7 +19,13 @@ ETHNICITY_COICES = Choices(
     "Other",
 )
 
-TITLES = Choices(("MR", "Mr"), ("MRS", "Mrs"), ("MS", "Ms"), ("DR", "Dr"), ("PROF", "Prof"),)
+TITLES = Choices(
+    ("MR", "Mr"),
+    ("MRS", "Mrs"),
+    ("MS", "Ms"),
+    ("DR", "Dr"),
+    ("PROF", "Prof"),
+)
 
 
 class TimeStampMixin(Base):
@@ -71,3 +77,24 @@ class Model(TimeStampMixin, HelperMixin, Base):
     class Meta:
         abstract = True
         ordering = ["-id"]
+
+
+class PersonMixin:
+    @property
+    def full_name(self):
+        full_name = self.first_name or self.user and self.user.first_name or ""
+        if self.middle_names or self.user and self.user.middle_names:
+            full_name += f" {(self.middle_names or self.user.middle_names)}"
+        if self.last_name or self.user and self.user.last_name:
+            full_name += f" {self.last_name or self.user.last_name}"
+        return full_name
+
+    @property
+    def full_name_with_email(self):
+        full_name = self.first_name or self.user.first_name
+        if self.middle_names or self.user.middle_names:
+            full_name += f" {(self.middle_names or self.user.middle_names)}"
+        return f"{full_name} {self.last_name or self.user.last_name} ({self.email or self.user.email})"
+
+    def __str__(self):
+        return self.full_name

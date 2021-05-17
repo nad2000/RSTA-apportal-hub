@@ -56,7 +56,7 @@ from PyPDF2 import PdfFileMerger
 from simple_history.models import HistoricalRecords
 from weasyprint import HTML
 
-from common.models import TITLES, Base, Model
+from common.models import TITLES, Base, Model, PersonMixin
 
 from .utils import send_mail, vignere
 
@@ -166,25 +166,6 @@ def hash_int(value):
 
 
 User = get_user_model()
-
-
-class FullNameMixin:
-
-    @property
-    def full_name(self):
-        full_name = self.first_name or self.user and self.user.first_name or ""
-        if self.middle_names or self.user and self.user.middle_names:
-            full_name += f" {(self.middle_names or self.user.middle_names)}"
-        if self.last_name or self.user and self.user.last_name:
-            full_name += f" {self.last_name or self.user.last_name}"
-        return full_name
-
-    @property
-    def full_name_with_email(self):
-        full_name = self.first_name or self.user.first_name
-        if self.middle_names or self.user.middle_names:
-            full_name += f" {(self.middle_names or self.user.middle_names)}"
-        return f"{full_name} {self.last_name or self.user.last_name} ({self.email or self.user.email})"
 
 
 class Subscription(Model):
@@ -1029,7 +1010,7 @@ class RefereeMixin:
     STATUS = REFEREE_STATUS
 
 
-class Referee(RefereeMixin, FullNameMixin, Model):
+class Referee(RefereeMixin, PersonMixin, Model):
     """Application referee."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="referees")
@@ -1085,7 +1066,7 @@ class PanellistMixin:
     STATUS = PANELLIST_STATUS
 
 
-class Panellist(PanellistMixin, FullNameMixin, Model):
+class Panellist(PanellistMixin, PersonMixin, Model):
     """Round Panellist."""
 
     status = StateField(null=True, blank=True)

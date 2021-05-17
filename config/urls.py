@@ -13,6 +13,7 @@ from users.views import LoginView, SignupView
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    # path("grappelli/", include("grappelli.urls")),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
@@ -38,7 +39,11 @@ if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
     # these url in browser to see how these error pages look like.
     urlpatterns += [
-        path("400/", default_views.bad_request, kwargs={"exception": Exception("Bad Request!")},),
+        path(
+            "400/",
+            default_views.bad_request,
+            kwargs={"exception": Exception("Bad Request!")},
+        ),
         path(
             "403/",
             default_views.permission_denied,
