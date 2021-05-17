@@ -277,8 +277,24 @@ admin.site.register(models.Referee)
 admin.site.register(models.Panellist)
 admin.site.register(models.IdentityVerification)
 admin.site.register(models.Score)
-admin.site.register(models.ConflictOfInterest)
 admin.site.register(models.ScoreSheet)
+
+
+@admin.register(models.ConflictOfInterest)
+class ConflictOfInterestAdmin(StaffPermsMixin, SummernoteModelAdmin):
+
+    list_display = ["panellist", "application"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "application",
+        "comment",
+        "has_conflict",
+        "panellist",
+    ]
+    list_filter = ["application__round"]
+    search_fields = ["panellist__first_name", "panellist__last_name"]
+    date_hierarchy = "created_at"
 
 
 @admin.register(models.MailLog)
