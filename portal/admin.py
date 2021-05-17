@@ -43,9 +43,9 @@ class StaffPermsMixin:
 
 
 @admin.register(models.Subscription)
-class SubscriptionAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+class SubscriptionAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ["email", "name"]
-    list_filter = ["created_at", "updated_at"]
+    list_filter = ["created_at", "updated_at", "is_confirmed"]
     search_fields = ["email"]
     date_hierarchy = "created_at"
 
@@ -211,7 +211,6 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
-
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
@@ -242,7 +241,7 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
 
 @admin.register(models.Application)
 class ApplicationAdmin(
-    StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdmin
+    StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SummernoteModelAdmin, SimpleHistoryAdmin
 ):
 
     date_hierarchy = "created_at"
@@ -267,7 +266,7 @@ class ApplicationAdmin(
         extra = 0
         model = models.Referee
 
-    inlines = [MemberInline, RefereeInline]
+    inlines = [MemberInline, RefereeInline, StateLogInline]
 
     def view_on_site(self, obj):
         return obj.get_absolute_url()
@@ -275,8 +274,14 @@ class ApplicationAdmin(
 
 admin.site.register(models.Award)
 # admin.site.register(models.Member)
-admin.site.register(models.Score)
-admin.site.register(models.ScoreSheet)
+# admin.site.register(models.Score)
+
+
+@admin.register(models.ScoreSheet)
+class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
+    list_display = ["panellist", "round", "file"]
+    list_filter = ["round"]
+    date_hierarchy = "created_at"
 
 
 @admin.register(models.Referee)
@@ -286,6 +291,17 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     search_fields = ["first_name", "last_name"]
     list_filter = ["application__round", "created_at", "testified_at", "status"]
     date_hierarchy = "testified_at"
+    inlines = [StateLogInline]
+
+
+@admin.register(models.Member)
+class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    list_display = ["full_name", "application", "status"]
+    fsm_field = ["status"]
+    search_fields = ["first_name", "last_name"]
+    list_filter = ["application__round", "created_at", "updated_at", "status"]
+    date_hierarchy = "created_at"
+    inlines = [StateLogInline]
 
 
 @admin.register(models.Panellist)
@@ -295,6 +311,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     search_fields = ["first_name", "last_name"]
     list_filter = ["round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
+    inlines = [StateLogInline]
 
 
 @admin.register(models.IdentityVerification)
@@ -303,6 +320,7 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
     search_fields = ["user__first_name", "user__last_name", "application__application_title"]
     list_filter = ["application__round", "created_at", "updated_at"]
     date_hierarchy = "created_at"
+    inlines = [StateLogInline]
 
 
 @admin.register(models.ConflictOfInterest)
@@ -357,9 +375,11 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 
 
 @admin.register(models.Testimony)
-class TestimonyAdmin(FSMTransitionMixin, SummernoteModelAdmin):
+class TestimonyAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
     summernote_fields = ["summary"]
-    list_display = ["referee"]
+    list_display = ["referee", "application", "state"]
+    list_filter = ["created_at", "state", "referee__application__round"]
+    search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
 
@@ -375,21 +395,22 @@ class SchemeResource(ModelResource):
 
 
 @admin.register(models.Scheme)
-class SchemeAdmin(TranslationAdmin, ImportExportModelAdmin):
+class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
     list_display = ["title"]
     resource_class = SchemeResource
 
 
 @admin.register(models.Round)
-class RoundAdmin(ImportExportModelAdmin):
-    list_display = ["title", "scheme", "opens_on"]
-    list_filter = ["created_at", "updated_at"]
+class RoundAdmin(StaffPermsMixin, ImportExportModelAdmin):
+    list_display = ["title", "scheme", "opens_on", "closes_on"]
+    list_filter = ["opens_on", "closes_on"]
+    date_hierarchy = "opens_on"
 
-    class PanellistInline(admin.TabularInline):
+    class PanellistInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Panellist
 
-    class CriterionInline(admin.StackedInline):
+    class CriterionInline(StaffPermsMixin, admin.StackedInline):
         extra = 1
         model = models.Criterion
 
@@ -402,9 +423,7 @@ class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
         extra = 0
         model = models.Score
 
-    inlines = [
-        ScoreInline,
-    ]
+    inlines = [ScoreInline, StateLogInline]
 
 
 #     def view_on_site(self, obj):

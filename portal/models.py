@@ -953,7 +953,7 @@ class MemberMixin:
     STATUS = MEMBER_STATUS
 
 
-class Member(MemberMixin, Model):
+class Member(PersonMixin, MemberMixin, Model):
     """Application team member."""
 
     application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
@@ -1411,6 +1411,10 @@ class Testimony(Model):
         null=True,
     )
     state = FSMField(default="new")
+
+    @property
+    def application(self):
+        return self.referee.application
 
     @transition(field=state, source=["new", "draft"], target="draft")
     def save_draft(self, request=None, by=None):
@@ -2154,6 +2158,9 @@ class ScoreSheet(Model):
         verbose_name=_("Score Sheet"),
         help_text=_("Upload filled-in for all the applications in bulk"),
     )
+
+    def __str__(self):
+        return self.file.name
 
     class Meta:
         db_table = "score_sheet"
