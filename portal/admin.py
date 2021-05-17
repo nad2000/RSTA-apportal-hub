@@ -240,10 +240,11 @@ class StaffPermsMixin:
 
 
 @admin.register(models.Application)
-class ApplicationAdmin(StaffPermsMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
+class ApplicationAdmin(
+    StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdmin
+):
 
     date_hierarchy = "created_at"
-    fsm_field = ["state"]
     list_display = ["number", "application_title", "full_name", "org"]
     list_filter = ["round", "state"]
     readonly_fields = ["created_at", "updated_at"]
@@ -275,9 +276,16 @@ admin.site.register(models.Award)
 admin.site.register(models.Member)
 admin.site.register(models.Referee)
 admin.site.register(models.Panellist)
-admin.site.register(models.IdentityVerification)
 admin.site.register(models.Score)
 admin.site.register(models.ScoreSheet)
+
+
+@admin.register(models.IdentityVerification)
+class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    list_display = ["user", "application"]
+    search_fields = ["user__first_name", "user__last_name", "application__application_title"]
+    list_filter = ["application__round"]
+    date_hierarchy = "created_at"
 
 
 @admin.register(models.ConflictOfInterest)
@@ -330,7 +338,6 @@ class InvitationAdmin(FSMTransitionMixin, ImportExportModelAdmin):
 
 @admin.register(models.Testimony)
 class TestimonyAdmin(FSMTransitionMixin, SummernoteModelAdmin):
-    fsm_field = ["state"]
     summernote_fields = ["summary"]
     list_display = ["referee"]
     date_hierarchy = "created_at"
@@ -371,9 +378,6 @@ class RoundAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Evaluation)
 class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
-
-    fsm_field = ["state"]
-
     class ScoreInline(admin.StackedInline):
         extra = 0
         model = models.Score
