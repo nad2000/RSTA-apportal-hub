@@ -213,7 +213,6 @@ class ProfileAdmin(SimpleHistoryAdmin):
 
 
 class StaffPermsMixin:
-
     def get_model_perms(self, request):
         if (u := request.user) and u.is_active and (u.is_superuser or u.is_staff):
             return {"add": True, "change": True, "delete": True, "view": True}
@@ -243,6 +242,19 @@ class StaffPermsMixin:
 @admin.register(models.Application)
 class ApplicationAdmin(StaffPermsMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
 
+    date_hierarchy = "created_at"
+    fsm_field = ["state"]
+    list_display = ["number", "application_title", "full_name", "org"]
+    list_filter = ["round", "state"]
+    readonly_fields = ["created_at", "updated_at"]
+    search_fields = [
+        "first_name",
+        "last_name",
+        "middle_names",
+        "email",
+        "organisation",
+        "org__name",
+    ]
     summernote_fields = ["summary"]
 
     class MemberInline(StaffPermsMixin, admin.TabularInline):

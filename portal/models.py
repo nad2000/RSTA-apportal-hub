@@ -715,7 +715,7 @@ class Nominee(Model):
         db_table = "nominee"
 
 
-class Application(Model):
+class Application(PersonMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     application_title = CharField(max_length=200, null=True, blank=True)
@@ -1127,9 +1127,7 @@ class ConflictOfInterest(Model):
     statement_given_at = DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return _("Statement of Conflict of Interest of %s") % (
-            self.panellist.user if self.panellist.user else self.panellist
-        )
+        return _("Statement of Conflict of Interest of %s") % self.panellist
 
     class Meta:
         db_table = "conflict_of_interest"
