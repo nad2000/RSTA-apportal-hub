@@ -1893,16 +1893,16 @@ class SchemeApplication(Model):
                     count(*) AS app_count,
                     a.round_id
                 FROM application AS a LEFT JOIN member AS m
-                    ON m.application_id = a.id
-                WHERE m.user_id IS NULL
-                    OR (m.user_id != a.submitted_by_id
-                        AND (m.user_id = %s OR a.submitted_by_id = %s))
-                GROUP BY a.round_id) AS la
-                ON la.round_id = r.id
+                    ON m.application_id = a.id AND m.user_id = %s
+                WHERE (m.user_id IS NULL AND a.submitted_by_id = %s)
+                    OR m.user_id = %s
+                GROUP BY a.round_id
+            ) AS la ON la.round_id = r.id
             LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
             ORDER BY 2;""", [
                 user.id, user.id,
                 user.id, user.id,
+                user.id,
             ])
         prefetch_related_objects(q, "application")
         prefetch_related_objects(q, "current_round")
