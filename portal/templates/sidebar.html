@@ -34,7 +34,7 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if has_nominations %}
+    {% if has_nominations or request.user.is_superuser or request.user.is_staff %}
       <a href="{% url 'nominations' %}"> {% trans 'Nominations' %} </a>
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No nomination saved or submitted' %}">
@@ -68,7 +68,7 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if has_testimonies %}
+    {% if has_testimonies or request.user.is_superuser or request.user.is_staff %}
       <a href="{% url 'testimonies' %}"> {% trans 'Testimonies' %} </a>
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No testimonies saved or submitted' %}">
@@ -102,7 +102,7 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if has_reviews %}
+    {% if has_reviews or request.user.is_superuser or request.user.is_staff %}
       <a href="{% url 'reviews' %}">
         {% trans 'Reviews' %}
       </a>
