@@ -1957,7 +1957,12 @@ class NominationView(CreateUpdateView):
         resp = super().form_valid(form)
 
         if "submit" in self.request.POST:
-            n.submit(request=self.request)
+            invitation, created = n.submit(request=self.request)
+            if created:
+                messages.info(
+                    self.request,
+                    _("Invitation to submit an application sent to %s.") % invitation.email,
+                )
         elif "save_draft" in self.request.POST:
             n.save_draft()
         n.save()

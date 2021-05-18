@@ -34,9 +34,13 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    <a href="{% url 'nominations' %}">
-      {% trans 'Nominations' %}
-    </a>
+    {% if has_nominations %}
+      <a href="{% url 'nominations' %}"> {% trans 'Nominations' %} </a>
+    {% else %}
+      <span data-toggle="tooltip" title="{% trans 'No nomination saved or submitted' %}">
+        {% trans 'Nominations' %}
+      </span>
+    {% endif %}
   </div>
   {% if categrory == "nominations" %}
     <div class="card-body">
@@ -64,9 +68,13 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    <a href="{% url 'testimonies' %}">
-      {% trans 'Testimonies' %}
-    </a>
+    {% if has_testimonies %}
+      <a href="{% url 'testimonies' %}"> {% trans 'Testimonies' %} </a>
+    {% else %}
+      <span data-toggle="tooltip" title="{% trans 'No testimonies saved or submitted' %}">
+        {% trans 'Testimonies' %}
+      </span>
+    {% endif %}
   </div>
   {% if categrory == "testimonies" %}
     <div class="card-body">
@@ -94,9 +102,15 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    <a href="{% url 'reviews' %}">
-      {% trans 'Reviews' %}
-    </a>
+    {% if has_reviews %}
+      <a href="{% url 'reviews' %}">
+        {% trans 'Reviews' %}
+      </a>
+    {% else %}
+      <span data-toggle="tooltip" title="{% trans 'No reviews saved or submitted' %}">
+        {% trans 'Reviews' %}
+      </span>
+    {% endif %}
   </div>
   {% if categrory == "reviews" %}
     <div class="card-body">

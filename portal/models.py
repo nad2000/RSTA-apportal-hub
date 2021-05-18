@@ -1936,7 +1936,7 @@ class Nomination(NominationMixin, Model):
     round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="nominations")
 
     # Nominee personal data
-    title = CharField(max_length=40, null=True, blank=True)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     email = EmailField(_("email address"), help_text=_("Email address of the nominee"))
     first_name = CharField(max_length=30)
     middle_names = CharField(
@@ -1994,7 +1994,7 @@ class Nomination(NominationMixin, Model):
                 middle_names=self.middle_names,
                 last_name=self.last_name,
                 org=self.org,
-                organisation=self.org.name,
+                organisation=self.org and self.org.name,
                 inviter=self.nominator,
             ),
         )
