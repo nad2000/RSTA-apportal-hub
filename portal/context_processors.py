@@ -4,7 +4,7 @@ from django.db import connection
 
 def portal_context(request):
     context = {"settings": settings}
-    if (u := request.user) and u.is_authenticated:
+    if (u := request.user) and u.is_authenticated and not (u.is_superuser or u.is_staff):
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT
