@@ -12,6 +12,11 @@ class SchemeTranslationOptions(TranslationOptions):
     )
 
 
+@register(models.Round)
+class RoundTranslationOptions(TranslationOptions):
+    fields = ("title",)
+
+
 @register(models.Application)
 class ApplicationTranslationOptions(TranslationOptions):
     fields = ("summary",)

@@ -1,3 +1,4 @@
+import modeltranslation
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
@@ -404,7 +405,7 @@ class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
 
 
 @admin.register(models.Round)
-class RoundAdmin(StaffPermsMixin, ImportExportModelAdmin):
+class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
     list_display = ["title", "scheme", "opens_on", "closes_on"]
     list_filter = ["opens_on", "closes_on"]
     date_hierarchy = "opens_on"
@@ -413,7 +414,7 @@ class RoundAdmin(StaffPermsMixin, ImportExportModelAdmin):
         extra = 0
         model = models.Panellist
 
-    class CriterionInline(StaffPermsMixin, admin.StackedInline):
+    class CriterionInline(StaffPermsMixin, modeltranslation.admin.TranslationStackedInline):
         extra = 1
         model = models.Criterion
 
@@ -427,7 +428,3 @@ class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
         model = models.Score
 
     inlines = [ScoreInline, StateLogInline]
-
-
-#     def view_on_site(self, obj):
-#         return obj.get_absolute_url()

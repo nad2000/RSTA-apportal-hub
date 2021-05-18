@@ -1,7 +1,6 @@
 import io
 from datetime import timedelta
 from functools import wraps
-from itertools import groupby
 from urllib.parse import quote
 
 import django.utils.translation
@@ -311,19 +310,6 @@ def index(request):
             three_days_ago = timezone.now() - timedelta(days=3)
 
         schemes = models.SchemeApplication.get_data(user)
-
-        schemes = (
-            (key, next(records) if key["count"] == 1 else None)
-            for key, records in groupby(
-                schemes,
-                lambda s: {
-                    "scheme": s.scheme,
-                    "count": s.count,
-                    "is_panellist": s.is_panellist,
-                    "has_submitted": s.has_submitted,
-                },
-            )
-        )
     else:
         messages.info(
             request,

@@ -81,8 +81,8 @@
     </div>
   {% endif %}
 
-  {% for key, record in schemes %}
-    {% with round=key.scheme.current_round scheme=key.scheme count=key.count application=record.application is_panellist=key.is_panellist has_submitted=key.has_submitted %}
+  {% for record in schemes %}
+    {% with round=record.scheme.current_round scheme=record.scheme count=record.count application=record.application is_panellist=record.is_panellist has_submitted=record.has_submitted %}
       <div class="row">
         <div class="col mb-3">
         <div class="card">
