@@ -17,6 +17,7 @@ from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
 )
+from django.db import connection
 from django.db.models import (
     CASCADE,
     DO_NOTHING,
@@ -880,6 +881,31 @@ class Application(PersonMixin, Model):
         q = cls.objects.raw(sql, params)
         prefetch_related_objects(q, "round")
         return q
+
+    @classmethod
+    def user_application_count(cls, user, state=None):
+        if user.is_staff or user.is_superuser:
+            return cls.objects.all().count()
+        params = [user.id, user.id, user.id, user.id]
+        sql = """
+            SELECT count(DISTINCT a.id) AS app_count
+            FROM application AS a
+              LEFT JOIN member AS m ON m.application_id = a.id
+              LEFT JOIN referee AS r ON r.application_id = a.id
+              LEFT JOIN nomination AS n ON n.application_id = a.id
+            WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
+        if state:
+            if isinstance(state, (list, tuple)):
+                state_list = ",".join(f"'{s}'" for s in state)
+                sql += f" AND a.state IN ({state_list})"
+            else:
+                sql += " AND a.state=%s"
+                params.append(state)
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            return cursor.fetchone()[0]
+
 
     @classmethod
     def user_draft_applications(cls, user):
@@ -2003,6 +2029,35 @@ class Nomination(NominationMixin, Model):
         if not created:
             return (i, False)
         return (i, True)
+
+    @classmethod
+    def user_nomination_count(cls, user, status=None):
+        sql = """
+            SELECT count(*) AS "count"
+            FROM nomination AS n
+        """
+        if user.is_staff or user.is_superuser:
+            if status:
+                sql += "WHERE"
+            params = []
+        else:
+            sql += "WHERE n.nominator_id=%s"
+            if status:
+                sql += " AND"
+            params = [user.id]
+
+        if status:
+            if isinstance(status, (list, tuple)):
+                status_list = ",".join(f"'{s}'" for s in status)
+                sql += f" n.status IN ({status_list})"
+            else:
+                sql += " n.status=%s"
+                params.append(status)
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql, params)
+            return cursor.fetchone()[0]
+
 
     def get_absolute_url(self):
         return reverse("nomination-update", kwargs={"pk": self.pk})

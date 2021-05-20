@@ -4,11 +4,15 @@
 
 <div class="card mb-2">
   <div class="card-header">
-  <a href="{% if request.user.is_staff or request.user.is_admin %}{% url 'applications' %}{% else %}{% url 'index' %}{% endif %}">
-      {% trans 'Applications' %}
+  {% if application_count %}
+    <a href="{% if request.user.is_staff or request.user.is_admin %}{% url 'applications' %}{% else %}{% url 'index' %}{% endif %}">
+    {% trans 'Applications' %} <span class="badge badge-primary">{{ application_count }}</span>
     </a>
+  {% else %}
+    {% trans 'Applications' %} <span class="badge badge-primary">0</span>
+  {% endif %}
   </div>
-  {% if not categrory or categrory == "applications" %}
+  {% if not categrory or categrory == "applications" and application_count %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item" id="nominations-draft">
@@ -35,10 +39,12 @@
 <div class="card mb-2">
   <div class="card-header">
     {% if has_nominations or request.user.is_superuser or request.user.is_staff %}
-      <a href="{% url 'nominations' %}"> {% trans 'Nominations' %} </a>
+      <a href="{% url 'nominations' %}"> {% trans 'Nominations' %}
+        <span class="badge badge-primary">{{ nomination_count }}</span>
+      </a>
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No nomination saved or submitted' %}">
-        {% trans 'Nominations' %}
+        {% trans 'Nominations' %}<span class="badge badge-primary">0</span>
       </span>
     {% endif %}
   </div>
@@ -51,7 +57,9 @@
             href="{% url 'nominations-draft' %}"
             title="{% trans 'Saved nomination drafts' %}"
             data-toggle="tooltip"
-            >{% trans 'Drafts' %}</a>
+            >{% trans 'Drafts' %}
+            <span class="badge badge-primary">{{ nomination_draft_count }}</span>
+          </a>
         </li>
         <li class="nav-item">
           <a
@@ -59,7 +67,9 @@
             href="{% url 'nominations-submitted' %}"
             title="{% trans 'Submitted and previous nominations' %}"
             data-toggle="tooltip"
-            >{% trans 'Submitted' %}</a>
+            >{% trans 'Submitted' %}
+            <span class="badge badge-primary">{{ nomination_submitted_count }}</span>
+          </a>
         </li>
       </ul>
     </div>
@@ -73,6 +83,7 @@
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No testimonies saved or submitted' %}">
         {% trans 'Testimonies' %}
+        <span class="badge badge-primary">0</span>
       </span>
     {% endif %}
   </div>
@@ -109,6 +120,7 @@
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No reviews saved or submitted' %}">
         {% trans 'Reviews' %}
+        <span class="badge badge-primary">0</span>
       </span>
     {% endif %}
   </div>
