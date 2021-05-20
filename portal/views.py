@@ -15,6 +15,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
@@ -898,6 +899,10 @@ class ApplicationView(LoginRequiredMixin):
     model = Application
     template_name = "application.html"
     form_class = forms.ApplicationForm
+
+    def form_valid(self, form):
+        cache.clean(self.request.user.username)
+        return super().form_valid(form)
 
     def get_initial(self):
         user = self.request.user
@@ -2236,7 +2241,12 @@ class ApplicationExportView(ExportView):
             or (
                 "pk" in self.kwargs
                 and (a := get_object_or_404(models.Application, pk=self.kwargs["pk"]))
-                and a.round.panellists.all().filter(user=u).exists()
+                and (
+                    a.submitted_by == u
+                    or a.members.all().filter(user=u).exists()
+                    or a.referees.all().filter(user=u).exists()
+                    or a.round.panellists.all().filter(user=u).exists()
+                )
             )
         )
 
