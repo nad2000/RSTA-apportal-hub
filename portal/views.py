@@ -2236,7 +2236,7 @@ class ApplicationExportView(ExportView):
             or (
                 "pk" in self.kwargs
                 and (a := get_object_or_404(models.Application, pk=self.kwargs["pk"]))
-                and a.round.panellists.all().where(user=u).exists()
+                and a.round.panellists.all().filter(user=u).exists()
             )
         )
 
