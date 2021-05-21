@@ -862,7 +862,16 @@ class Application(PersonMixin, Model):
         return reverse("application", args=[str(self.id)])
 
     @classmethod
-    def user_applications(cls, user, state=None):
+    def user_applications(cls, user, state=None, round=None):
+        if user.is_staff or user.is_superuser:
+            q = cls.objects.all()
+            if round:
+                q = q.filter(round=round)
+            if state:
+                q = q.filter(state=state)
+            else:
+                q = q.filter(~Q(state="archived"))
+            return q
         params = [user.id, user.id, user.id, user.id]
         sql = """
             SELECT DISTINCT a.* FROM application AS a
@@ -870,6 +879,9 @@ class Application(PersonMixin, Model):
               LEFT JOIN referee AS r ON r.application_id = a.id
               LEFT JOIN nomination AS n ON n.application_id = a.id
             WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
+        if round:
+            sql += " AND a.round_id=%s "
+            params.append(round if isinstance(round, (int, str)) else round.id)
         if state:
             if isinstance(state, (list, tuple)):
                 state_list = ",".join(f"'{s}'" for s in state)
@@ -877,15 +889,22 @@ class Application(PersonMixin, Model):
             else:
                 sql += " AND a.state=%s"
                 params.append(state)
+        else:
+            sql += " AND a.state != 'archived'"
 
         q = cls.objects.raw(sql, params)
         prefetch_related_objects(q, "round")
         return q
 
     @classmethod
-    def user_application_count(cls, user, state=None):
+    def user_application_count(cls, user, state=None, round=None):
         if user.is_staff or user.is_superuser:
-            return cls.objects.all().count()
+            q = cls.objects.all()
+            if state:
+                q = q.filter(state=state)
+            else:
+                q = q.filter(~Q(state="archived"))
+            return q.count()
         params = [user.id, user.id, user.id, user.id]
         sql = """
             SELECT count(DISTINCT a.id) AS app_count
@@ -894,6 +913,9 @@ class Application(PersonMixin, Model):
               LEFT JOIN referee AS r ON r.application_id = a.id
               LEFT JOIN nomination AS n ON n.application_id = a.id
             WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
+        if round:
+            sql += " AND a.round_id=%s "
+            params.append(round if isinstance(round, (int, str)) else round.id)
         if state:
             if isinstance(state, (list, tuple)):
                 state_list = ",".join(f"'{s}'" for s in state)
@@ -901,11 +923,12 @@ class Application(PersonMixin, Model):
             else:
                 sql += " AND a.state=%s"
                 params.append(state)
+        else:
+            sql += " AND a.state != 'archived'"
 
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
             return cursor.fetchone()[0]
-
 
     @classmethod
     def user_draft_applications(cls, user):
@@ -1453,6 +1476,21 @@ class Testimony(Model):
         # self.referee.testified_at = datetime.now()
         self.referee.save()
         pass
+
+    @classmethod
+    def user_testimonies(cls, user, state=None, round=None):
+        q = cls.objects.all()
+        if not (user.is_staff and user.is_superuser):
+            q = q.filter(referee__user=user)
+        if state:
+            q = q.filter(state=state)
+        else:
+            q = q.filter(~Q(state="archived"))
+        return q
+
+    @classmethod
+    def user_testimony_count(cls, user, state=None, round=None):
+        return cls.user_testimonies(user, state=state, round=round).count()
 
     def __str__(self):
         return _("Testimony By Referee {0} For Application {1}").format(
@@ -2057,7 +2095,6 @@ class Nomination(NominationMixin, Model):
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
             return cursor.fetchone()[0]
-
 
     def get_absolute_url(self):
         return reverse("nomination-update", kwargs={"pk": self.pk})

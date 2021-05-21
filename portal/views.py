@@ -900,10 +900,6 @@ class ApplicationView(LoginRequiredMixin):
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
-    def form_valid(self, form):
-        cache.clean(self.request.user.username)
-        return super().form_valid(form)
-
     def get_initial(self):
         user = self.request.user
         initial = super().get_initial()
@@ -953,6 +949,7 @@ class ApplicationView(LoginRequiredMixin):
 
         context = self.get_context_data()
         referees = context["referees"]
+        cache.clean(self.request.user.username)
 
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
@@ -2151,8 +2148,9 @@ class TestimonyList(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
-        referee = models.Referee.where(user=u).values("id")
-        queryset = queryset.filter(referee__in=Subquery(referee))
+        if not (u.is_staff or u.is_superuser):
+            referee = models.Referee.where(user=u).values("id")
+            queryset = queryset.filter(referee__in=Subquery(referee))
 
         state = self.request.path.split("/")[-1]
         if state == "draft":

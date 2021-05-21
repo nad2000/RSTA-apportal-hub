@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
+
 from . import models
 
 
@@ -11,9 +12,14 @@ def portal_context(request):
         if not stats:
             stats = {
                 "application_count": models.Application.user_application_count(u),
+                "application_draft_count": models.Application.user_application_count(u, "draft"),
+                "application_submitted_count": models.Application.user_application_count(u, "submitted"),
                 "nomination_count": models.Nomination.user_nomination_count(u),
                 "nomination_draft_count": models.Nomination.user_nomination_count(u, "draft"),
                 "nomination_submitted_count": models.Nomination.user_nomination_count(u, "submitted"),
+                "testimony_count": models.Testimony.user_testimony_count(u),
+                "testimony_draft_count": models.Testimony.user_testimony_count(u, "draft"),
+                "testimony_submitted_count": models.Testimony.user_testimony_count(u, "submitted"),
             }
             if not (u.is_superuser or u.is_staff):
                 with connection.cursor() as cursor:

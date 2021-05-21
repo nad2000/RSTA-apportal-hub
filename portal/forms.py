@@ -501,6 +501,7 @@ class NominationForm(forms.ModelForm):
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
                 ),
+                css_class="mb-4 float-right",
             ),
         )
 
@@ -561,6 +562,7 @@ class TestimonyForm(forms.ModelForm):
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
                 ),
+                css_class="mb-4 float-right",
             ),
         )
 
@@ -620,7 +622,7 @@ class IdentityVerificationForm(forms.ModelForm):
                     </a>"""
                     % _("Cancel")
                 ),
-                css_class="mb-4",
+                css_class="mb-4 float-right",
             ),
             Field(
                 "resolution",
@@ -702,6 +704,7 @@ class ConflictOfInterestForm(forms.ModelForm):
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
                 ),
+                css_class="mb-4 float-right",
             ),
         )
 

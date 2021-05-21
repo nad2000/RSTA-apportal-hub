@@ -353,9 +353,12 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 
 @admin.register(models.Nomination)
-class NominationAdmin(SummernoteModelAdmin, SimpleHistoryAdmin):
+class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
 
     summernote_fields = ["summary"]
+    date_hierarchy = "created_at"
+    list_filter = ["created_at", "updated_at", "round", "status"]
+    fsm_field = ["status"]
 
 
 @admin.register(models.Organisation)
