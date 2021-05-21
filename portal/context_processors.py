@@ -20,6 +20,9 @@ def portal_context(request):
                 "testimony_count": models.Testimony.user_testimony_count(u),
                 "testimony_draft_count": models.Testimony.user_testimony_count(u, "draft"),
                 "testimony_submitted_count": models.Testimony.user_testimony_count(u, "submitted"),
+                "review_count": models.Evaluation.user_evaluation_count(u),
+                "review_draft_count": models.Evaluation.user_evaluation_count(u, "draft"),
+                "review_submitted_count": models.Evaluation.user_evaluation_count(u, "submitted"),
             }
             if not (u.is_superuser or u.is_staff):
                 with connection.cursor() as cursor:

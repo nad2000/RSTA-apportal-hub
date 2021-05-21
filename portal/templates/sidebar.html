@@ -127,6 +127,7 @@
     {% if has_reviews or request.user.is_superuser or request.user.is_staff %}
       <a href="{% url 'reviews' %}">
         {% trans 'Reviews' %}
+        <span class="badge badge-primary">{{ review_count }}</span>
       </a>
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No reviews saved or submitted' %}">
@@ -144,7 +145,9 @@
             href="{% url 'reviews-working' %}"
             title="{% trans 'working review' %}"
             data-toggle="tooltip"
-            >{% trans 'Working' %}</a>
+            >{% trans 'Working' %}
+            <span class="badge badge-primary">{{ review_draft_count }}</span>
+          </a>
         </li>
         <li class="nav-item">
           <a
@@ -152,7 +155,9 @@
             href="{% url 'reviews-submitted' %}"
             title="{% trans 'Submitted and previous reviews' %}"
             data-toggle="tooltip"
-            >{% trans 'Submitted' %}</a>
+            >{% trans 'Submitted' %}
+            <span class="badge badge-primary">{{ review_submitted_count }}</span>
+          </a>
         </li>
       </ul>
     </div>

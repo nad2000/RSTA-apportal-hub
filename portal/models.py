@@ -1825,6 +1825,21 @@ class Evaluation(EvaluationMixin, Model):
                 )
             )
 
+    @classmethod
+    def user_evaluations(cls, user, state=None, round=None):
+        q = cls.objects.all()
+        if not (user.is_staff and user.is_superuser):
+            q = q.filter(panellist__user=user)
+        if state:
+            q = q.filter(state=state)
+        else:
+            q = q.filter(~Q(state="archived"))
+        return q
+
+    @classmethod
+    def user_evaluation_count(cls, user, state=None, round=None):
+        return cls.user_evaluations(user, state=state, round=round).count()
+
     def all_scores(self, criteria=None):
         """Get full list of the scores based on the list of the criteria"""
         if not criteria:
