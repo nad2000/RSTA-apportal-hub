@@ -58,6 +58,11 @@ from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
 
 
+def reset_cache(request):
+    u = request.user
+    cache.delete(u.username)
+
+
 def handler500(request, *args, **argv):
     return render(
         request,
@@ -949,7 +954,7 @@ class ApplicationView(LoginRequiredMixin):
 
         context = self.get_context_data()
         referees = context["referees"]
-        cache.clean(self.request.user.username)
+        reset_cache(self.request)
 
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
@@ -1968,6 +1973,7 @@ class NominationView(CreateUpdateView):
         elif "save_draft" in self.request.POST:
             n.save_draft()
         n.save()
+        reset_cache(self.request)
 
         return resp
 
@@ -2010,6 +2016,7 @@ class TestimonyView(CreateUpdateView):
         )
 
     def form_valid(self, form):
+        reset_cache(self.request)
         n = form.instance
         if not n.id:
             n.referee = models.Referee.get(user=self.request.user)
@@ -2577,6 +2584,7 @@ class EvaluationMixin:
     fields = ["comment"]
 
     def form_valid(self, form):
+        reset_cache(self.request)
         resp = super().form_valid(form)
         if "save_draft" in self.request.POST:
             self.object.save_draft()
