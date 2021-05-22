@@ -2060,7 +2060,12 @@ class Nomination(NominationMixin, Model):
 
     @transition(
         field=status,
-        source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft, NOMINATION_STATUS.submitted],
+        source=[
+            NOMINATION_STATUS.new,
+            NOMINATION_STATUS.draft,
+            NOMINATION_STATUS.submitted,
+            NOMINATION_STATUS.bounced,
+        ],
         target=NOMINATION_STATUS.submitted,
     )
     def submit(self, *args, **kwargs):
