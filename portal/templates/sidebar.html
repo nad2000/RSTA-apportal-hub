@@ -84,9 +84,11 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if has_testimonies or request.user.is_superuser or request.user.is_staff %}
-      <a href="{% url 'testimonies' %}"> {% trans 'Testimonies' %} </a>
-      <span class="badge badge-primary">{{ testimony_count }}</span>
+    {% if testimony_count %}
+      {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'testimonies' %}"> {% trans 'Testimonies' %} </a>
+        <span class="badge badge-primary">{{ testimony_count }}</span>
+      {% endif %}
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No testimonies saved or submitted' %}">
         {% trans 'Testimonies' %}
@@ -124,11 +126,13 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if has_reviews or request.user.is_superuser or request.user.is_staff %}
-      <a href="{% url 'reviews' %}">
-        {% trans 'Reviews' %}
-        <span class="badge badge-primary">{{ review_count }}</span>
-      </a>
+    {% if review_count %}
+      {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'reviews' %}">
+          {% trans 'Reviews' %}
+          <span class="badge badge-primary">{{ review_count }}</span>
+        </a>
+      {% endif %}
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No reviews saved or submitted' %}">
         {% trans 'Reviews' %}

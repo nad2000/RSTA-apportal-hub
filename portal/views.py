@@ -2078,7 +2078,7 @@ class NominationList(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
-        if not u.is_superuser or not u.is_staff:
+        if not (u.is_superuser or u.is_staff):
             queryset = queryset.filter(nominator=u)
         status = self.request.path.split("/")[-1]
         if status == "draft":
@@ -2164,6 +2164,8 @@ class TestimonyList(LoginRequiredMixin, SingleTableView):
             queryset = queryset.filter(state__in=[state, "new"])
         elif state == "submitted":
             queryset = queryset.filter(state=state)
+        else:
+            queryset = queryset.filter(state__in=["draft", "submitted"])
         return queryset
 
 

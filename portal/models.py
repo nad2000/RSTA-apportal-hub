@@ -1485,7 +1485,8 @@ class Testimony(Model):
         if state:
             q = q.filter(state=state)
         else:
-            q = q.filter(~Q(state="archived"))
+            # q = q.filter(~Q(state="archived"), state__in=["draft", "submitted"])
+            q = q.filter(state__in=["draft", "submitted"])
         return q
 
     @classmethod
@@ -2093,15 +2094,12 @@ class Nomination(NominationMixin, Model):
         sql = """
             SELECT count(*) AS "count"
             FROM nomination AS n
+            WHERE
         """
         if user.is_staff or user.is_superuser:
-            if status:
-                sql += "WHERE"
             params = []
         else:
-            sql += "WHERE n.nominator_id=%s"
-            if status:
-                sql += " AND"
+            sql += " n.nominator_id=%s AND "
             params = [user.id]
 
         if status:
@@ -2111,6 +2109,9 @@ class Nomination(NominationMixin, Model):
             else:
                 sql += " n.status=%s"
                 params.append(status)
+        else:
+            sql += f" n.status IN ('draft', 'submitted')"
+
 
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
