@@ -12,7 +12,7 @@
     {% trans 'Applications' %} <span class="badge badge-primary">0</span>
   {% endif %}
   </div>
-  {% if not categrory or categrory == "applications" and application_count %}
+  {% if not category or category == "applications" and application_count %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item" id="nominations-draft">
@@ -54,7 +54,7 @@
       </span>
     {% endif %}
   </div>
-  {% if categrory == "nominations" %}
+  {% if category == "nominations" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item" id="nominations-draft">
@@ -96,7 +96,7 @@
       </span>
     {% endif %}
   </div>
-  {% if categrory == "testimonies" %}
+  {% if category == "testimonies" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item" id="testimonies-draft">
@@ -140,7 +140,7 @@
       </span>
     {% endif %}
   </div>
-  {% if categrory == "reviews" %}
+  {% if category == "reviews" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item" id="reviews-working">
@@ -176,7 +176,7 @@
       {% trans 'Profile' %}
     </a>
   </div>
-  {% if categrory == "profile" %}
+  {% if category == "profile" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item">
@@ -227,7 +227,7 @@
       {% trans 'Account' %}
     </a>
   </div>
-  {% if categrory == "account" %}
+  {% if category == "account" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
         <li class="nav-item">
