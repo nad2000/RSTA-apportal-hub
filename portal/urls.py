@@ -176,10 +176,8 @@ urlpatterns = [
             [
                 path(
                     "org/",
-                    cache_page(180)(
-                        views.OrgAutocomplete.as_view(
-                            model=models.Organisation, create_field="name"
-                        )
+                    views.OrgAutocomplete.as_view(
+                        model=models.Organisation, create_field="name"
                     ),
                     name="org-autocomplete",
                 ),
@@ -190,26 +188,20 @@ urlpatterns = [
                 ),
                 path(
                     "award/",
-                    cache_page(180)(
-                        views.AwardAutocomplete.as_view(model=models.Award, create_field="name")
-                    ),
+                    views.AwardAutocomplete.as_view(model=models.Award, create_field="name"),
                     name="award-autocomplete",
                 ),
                 path(
                     "qualification/",
-                    cache_page(180)(
-                        views.QualificationAutocomplete.as_view(
-                            model=models.Qualification, create_field="description"
-                        )
+                    views.QualificationAutocomplete.as_view(
+                        model=models.Qualification, create_field="description"
                     ),
                     name="qualification-autocomplete",
                 ),
                 path(
                     "person-identifier/",
-                    cache_page(180)(
-                        views.PersonIdentifierAutocomplete.as_view(
-                            model=models.PersonIdentifierType, create_field="description"
-                        )
+                    views.PersonIdentifierAutocomplete.as_view(
+                        model=models.PersonIdentifierType, create_field="description"
                     ),
                     name="person-identifier-autocomplete",
                 ),

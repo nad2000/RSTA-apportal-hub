@@ -2110,8 +2110,7 @@ class Nomination(NominationMixin, Model):
                 sql += " n.status=%s"
                 params.append(status)
         else:
-            sql += f" n.status IN ('draft', 'submitted')"
-
+            sql += " n.status IN ('draft', 'submitted')"
 
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
