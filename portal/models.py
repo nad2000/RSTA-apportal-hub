@@ -62,7 +62,7 @@ from common.models import TITLES, Base, Model, PersonMixin
 from .utils import send_mail, vignere
 
 GENDERS = Choices(
-    (0, _("Undisclosed")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
+    (0, _("Prefer not to say")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
 
 AFFILIATION_TYPES = Choices(
@@ -623,6 +623,7 @@ class ProtectionPatternProfile(Model):
     expires_on = DateField(null=True, blank=True)
 
     @classmethod
+    # for people only demographic, identifiable and professional protections make sense
     def get_data(cls, profile):
         q = cls.objects.raw(
             """
@@ -641,7 +642,7 @@ class ProtectionPatternProfile(Model):
             FROM protection_pattern AS pp
             LEFT JOIN profile_protection_pattern AS ppp
                 ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
-            WHERE pp.code IN (3, 4, 5, 6, 7, 9)
+            WHERE pp.code IN (5, 6, 7, 9)
             ORDER BY description_""" + get_language(),
             [profile.id])
 
