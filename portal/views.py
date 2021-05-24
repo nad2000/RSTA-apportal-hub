@@ -875,27 +875,29 @@ class ApplicationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.object.members.filter(
-            user=self.request.user, has_authorized__isnull=True
-        ).exists():
+        u = self.request.user
+        if self.object.members.filter(user=u, has_authorized__isnull=True).exists():
             messages.info(
                 self.request,
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
         is_owner = (
-            self.object.submitted_by == self.request.user
-            or self.object.members.all().filter(user=self.request.user).exists()
+            self.object.submitted_by == u or self.object.members.all().filter(user=u).exists()
         )
         context["is_owner"] = is_owner
         context["was_submitted"] = self.object.state == "submitted"
         if not is_owner:
-            context["show_basic_details"] = not models.ConflictOfInterest.where(
-                application=self.object,
-                panellist__user=self.request.user,
-                has_conflict=False,
-                has_conflict__isnull=False,
-            ).exists()
+            context["show_basic_details"] = not (
+                u.is_staff
+                or u.is_superuser
+                or models.ConflictOfInterest.where(
+                    application=self.object,
+                    panellist__user=u,
+                    has_conflict=False,
+                    has_conflict__isnull=False,
+                ).exists()
+            )
         return context
 
 
@@ -1324,7 +1326,7 @@ class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
-        if not u.is_superuser or not u.is_staff:
+        if not (u.is_superuser or u.is_staff):
             queryset = queryset.filter(
                 Q(submitted_by=u)
                 | Exists(models.Member.where(user=u, application=OuterRef("pk")))
