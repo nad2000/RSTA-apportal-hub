@@ -500,7 +500,7 @@ def validate_bod(value):
 class Profile(Model):
 
     user = OneToOneField(User, on_delete=CASCADE)
-    gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=True)
+    gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=False, default=0)
     date_of_birth = DateField(null=True, blank=True, validators=[validate_bod])
     ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
     is_ethnicities_completed = BooleanField(default=True)

@@ -130,7 +130,7 @@ class ProfileForm(forms.ModelForm):
             "is_accepted",
         ]
         widgets = dict(
-            gender=forms.RadioSelect(attrs={"style": "display: inline-block"}, blank=False, default=CHOICES[0]),
+            gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
             ethnicities=ModelSelect2MultipleWidget(
                 model=Ethnicity,
@@ -253,7 +253,8 @@ class ApplicationForm(forms.ModelForm):
                         "photo_identity",
                         data_toggle="tooltip",
                         title=_(
-                            "Please upload a scanned copy of the passport or drivers license of the team lead in PDF, JPG, or PNG format"
+                            "Please upload a scanned copy of the passport or drivers license "
+                            "of the team lead in PDF, JPG, or PNG format"
                         ),
                     ),
                     css_id="id-verification",
@@ -298,7 +299,7 @@ class ApplicationForm(forms.ModelForm):
                     </a>"""
                     % _("Cancel")
                 ),
-                css_class="buttonHolder mb-5 float-right"
+                css_class="buttonHolder mb-5 float-right",
             ),
         )
         self.helper.include_media = False
