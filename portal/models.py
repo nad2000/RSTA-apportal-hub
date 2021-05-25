@@ -1603,7 +1603,6 @@ class Round(Model):
         verbose_name=_("Score Sheet Template"),
         validators=[FileExtensionValidator(allowed_extensions=["xls", "xlsx"])]
     )
-    history = HistoricalRecords(table_name="round_history")
 
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
@@ -1638,6 +1637,9 @@ class Round(Model):
 
     def __str__(self):
         return self.title or self.scheme.title
+
+    def get_absolute_url(self):
+        return f"{reverse('applications')}?round={self.id}"
 
     @property
     def is_open(self):

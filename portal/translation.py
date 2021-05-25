@@ -17,6 +17,9 @@ class RoundTranslationOptions(TranslationOptions):
     fields = ("title",)
 
 
+simple_history.register(models.Round, inherit=True, table_name="round_history")
+
+
 @register(models.Application)
 class ApplicationTranslationOptions(TranslationOptions):
     fields = ("summary",)
