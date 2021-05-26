@@ -14,7 +14,7 @@
 
   {% if form %}{% crispy form %}{% endif %}
 
-  {% with a=object %}
+  {% with a=object u=request.user %}
   <div class="table-responsive">
   <table class="table table-bordered searchable">
     <tbody>
@@ -79,7 +79,7 @@
             <td colspan="3">{{ a.round }}</td>
           </tr>
 
-          {% if a.is_team_application %}
+          {% if a.is_team_application or a.members.all.count %}
 
             <tr>
               <th class="table-dark" scope="row">{% trans 'Team:' %}</th>
@@ -87,7 +87,13 @@
                 {%if a.team_name %}{{ a.team_name|default:'' }}:{% endif %}
                 <ul>
                   {% for m in a.members.all %}
-                    <li>{{ m|person_with_email }}</li>
+                    <li>
+                      {% if u.is_staff or u.is_superuser %}
+                        <a href="{% url 'admin:portal_member_change' object_id=m.id %}"> {{ m | person_with_email }} </a>
+                      {% else %}
+                        {{ m | person_with_email }}
+                      {% endif %}
+                    </li>
                   {% endfor %}
                 </ul>
               </td>
@@ -168,6 +174,27 @@
               {% if a.photo_identity %}<a href="{{ a.photo_identity.url }}" target="_blank">
                   {{ a.photo_identity.name|basename }}
             </a>{% else %}{% trans 'N/A' %}{% endif %}
+            </td>
+          </tr>
+        {% endif %}
+
+        {% if a.referees.all.count %}
+          <tr>
+            <th class="table-dark" scope="row">{% trans 'Referees' %}</th>
+            <td colspan="3">
+              <ul>
+              {% for r in a.referees.all %}
+                <li>
+                  {% if u.is_staff or u.is_superuser %}
+                    <a href="{% url 'admin:portal_referee_change' object_id=r.id %}">
+                      {{ r | person_with_email }}
+                    </a>
+                  {% else %}
+                    {{ r | person_with_email }}
+                  {% endif %}
+                </li>
+              {% endfor %}
+              </ul>
             </td>
           </tr>
         {% endif %}

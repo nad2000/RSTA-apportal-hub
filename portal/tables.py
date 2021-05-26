@@ -93,16 +93,26 @@ class TestimonyTable(tables.Table):
 
 
 def application_link(table, record, value):
+    u = table.request.user
+    if u.is_staff or u.is_superuser:
+        return reverse("admin:portal_application_change", kwargs={"object_id": record.id})
     if record.state == "submitted":
         return record.get_absolute_url()
     else:
         return reverse("application-update", kwargs={"pk": record.id})
 
 
+def application_round_link(table, record, value):
+    u = table.request.user
+    if u.is_staff or u.is_superuser:
+        return reverse("admin:portal_round_change", kwargs={"object_id": record.round_id})
+    return application_link(table, record, value)
+
+
 class ApplicationTable(tables.Table):
 
     number = tables.Column(linkify=application_link)
-    round = tables.Column(linkify=application_link)
+    round = tables.Column(linkify=application_round_link)
 
     class Meta:
         model = models.Application
@@ -185,7 +195,11 @@ class RoundConflictOfInterstSatementTable(tables.Table):
     first_name = tables.Column()
     middle_names = tables.Column()
     last_name = tables.Column()
-    email = tables.Column()
+    email = tables.Column(
+        linkify=lambda record: reverse(
+            "admin:portal_conflictofinterest_change", kwargs={"object_id": record.id}
+        )
+    )
 
     def render_has_conflict(self, value):
         if value is None:

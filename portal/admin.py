@@ -1,5 +1,6 @@
 import modeltranslation
 from django.contrib import admin
+from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
 from django_summernote.admin import SummernoteModelAdmin
@@ -48,6 +49,7 @@ class StaffPermsMixin:
 
 @admin.register(models.Subscription)
 class SubscriptionAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
+    view_on_site = False
     list_display = ["email", "name"]
     list_filter = ["created_at", "updated_at", "is_confirmed"]
     search_fields = ["email"]
@@ -66,6 +68,7 @@ class EthnicityResource(ModelResource):
 
 @admin.register(models.Ethnicity)
 class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    view_on_site = False
     search_fields = [
         "description",
         "level_three_description",
@@ -87,6 +90,8 @@ class CodeResource(ModelResource):
 
 @admin.register(models.Language)
 class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    view_on_site = False
+
     class LanguageResource(CodeResource):
         class Meta:
             model = models.Language
@@ -98,6 +103,8 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 @admin.register(models.FieldOfStudy)
 class FieldOfStudyAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class FieldOfStudyResource(CodeResource):
         class Meta:
             model = models.FieldOfStudy
@@ -108,6 +115,8 @@ class FieldOfStudyAdmin(ImportExportModelAdmin):
 
 @admin.register(models.FieldOfResearch)
 class FieldOfResearchAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class FieldOfResearchResource(CodeResource):
         class Meta:
             model = models.FieldOfResearch
@@ -118,6 +127,8 @@ class FieldOfResearchAdmin(ImportExportModelAdmin):
 
 @admin.register(models.CareerStage)
 class CareerStageAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class CareerStageResource(CodeResource):
         class Meta:
             model = models.CareerStage
@@ -128,6 +139,8 @@ class CareerStageAdmin(ImportExportModelAdmin):
 
 @admin.register(models.PersonIdentifierType)
 class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class PersonIdentifierTypeResource(CodeResource):
         class Meta:
             model = models.PersonIdentifierType
@@ -139,6 +152,8 @@ class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
 
 @admin.register(models.IwiGroup)
 class IwiGroupAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class IwiGroupResource(CodeResource):
         class Meta:
             model = models.IwiGroup
@@ -149,6 +164,8 @@ class IwiGroupAdmin(ImportExportModelAdmin):
 
 @admin.register(models.ProtectionPattern)
 class ProtectionPatternAdmin(TranslationAdmin, ImportExportModelAdmin):
+    view_on_site = False
+
     class ProtectionPatternResource(CodeResource):
         class Meta:
             model = models.ProtectionPattern
@@ -182,6 +199,8 @@ class ProtectionPatternAdmin(TranslationAdmin, ImportExportModelAdmin):
 
 @admin.register(models.OrgIdentifierType)
 class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class OrgIdentifierTypeResource(CodeResource):
         class Meta:
             model = models.OrgIdentifierType
@@ -192,6 +211,8 @@ class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
 
 @admin.register(models.ApplicationDecision)
 class ApplicationDecisionAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class ApplicationDecisionResource(CodeResource):
         class Meta:
             model = models.ApplicationDecision
@@ -202,6 +223,8 @@ class ApplicationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Qualification)
 class QualificationDecisionAdmin(ImportExportModelAdmin):
+    view_on_site = False
+
     class QualificationDecisionResource(CodeResource):
         class Meta:
             fields = ["code", "description", "definition"]
@@ -240,7 +263,7 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
     ]
 
     def view_on_site(self, obj):
-        return obj.get_absolute_url()
+        return reverse("profile-instance", kwargs={"pk": obj.id})
 
 
 @admin.register(models.Application)
@@ -273,12 +296,14 @@ class ApplicationAdmin(
     inlines = [MemberInline, RefereeInline, StateLogInline]
 
     def view_on_site(self, obj):
-        return obj.get_absolute_url()
+        return reverse("application", kwargs={"pk": obj.id})
 
 
 admin.site.register(models.Award)
-# admin.site.register(models.Member)
-# admin.site.register(models.Score)
+
+
+class AwardAdmin(admin.ModelAdmin):
+    view_on_site = False
 
 
 @admin.register(models.ScoreSheet)
@@ -286,6 +311,9 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
     list_display = ["panellist", "round", "file"]
     list_filter = ["round"]
     date_hierarchy = "created_at"
+
+    def view_on_site(self, obj):
+        return reverse("evaluation", kwargs={"pk": obj.id})
 
 
 @admin.register(models.Referee)
@@ -297,6 +325,9 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     date_hierarchy = "testified_at"
     inlines = [StateLogInline]
 
+    def view_on_site(self, obj):
+        return reverse("application", kwargs={"pk": obj.application.id})
+
 
 @admin.register(models.Member)
 class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
@@ -306,6 +337,9 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_filter = ["application__round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
+
+    def view_on_site(self, obj):
+        return reverse("application", kwargs={"pk": obj.application.id})
 
 
 @admin.register(models.Panellist)
@@ -317,6 +351,9 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
 
+    def view_on_site(self, obj):
+        return reverse("panellist-invite", kwargs={"round": obj.round.id})
+
 
 @admin.register(models.IdentityVerification)
 class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
@@ -325,6 +362,14 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
     list_filter = ["application__round", "created_at", "updated_at"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
+
+    def view_on_site(self, obj):
+        app = (
+            obj.application
+            or models.Application.where(email=obj.user.email).order_by("id").first()
+        )
+        if app:
+            return reverse("round-coi-list", kwargs={"pk": app.id})
 
 
 @admin.register(models.ConflictOfInterest)
@@ -343,10 +388,14 @@ class ConflictOfInterestAdmin(StaffPermsMixin, SummernoteModelAdmin):
     search_fields = ["panellist__first_name", "panellist__last_name"]
     date_hierarchy = "created_at"
 
+    def view_on_site(self, obj):
+        return reverse("round-coi-list", kwargs={"round": obj.application.round_id})
+
 
 @admin.register(models.MailLog)
 class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
+    view_on_site = False
     search_fields = ["token", "recipient"]
     list_filter = ["sent_at", "updated_at", "was_sent_successfully"]
     date_hierarchy = "sent_at"
@@ -360,9 +409,14 @@ class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdm
     list_filter = ["created_at", "updated_at", "round", "status"]
     fsm_field = ["status"]
 
+    def view_on_site(self, obj):
+        return reverse("nomination-detail", kwargs={"pk": obj.id})
+
 
 @admin.register(models.Organisation)
 class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
+
+    view_on_site = False
     list_display = ["code", "name"]
     list_filter = ["created_at", "updated_at", "applications__round"]
     search_fields = ["name", "code"]
@@ -372,6 +426,7 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
 @admin.register(models.Invitation)
 class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmin):
 
+    view_on_site = False
     fsm_field = ["status"]
     list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
     list_filter = ["type", "status", "created_at", "updated_at"]
@@ -383,12 +438,16 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 
 @admin.register(models.Testimony)
 class TestimonyAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
+
     summernote_fields = ["summary"]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
     search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
+
+    def view_on_site(self, obj):
+        return reverse("application", kwargs={"pk": obj.referee.application.id})
 
 
 class SchemeResource(ModelResource):
@@ -406,12 +465,19 @@ class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
     list_display = ["title"]
     resource_class = SchemeResource
 
+    def view_on_site(self, obj):
+        if obj.current_round_id:
+            return f"{reverse('applications')}?round={obj.current_round_id}"
+
 
 @admin.register(models.Round)
 class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
     list_display = ["title", "scheme", "opens_on", "closes_on"]
     list_filter = ["opens_on", "closes_on"]
     date_hierarchy = "opens_on"
+
+    def view_on_site(self, obj):
+        return f"{reverse('applications')}?round={obj.id}"
 
     class PanellistInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
