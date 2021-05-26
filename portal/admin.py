@@ -241,18 +241,22 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
+        view_on_site = False
 
     class ProfilePersonIdentifierInline(admin.StackedInline):
         extra = 1
         model = models.ProfilePersonIdentifier
+        view_on_site = False
 
     class AffiliationInline(admin.StackedInline):
         extra = 1
         model = models.Affiliation
+        view_on_site = False
 
     class CurriculumVitaeInline(admin.StackedInline):
         extra = 1
         model = models.CurriculumVitae
+        view_on_site = False
 
     filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
     inlines = [
@@ -289,9 +293,15 @@ class ApplicationAdmin(
         extra = 0
         model = models.Member
 
+        def view_on_site(self, obj):
+            return reverse("application", kwargs={"pk": obj.application_id})
+
     class RefereeInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Referee
+
+        def view_on_site(self, obj):
+            return reverse("application", kwargs={"pk": obj.application_id})
 
     inlines = [MemberInline, RefereeInline, StateLogInline]
 
@@ -326,7 +336,7 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
-        return reverse("application", kwargs={"pk": obj.application.id})
+        return reverse("application", kwargs={"pk": obj.application_id})
 
 
 @admin.register(models.Member)
@@ -339,7 +349,7 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
-        return reverse("application", kwargs={"pk": obj.application.id})
+        return reverse("application", kwargs={"pk": obj.application_id})
 
 
 @admin.register(models.Panellist)
@@ -352,7 +362,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
-        return reverse("panellist-invite", kwargs={"round": obj.round.id})
+        return reverse("panellist-invite", kwargs={"round": obj.round_id})
 
 
 @admin.register(models.IdentityVerification)
@@ -447,7 +457,7 @@ class TestimonyAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
-        return reverse("application", kwargs={"pk": obj.referee.application.id})
+        return reverse("application", kwargs={"pk": obj.referee.application_id})
 
 
 class SchemeResource(ModelResource):
@@ -483,17 +493,27 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
         extra = 0
         model = models.Panellist
 
+        def view_on_site(self, obj):
+            return reverse("scores-list", kwargs={"round": obj.round_id})
+
     class CriterionInline(StaffPermsMixin, modeltranslation.admin.TranslationStackedInline):
         extra = 1
         model = models.Criterion
+
+        def view_on_site(self, obj):
+            return reverse("panellist-invite", kwargs={"round": obj.round_id})
 
     inlines = [CriterionInline, PanellistInline]
 
 
 @admin.register(models.Evaluation)
 class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
+
     class ScoreInline(admin.StackedInline):
         extra = 0
         model = models.Score
+
+        def view_on_site(self, obj):
+            return reverse("scores-list", kwargs={"round": obj.criterion.round_id})
 
     inlines = [ScoreInline, StateLogInline]
