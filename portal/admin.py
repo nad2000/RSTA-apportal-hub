@@ -494,14 +494,14 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
         model = models.Panellist
 
         def view_on_site(self, obj):
-            return reverse("scores-list", kwargs={"round": obj.round_id})
+            return reverse("panellist-invite", kwargs={"round": obj.round_id})
 
     class CriterionInline(StaffPermsMixin, modeltranslation.admin.TranslationStackedInline):
         extra = 1
         model = models.Criterion
 
         def view_on_site(self, obj):
-            return reverse("panellist-invite", kwargs={"round": obj.round_id})
+            return reverse("scores-list", kwargs={"round": obj.round_id})
 
     inlines = [CriterionInline, PanellistInline]
 
