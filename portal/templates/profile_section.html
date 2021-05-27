@@ -1,5 +1,5 @@
 {% extends 'profile.html' %}
-{% load static %}
+{% load static i18n %}
 {% load crispy_forms_tags %}
 
 {% block css %}
@@ -9,7 +9,44 @@
 
 
 {% block section %}
-    {% crispy formset helper %}
+  <div class="jumbotron">
+    {% with request.resolver_match.view_name as view_name %}
+      {% if view_name == "profile-employments" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-career-stages" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-external-ids" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-cvs" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-academic-records" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-recognitions" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-professional-records" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% elif view_name == "profile-career-stages" %}
+        {% blocktrans %}
+          TODO: add some guidlines to the section
+        {% endblocktrans %}
+      {% endif %}
+    {% endwith %}
+  </div>
+  {% crispy formset helper %}
 {% endblock %}
 
 {% block javascript %}

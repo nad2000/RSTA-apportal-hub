@@ -531,7 +531,7 @@ class Profile(Model):
     is_external_ids_completed = BooleanField(default=False)
 
     history = HistoricalRecords(table_name="profile_history")
-    has_protection_patterns = BooleanField(default=False)
+    has_protection_patterns = BooleanField(default=True)
 
     @property
     def employments(self):
@@ -566,6 +566,17 @@ class Profile(Model):
             if u
             else f"Profile: ID={self.id}"
         )
+
+    def save(self, *args, **kwargs):
+        created = not self.id
+        super().save(*args, **kwargs)
+        if created:
+            ProfileProtectionPattern.objects.bulk_create([
+                ProfileProtectionPattern(
+                    profile=self,
+                    protection_pattern_id=code
+                ) for code in [5, 6, 7]
+            ])
 
     def get_absolute_url(self):
         return reverse("profile-instance", kwargs={"pk": self.pk})
