@@ -497,7 +497,7 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
             return reverse("panellist-invite", kwargs={"round": obj.round_id})
 
     class CriterionInline(StaffPermsMixin, modeltranslation.admin.TranslationStackedInline):
-        extra = 1
+        extra = 0
         model = models.Criterion
 
         def view_on_site(self, obj):

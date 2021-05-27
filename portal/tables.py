@@ -113,6 +113,14 @@ class ApplicationTable(tables.Table):
 
     number = tables.Column(linkify=application_link)
     round = tables.Column(linkify=application_round_link)
+    email = tables.Column(
+        linkify=lambda table, record, value: reverse(
+            "admin:users_user_change", kwargs={"object_id": record.submitted_by_id}
+        )
+        if (table.request.user.is_staff or table.request.user.is_superuser)
+        and record.submitted_by_id
+        else None
+    )
 
     class Meta:
         model = models.Application
