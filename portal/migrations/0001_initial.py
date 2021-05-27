@@ -936,7 +936,7 @@ class Migration(migrations.Migration):
                     models.FileField(
                         blank=True,
                         null=True,
-                        upload_to=portal.models.round_score_sheet_template_path,
+                        upload_to=portal.models.round_template_path,
                         validators=[
                             django.core.validators.FileExtensionValidator(
                                 allowed_extensions=["xls", "xlsx"]
