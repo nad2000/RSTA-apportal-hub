@@ -310,6 +310,7 @@ class ApplicationAdmin(
 
 
 admin.site.register(models.Award)
+admin.site.register(models.ConvertedFile)
 
 
 class AwardAdmin(admin.ModelAdmin):

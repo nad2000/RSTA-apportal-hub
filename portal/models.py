@@ -779,6 +779,8 @@ class Application(PersonMixin, Model):
         verbose_name=_("filled-in entry form"),
         help_text=_("Please upload completed entrant or nominee entry form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round_id)],
+        validators=[FileExtensionValidator(
+            allowed_extensions=["pdf", "odt", "ott", "oth", "odm", "doc", "docx", "docm", "docb"])]
     )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     photo_identity = PrivateFileField(
@@ -787,6 +789,8 @@ class Application(PersonMixin, Model):
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by_id)],
         verbose_name=_("Photo Identity"),
         help_text=_("Please upload a scanned copy of your passport in PDF, JPG, or PNG format"),
+        validators=[FileExtensionValidator(
+            allowed_extensions=["pdf", "jpg", "jpeg", "png"])]
     )
     presentation_url = URLField(
         null=True, blank=True,

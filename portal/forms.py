@@ -280,8 +280,10 @@ class ApplicationForm(forms.ModelForm):
             ButtonHolder(
                 Submit(
                     "save_draft",
-                    _("Save Draft"),
+                    _("Save"),
                     css_class="btn btn-primary",
+                    data_toggle="tooltip",
+                    title=_("Save draft application"),
                 ),
                 Submit(
                     "submit",
@@ -306,7 +308,7 @@ class ApplicationForm(forms.ModelForm):
 
     class Meta:
         model = models.Application
-        exclude = ["organisation", "state", "round"]
+        exclude = ["organisation", "state", "round", "submitted_by", "converted_file"]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",

@@ -1,4 +1,7 @@
 import io
+import os
+import subprocess
+import tempfile
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
@@ -17,6 +20,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.core.files.base import File
 from django.db import transaction
 from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
@@ -620,7 +624,12 @@ def invite_referee(request, application):
 
     # send 'yet unsent' invitations:
     invitations = list(
-        models.Invitation.where(application=application, type="R", sent_at__isnull=True)
+        models.Invitation.where(
+            Q(sent_at__isnull=True),
+            ~Q(status__in=["accepted", "expired", "bounced"]),
+            application=application,
+            type="R",
+        )
     )
     for i in invitations:
         i.send(request)
@@ -1002,6 +1011,57 @@ class ApplicationView(LoginRequiredMixin):
                 )
                 iv.send(self.request)
                 iv.save()
+
+            if "file" in form.changed_data and form.instance.file:
+
+                a = form.instance
+                if a.file.name and a.file.name.lower().endswith(".pdf") and a.converted_file:
+                    a.converted_file = None
+
+                elif form.instance.file.name and not form.instance.file.name.lower().endswith(
+                    ".pdf"
+                ):
+
+                    cp = subprocess.run(
+                        [
+                            "loffice",
+                            "--headless",
+                            "--convert-to",
+                            "pdf",
+                            "--outdir",
+                            tempfile.gettempdir(),
+                            a.file.path,
+                        ],
+                        capture_output=True,
+                    )
+                    if cp.returncode != 0:
+                        messages.error(
+                            self.request,
+                            _(
+                                "Failed to convert your application form into PDF. "
+                                "Please save your application form into PDF format and try to upload it again."
+                            ),
+                        )
+                        return HttpResponseRedirect(self.request.get_full_path())
+
+                    output_filename, ext = os.path.splitext(os.path.basename(a.file.name))
+                    output_filename = f"{output_filename}.pdf"
+                    output_path = os.path.join(tempfile.gettempdir(), output_filename)
+
+                    with open(output_path, "rb") as of:
+                        cf = models.ConvertedFile()
+                        cf.file.save(output_filename, File(of))
+                        cf.save()
+
+                    a.converted_file = cf
+                    messages.success(
+                        self.request,
+                        _(
+                            "Your application form was converted into PDF file. "
+                            "Please review the converted application form version at <a href='%s'>%s</a>."
+                        )
+                        % (cf.file.url, os.path.basename(cf.file.name)),
+                    )
 
         if has_deleted:  # keep editing
             return HttpResponseRedirect(url)
