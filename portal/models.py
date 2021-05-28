@@ -729,6 +729,12 @@ class Nominee(Model):
         db_table = "nominee"
 
 
+class ConvertedFile(Base):
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: ["converted"],
+    )
+
+
 class Application(PersonMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
@@ -777,11 +783,11 @@ class Application(PersonMixin, Model):
     )
     def filename(self):
         return os.path.basename(self.file.name)
-
+    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     photo_identity = PrivateFileField(
         null=True,
         blank=True,
-        upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by_id)],
         verbose_name=_("Photo Identity"),
         help_text=_("Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"),
     )
@@ -1475,6 +1481,7 @@ class Testimony(Model):
         blank=True,
         null=True,
     )
+    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     state = FSMField(default="new")
 
     @property
@@ -1541,7 +1548,7 @@ class CurriculumVitae(Model):
     file = PrivateFileField(
         upload_subfolder=lambda instance: f"cv/{hex(instance.owner.id*instance.profile.id)[2:]}"
     )
-    # file = PrivateFileField()
+    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
     class Meta:
         db_table = "curriculum_vitae"
@@ -1599,7 +1606,7 @@ class Scheme(Model):
         db_table = "scheme"
 
 
-def round_score_sheet_template_path(instance, filename):
+def round_template_path(instance, filename):
     title = (instance.title or instance.scheme.title).lower().replace(" ", "-")
     return f"rounds/{title}/{filename}"
 
@@ -1614,9 +1621,33 @@ class Round(Model):
     score_sheet_template = FileField(
         null=True,
         blank=True,
-        upload_to=round_score_sheet_template_path,
+        upload_to=round_template_path,
         verbose_name=_("Score Sheet Template"),
         validators=[FileExtensionValidator(allowed_extensions=["xls", "xlsx"])]
+    )
+    nomination_template = FileField(
+        null=True,
+        blank=True,
+        upload_to=round_template_path,
+        verbose_name=_("Nomination Template"),
+        validators=[FileExtensionValidator(
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
+    )
+    application_template = FileField(
+        null=True,
+        blank=True,
+        upload_to=round_template_path,
+        verbose_name=_("Application Template"),
+        validators=[FileExtensionValidator(
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
+    )
+    referee_template = FileField(
+        null=True,
+        blank=True,
+        upload_to=round_template_path,
+        verbose_name=_("Referee Template"),
+        validators=[FileExtensionValidator(
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
     )
 
     def clean(self):
@@ -2063,6 +2094,7 @@ class Nomination(NominationMixin, Model):
         verbose_name=_("Nominator form"),
         help_text=_("Upload filled-in nominator form"),
     )
+    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
     user = ForeignKey(
         User, null=True, blank=True, on_delete=SET_NULL, related_name="nominations_to_apply"
