@@ -1,5 +1,6 @@
 import hashlib
 import io
+import os
 import re
 import secrets
 from datetime import date, datetime
@@ -770,21 +771,24 @@ class Application(PersonMixin, Model):
     file = PrivateFileField(
         blank=True,
         null=True,
-        verbose_name=_("filled-in entry form"),
-        help_text=_("Please upload completed entrant or nominee entry form"),
+        verbose_name=_("completed application form"),
+        help_text=_("Please upload completed application form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round.id)],
     )
+    def filename(self):
+        return os.path.basename(self.file.name)
+
     photo_identity = PrivateFileField(
         null=True,
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by.id)],
         verbose_name=_("Photo Identity"),
-        help_text=_("Please upload a scanned copy of your passport in PDF, JPG, or PNG format"),
+        help_text=_("Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"),
     )
     presentation_url = URLField(
         null=True, blank=True,
         verbose_name=_("Presentation URL"),
-        help_text=_("Please enter the URL of the upload presentation video"))
+        help_text=_("Please enter the URL where your presentation video can be viewed"))
 
     state = FSMField(default="new")
 
