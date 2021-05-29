@@ -1,7 +1,10 @@
 import hashlib
 import io
+import os
 import re
 import secrets
+import subprocess
+import tempfile
 from datetime import date, datetime
 from urllib.parse import urljoin, urlparse
 
@@ -11,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.core.files.base import File
 from django.core.mail import mail_admins
 from django.core.validators import (
     FileExtensionValidator,
@@ -155,6 +159,53 @@ LANGUAGES = Choices(
     "Yue Chinese (Cantonese)",
     "Other",
 )
+
+
+class PdfFileMixin:
+    """Mixin for handling attached file update and conversion to a PDF copy."""
+
+    def update_converted_file(self):
+        """If the attached file is not PDF convert and update the the PDF version."""
+
+        if self.file.name and self.file.name.lower().endswith(".pdf") and self.converted_file:
+            self.converted_file = None
+            return
+
+        elif self.file.name and not self.file.name.lower().endswith(
+            ".pdf"
+        ):
+
+            cp = subprocess.run(
+                [
+                    "loffice",
+                    "--headless",
+                    "--convert-to",
+                    "pdf",
+                    "--outdir",
+                    tempfile.gettempdir(),
+                    self.file.path,
+                ],
+                capture_output=True,
+            )
+            if cp.returncode != 0:
+                raise Exception(
+                    _(
+                        "Failed to convert your application form into PDF. "
+                        "Please save your application form into PDF format and try to upload it again."
+                    ),
+                )
+
+            output_filename, ext = os.path.splitext(os.path.basename(self.file.name))
+            output_filename = f"{output_filename}.pdf"
+            output_path = os.path.join(tempfile.gettempdir(), output_filename)
+
+            with open(output_path, "rb") as of:
+                cf = ConvertedFile()
+                cf.file.save(output_filename, File(of))
+                cf.save()
+
+            self.converted_file = cf
+            return cf
 
 
 class StateField(StatusField, FSMField):
@@ -734,7 +785,7 @@ class ConvertedFile(Base):
     )
 
 
-class Application(PersonMixin, Model):
+class Application(PersonMixin, PdfFileMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     application_title = CharField(max_length=200, null=True, blank=True)
