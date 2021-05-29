@@ -120,7 +120,7 @@
       $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
       $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
       $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
-        document.getElementById("submit-id-save_draft").value = "{% trans 'Save Draft' %}";
+        document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
         document.getElementById("submit-id-save_draft").name = "save_draft";
         document.getElementById("submit-id-submit").hidden = false;
         document.getElementById("cancel").hidden = false;
