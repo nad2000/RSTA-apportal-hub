@@ -1568,8 +1568,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
                 return reverse(self.section_views[view_idx + 1])
             return reverse("profile-protection-patterns")
-        # return super().get_success_url()
-        return reverse("index")
+        return super().get_success_url()
 
     def formset_valid(self, formset):
         url_name = self.request.resolver_match.url_name
