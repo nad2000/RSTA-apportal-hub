@@ -1,4 +1,5 @@
 import io
+import os
 from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
@@ -620,7 +621,12 @@ def invite_referee(request, application):
 
     # send 'yet unsent' invitations:
     invitations = list(
-        models.Invitation.where(application=application, type="R", sent_at__isnull=True)
+        models.Invitation.where(
+            Q(sent_at__isnull=True),
+            ~Q(status__in=["accepted", "expired", "bounced"]),
+            application=application,
+            type="R",
+        )
     )
     for i in invitations:
         i.send(request)
@@ -1003,6 +1009,30 @@ class ApplicationView(LoginRequiredMixin):
                 iv.send(self.request)
                 iv.save()
 
+            if "file" in form.changed_data and form.instance.file:
+
+                try:
+                    if cf := form.instance.update_converted_file():
+                        messages.success(
+                            self.request,
+                            _(
+                                "Your application form was converted into PDF file. "
+                                "Please review the converted application form version at <a href='%s'>%s</a>."
+                            )
+                            % (cf.file.url, os.path.basename(cf.file.name)),
+                        )
+
+                except:
+                    messages.error(
+                        self.request,
+                        _(
+                            "Failed to convert your application form into PDF. "
+                            "Please save your application form into PDF format and try to upload it again."
+                        ),
+                    )
+                    url = self.request.path_info.split("?")[0] + "?summary=1"
+                    return HttpResponseRedirect(url)
+
         if has_deleted:  # keep editing
             return HttpResponseRedirect(url)
         else:
@@ -1011,7 +1041,11 @@ class ApplicationView(LoginRequiredMixin):
                 if "submit" in self.request.POST:
                     a.submit(request=self.request)
                     a.save()
-                elif "save_draft" in self.request.POST or "send_invitations" in self.request.POST:
+                elif (
+                    self.request.method == "POST"
+                    or "save_draft" in self.request.POST
+                    or "send_invitations" in self.request.POST
+                ):
                     a.save_draft(request=self.request)
                     a.save()
                     if "send_invitations" in self.request.POST:
@@ -1994,6 +2028,7 @@ class NominationView(CreateUpdateView):
             )
             if a:
                 kwargs["initial"]["org"] = a.org
+        kwargs["initial"]["round"] = self.round
         return kwargs
 
     def get_context_data(self, **kwargs):

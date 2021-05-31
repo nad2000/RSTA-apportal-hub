@@ -113,13 +113,14 @@
       });
       {% if "verification" in request.GET %}$('.nav a[href="#id-verification"]').tab('show');{% endif %}
       {% if "referees" in request.GET %}$('.nav a[href="#referees"]').tab('show'); activateRefereeTab();{% endif %}
+      {% if "summary" in request.GET %}$('.nav a[href="#summary"]').tab('show');{% endif %}
     });
     $(document).ready(function() {
       /* $("#div_id_title").parent().css("min-width", "4rem");
       $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
       $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
       $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
-        document.getElementById("submit-id-save_draft").value = "{% trans 'Save Draft' %}";
+        document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
         document.getElementById("submit-id-save_draft").name = "save_draft";
         document.getElementById("submit-id-submit").hidden = false;
         document.getElementById("cancel").hidden = false;

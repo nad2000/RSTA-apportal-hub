@@ -165,6 +165,16 @@
                 </a>{% else %}{% trans 'N/A' %}{% endif %}
             </td>
           </tr>
+
+          {% if a.converted_file %}
+            <tr>
+              <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form (PDF version)' %}</th>
+              <td colspan="3">
+                    <a href="{{ a.converted_file.file.url }}" target="_blank"> {{ a.converted_file.file.name|basename }} </a>
+              </td>
+            </tr>
+          {% endif %}
+
         {% endif %}
 
         {% if request.user.is_staff or request.user.is_superuser %}
