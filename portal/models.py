@@ -1683,7 +1683,7 @@ class Round(Model):
         upload_to=round_template_path,
         verbose_name=_("Nomination Template"),
         validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
     )
     application_template = FileField(
         null=True,
@@ -1691,7 +1691,7 @@ class Round(Model):
         upload_to=round_template_path,
         verbose_name=_("Application Template"),
         validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
     )
     referee_template = FileField(
         null=True,
@@ -1699,7 +1699,7 @@ class Round(Model):
         upload_to=round_template_path,
         verbose_name=_("Referee Template"),
         validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb"])]
+            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
     )
 
     def clean(self):
@@ -1715,6 +1715,32 @@ class Round(Model):
         created_new = not (self.id)
         if created_new:
             last_round = Round.where(scheme=scheme).order_by("-id").first()
+
+        if created_new:
+
+            if not self.score_sheet_template and (
+                    pr1 := Round.where(
+                        scheme=self.scheme,
+                        score_sheet_template__isnull=False).order_by("-id").first()):
+                self.score_sheet_template = pr1.score_sheet_template
+
+            if not self.application_template and (
+                    pr2 := Round.where(
+                        scheme=self.scheme,
+                        application_template__isnull=False).order_by("-id").first()):
+                self.application_template = pr2.application_template
+
+            if not self.nomination_template and (
+                    pr3 := Round.where(
+                        scheme=self.scheme,
+                        nomination_template__isnull=False).order_by("-id").first()):
+                self.nomination_template = pr3.nomination_template
+
+            if not self.referee_template and (
+                    pr4 := Round.where(
+                        scheme=self.scheme,
+                        referee_template__isnull=False).order_by("-id").first()):
+                self.referee_template = pr4.referee_template
 
         super().save(*args, **kwargs)
 

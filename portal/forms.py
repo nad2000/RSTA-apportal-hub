@@ -1,4 +1,5 @@
 import datetime
+import os
 from functools import partial
 
 from crispy_forms.bootstrap import Tab, TabHolder
@@ -214,11 +215,24 @@ class ApplicationForm(forms.ModelForm):
                     Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
             )
-        summary_fields = [
-            Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-            Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
-            Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
-        ]
+        if round.application_template:
+            help_text = _(
+                'You can download the application form template at <strong><a href="%s">%s</a></strong>'
+            ) % (round.application_template.url, os.path.basename(round.application_template.name))
+            summary_fields = [
+                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
+                Field("file", label=help_text, help_text=help_text),
+            ]
+        else:
+            summary_fields = [
+                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+            ]
+        summary_fields.extend(
+            [
+                Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
+                Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+            ]
+        )
         if round.scheme.presentation_required:
             self.fields["presentation_url"].required = True
             summary_fields.insert(
@@ -468,6 +482,7 @@ class ProfileSectionFormSetHelper(FormHelper):
 class NominationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        r = kwargs["initial"].get("round") or self.instance.round
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
@@ -475,25 +490,35 @@ class NominationForm(forms.ModelForm):
             Fieldset(
                 _("Nominee"),
                 Row(
-                    Column("title", css_class="form-group col-1 mb-0"),
+                    Column("title", css_class="form-group col-2 mb-0"),
                     Column("first_name", css_class="form-group col-3 mb-0"),
-                    Column("middle_names", css_class="form-group col-5 mb-0"),
+                    Column("middle_names", css_class="form-group col-4 mb-0"),
                     Column("last_name", css_class="form-group col-3 mb-0"),
                 ),
                 "email",
                 css_id="nominee",
             ),
             "org",
-            "file",
-            "summary",
         ]
+        if r and r.nomination_template:
+            help_text = _(
+                'You can download the nomination form template at <strong><a href="%s">%s</a></strong>'
+            ) % (r.nomination_template.url, os.path.basename(r.nomination_template.name))
+            fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            fields.append(Field("file", label=help_text, help_text=help_text))
+        else:
+            fields.append("file")
+
+        fields.append("summary")
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
                 Submit(
                     "save_draft",
-                    _("Save Draft"),
+                    _("Save"),
                     css_class="btn btn-primary",
+                    data_toggle="tooltip",
+                    title=_("Save draft nomination"),
                 ),
                 Submit(
                     "submit",
@@ -536,20 +561,29 @@ class TestimonyForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
+        round = self.instance.application.round
         fields = [
-            Fieldset(
-                _("Testimony"),
-                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-                Field("summary"),
-            ),
+            Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
+            Field("summary"),
         ]
+        if round.referee_template:
+            help_text = _(
+                'You can download the application review form template at <strong><a href="%s">%s</a></strong>'
+            ) % (round.referee_template.url, os.path.basename(round.referee_template.name))
+            fields.insert(1, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+        fields = [
+            Fieldset(_("Testimony"), *fields),
+        ]
+
         self.helper.layout = Layout(
             *fields,
             ButtonHolder(
                 Submit(
                     "save_draft",
-                    _("Save Draft"),
+                    _("Save"),
                     css_class="btn btn-primary",
+                    data_toggle="tooltip",
+                    title=_("Save draft testimony"),
                 ),
                 Submit(
                     "submit",
@@ -851,12 +885,23 @@ class RoundConflictOfInterestForm(forms.ModelForm):
 class ScoreSheetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
-        # self.helper.form_id = 'id-exampleForm'
-        # self.helper.form_class = 'blueForms'
-        # self.helper.form_method = 'post'
-        # self.helper.form_action = 'submit_survey'
 
-        self.helper.add_input(Submit("submit", _("Upload the Score Sheet")))
+        instance = kwargs.get("instance")
+        r = instance and instance.round or kwargs["initial"].get("round")
+
+        fields = [
+            "file",
+            Submit(
+                "submit", _("Upload the Score Sheet"), css_class="btn btn-primary mb-5 float-right"
+            ),
+        ]
+        if r.score_sheet_template:
+            help_text = _(
+                'You can download the round score sheet template at <strong><a href="%s">%s</a></strong>'
+            ) % (r.score_sheet_template.url, os.path.basename(r.score_sheet_template.name))
+            fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+
+        self.helper.add_layout(Layout(*fields))
         super().__init__(*args, **kwargs)
 
     class Meta:

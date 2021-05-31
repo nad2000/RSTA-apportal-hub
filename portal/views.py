@@ -2028,6 +2028,7 @@ class NominationView(CreateUpdateView):
             )
             if a:
                 kwargs["initial"]["org"] = a.org
+        kwargs["initial"]["round"] = self.round
         return kwargs
 
     def get_context_data(self, **kwargs):
