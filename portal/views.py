@@ -437,6 +437,7 @@ class ProfileView:
             u = self.request.user
             if not Profile.where(user=u).exists() or not u.profile.is_completed:
                 kwargs["progress"] = 10
+                self.request.session["wizard"] = True
 
         if "user_form" not in kwargs:
             kwargs["user_form"] = self.get_user_form()
@@ -488,6 +489,10 @@ def profile_protection_patterns(request):
                     ).delete()
         else:
             models.ProfileProtectionPattern.where(profile=profile).delete()
+        if "wizard" in request.session:
+            del request.session["wizard"]
+            request.session.modified = True
+        return redirect("index")
 
     protection_patterns = profile.protection_patterns
     return render(request, "profile_protection_patterns.html", locals())
@@ -1539,29 +1544,32 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         profile = self.request.user.profile
         context["profile"] = profile
         previous_step = next_step = None
-        if not profile.is_completed:
+        # if not profile.is_completed:
+        #     self.request.session["wizard"] = True
+        if self.request.session.get("wizard"):
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if view_idx > 0:
                 previous_step = self.section_views[view_idx - 1]
                 context["previous_step"] = previous_step
-            if view_idx < len(self.section_views) - 1:
+            if view_idx < len(self.section_views):
                 next_step = self.section_views[view_idx - 1]
                 context["next_step"] = next_step
-            context["progress"] = ((view_idx + 2) * 100) / (len(self.section_views) + 1)
+            context["progress"] = ((view_idx + 1) * 100) / (len(self.section_views) + 1)
         context["helper"] = forms.ProfileSectionFormSetHelper(
             profile=profile, previous_step=previous_step, next_step=next_step
         )
         return context
 
     def get_success_url(self):
-        if not self.request.user.profile.is_completed:
+        if not self.request.user.profile.is_completed or self.request.session.get("wizard"):
             view_idx = self.section_views.index(self.request.resolver_match.url_name)
             if "previous" in self.request.POST:
                 return reverse(self.section_views[view_idx - 1])
             if "next" in self.request.POST and view_idx < len(self.section_views) - 1:
                 return reverse(self.section_views[view_idx + 1])
-            return reverse("profile")
-        return super().get_success_url()
+            return reverse("profile-protection-patterns")
+        # return super().get_success_url()
+        return reverse("index")
 
     def formset_valid(self, formset):
         url_name = self.request.resolver_match.url_name
@@ -1605,15 +1613,6 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                     _("%d records deleted") % len(formset.deleted_objects),
                 )
         return resp
-
-    # def construct_formset(self):
-    #     formset = super().construct_formset()
-    #     initials = self.get_initial()
-    #     empty_form = formset.empty_form
-    #     for k, v in initials[0].items():
-    #         empty_form.fields[k].initial = v
-    #     empty_form.initial = initials[0]
-    #     return formset
 
 
 class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
