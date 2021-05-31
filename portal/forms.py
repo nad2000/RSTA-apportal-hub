@@ -219,9 +219,9 @@ class ApplicationForm(forms.ModelForm):
             help_text = _(
                 'You can download the application form template at <strong><a href="%s">%s</a></strong>'
             ) % (round.application_template.url, os.path.basename(round.application_template.name))
+            self.fields["file"].help_text = help_text
             summary_fields = [
-                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
-                Field("file", label=help_text, help_text=help_text),
+                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'), Field("file")
             ]
         else:
             summary_fields = [
@@ -506,6 +506,7 @@ class NominationForm(forms.ModelForm):
             ) % (r.nomination_template.url, os.path.basename(r.nomination_template.name))
             fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             fields.append(Field("file", label=help_text, help_text=help_text))
+            self.fields["file"].help_text = help_text
         else:
             fields.append("file")
 
@@ -571,6 +572,7 @@ class TestimonyForm(forms.ModelForm):
                 'You can download the application review form template at <strong><a href="%s">%s</a></strong>'
             ) % (round.referee_template.url, os.path.basename(round.referee_template.name))
             fields.insert(1, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            self.fields["file"].help_text = help_text
         fields = [
             Fieldset(_("Testimony"), *fields),
         ]
@@ -884,7 +886,9 @@ class RoundConflictOfInterestForm(forms.ModelForm):
 
 class ScoreSheetForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
+
         self.helper = FormHelper()
+        super().__init__(*args, **kwargs)
 
         instance = kwargs.get("instance")
         r = instance and instance.round or kwargs["initial"].get("round")
@@ -900,9 +904,9 @@ class ScoreSheetForm(forms.ModelForm):
                 'You can download the round score sheet template at <strong><a href="%s">%s</a></strong>'
             ) % (r.score_sheet_template.url, os.path.basename(r.score_sheet_template.name))
             fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            self.fields["file"].help_text = help_text
 
         self.helper.add_layout(Layout(*fields))
-        super().__init__(*args, **kwargs)
 
     class Meta:
         model = models.ScoreSheet
