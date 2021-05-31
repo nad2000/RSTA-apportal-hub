@@ -158,10 +158,10 @@
           {% endif %}
 
           <tr>
-            <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form' %}</th>
+            <th class="table-dark" scope="row">{% trans 'Completed Application Form' %}</th>
             <td colspan="3">
                   {% if a.file %}<a href="{{ a.file.url }}" target="_blank">
-                      {{ a.file.name|basename }}
+                      {{ a.filename }}
                 </a>{% else %}{% trans 'N/A' %}{% endif %}
             </td>
           </tr>
