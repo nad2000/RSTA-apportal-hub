@@ -833,8 +833,11 @@ class Application(PersonMixin, PdfFileMixin, Model):
         validators=[FileExtensionValidator(
             allowed_extensions=["pdf", "odt", "ott", "oth", "odm", "doc", "docx", "docm", "docb"])]
     )
+
+    @property
     def filename(self):
         return os.path.basename(self.file.name)
+
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     photo_identity = PrivateFileField(
         null=True,
@@ -1520,7 +1523,7 @@ class Invitation(Model):
         db_table = "invitation"
 
 
-class Testimony(Model):
+class Testimony(PdfFileMixin, Model):
     """A Testimony/endorsement/feedback given by a referee."""
 
     referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
@@ -1528,10 +1531,7 @@ class Testimony(Model):
     file = PrivateFileField(
         verbose_name=_("endorsement, testimony, or feedback"),
         help_text=_("Please upload your endorsement, testimony, or feedback"),
-        upload_subfolder=lambda instance: [
-            "testimonies",
-            hash_int(instance.referee.id * instance.referee.application.id),
-        ],
+        upload_subfolder=lambda instance: ["testimonies", hash_int(instance.referee_id)],
         blank=True,
         null=True,
     )
@@ -1599,9 +1599,7 @@ class CurriculumVitae(Model):
     profile = ForeignKey(Profile, on_delete=CASCADE)
     owner = ForeignKey(User, on_delete=CASCADE)
     title = CharField("title", max_length=200, null=True, blank=True)
-    file = PrivateFileField(
-        upload_subfolder=lambda instance: f"cv/{hex(instance.owner.id*instance.profile.id)[2:]}"
-    )
+    file = PrivateFileField(upload_subfolder=lambda instance: ["cv", hash_int(instance.profile_id)])
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
     class Meta:
@@ -2140,7 +2138,7 @@ class NominationMixin:
     STATUS = NOMINATION_STATUS
 
 
-class Nomination(NominationMixin, Model):
+class Nomination(NominationMixin, PdfFileMixin, Model):
 
     round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="nominations")
 
@@ -2170,7 +2168,7 @@ class Nomination(NominationMixin, Model):
     file = PrivateFileField(
         null=True,
         blank=True,
-        upload_subfolder=lambda instance: ["nominations", hash_int(instance.nominator.id)],
+        upload_subfolder=lambda instance: ["nominations", hash_int(instance.nominator_id)],
         verbose_name=_("Nominator form"),
         help_text=_("Upload filled-in nominator form"),
     )
@@ -2185,7 +2183,7 @@ class Nomination(NominationMixin, Model):
 
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 
-    @transition(field=status, source=NOMINATION_STATUS.new, target=NOMINATION_STATUS.draft)
+    @transition(field=status, source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft], target=NOMINATION_STATUS.draft)
     def save_draft(self, *args, **kwargs):
         pass
 
@@ -2266,7 +2264,7 @@ class IdentityVerification(Model):
     file = PrivateFileField(
         null=True,
         blank=True,
-        upload_subfolder=lambda instance: ["ids", hash_int(instance.user.id)],
+        upload_subfolder=lambda instance: ["ids", hash_int(instance.user_id)],
         verbose_name=_("Photo Identity"),
     )
     application = OneToOneField(
@@ -2367,7 +2365,7 @@ class ScoreSheet(Model):
             "score-sheeets",
             instance.round.title.lower().replace(" ", "-")
             if instance.round.title
-            else hash_int(instance.round.id),
+            else hash_int(instance.round_id),
         ],
         verbose_name=_("Score Sheet"),
         help_text=_("Upload filled-in for all the applications in bulk"),

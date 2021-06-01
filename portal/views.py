@@ -1,6 +1,5 @@
 import io
 import os
-from datetime import timedelta
 from functools import wraps
 from urllib.parse import quote
 
@@ -27,7 +26,6 @@ from django.forms import widgets
 from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.decorators.http import require_http_methods
@@ -314,7 +312,6 @@ def index(request):
             outstanding_identity_verifications = models.IdentityVerification.where(
                 state__in=["new", "sent"]
             )
-            three_days_ago = timezone.now() - timedelta(days=3)
 
         schemes = models.SchemeApplication.get_data(user)
     else:
@@ -390,6 +387,7 @@ def check_profile(request, token=None):
                 )
         i.accept(by=request.user)
         i.save()
+        breakpoint()
         if i.type == models.INVITATION_TYPES.A:
             next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
         if i.type == models.INVITATION_TYPES.T:
@@ -772,6 +770,7 @@ def get_or_create_panellist_invitation(panellist):
 
 
 class InvitationCreate(CreateView):
+
     model = models.Invitation
     template_name = "form.html"
     # form_class = ProfileForm
@@ -781,9 +780,11 @@ class InvitationCreate(CreateView):
     labels = {"org": _("organisation")}
 
     def form_valid(self, form):
+
         form.instance.user = self.request.user
         if form.instance.org:
             form.instance.organisation = form.instance.org.name
+
         self.object = form.save()
         self.object.send(self.request)
         self.object.save()
@@ -1022,7 +1023,7 @@ class ApplicationView(LoginRequiredMixin):
                             self.request,
                             _(
                                 "Your application form was converted into PDF file. "
-                                "Please review the converted application form version at <a href='%s'>%s</a>."
+                                "Please review the converted application form version <a href='%s'>%s</a>."
                             )
                             % (cf.file.url, os.path.basename(cf.file.name)),
                         )
@@ -1991,11 +1992,35 @@ class NominationView(CreateUpdateView):
         )
 
     def form_valid(self, form):
+
         n = form.instance
         if not n.id:
             n.nominator = self.request.user
             n.round = self.round
         resp = super().form_valid(form)
+
+        if self.request.method == "POST" and "file" in form.changed_data and n.file:
+
+            try:
+                if cf := n.update_converted_file():
+                    messages.success(
+                        self.request,
+                        _(
+                            "Your nomination form was converted into PDF file. "
+                            "Please review the converted nomination form version <a href='%s'>%s</a>."
+                        )
+                        % (cf.file.url, os.path.basename(cf.file.name)),
+                    )
+
+            except:
+                messages.error(
+                    self.request,
+                    _(
+                        "Failed to convert your nomination form into PDF. "
+                        "Please save your nomination form into PDF format and try to upload it again."
+                    ),
+                )
+                return HttpResponseRedirect(self.request.get_full_path())
 
         if "submit" in self.request.POST:
             invitation, created = n.submit(request=self.request)
@@ -2004,8 +2029,9 @@ class NominationView(CreateUpdateView):
                     self.request,
                     _("Invitation to submit an application sent to %s.") % invitation.email,
                 )
-        elif "save_draft" in self.request.POST:
+        elif self.request.method == "POST" or "save_draft" in self.request.POST:
             n.save_draft()
+
         n.save()
         reset_cache(self.request)
 
@@ -2052,31 +2078,59 @@ class TestimonyView(CreateUpdateView):
 
     def form_valid(self, form):
         reset_cache(self.request)
-        n = form.instance
-        if not n.id:
-            n.referee = models.Referee.get(user=self.request.user)
-            n.save()
+        t = form.instance
+        if not t.id:
+            a = self.application
+            if a:
+                t.referee = models.Referee.get(user=self.request.user, application=a)
+            else:
+                t.referee = models.Referee.where(user=self.request.user).order("-id").first()
+        super().form_valid(form)
 
-        if n.state != "submitted":
+        if t.state != "submitted":
+
+            if self.request.method == "POST" and "file" in form.changed_data and t.file:
+
+                try:
+                    if cf := t.update_converted_file():
+                        messages.success(
+                            self.request,
+                            _(
+                                "Your testimony form was converted into PDF file. "
+                                "Please review the converted testimony form version <a href='%s'>%s</a>."
+                            )
+                            % (cf.file.url, os.path.basename(cf.file.name)),
+                        )
+
+                except:
+                    messages.error(
+                        self.request,
+                        _(
+                            "Failed to convert your testimony form into PDF. "
+                            "Please save your testimony form into PDF format and try to upload it again."
+                        ),
+                    )
+                    return HttpResponseRedirect(self.request.get_full_path())
+
             if "submit" in self.request.POST:
-                n.submit(request=self.request)
-                n.save()
+                t.submit(request=self.request)
+                t.save()
             elif "save_draft" in self.request.POST:
-                n.save_draft(request=self.request)
-                n.save()
+                t.save_draft(request=self.request)
+                t.save()
             elif "turn_down" in self.request.POST:
-                n.referee.has_testifed = False
-                n.referee.status = "opted_out"
-                n.referee.save()
-                self.model.where(id=n.id).delete()
+                t.referee.has_testifed = False
+                t.referee.status = "opted_out"
+                t.referee.save()
+                self.model.where(id=t.id).delete()
                 send_mail(
                     _("A Referee opted out of Testimony"),
-                    _("Your Referee %s has opted out of Testimony") % n.referee,
+                    _("Your Referee %s has opted out of Testimony") % t.referee,
                     settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[
-                        n.referee.application.submitted_by.email
-                        if n.referee.application.submitted_by
-                        else n.referee.application.email
+                        t.referee.application.submitted_by.email
+                        if t.referee.application.submitted_by
+                        else t.referee.application.email
                     ],
                     fail_silently=False,
                     request=self.request,
@@ -2092,7 +2146,7 @@ class TestimonyView(CreateUpdateView):
                 self.request,
                 _("Testimony is already submitted."),
             )
-        return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=n.id)))
+        return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=t.id)))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

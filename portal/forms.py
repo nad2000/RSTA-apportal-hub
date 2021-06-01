@@ -557,6 +557,7 @@ class NominationForm(forms.ModelForm):
 
 
 class TestimonyForm(forms.ModelForm):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -571,7 +572,7 @@ class TestimonyForm(forms.ModelForm):
             help_text = _(
                 'You can download the application review form template at <strong><a href="%s">%s</a></strong>'
             ) % (round.referee_template.url, os.path.basename(round.referee_template.name))
-            fields.insert(1, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            fields.insert(0, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             self.fields["file"].help_text = help_text
         fields = [
             Fieldset(_("Testimony"), *fields),
