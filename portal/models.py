@@ -164,6 +164,22 @@ LANGUAGES = Choices(
 class PdfFileMixin:
     """Mixin for handling attached file update and conversion to a PDF copy."""
 
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
+
+    @property
+    def pdf_file(self):
+        if self.file and self.file.name.lower().endswith(".pdf"):
+            return self.file
+        if self.converted_file:
+            return self.converted_file.file
+
+    @property
+    def pdf_filename(self):
+        if self.converted_file:
+            return os.path.basename(self.pdf_file.name)
+
     def update_converted_file(self):
         """If the attached file is not PDF convert and update the the PDF version."""
 
@@ -833,11 +849,6 @@ class Application(PersonMixin, PdfFileMixin, Model):
         validators=[FileExtensionValidator(
             allowed_extensions=["pdf", "odt", "ott", "oth", "odm", "doc", "docx", "docm", "docb"])]
     )
-
-    @property
-    def filename(self):
-        return os.path.basename(self.file.name)
-
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     photo_identity = PrivateFileField(
         null=True,
