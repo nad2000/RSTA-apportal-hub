@@ -227,12 +227,13 @@ class ApplicationForm(forms.ModelForm):
             summary_fields = [
                 Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
             ]
-        summary_fields.extend(
-            [
-                Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
-                Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
-            ]
-        )
+        if round.scheme.research_summary_required:
+            summary_fields.extend(
+                [
+                    Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
+                    Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+                ]
+            )
         if round.scheme.presentation_required:
             self.fields["presentation_url"].required = True
             summary_fields.insert(

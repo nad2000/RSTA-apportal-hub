@@ -111,9 +111,23 @@
             if (result) window.location = href;
           });
       });
-      {% if "verification" in request.GET %}$('.nav a[href="#id-verification"]').tab('show');{% endif %}
-      {% if "referees" in request.GET %}$('.nav a[href="#referees"]').tab('show'); activateRefereeTab();{% endif %}
-      {% if "summary" in request.GET %}$('.nav a[href="#summary"]').tab('show');{% endif %}
+      // Keep track of the active tab
+      $(document.body).on("click", "a[data-toggle='tab']", function(event) {
+        location.hash = this.getAttribute("href");
+      });
+      {% if "verification" in request.GET %}
+        $('.nav a[href="#id-verification"]').tab('show');
+      {% elif "referees" in request.GET %}
+        $('.nav a[href="#referees"]').tab('show'); activateRefereeTab();
+      {% elif "summary" in request.GET %}
+        $('.nav a[href="#summary"]').tab('show');
+      {% else %}
+        // Jump to the last active tab:
+        if (location.hash) {
+          $('.nav a[href="' + location.hash + '"]').tab('show');
+          if (location.hash == "#referees") activateRefereeTab();
+        }
+      {% endif %}
     });
     $(document).ready(function() {
       /* $("#div_id_title").parent().css("min-width", "4rem");
