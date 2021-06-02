@@ -10,13 +10,22 @@ register = template.Library()
 
 
 @register.filter()
+def can_edit(value, user):
+    """User can edit the application."""
+    return value.submitted_by == user or value.all().filter(user=user).exists()
+
+
+@register.filter()
 def field_value(value, name):
     """Returns the value of the field of an object."""
-    v = getattr(value, name)
+    try:
+        v = getattr(value, name)
+    except:
+        return ""
     f = value._meta.get_field(name)
     if isinstance(f, models.BooleanField):
         return _("yes") if v else _("no")
-    return v
+    return v or _("N/A")
 
 
 @register.filter()
@@ -97,6 +106,8 @@ def person_with_email(value):
 
 @register.filter()
 def basename(value):
+    if value and isinstance(value, models.fields.files.FieldFile):
+        return os.path.basename(value.name)
     return os.path.basename(value) if value else ""
 
 

@@ -51,7 +51,7 @@ from django.db.models import (
 )
 from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from model_utils import Choices
@@ -170,9 +170,11 @@ class PdfFileMixin:
 
     @property
     def pdf_file(self):
-        if self.file and self.file.name.lower().endswith(".pdf"):
-            return self.file
-        if self.converted_file:
+        if self.file:
+            if self.file.name.lower().endswith(".pdf"):
+                return self.file
+            if not self.converted_file:
+                self.update_converted_file()
             return self.converted_file.file
 
     @property
@@ -1024,13 +1026,18 @@ class Application(PersonMixin, PdfFileMixin, Model):
     def user_draft_applications(cls, user):
         return cls.user_applications(user, ["draft", "new"])
 
-    def get_testimonies(self):
-        return Testimony.objects.raw(
-            "SELECT DISTINCT tm.* FROM referee AS r JOIN application AS app ON "
-            "app.id = r.application_id LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
-            "WHERE (r.application_id=%s OR app.id=%s) AND r.has_testifed IS NOT NULL",
-            [self.id, self.id],
+    def get_testimonies(self, has_testifed=None):
+        sql = (
+            "SELECT DISTINCT tm.* FROM referee AS r "
+            "JOIN application AS app "
+            "  ON app.id = r.application_id "
+            "LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
+            "WHERE (r.application_id=%s OR app.id=%s)"
         )
+        if has_testifed:
+            sql += " AND r.has_testifed IS NOT NULL"
+
+        return Testimony.objects.raw(sql, [self.id, self.id])
 
     def to_pdf(self, request=None):
         """Create PDF file for expor and return PdfFileMerger"""
@@ -1039,12 +1046,14 @@ class Application(PersonMixin, PdfFileMixin, Model):
 
         attachments = []
         if self.file:
-            attachments.append((_("Application Form"), settings.PRIVATE_STORAGE_ROOT + "/" + str(self.file)))
+            attachments.append((
+                _("Application Form"),
+                settings.PRIVATE_STORAGE_ROOT + "/" + str(self.pdf_file)))
         attachments.extend(
             (
                 _("Testimony Form Submitted By %s") % t.referee.full_name,
-                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file)
-            ) for t in self.get_testimonies() if t.file
+                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file)
+            ) for t in self.get_testimonies() if t.file and t.referee
         )
 
         ssl._create_default_https_context = ssl._create_unverified_context
@@ -1563,7 +1572,6 @@ class Testimony(PdfFileMixin, Model):
         self.referee.status = "testified"
         # self.referee.testified_at = datetime.now()
         self.referee.save()
-        pass
 
     @classmethod
     def user_testimonies(cls, user, state=None, round=None):
@@ -1582,9 +1590,11 @@ class Testimony(PdfFileMixin, Model):
         return cls.user_testimonies(user, state=state, round=round).count()
 
     def __str__(self):
-        return _("Testimony By Referee {0} For Application {1}").format(
-            self.referee, self.referee.application
-        )
+        if self.referee_id:
+            return _("Testimony By Referee {0} For Application {1}").format(
+                self.referee, self.referee.application
+            )
+        return self.file.name if self.file else gettext("N/A")
 
     class Meta:
         db_table = "testimony"

@@ -128,6 +128,7 @@
           </tr>
 
           {% if not show_basic_details %}
+
             {% if a.summary or a.summary_en or a.summary_mi %}
               {% if a.is_bilingual_summary %}
 
@@ -160,15 +161,21 @@
           <tr>
             <th class="table-dark" scope="row">{% trans 'Completed Application Form' %}</th>
             <td colspan="3">
-                  {% if a.file %}<a href="{{ a.file.url }}" target="_blank">
-                      {{ a.filename }}
-                </a>{% else %}{% trans 'N/A' %}{% endif %}
+              {% if a.file %}
+                {% if a|can_edit:user %}
+                  <a href="{{ a.file.url }}" target="_blank"> {{ a.filename }} </a>
+                {% else %}
+                  <a href="{{ a.pd_file.url }}" target="_blank"> {{ a.pdf_filename }} </a>
+                {% endif %}
+              {% else %}
+                {% trans 'N/A' %}
+              {% endif %}
             </td>
           </tr>
 
-          {% if a.converted_file %}
+          {% if a.converted_file and a|can_edit:user %}
             <tr>
-              <th class="table-dark" scope="row">{% trans 'Filled-In Entry Form (PDF version)' %}</th>
+              <th class="table-dark" scope="row">{% trans 'Completed Application Form (PDF version)' %}</th>
               <td colspan="3">
                     <a href="{{ a.converted_file.file.url }}" target="_blank"> {{ a.converted_file.file.name|basename }} </a>
               </td>

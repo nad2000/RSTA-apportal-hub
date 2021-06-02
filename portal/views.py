@@ -968,7 +968,6 @@ class ApplicationView(LoginRequiredMixin):
         context = self.get_context_data()
         referees = context["referees"]
         reset_cache(self.request)
-        breakpoint()
 
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
