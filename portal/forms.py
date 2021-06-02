@@ -181,7 +181,10 @@ class ApplicationForm(forms.ModelForm):
                 "email",
                 css_id="submitter",
             ),
-            Row(Column("position"), Column("org")),
+            Row(
+                Column("org", css_class="col-9"),
+                Column("position", css_class="col-3"),
+            ),
             "postal_address",
             Row(Column("city"), Column("postcode")),
             # Row(Column("daytime_phone"), Column("mobile_phone")),

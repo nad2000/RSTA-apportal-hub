@@ -387,7 +387,6 @@ def check_profile(request, token=None):
                 )
         i.accept(by=request.user)
         i.save()
-        breakpoint()
         if i.type == models.INVITATION_TYPES.A:
             next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
         if i.type == models.INVITATION_TYPES.T:
@@ -969,6 +968,7 @@ class ApplicationView(LoginRequiredMixin):
         context = self.get_context_data()
         referees = context["referees"]
         reset_cache(self.request)
+        breakpoint()
 
         with transaction.atomic():
             form.instance.organisation = form.instance.org.name
@@ -978,7 +978,8 @@ class ApplicationView(LoginRequiredMixin):
                 members = context["members"]
                 has_deleted = bool(members.deleted_forms)
                 if has_deleted:
-                    url = self.request.path_info + "?members=1"
+                    # url = self.request.path_info + "?members=1"
+                    url = self.request.path_info.split("?")[0] + "#application"
                 if members.is_valid():
                     members.instance = self.object
                     members.save()
@@ -998,7 +999,8 @@ class ApplicationView(LoginRequiredMixin):
                 referees.instance = self.object
                 has_deleted = bool(has_deleted or referees.deleted_forms)
                 if has_deleted or "send_invitations" in self.request.POST:
-                    url = self.request.path_info.split("?")[0] + "?referees=1"
+                    # url = self.request.path_info.split("?")[0] + "?referees=1"
+                    url = self.request.path_info.split("?")[0] + "#referees"
                 referees.save()
                 count = invite_referee(self.request, self.object)
                 if count > 0:
@@ -1036,7 +1038,8 @@ class ApplicationView(LoginRequiredMixin):
                             "Please save your application form into PDF format and try to upload it again."
                         ),
                     )
-                    url = self.request.path_info.split("?")[0] + "?summary=1"
+                    # url = self.request.path_info.split("?")[0] + "?summary=1"
+                    url = self.request.path_info.split("?")[0] + "#summary"
                     return HttpResponseRedirect(url)
 
         if has_deleted:  # keep editing

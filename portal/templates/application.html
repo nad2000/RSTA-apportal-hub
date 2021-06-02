@@ -124,7 +124,7 @@
       {% else %}
         // Jump to the last active tab:
         if (location.hash) {
-          $('.nav a[href="' + location.hash + '"]').tab('show');
+          if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
           if (location.hash == "#referees") activateRefereeTab();
         }
       {% endif %}
