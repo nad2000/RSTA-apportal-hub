@@ -25,7 +25,12 @@ class ApplicationTranslationOptions(TranslationOptions):
     fields = ("summary",)
 
 
-simple_history.register(models.Application, inherit=True, table_name="application_history")
+simple_history.register(
+    models.Application,
+    inherit=True,
+    table_name="application_history",
+    bases=[models.ApplicationMixin, models.Model],
+)
 
 
 @register(models.Criterion)

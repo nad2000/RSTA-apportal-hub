@@ -206,6 +206,20 @@ class ApplicationForm(forms.ModelForm):
             ),
             # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
+        if instance.submitted_by and instance.submitted_by == user:
+            tac_text = _(
+                "As authorized lead in this application, I affirm that all information is "
+                "to the best of my knowledge true and correct. "
+                "<br/><br/>I affirm that if successful, I (and my team) will participate in publicity "
+                "and that the content of this application can be use in promotion of the Prizes."
+            )
+            fields.extend(
+                [
+                    HTML(f'<div class="alert alert-info" role="alert">{tac_text}</div>'),
+                    Field("is_tac_accepted"),
+                ]
+            )
+
         round = (
             models.Round.get(self.initial["round"]) if "round" in self.initial else instance.round
         )
@@ -224,7 +238,8 @@ class ApplicationForm(forms.ModelForm):
             ) % (round.application_template.url, os.path.basename(round.application_template.name))
             self.fields["file"].help_text = help_text
             summary_fields = [
-                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'), Field("file")
+                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
+                Field("file"),
             ]
         else:
             summary_fields = [
@@ -233,7 +248,9 @@ class ApplicationForm(forms.ModelForm):
         if round.scheme.research_summary_required:
             summary_fields.extend(
                 [
-                    Field("is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"),
+                    Field(
+                        "is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"
+                    ),
                     Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
                 ]
             )
@@ -293,6 +310,23 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
 
+        if not instance.is_tac_accepted and instance.submitted_by != user:
+            submit_button = HTML(
+                f"""
+            <span class="d-inline-block" tabindex="0"
+                data-toggle="tooltip"
+                title="{_('Your team lead has to accept the Terms and Conditions before the submission of the applicain')}">
+            <input type="submit" name="submit" value="{_('Submit')}" class="btn btn btn-outline-primary" id="submit-id-submit" disabled></span>"""
+            )
+        else:
+            submit_button = Submit(
+                "submit",
+                _("Submit"),
+                disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
+                data_toggle="tooltip",
+                title=_("Save draft application"),
+                css_class="btn btn-outline-primary",
+            )
         self.helper.layout = Layout(
             TabHolder(*tabs),
             ButtonHolder(
@@ -303,11 +337,7 @@ class ApplicationForm(forms.ModelForm):
                     data_toggle="tooltip",
                     title=_("Save draft application"),
                 ),
-                Submit(
-                    "submit",
-                    _("Submit"),
-                    css_class="btn btn-outline-primary",
-                ),
+                submit_button,
                 HTML(
                     """
                     <a href="{{ view.get_success_url }}"
@@ -561,7 +591,6 @@ class NominationForm(forms.ModelForm):
 
 
 class TestimonyForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

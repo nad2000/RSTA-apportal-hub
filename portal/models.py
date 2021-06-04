@@ -798,12 +798,24 @@ class Nominee(Model):
 
 
 class ConvertedFile(Base):
-    file = PrivateFileField(
-        upload_subfolder=lambda instance: ["converted"],
-    )
+    file = PrivateFileField(upload_subfolder=lambda instance: ["converted"])
 
 
-class Application(PersonMixin, PdfFileMixin, Model):
+APPLICATION_STATUS = Choices(
+    (None, None),
+    ("new", _("new")),
+    ("draft", _("draft")),
+    ("tac_accepted", _("TAC accepted")),
+    ("submitted", _("submitted")),
+)
+
+
+class ApplicationMixin:
+
+    STATUS = APPLICATION_STATUS
+
+
+class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     application_title = CharField(max_length=200, null=True, blank=True)
@@ -865,8 +877,13 @@ class Application(PersonMixin, PdfFileMixin, Model):
         null=True, blank=True,
         verbose_name=_("Presentation URL"),
         help_text=_("Please enter the URL where your presentation video can be viewed"))
-
-    state = FSMField(default="new")
+    state = StateField(default=APPLICATION_STATUS.new)
+    is_tac_accepted = BooleanField(
+            default=False,
+            verbose_name=_("I have read and accept Terms and Conditions"))
+    tac_accepted_at = MonitorField(
+        monitor="state", when=[APPLICATION_STATUS.tac_accepted], null=True, blank=True, default=None
+    )
 
     def get_score_entries(self, user=None, panellist=None):
         if not panellist:
@@ -894,11 +911,15 @@ class Application(PersonMixin, PdfFileMixin, Model):
             self.number = f"{code}-{org_code}-{year}-{application_number:03}"
         super().save(*args, **kwargs)
 
-    @transition(field=state, source=["draft", "new"], target="draft")
+    @transition(field=state, source=["draft", "new", "tac_accepted"], target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
+    @transition(field=state, source=["draft", "new", "tac_accepted"], target="draft")
+    def accept_tac(self, *args, **kwargs):
+        self.is_tac_accepted = True
+
+    @transition(field=state, source=["new", "draft", "submitted", "tac_accepted"], target="submitted")
     def submit(self, *args, **kwargs):
         if not self.file and not self.summary:
             raise Exception(

@@ -1117,6 +1117,33 @@ class ApplicationView(LoginRequiredMixin):
             )
         return context
 
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = super().get_form_kwargs()
+        kwargs["initial"]["user"] = self.request.user
+        if "nomination" in self.kwargs:
+            kwargs["initial"]["nomination"] = self.kwargs["nomination"]
+            kwargs["initial"]["round"] = self.round.id
+        elif "round" in self.kwargs:
+            kwargs["initial"]["round"] = self.kwargs["round"]
+
+        if self.request.method == "GET" and "initial" in kwargs:
+            user = self.request.user
+            kwargs["initial"].update(
+                {
+                    "application_title": self.round.title,  # models.Round.get(self.kwargs["round"]).title,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "middle_names": user.middle_names,
+                    "title": user.title,
+                }
+            )
+            if "nomination" in self.kwargs:
+                kwargs["initial"]["org"] = self.nomination.org.id
+
+        return kwargs
+
 
 class ApplicationUpdate(ApplicationView, UpdateView):
 
@@ -1178,32 +1205,6 @@ class ApplicationCreate(ApplicationView, CreateView):
             n.application = self.object
             n.save()
         return resp
-
-    def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
-        kwargs = super().get_form_kwargs()
-        if "nomination" in self.kwargs:
-            kwargs["initial"]["nomination"] = self.kwargs["nomination"]
-            kwargs["initial"]["round"] = self.round.id
-        elif "round" in self.kwargs:
-            kwargs["initial"]["round"] = self.kwargs["round"]
-
-        if self.request.method == "GET" and "initial" in kwargs:
-            user = self.request.user
-            kwargs["initial"].update(
-                {
-                    "application_title": self.round.title,  # models.Round.get(self.kwargs["round"]).title,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "middle_names": user.middle_names,
-                    "title": user.title,
-                }
-            )
-            if "nomination" in self.kwargs:
-                kwargs["initial"]["org"] = self.nomination.org.id
-
-        return kwargs
 
 
 # class ApplicationTeamMembersStageFormSetView(LoginRequiredMixin, ModelFormSetView):
