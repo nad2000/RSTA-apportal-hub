@@ -1743,6 +1743,9 @@ class Round(Model):
         validators=[FileExtensionValidator(
             allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
     )
+    applicant_cv_required = BooleanField(_("Applicant/Team representative CV required"), default=True)
+    nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
+    referee_cv_required = BooleanField(_("Referee CV required"), default=True)
 
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
@@ -1755,38 +1758,9 @@ class Round(Model):
     def save(self, *args, **kwargs):
         scheme = self.scheme
         created_new = not (self.id)
-        if created_new:
-            last_round = Round.where(scheme=scheme).order_by("-id").first()
-
-        if created_new:
-
-            if not self.score_sheet_template and (
-                    pr1 := Round.where(
-                        scheme=self.scheme,
-                        score_sheet_template__isnull=False).order_by("-id").first()):
-                self.score_sheet_template = pr1.score_sheet_template
-
-            if not self.application_template and (
-                    pr2 := Round.where(
-                        scheme=self.scheme,
-                        application_template__isnull=False).order_by("-id").first()):
-                self.application_template = pr2.application_template
-
-            if not self.nomination_template and (
-                    pr3 := Round.where(
-                        scheme=self.scheme,
-                        nomination_template__isnull=False).order_by("-id").first()):
-                self.nomination_template = pr3.nomination_template
-
-            if not self.referee_template and (
-                    pr4 := Round.where(
-                        scheme=self.scheme,
-                        referee_template__isnull=False).order_by("-id").first()):
-                self.referee_template = pr4.referee_template
-
         super().save(*args, **kwargs)
 
-        if created_new and last_round:
+        if created_new and (last_round := Round.where(scheme=scheme).order_by("-id").first()):
             for c in last_round.criteria.all():
                 Criterion.create(
                     round=self,
@@ -1800,6 +1774,43 @@ class Round(Model):
         if not scheme.current_round:
             scheme.current_round = self
             scheme.save(update_fields=["current_round"])
+
+    def __init__(self, *args, **kwargs):
+        if (scheme := kwargs.get("scheme")
+                ) and (last_round := Round.where(scheme=scheme).order_by("-id").first()):
+            if "applicant_cv_required" not in kwargs:
+                kwargs["applicant_cv_required"] = last_round.applicant_cv_required
+
+            if "nominator_cv_required" not in kwargs:
+                kwargs["nominator_cv_required"] = last_round.nominator_cv_required
+
+            if "referee_cv_required" not in kwargs:
+                kwargs["referee_cv_required"] = last_round.referee_cv_required
+
+            if "score_sheet_template" not in kwargs and (
+                    pr1 := Round.where(
+                        scheme=scheme,
+                        score_sheet_template__isnull=False).order_by("-id").first()):
+                kwargs["score_sheet_template"] = pr1.score_sheet_template
+
+            if "application_template" not in kwargs and (
+                    pr2 := Round.where(
+                        scheme=scheme,
+                        application_template__isnull=False).order_by("-id").first()):
+                kwargs["application_template"] = pr2.application_template
+
+            if "nomination_template" not in kwargs and (
+                    pr3 := Round.where(
+                        scheme=scheme,
+                        nomination_template__isnull=False).order_by("-id").first()):
+                kwargs["nomination_template"] = pr3.nomination_template
+
+            if "referee_template" not in kwargs and (
+                    pr4 := Round.where(
+                        scheme=scheme,
+                        referee_template__isnull=False).order_by("-id").first()):
+                kwargs["referee_template"] = pr4.referee_template
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         return self.title or self.scheme.title
