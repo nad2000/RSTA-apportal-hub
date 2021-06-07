@@ -183,15 +183,13 @@ class PdfFileMixin:
             return os.path.basename(self.pdf_file.name)
 
     def update_converted_file(self):
-        """If the attached file is not PDF convert and update the the PDF version."""
+        """If the attached file is not PDF convert and update the PDF version."""
 
         if self.file.name and self.file.name.lower().endswith(".pdf") and self.converted_file:
             self.converted_file = None
             return
 
-        elif self.file.name and not self.file.name.lower().endswith(
-            ".pdf"
-        ):
+        elif self.file.name and not self.file.name.lower().endswith(".pdf"):
 
             cp = subprocess.run(
                 [
@@ -459,7 +457,7 @@ class ProfilePersonIdentifier(Model):
                 v = self.value
                 if len(v) < 16:
                     raise ValidationError(
-                        _("ISNI value %(value)s should be at least 16 charchters long."),
+                        _("ISNI value %(value)s should be at least 16 characters long."),
                         params={"value": v},
                     )
                 v = v[-16:].upper()
@@ -561,7 +559,7 @@ class Affiliation(Model):
 def validate_bod(value):
     if value and value >= date.today():
         raise ValidationError(
-            _("Date of birth cannnot be in the future: %(value)s"),
+            _("Date of birth cannot be in the future: %(value)s"),
             params={"value": value},
         )
 
@@ -589,7 +587,7 @@ class Profile(Model):
     # hours usually worked
     # status in employment
     # occupation
-    is_accepted = BooleanField("Privace Policy Accepted", default=False)
+    is_accepted = BooleanField("Privacy Policy Accepted", default=False)
     career_stages = ManyToManyField(CareerStage, blank=True, through="ProfileCareerStage")
     is_career_stages_completed = BooleanField(default=False)
     external_ids = ManyToManyField(
@@ -616,7 +614,7 @@ class Profile(Model):
 
     is_academic_records_completed = BooleanField(default=False)
     is_recognitions_completed = BooleanField(default=False)
-    # is_professional_memeberships_completed = BooleanField(default=False)
+    # is_professional_memberships_completed = BooleanField(default=False)
     is_cvs_completed = BooleanField(default=False)
 
     @property
@@ -640,12 +638,12 @@ class Profile(Model):
         created = not self.id
         super().save(*args, **kwargs)
         if created:
-            ProfileProtectionPattern.objects.bulk_create([
-                ProfileProtectionPattern(
-                    profile=self,
-                    protection_pattern_id=code
-                ) for code in [5, 6, 7]
-            ])
+            ProfileProtectionPattern.objects.bulk_create(
+                [
+                    ProfileProtectionPattern(profile=self, protection_pattern_id=code)
+                    for code in [5, 6, 7]
+                ]
+            )
 
     def get_absolute_url(self):
         return reverse("profile-instance", kwargs={"pk": self.pk})
@@ -723,8 +721,10 @@ class ProtectionPatternProfile(Model):
             LEFT JOIN profile_protection_pattern AS ppp
                 ON ppp.protection_pattern_id=pp.code AND ppp.profile_id=%s
             WHERE pp.code IN (5, 6, 7, 9)
-            ORDER BY description_""" + get_language(),
-            [profile.id])
+            ORDER BY description_"""
+            + get_language(),
+            [profile.id],
+        )
 
         prefetch_related_objects(q, "profile")
         return q
@@ -860,8 +860,21 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         verbose_name=_("completed application form"),
         help_text=_("Please upload completed application form"),
         upload_subfolder=lambda instance: ["applications", hash_int(instance.round_id)],
-        validators=[FileExtensionValidator(
-            allowed_extensions=["pdf", "odt", "ott", "oth", "odm", "doc", "docx", "docm", "docb"])]
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    "pdf",
+                    "odt",
+                    "ott",
+                    "oth",
+                    "odm",
+                    "doc",
+                    "docx",
+                    "docm",
+                    "docb",
+                ]
+            )
+        ],
     )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
     photo_identity = PrivateFileField(
@@ -869,20 +882,51 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by_id)],
         verbose_name=_("Photo Identity"),
-        help_text=_("Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"),
-        validators=[FileExtensionValidator(
-            allowed_extensions=["pdf", "jpg", "jpeg", "png"])]
+        help_text=_(
+            "Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"
+        ),
+        validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
     presentation_url = URLField(
-        null=True, blank=True,
+        null=True,
+        blank=True,
         verbose_name=_("Presentation URL"),
-        help_text=_("Please enter the URL where your presentation video can be viewed"))
+        help_text=_("Please enter the URL where your presentation video can be viewed"),
+    )
     state = StateField(default=APPLICATION_STATUS.new)
     is_tac_accepted = BooleanField(
-            default=False,
-            verbose_name=_("I have read and accept Terms and Conditions"))
+        default=False, verbose_name=_("I have read and accept Terms and Conditions")
+    )
     tac_accepted_at = MonitorField(
-        monitor="state", when=[APPLICATION_STATUS.tac_accepted], null=True, blank=True, default=None
+        monitor="state",
+        when=[APPLICATION_STATUS.tac_accepted],
+        null=True,
+        blank=True,
+        default=None,
+    )
+    budget = PrivateFileField(
+        blank=True,
+        null=True,
+        verbose_name=_("completed application form"),
+        help_text=_("Please upload completed application budget spreadsheet"),
+        upload_subfolder=lambda instance: ["budgets", hash_int(instance.round_id)],
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    ".xls",
+                    ".xlw",
+                    ".xlt",
+                    ".xml",
+                    ".xlsx",
+                    ".xlsm",
+                    ".xltx",
+                    ".xltm",
+                    ".xlsb",
+                    ".csv",
+                    ".ctv",
+                ]
+            )
+        ],
     )
 
     def get_score_entries(self, user=None, panellist=None):
@@ -900,11 +944,16 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             code = self.round.scheme.code
             org_code = self.org.get_code()
             year = f"{self.round.opens_on.year}"
-            last_number = Application.where(
-                round=self.round,
-                number__isnull=False,
-                number__istartswith=f"{code}-{org_code}-{year}",
-            ).order_by("-number").values("number").first()
+            last_number = (
+                Application.where(
+                    round=self.round,
+                    number__isnull=False,
+                    number__istartswith=f"{code}-{org_code}-{year}",
+                )
+                .order_by("-number")
+                .values("number")
+                .first()
+            )
             application_number = (
                 int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
             )
@@ -919,8 +968,26 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def accept_tac(self, *args, **kwargs):
         self.is_tac_accepted = True
 
-    @transition(field=state, source=["new", "draft", "submitted", "tac_accepted"], target="submitted")
+    @transition(
+        field=state, source=["new", "draft", "submitted", "tac_accepted"], target="submitted"
+    )
     def submit(self, *args, **kwargs):
+        request = kwargs.get("request")
+        if not self.is_tac_accepted:
+            if request and request.user:
+                if self.submitted_by == request.user:
+                    raise Exception(
+                        _(
+                            "You have to accept the Terms and Conditions before submitting the application"
+                        )
+                    )
+                else:
+                    raise Exception(
+                        _(
+                            "Your team lead has to accept the Terms and Conditions before submitting the application"
+                        )
+                    )
+
         if not self.file and not self.summary:
             raise Exception(
                 _(
@@ -963,7 +1030,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def lead(self):
         value = f"{self.title} " if self.title else ""
         value += self.first_name or self.submitted_by and self.submitted_by.first_name
-        if middle_names := self.middle_names or self.submitted_by and self.submitted_by.middle_names:
+        if (
+            middle_names := self.middle_names
+            or self.submitted_by
+            and self.submitted_by.middle_names
+        ):
             value = f"{value} {middle_names}"
         return f"{value} {self.last_name or self.submitted_by and self.submitted_by.last_name}"
 
@@ -1056,31 +1127,35 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             "WHERE (r.application_id=%s OR app.id=%s)"
         )
         if has_testifed:
-            sql += " AND r.has_testifed IS NOT NULL"
+            sql += " AND r.has_testified IS NOT NULL"
 
         return Testimony.objects.raw(sql, [self.id, self.id])
 
     def to_pdf(self, request=None):
-        """Create PDF file for expor and return PdfFileMerger"""
+        """Create PDF file for export and return PdfFileMerger"""
 
         import ssl
 
         attachments = []
         if self.file:
-            attachments.append((
-                _("Application Form"),
-                settings.PRIVATE_STORAGE_ROOT + "/" + str(self.pdf_file)))
+            attachments.append(
+                (_("Application Form"), settings.PRIVATE_STORAGE_ROOT + "/" + str(self.pdf_file))
+            )
         attachments.extend(
             (
                 _("Testimony Form Submitted By %s") % t.referee.full_name,
-                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file)
-            ) for t in self.get_testimonies() if t.file and t.referee
+                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
+            )
+            for t in self.get_testimonies()
+            if t.file and t.referee
         )
 
         ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger()
-        merger.addMetadata({"/Title": f"{self.number}: {self.application_title or self.round.title}"})
+        merger.addMetadata(
+            {"/Title": f"{self.number}: {self.application_title or self.round.title}"}
+        )
         merger.addMetadata({"/Author": self.lead_with_email})
         merger.addMetadata({"/Subject": self.round.title})
         merger.addMetadata({"/Number": self.number})
@@ -1096,7 +1171,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
         pdf_stream = io.BytesIO(pdf_object)
-        merger.append(pdf_stream, bookmark=(self.application_title or self.round.title), import_bookmarks=True)
+        merger.append(
+            pdf_stream,
+            bookmark=(self.application_title or self.round.title),
+            import_bookmarks=True,
+        )
         for title, a in attachments:
             # merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
             merger.append(a, bookmark=title, import_bookmarks=True)
@@ -1456,8 +1535,9 @@ class Invitation(Model):
         return resp
 
     @transition(
-        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted, STATUS.bounced],
-        target=STATUS.accepted
+        field=status,
+        source=[STATUS.draft, STATUS.sent, STATUS.accepted, STATUS.bounced],
+        target=STATUS.accepted,
     )
     def accept(self, request=None, by=None):
         if not by:
@@ -1641,7 +1721,9 @@ class CurriculumVitae(Model):
     profile = ForeignKey(Profile, on_delete=CASCADE)
     owner = ForeignKey(User, on_delete=CASCADE)
     title = CharField("title", max_length=200, null=True, blank=True)
-    file = PrivateFileField(upload_subfolder=lambda instance: ["cv", hash_int(instance.profile_id)])
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: ["cv", hash_int(instance.profile_id)]
+    )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
     class Meta:
@@ -1717,35 +1799,109 @@ class Round(Model):
         blank=True,
         upload_to=round_template_path,
         verbose_name=_("Score Sheet Template"),
-        validators=[FileExtensionValidator(allowed_extensions=["xls", "xlsx"])]
+        validators=[FileExtensionValidator(allowed_extensions=["xls", "xlsx"])],
     )
     nomination_template = FileField(
         null=True,
         blank=True,
         upload_to=round_template_path,
         verbose_name=_("Nomination Template"),
-        validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    "doc",
+                    "docx",
+                    "dot",
+                    "dotx",
+                    "docm",
+                    "dotm",
+                    "docb",
+                    "odt",
+                    "ott",
+                    "oth",
+                    "odm",
+                ]
+            )
+        ],
     )
     application_template = FileField(
         null=True,
         blank=True,
         upload_to=round_template_path,
         verbose_name=_("Application Template"),
-        validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    "doc",
+                    "docx",
+                    "dot",
+                    "dotx",
+                    "docm",
+                    "dotm",
+                    "docb",
+                    "odt",
+                    "ott",
+                    "oth",
+                    "odm",
+                ]
+            )
+        ],
     )
     referee_template = FileField(
         null=True,
         blank=True,
         upload_to=round_template_path,
         verbose_name=_("Referee Template"),
-        validators=[FileExtensionValidator(
-            allowed_extensions=["doc", "docx", "dot", "dotx", "docm", "dotm", "docb", "odt", "ott", "oth", "odm"])]
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    "doc",
+                    "docx",
+                    "dot",
+                    "dotx",
+                    "docm",
+                    "dotm",
+                    "docb",
+                    "odt",
+                    "ott",
+                    "oth",
+                    "odm",
+                ]
+            )
+        ],
     )
-    applicant_cv_required = BooleanField(_("Applicant/Team representative CV required"), default=True)
+    applicant_cv_required = BooleanField(
+        _("Applicant/Team representative CV required"), default=True
+    )
     nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
     referee_cv_required = BooleanField(_("Referee CV required"), default=True)
+
+    direct_application_allowed = BooleanField(default=True)
+    can_nominate = BooleanField(default=True)
+    budget_template = FileField(
+        null=True,
+        blank=True,
+        upload_to=round_template_path,
+        verbose_name=_("Budget Template"),
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    ".xls",
+                    ".xlw",
+                    ".xlt",
+                    ".xml",
+                    ".xlsx",
+                    ".xlsm",
+                    ".xltx",
+                    ".xltm",
+                    ".xlsb",
+                    ".csv",
+                    ".ctv",
+                ]
+            )
+        ],
+    )
+    # budget_required = BooleanField(_("Budget required"), default=False)
 
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
@@ -1761,55 +1917,74 @@ class Round(Model):
         super().save(*args, **kwargs)
 
         if created_new and (last_round := Round.where(scheme=scheme).order_by("-id").first()):
-            for c in last_round.criteria.all():
-                Criterion.create(
-                    round=self,
-                    definition=c.definition,
-                    comment=c.comment,
-                    min_score=c.min_score,
-                    max_score=c.max_score,
-                    scale=c.scale,
-                )
+            Criterion.objects.bulk_create(
+                [
+                    Criterion(
+                        round=self,
+                        definition=c.definition,
+                        comment=c.comment,
+                        min_score=c.min_score,
+                        max_score=c.max_score,
+                        scale=c.scale,
+                    )
+                    for c in last_round.criteria.all()
+                ]
+            )
 
         if not scheme.current_round:
             scheme.current_round = self
             scheme.save(update_fields=["current_round"])
 
     def __init__(self, *args, **kwargs):
-        if (scheme := kwargs.get("scheme")
-                ) and (last_round := Round.where(scheme=scheme).order_by("-id").first()):
-            if "applicant_cv_required" not in kwargs:
-                kwargs["applicant_cv_required"] = last_round.applicant_cv_required
+        if (scheme := kwargs.get("scheme")) and (
+            last_round := Round.where(scheme=scheme).order_by("-id").first()
+        ):
 
-            if "nominator_cv_required" not in kwargs:
-                kwargs["nominator_cv_required"] = last_round.nominator_cv_required
-
-            if "referee_cv_required" not in kwargs:
-                kwargs["referee_cv_required"] = last_round.referee_cv_required
+            for f in [
+                "applicant_cv_required",
+                "nominator_cv_required",
+                "referee_cv_required",
+                "direct_application_allowed",
+                "can_nominate",
+                # "budget_required",
+            ]:
+                if f not in kwargs:
+                    kwargs[f] = getattr(last_round, f)
 
             if "score_sheet_template" not in kwargs and (
-                    pr1 := Round.where(
-                        scheme=scheme,
-                        score_sheet_template__isnull=False).order_by("-id").first()):
+                pr1 := Round.where(scheme=scheme, score_sheet_template__isnull=False)
+                .order_by("-id")
+                .first()
+            ):
                 kwargs["score_sheet_template"] = pr1.score_sheet_template
 
             if "application_template" not in kwargs and (
-                    pr2 := Round.where(
-                        scheme=scheme,
-                        application_template__isnull=False).order_by("-id").first()):
+                pr2 := Round.where(scheme=scheme, application_template__isnull=False)
+                .order_by("-id")
+                .first()
+            ):
                 kwargs["application_template"] = pr2.application_template
 
             if "nomination_template" not in kwargs and (
-                    pr3 := Round.where(
-                        scheme=scheme,
-                        nomination_template__isnull=False).order_by("-id").first()):
+                pr3 := Round.where(scheme=scheme, nomination_template__isnull=False)
+                .order_by("-id")
+                .first()
+            ):
                 kwargs["nomination_template"] = pr3.nomination_template
 
             if "referee_template" not in kwargs and (
-                    pr4 := Round.where(
-                        scheme=scheme,
-                        referee_template__isnull=False).order_by("-id").first()):
+                pr4 := Round.where(scheme=scheme, referee_template__isnull=False)
+                .order_by("-id")
+                .first()
+            ):
                 kwargs["referee_template"] = pr4.referee_template
+
+            if "budget_template" not in kwargs and (
+                pr5 := Round.where(scheme=scheme, budget_template__isnull=False)
+                .order_by("-id")
+                .first()
+            ):
+                kwargs["budget_template"] = pr5.budget_template
         super().__init__(*args, **kwargs)
 
     def __str__(self):
@@ -1877,13 +2052,14 @@ class Round(Model):
             .prefetch_related(
                 Prefetch(
                     "evaluations",
-                    queryset=Evaluation.objects.filter(application__round=self).annotate(
+                    queryset=Evaluation.objects.filter(application__round=self)
+                    .annotate(
                         total=Sum(
                             Case(
                                 When(
                                     Q(scores__criterion__scale__isnull=True)
                                     | Q(scores__criterion__scale=0),
-                                    then=F("scores__value")
+                                    then=F("scores__value"),
                                 ),
                                 default=F("scores__value")
                                 * Cast(
@@ -1892,7 +2068,8 @@ class Round(Model):
                                 ),
                             )
                         )
-                    ).order_by("application__number"),
+                    )
+                    .order_by("application__number"),
                 ),
                 Prefetch(
                     "evaluations__application",
@@ -1903,7 +2080,8 @@ class Round(Model):
                     "evaluations__scores__criterion",
                     queryset=Criterion.where(round_id=F("round_id")).order_by("definition"),
                 ),
-            ).order_by(
+            )
+            .order_by(
                 Coalesce("first_name", "user__first_name"),
                 Coalesce("last_name", "user__last_name"),
             )
@@ -1933,7 +2111,8 @@ class Round(Model):
             WHERE a.round_id=%s
             ORDER BY a.number
             """,
-            [self.id, self.id])
+            [self.id, self.id],
+        )
 
     class Meta:
         db_table = "round"
@@ -2127,9 +2306,7 @@ class SchemeApplication(Model):
     #     db_index=False,
     #     related_name="+",
     # )
-    is_panellist = BooleanField(
-        null=True,
-        blank=True)
+    is_panellist = BooleanField(null=True, blank=True)
 
     @classmethod
     def get_data(cls, user):
@@ -2159,11 +2336,15 @@ class SchemeApplication(Model):
                 GROUP BY a.round_id
             ) AS la ON la.round_id = r.id
             LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
-            ORDER BY 2;""", [
-                user.id, user.id,
-                user.id, user.id,
+            ORDER BY 2;""",
+            [
                 user.id,
-            ])
+                user.id,
+                user.id,
+                user.id,
+                user.id,
+            ],
+        )
         prefetch_related_objects(q, "application")
         prefetch_related_objects(q, "current_round")
         prefetch_related_objects(q, "scheme")
@@ -2236,7 +2417,11 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
 
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 
-    @transition(field=status, source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft], target=NOMINATION_STATUS.draft)
+    @transition(
+        field=status,
+        source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft],
+        target=NOMINATION_STATUS.draft,
+    )
     def save_draft(self, *args, **kwargs):
         pass
 
@@ -2415,7 +2600,7 @@ class ScoreSheet(Model):
     round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="score_sheets")
     file = PrivateFileField(
         upload_subfolder=lambda instance: [
-            "score-sheeets",
+            "score-sheets",
             instance.round.title.lower().replace(" ", "-")
             if instance.round.title
             else hash_int(instance.round_id),

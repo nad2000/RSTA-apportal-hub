@@ -501,7 +501,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
     raise_exception = True
 
     def post(self, request, *args, **kwargs):
-        """Check the POST request call """
+        """Check the POST request call"""
         if "load_from_orcid" in request.POST:
             # for orcidhelper in self.orcid_data_helpers:
             #     count, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data(request.user)
@@ -1017,7 +1017,6 @@ class ApplicationView(LoginRequiredMixin):
                 iv.save()
 
             if "file" in form.changed_data and form.instance.file:
-
                 try:
                     if cf := form.instance.update_converted_file():
                         messages.success(
@@ -1047,6 +1046,16 @@ class ApplicationView(LoginRequiredMixin):
             a = self.object
             try:
                 if "submit" in self.request.POST:
+                    if not form.instance.is_tac_accepted:
+                        if form.instance.submitted_by == self.request.user:
+                            messages.error(
+                                self.request,
+                                _(
+                                    "You have to accept the Terms and Conditions before submitting the application"
+                                ),
+                            )
+                            url = self.request.path_info.split("?")[0] + "#tac"
+                            return HttpResponseRedirect(url)
                     a.submit(request=self.request)
                     a.save()
                 elif (
@@ -1519,7 +1528,7 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
-        """Check the POST request call """
+        """Check the POST request call"""
         if "load_from_orcid" in request.POST:
             orcidhelper = OrcidHelper(request.user, self.orcid_sections)
             total_records_fetched, user_has_linked_orcid = orcidhelper.fetch_and_load_orcid_data()

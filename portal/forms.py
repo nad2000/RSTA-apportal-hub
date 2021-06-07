@@ -206,20 +206,6 @@ class ApplicationForm(forms.ModelForm):
             ),
             # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
-        if instance.submitted_by and instance.submitted_by == user:
-            tac_text = _(
-                "As authorized lead in this application, I affirm that all information is "
-                "to the best of my knowledge true and correct. "
-                "<br/><br/>I affirm that if successful, I (and my team) will participate in publicity "
-                "and that the content of this application can be use in promotion of the Prizes."
-            )
-            fields.extend(
-                [
-                    HTML(f'<div class="alert alert-info" role="alert">{tac_text}</div>'),
-                    Field("is_tac_accepted"),
-                ]
-            )
-
         round = (
             models.Round.get(self.initial["round"]) if "round" in self.initial else instance.round
         )
@@ -238,7 +224,7 @@ class ApplicationForm(forms.ModelForm):
             ) % (round.application_template.url, os.path.basename(round.application_template.name))
             self.fields["file"].help_text = help_text
             summary_fields = [
-                HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
+                # HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
                 Field("file"),
             ]
         else:
@@ -309,22 +295,42 @@ class ApplicationForm(forms.ModelForm):
                     css_id="id-verification",
                 ),
             )
+        if instance.submitted_by and instance.submitted_by == user:
+            tac_text = _(
+                "As authorized lead in this application, I affirm that all information is "
+                "to the best of my knowledge true and correct. "
+                "<br/><br/>I affirm that if successful, I (and my team) will participate in publicity "
+                "and that the content of this application can be use in promotion of the Prizes."
+            )
+            tabs.append(
+                Tab(
+                    _("Terms and Conditions"),
+                    HTML(f'<div class="alert alert-dark" role="alert">{tac_text}</div>'),
+                    Field("is_tac_accepted"),
+                    css_id="tac",
+                ),
+            )
 
         if not instance.is_tac_accepted and instance.submitted_by != user:
             submit_button = HTML(
-                f"""
-            <span class="d-inline-block" tabindex="0"
-                data-toggle="tooltip"
-                title="{_('Your team lead has to accept the Terms and Conditions before the submission of the applicain')}">
-            <input type="submit" name="submit" value="{_('Submit')}" class="btn btn btn-outline-primary" id="submit-id-submit" disabled></span>"""
+                f"""<span class="d-inline-block" tabindex="0"
+    data-toggle="tooltip"
+    title="{_('Your team lead has to accept the Terms and Conditions before the submission of the applicain')}">
+    <input
+        type="submit"
+        name="submit"
+        value="{_('Submit')}"
+        class="btn btn btn-outline-primary"
+        id="submit-id-submit" disabled>
+    </span>"""
             )
         else:
             submit_button = Submit(
                 "submit",
                 _("Submit"),
-                disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
+                # disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
                 data_toggle="tooltip",
-                title=_("Save draft application"),
+                title=_("Submit the application"),
                 css_class="btn btn-outline-primary",
             )
         self.helper.layout = Layout(
@@ -538,7 +544,7 @@ class NominationForm(forms.ModelForm):
             help_text = _(
                 'You can download the nomination form template at <strong><a href="%s">%s</a></strong>'
             ) % (r.nomination_template.url, os.path.basename(r.nomination_template.name))
-            fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            # fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             fields.append(Field("file", label=help_text, help_text=help_text))
             self.fields["file"].help_text = help_text
         else:
@@ -605,7 +611,7 @@ class TestimonyForm(forms.ModelForm):
             help_text = _(
                 'You can download the application review form template at <strong><a href="%s">%s</a></strong>'
             ) % (round.referee_template.url, os.path.basename(round.referee_template.name))
-            fields.insert(0, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            # fields.insert(0, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             self.fields["file"].help_text = help_text
         fields = [
             Fieldset(_("Testimony"), *fields),
@@ -937,7 +943,7 @@ class ScoreSheetForm(forms.ModelForm):
             help_text = _(
                 'You can download the round score sheet template at <strong><a href="%s">%s</a></strong>'
             ) % (r.score_sheet_template.url, os.path.basename(r.score_sheet_template.name))
-            fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            # fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             self.fields["file"].help_text = help_text
 
         self.helper.add_layout(Layout(*fields))
