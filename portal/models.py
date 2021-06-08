@@ -907,23 +907,23 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     budget = PrivateFileField(
         blank=True,
         null=True,
-        verbose_name=_("completed application form"),
+        verbose_name=_("completed application budget spreadsheet"),
         help_text=_("Please upload completed application budget spreadsheet"),
         upload_subfolder=lambda instance: ["budgets", hash_int(instance.round_id)],
         validators=[
             FileExtensionValidator(
                 allowed_extensions=[
-                    ".xls",
-                    ".xlw",
-                    ".xlt",
-                    ".xml",
-                    ".xlsx",
-                    ".xlsm",
-                    ".xltx",
-                    ".xltm",
-                    ".xlsb",
-                    ".csv",
-                    ".ctv",
+                    "xls",
+                    "xlw",
+                    "xlt",
+                    "xml",
+                    "xlsx",
+                    "xlsm",
+                    "xltx",
+                    "xltm",
+                    "xlsb",
+                    "csv",
+                    "ctv",
                 ]
             )
         ],
@@ -1870,14 +1870,6 @@ class Round(Model):
             )
         ],
     )
-    applicant_cv_required = BooleanField(
-        _("Applicant/Team representative CV required"), default=True
-    )
-    nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
-    referee_cv_required = BooleanField(_("Referee CV required"), default=True)
-
-    direct_application_allowed = BooleanField(default=True)
-    can_nominate = BooleanField(default=True)
     budget_template = FileField(
         null=True,
         blank=True,
@@ -1886,22 +1878,30 @@ class Round(Model):
         validators=[
             FileExtensionValidator(
                 allowed_extensions=[
-                    ".xls",
-                    ".xlw",
-                    ".xlt",
-                    ".xml",
-                    ".xlsx",
-                    ".xlsm",
-                    ".xltx",
-                    ".xltm",
-                    ".xlsb",
-                    ".csv",
-                    ".ctv",
+                    "xls",
+                    "xlw",
+                    "xlt",
+                    "xml",
+                    "xlsx",
+                    "xlsm",
+                    "xltx",
+                    "xltm",
+                    "xlsb",
+                    "csv",
+                    "ctv",
                 ]
             )
         ],
     )
     # budget_required = BooleanField(_("Budget required"), default=False)
+    applicant_cv_required = BooleanField(
+        _("Applicant/Team representative CV required"), default=True
+    )
+    nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
+    referee_cv_required = BooleanField(_("Referee CV required"), default=True)
+
+    direct_application_allowed = BooleanField(default=True)
+    can_nominate = BooleanField(default=True)
 
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:

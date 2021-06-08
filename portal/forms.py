@@ -218,6 +218,7 @@ class ApplicationForm(forms.ModelForm):
                     Div("team_name", TableInlineFormset("members"), css_id="members"),
                 ]
             )
+
         if round.application_template:
             help_text = _(
                 'You can download the application form template at <strong><a href="%s">%s</a></strong>'
@@ -231,6 +232,17 @@ class ApplicationForm(forms.ModelForm):
             summary_fields = [
                 Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
             ]
+
+        if round.budget_template and not (
+            instance and instance.submitted_by and instance.submitted_by != user
+        ):
+            help_text = _(
+                'You can download the budget template at <strong><a href="%s">%s</a></strong>'
+            ) % (round.budget_template.url, os.path.basename(round.budget_template.name))
+            # fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            summary_fields.append(Field("budget"))
+            self.fields["budget"].help_text = help_text
+
         if round.scheme.research_summary_required:
             summary_fields.extend(
                 [
