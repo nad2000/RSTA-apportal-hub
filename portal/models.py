@@ -819,7 +819,7 @@ class ApplicationMixin:
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
-    applicant_cv = ForeignKey("CurriculumVitae", null=True, blank=True, on_delete=PROTECT)
+    cv = ForeignKey("CurriculumVitae", editable=True, null=True, blank=True, on_delete=PROTECT)
     application_title = CharField(max_length=200, null=True, blank=True)
 
     round = ForeignKey("Round", on_delete=PROTECT, related_name="applications")
@@ -1659,6 +1659,7 @@ class Testimony(PdfFileMixin, Model):
         null=True,
     )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
+    cv = ForeignKey("CurriculumVitae", editable=True, null=True, blank=True, on_delete=PROTECT)
     state = FSMField(default="new")
 
     @property
@@ -2416,6 +2417,7 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
     application = OneToOneField(
         Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
     )
+    cv = ForeignKey(CurriculumVitae, editable=True, null=True, blank=True, on_delete=PROTECT)
 
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 

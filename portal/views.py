@@ -1082,7 +1082,10 @@ class ApplicationView(LoginRequiredMixin):
                             next_url = self.request.get_full_path()
                             messages.error(
                                 self.request,
-                                _("You need to upload a resume before submitting the application"),
+                                _(
+                                    "To complete the application, you must provide a CV, please add a current CV "
+                                    "to your profile. Otherwise the Prize application cannot be considered."
+                                ),
                             )
                             return redirect(reverse("profile-cvs") + "?next=" + next_url)
                         elif not a.applicant_cv and (
@@ -2086,6 +2089,25 @@ class NominationView(CreateUpdateView):
                 return HttpResponseRedirect(self.request.get_full_path())
 
         if "submit" in self.request.POST:
+
+            if self.round.nominator_cv_required:
+                if (
+                    cv := models.CurriculumVitae.where(owner=self.request.user)
+                    .order_by("-id")
+                    .first()
+                ):
+                    n.cv = cv
+                else:
+                    next_url = self.request.get_full_path()
+                    messages.error(
+                        self.request,
+                        _(
+                            "To complete the nomination, you must provide a CV, please add a current CV "
+                            "to your profile. Otherwise the Prize nomination cannot be considered."
+                        ),
+                    )
+                    return redirect(reverse("profile-cvs") + "?next=" + next_url)
+
             invitation, created = n.submit(request=self.request)
             if created:
                 messages.info(
@@ -2142,6 +2164,7 @@ class TestimonyView(CreateUpdateView):
     def form_valid(self, form):
         reset_cache(self.request)
         t = form.instance
+
         if not t.id:
             a = self.application
             if a:
@@ -2176,6 +2199,25 @@ class TestimonyView(CreateUpdateView):
                     return HttpResponseRedirect(self.request.get_full_path())
 
             if "submit" in self.request.POST:
+
+                if self.application.round.referee_cv_required:
+                    if (
+                        cv := models.CurriculumVitae.where(owner=self.request.user)
+                        .order_by("-id")
+                        .first()
+                    ):
+                        t.cv = cv
+                    else:
+                        next_url = self.request.get_full_path()
+                        messages.error(
+                            self.request,
+                            _(
+                                "To complete the testimony, you must provide a CV, please add a current CV "
+                                "to your profile. Otherwise the Prize application cannot be considered."
+                            ),
+                        )
+                        return redirect(reverse("profile-cvs") + "?next=" + next_url)
+
                 t.submit(request=self.request)
                 t.save()
             elif "save_draft" in self.request.POST:

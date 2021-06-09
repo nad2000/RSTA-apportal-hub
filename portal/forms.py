@@ -380,7 +380,7 @@ class ApplicationForm(forms.ModelForm):
             "round",
             "submitted_by",
             "converted_file",
-            "applicant_cv",
+            "cv",
         ]
         widgets = dict(
             org=autocomplete.ModelSelect2(
@@ -605,6 +605,7 @@ class NominationForm(forms.ModelForm):
             "summary",
             "file",
             # "nominator",
+            "file",
         ]
         widgets = dict(
             org=autocomplete.ModelSelect2(

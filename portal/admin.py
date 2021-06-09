@@ -510,7 +510,6 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
 
 @admin.register(models.Evaluation)
 class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
-
     class ScoreInline(admin.StackedInline):
         extra = 0
         model = models.Score
