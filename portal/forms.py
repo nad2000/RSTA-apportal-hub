@@ -374,7 +374,14 @@ class ApplicationForm(forms.ModelForm):
 
     class Meta:
         model = models.Application
-        exclude = ["organisation", "state", "round", "submitted_by", "converted_file"]
+        exclude = [
+            "organisation",
+            "state",
+            "round",
+            "submitted_by",
+            "converted_file",
+            "applicant_cv",
+        ]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",

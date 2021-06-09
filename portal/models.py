@@ -25,6 +25,7 @@ from django.db import connection
 from django.db.models import (
     CASCADE,
     DO_NOTHING,
+    PROTECT,
     SET_NULL,
     BooleanField,
     Case,
@@ -818,9 +819,10 @@ class ApplicationMixin:
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    applicant_cv = ForeignKey("CurriculumVitae", null=True, blank=True, on_delete=PROTECT)
     application_title = CharField(max_length=200, null=True, blank=True)
 
-    round = ForeignKey("Round", on_delete=DO_NOTHING, related_name="applications")
+    round = ForeignKey("Round", on_delete=PROTECT, related_name="applications")
     # Members of the team must also complete the "Team Members & Signatures" Form.
     is_team_application = BooleanField(default=False)
     team_name = CharField(max_length=200, null=True, blank=True)
@@ -1717,7 +1719,7 @@ FILE_TYPE = Choices("CV")
 #         db_table = "private_file"
 
 
-class CurriculumVitae(Model):
+class CurriculumVitae(PdfFileMixin, Model):
     profile = ForeignKey(Profile, on_delete=CASCADE)
     owner = ForeignKey(User, on_delete=CASCADE)
     title = CharField("title", max_length=200, null=True, blank=True)

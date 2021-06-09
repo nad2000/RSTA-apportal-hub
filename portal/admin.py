@@ -280,6 +280,7 @@ class ApplicationAdmin(
     list_filter = ["round", "state", "created_at", "updated_at"]
     readonly_fields = ["created_at", "updated_at"]
     search_fields = [
+        "number",
         "first_name",
         "last_name",
         "middle_names",

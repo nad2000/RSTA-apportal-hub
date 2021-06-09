@@ -973,6 +973,7 @@ class ApplicationView(LoginRequiredMixin):
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
             has_deleted = False
+
             if self.object.is_team_application:
                 members = context["members"]
                 has_deleted = bool(members.deleted_forms)
@@ -989,6 +990,8 @@ class ApplicationView(LoginRequiredMixin):
                             _("%d invitation(s) to authorize the team representative sent.")
                             % count,
                         )
+                if has_deleted:
+                    return redirect(url)
             if not self.request.user.is_identity_verified and "identity_verification" in context:
                 identity_verification = context["identity_verification"]
                 if identity_verification.is_valid():
@@ -1007,6 +1010,8 @@ class ApplicationView(LoginRequiredMixin):
                         self.request,
                         _("%d referee invitation(s) sent.") % count,
                     )
+                if has_deleted:
+                    return redirect(url)
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(
                     application=form.instance,
@@ -1038,16 +1043,18 @@ class ApplicationView(LoginRequiredMixin):
                     )
                     # url = self.request.path_info.split("?")[0] + "?summary=1"
                     url = self.request.path_info.split("?")[0] + "#summary"
-                    return HttpResponseRedirect(url)
+                    return redirect(url)
 
         if has_deleted:  # keep editing
-            return HttpResponseRedirect(url)
+            return redirect(url)
         else:
+            instance = form.instance
+            user = self.request.user
             a = self.object
             try:
                 if "submit" in self.request.POST:
-                    if not form.instance.is_tac_accepted:
-                        if form.instance.submitted_by == self.request.user:
+                    if not instance.is_tac_accepted:
+                        if instance.submitted_by == user:
                             messages.error(
                                 self.request,
                                 _(
@@ -1056,6 +1063,37 @@ class ApplicationView(LoginRequiredMixin):
                             )
                             url = self.request.path_info.split("?")[0] + "#tac"
                             return HttpResponseRedirect(url)
+                    if self.round.applicant_cv_required:
+                        if (
+                            not instance.submitted_by
+                            or not models.CurriculumVitae.where(
+                                owner=instance.submitted_by
+                            ).exists()
+                        ):
+                            if not instance.submitted_by or instance.submitted_by != user:
+                                messages.error(
+                                    self.request,
+                                    _(
+                                        "Your team lead/representative has to submit a resume "
+                                        "before submitting the application"
+                                    ),
+                                )
+                                return HttpResponseRedirect(self.request.get_full_path())
+                            next_url = self.request.get_full_path()
+                            messages.error(
+                                self.request,
+                                _("You need to upload a resume before submitting the application"),
+                            )
+                            return redirect(reverse("profile-cvs") + "?next=" + next_url)
+                        elif not a.applicant_cv and (
+                            applicant_cv := models.CurriculumVitae.where(
+                                owner=instance.submitted_by
+                            )
+                            .order_by("-id")
+                            .first()
+                        ):
+                            a.applicant_cv = applicant_cv
+
                     a.submit(request=self.request)
                     a.save()
                 elif (
@@ -1821,6 +1859,7 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
 
     model = models.CurriculumVitae
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
+    factory_kwargs = {"exclude": ["converted_file"]}
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -1843,6 +1882,18 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
         defaults = super().get_defaults()
         defaults["owner"] = self.request.user
         return defaults
+
+    def formset_valid(self, formset):
+
+        resp = super().formset_valid(formset)
+        if "next" in self.request.GET:
+            cv = models.CurriculumVitae.where(owner=self.request.user).order_by("-id").first()
+            messages.info(
+                self.request,
+                _('A CV successfully uploaded: <a href="%s">%s</a>') % (cv.file.url, cv.filename),
+            )
+            return redirect(self.request.GET["next"])
+        return resp
 
 
 class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
