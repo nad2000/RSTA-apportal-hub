@@ -183,6 +183,11 @@ class PdfFileMixin:
         if self.converted_file:
             return os.path.basename(self.pdf_file.name)
 
+    @property
+    def is_pdf_content(self):
+        """The content is PDF."""
+        return self.file.name and self.file.name.lower().endswith(".pdf")
+
     def update_converted_file(self):
         """If the attached file is not PDF convert and update the PDF version."""
 
@@ -1729,6 +1734,9 @@ class CurriculumVitae(PdfFileMixin, Model):
     )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
+    def __str__(self):
+        return self.filename
+
     class Meta:
         db_table = "curriculum_vitae"
 
@@ -1995,6 +2003,10 @@ class Round(Model):
 
     def get_absolute_url(self):
         return f"{reverse('applications')}?round={self.id}"
+
+    def user_has_nomination(self, user):
+        """User has a nomination to apply for the round."""
+        return Nomination.where(user=user, state__in=["submitted", "accepted"]).exists()
 
     @property
     def is_open(self):

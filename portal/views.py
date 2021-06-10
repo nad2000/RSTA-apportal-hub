@@ -1088,14 +1088,12 @@ class ApplicationView(LoginRequiredMixin):
                                 ),
                             )
                             return redirect(reverse("profile-cvs") + "?next=" + next_url)
-                        elif not a.applicant_cv and (
-                            applicant_cv := models.CurriculumVitae.where(
-                                owner=instance.submitted_by
-                            )
+                        elif not a.cv and (
+                            cv := models.CurriculumVitae.where(owner=instance.submitted_by)
                             .order_by("-id")
                             .first()
                         ):
-                            a.applicant_cv = applicant_cv
+                            a.cv = cv
 
                     a.submit(request=self.request)
                     a.save()
@@ -1889,13 +1887,28 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
     def formset_valid(self, formset):
 
         resp = super().formset_valid(formset)
-        if "next" in self.request.GET:
+
+        if not formset.deleted_forms:
+
             cv = models.CurriculumVitae.where(owner=self.request.user).order_by("-id").first()
-            messages.info(
-                self.request,
-                _('A CV successfully uploaded: <a href="%s">%s</a>') % (cv.file.url, cv.filename),
-            )
-            return redirect(self.request.GET["next"])
+            if cv and (cf := cv.update_converted_file()):
+                messages.success(
+                    self.request,
+                    _(
+                        "Your CV was converted into PDF file. Please review the converted version <a href='%s'>%s</a>."
+                    )
+                    % (cf.file.url, os.path.basename(cf.file.name)),
+                )
+
+            if "next" in self.request.GET:
+                cv = models.CurriculumVitae.where(owner=self.request.user).order_by("-id").first()
+                messages.info(
+                    self.request,
+                    _('A CV successfully uploaded: <a href="%s">%s</a>')
+                    % (cv.file.url, cv.filename),
+                )
+                return redirect(self.request.GET["next"])
+
         return resp
 
 
@@ -2060,10 +2073,23 @@ class NominationView(CreateUpdateView):
     def form_valid(self, form):
 
         n = form.instance
+        breakpoint()
+
         if not n.id:
             n.nominator = self.request.user
             n.round = self.round
+
         resp = super().form_valid(form)
+
+        # if (
+        #     self.request.user.email == n.email
+        #     or EmailAddress.objects.filter(~Q(email=n.email), user=self.request.user).exists()
+        # ):
+        #     messages.error(
+        #         self.request,
+        #         _("You cannot nominate yourself to apply to this round."),
+        #     )
+        #     return redirect(self.request.get_full_path())
 
         if self.request.method == "POST" and "file" in form.changed_data and n.file:
 
@@ -2086,7 +2112,7 @@ class NominationView(CreateUpdateView):
                         "Please save your nomination form into PDF format and try to upload it again."
                     ),
                 )
-                return HttpResponseRedirect(self.request.get_full_path())
+                return redirect(self.request.get_full_path())
 
         if "submit" in self.request.POST:
 

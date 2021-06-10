@@ -287,6 +287,7 @@ class ApplicationAdmin(
         "email",
         "organisation",
         "org__name",
+        "round__title",
     ]
     summernote_fields = ["summary"]
 
@@ -420,6 +421,7 @@ class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdm
     date_hierarchy = "created_at"
     list_filter = ["created_at", "updated_at", "round", "status"]
     fsm_field = ["status"]
+    search_fields = ["title", "email", "first_name", "last_name", "round__title"]
 
     def view_on_site(self, obj):
         return reverse("nomination-detail", kwargs={"pk": obj.id})
@@ -476,6 +478,7 @@ class SchemeResource(ModelResource):
 class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
     list_display = ["title"]
     resource_class = SchemeResource
+    exclude = ["groups", "cv_required"]
 
     def view_on_site(self, obj):
         if obj.current_round_id:

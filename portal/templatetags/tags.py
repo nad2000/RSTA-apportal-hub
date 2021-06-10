@@ -129,3 +129,8 @@ def video_id(value):
     if rest and (qs := parse_qs(rest[0])) and "v" in qs:
         return qs["v"][0]
     return url.split("/")[-1]
+
+
+@register.filter()
+def user_has_nomination(value, user):
+    return value.user_has_nomination(user)
