@@ -84,39 +84,39 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if testimony_count %}
+    {% if testimonial_count %}
       {% if request.user.is_superuser or request.user.is_staff %}
-        <a href="{% url 'testimonies' %}"> {% trans 'Testimonies' %} </a>
-        <span class="badge badge-primary">{{ testimony_count }}</span>
+        <a href="{% url 'testimonials' %}"> {% trans 'Testimonials' %} </a>
+        <span class="badge badge-primary">{{ testimonial_count }}</span>
       {% endif %}
     {% else %}
-      <span data-toggle="tooltip" title="{% trans 'No testimonies saved or submitted' %}">
-        {% trans 'Testimonies' %}
+      <span data-toggle="tooltip" title="{% trans 'No testimonials saved or submitted' %}">
+        {% trans 'Testimonials' %}
         <span class="badge badge-primary">0</span>
       </span>
     {% endif %}
   </div>
-  {% if category == "testimonies" %}
+  {% if category == "testimonials" %}
     <div class="card-body">
       <ul class="nav nav-pills flex-column">
-        <li class="nav-item" id="testimonies-draft">
+        <li class="nav-item" id="testimonials-draft">
           <a
             class="nav-link"
-            href="{% url 'testimonies-draft' %}"
-            title="{% trans 'Saved testimony drafts' %}"
+            href="{% url 'testimonials-draft' %}"
+            title="{% trans 'Saved testimonial drafts' %}"
             data-toggle="tooltip"
             >{% trans 'Drafts' %}
-            <span class="badge badge-primary">{{ testimony_draft_count }}</span>
+            <span class="badge badge-primary">{{ testimonial_draft_count }}</span>
           </a>
         </li>
         <li class="nav-item">
           <a
             class="nav-link"
-            href="{% url 'testimonies-submitted' %}"
-            title="{% trans 'Submitted and previous testimonies' %}"
+            href="{% url 'testimonials-submitted' %}"
+            title="{% trans 'Submitted and previous testimonials' %}"
             data-toggle="tooltip"
             >{% trans 'Submitted' %}
-            <span class="badge badge-primary">{{ testimony_submitted_count }}</span>
+            <span class="badge badge-primary">{{ testimonial_submitted_count }}</span>
           </a>
         </li>
       </ul>

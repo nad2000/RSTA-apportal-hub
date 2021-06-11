@@ -1,9 +1,11 @@
 import django.core.validators
 import django.db.models.deletion
+import django_fsm
 import private_storage.fields
 import private_storage.storage.files
 from django.db import migrations, models
 
+import common.models
 import portal.models
 
 
@@ -14,6 +16,67 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.CreateModel(
+            name="Testimonial",
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, null=True)),
+                ("updated_at", models.DateTimeField(auto_now=True, null=True)),
+                ("summary", models.TextField(blank=True, null=True)),
+                (
+                    "file",
+                    private_storage.fields.PrivateFileField(
+                        blank=True,
+                        help_text="Please upload your endorsement, testimonial, or feedback",
+                        null=True,
+                        storage=private_storage.storage.files.PrivateFileSystemStorage(),
+                        upload_to="",
+                        verbose_name="endorsement, testimonial, or feedback",
+                    ),
+                ),
+                ("state", django_fsm.FSMField(default="new", max_length=50)),
+                (
+                    "converted_file",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="portal.convertedfile",
+                    ),
+                ),
+                (
+                    "cv",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="portal.curriculumvitae",
+                    ),
+                ),
+                (
+                    "referee",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="testimonial",
+                        to="portal.referee",
+                    ),
+                ),
+            ],
+            options={
+                "db_table": "testimonial",
+            },
+            bases=(portal.models.PdfFileMixin, common.models.HelperMixin, models.Model),
+        ),
+        migrations.RenameField(
+            model_name="scheme",
+            old_name="animal_ethics_required",
+            new_name="ethics_statement_required",
+        ),
         migrations.AddField(
             model_name="application",
             name="budget",
@@ -223,16 +286,6 @@ class Migration(migrations.Migration):
             name="referee_cv_required",
             field=models.BooleanField(default=True, verbose_name="Referee CV required"),
         ),
-        migrations.AddField(
-            model_name="testimony",
-            name="cv",
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.PROTECT,
-                to="portal.curriculumvitae",
-            ),
-        ),
         migrations.AlterField(
             model_name="application",
             name="is_tac_accepted",
@@ -265,5 +318,8 @@ class Migration(migrations.Migration):
             model_name="profile",
             name="is_accepted",
             field=models.BooleanField(default=False, verbose_name="Privacy Policy Accepted"),
+        ),
+        migrations.DeleteModel(
+            name="Testimony",
         ),
     ]

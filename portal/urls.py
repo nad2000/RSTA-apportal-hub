@@ -261,19 +261,19 @@ urlpatterns = [
         ),
     ),
     path(
-        "testimonies/",
+        "testimonials/",
         include(
             [
-                path("<int:pk>/~create", views.TestimonyView.as_view(), name="testimony-create"),
-                path("<int:pk>/~update", views.TestimonyView.as_view(), name="testimony-update"),
-                path("<int:pk>", views.TestimonyDetail.as_view(), name="testimony-detail"),
-                path("draft", views.TestimonyList.as_view(), name="testimonies-draft"),
-                path("submitted", views.TestimonyList.as_view(), name="testimonies-submitted"),
-                path("", views.TestimonyList.as_view(), name="testimonies"),
+                path("<int:pk>/~create", views.TestimonialView.as_view(), name="testimonial-create"),
+                path("<int:pk>/~update", views.TestimonialView.as_view(), name="testimonial-update"),
+                path("<int:pk>", views.TestimonialDetail.as_view(), name="testimonial-detail"),
+                path("draft", views.TestimonialList.as_view(), name="testimonials-draft"),
+                path("submitted", views.TestimonialList.as_view(), name="testimonials-submitted"),
+                path("", views.TestimonialList.as_view(), name="testimonials"),
                 path(
                     "<int:pk>/~export",
-                    views.TestimonyExportView.as_view(),
-                    name="testimony-export",
+                    views.TestimonialExportView.as_view(),
+                    name="testimonial-export",
                 ),
             ]
         ),
@@ -282,9 +282,9 @@ urlpatterns = [
         "reviews/",
         include(
             [
-                path("<int:pk>/~create", views.TestimonyView.as_view(), name="review-create"),
-                path("<int:pk>/~update", views.TestimonyView.as_view(), name="review-update"),
-                path("<int:pk>", views.TestimonyDetail.as_view(), name="review-detail"),
+                path("<int:pk>/~create", views.TestimonialView.as_view(), name="review-create"),
+                path("<int:pk>/~update", views.TestimonialView.as_view(), name="review-update"),
+                path("<int:pk>", views.TestimonialDetail.as_view(), name="review-detail"),
                 path("draft", views.RoundList.as_view(), name="reviews-working"),
                 path("submitted", views.RoundList.as_view(), name="reviews-submitted"),
                 path("", views.RoundList.as_view(), name="reviews"),

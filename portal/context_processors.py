@@ -25,9 +25,9 @@ def portal_context(request):
                 "nomination_submitted_count": models.Nomination.user_nomination_count(
                     u, "submitted"
                 ),
-                "testimony_count": models.Testimony.user_testimony_count(u),
-                "testimony_draft_count": models.Testimony.user_testimony_count(u, "draft"),
-                "testimony_submitted_count": models.Testimony.user_testimony_count(u, "submitted"),
+                "testimonial_count": models.Testimonial.user_testimonial_count(u),
+                "testimonial_draft_count": models.Testimonial.user_testimonial_count(u, "draft"),
+                "testimonial_submitted_count": models.Testimonial.user_testimonial_count(u, "submitted"),
                 "review_count": models.Evaluation.user_evaluation_count(u),
                 "review_draft_count": models.Evaluation.user_evaluation_count(u, "draft"),
                 "review_submitted_count": models.Evaluation.user_evaluation_count(u, "submitted"),
@@ -37,14 +37,14 @@ def portal_context(request):
                     cursor.execute(
                         """
                         SELECT
-                            EXISTS(SELECT 1 FROM referee WHERE user_id=%s) AS has_testimonies,
+                            EXISTS(SELECT 1 FROM referee WHERE user_id=%s) AS has_testimonials,
                             EXISTS(SELECT 1 FROM panellist WHERE user_id=%s) AS has_reviews,
                             EXISTS(SELECT 1 FROM nomination WHERE nominator_id=%s) AS has_nominations;
                             """,
                         [u.id, u.id, u.id],
                     )
                     row = cursor.fetchone()
-                stats["has_testimonies"] = row[0]
+                stats["has_testimonials"] = row[0]
                 stats["has_reviews"] = row[1]
                 stats["has_nominations"] = row[2]
             cache.set(u.username, stats)

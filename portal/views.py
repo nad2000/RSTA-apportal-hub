@@ -194,7 +194,7 @@ class DetailView(LoginRequiredMixin, _DetailView):
         context["exclude"] = ["id", "created_at", "updated_at", "org"]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
         context["update_button_name"] = "Edit"
-        if self.model and self.model in (models.Application, models.Testimony):
+        if self.model and self.model in (models.Application, models.Testimonial):
             context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
 
@@ -302,7 +302,7 @@ def index(request):
     outstanding_invitations = models.Invitation.outstanding_invitations(user)
     if request.user.is_approved:
         outstanding_authorization_requests = models.Member.outstanding_requests(user)
-        outstanding_testimony_requests = models.Referee.outstanding_requests(user)
+        outstanding_testimonial_requests = models.Referee.outstanding_requests(user)
         outstanding_review_requests = models.Panellist.outstanding_requests(user)
         draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
@@ -1012,6 +1012,7 @@ class ApplicationView(LoginRequiredMixin):
                     )
                 if has_deleted:
                     return redirect(url)
+
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(
                     application=form.instance,
@@ -1048,29 +1049,37 @@ class ApplicationView(LoginRequiredMixin):
         if has_deleted:  # keep editing
             return redirect(url)
         else:
-            instance = form.instance
             user = self.request.user
             a = self.object
             try:
+                url = None
                 if "submit" in self.request.POST:
-                    if not instance.is_tac_accepted:
-                        if instance.submitted_by == user:
+
+                    if not a.is_tac_accepted:
+                        if a.submitted_by == user:
                             messages.error(
                                 self.request,
                                 _(
                                     "You have to accept the Terms and Conditions before submitting the application"
                                 ),
                             )
-                            url = self.request.path_info.split("?")[0] + "#tac"
-                            return HttpResponseRedirect(url)
+                            url = url or (self.request.path_info.split("?")[0] + "#tac")
+
+                    if a.round.budget_template and not a.budget:
+                        messages.error(
+                            self.request,
+                            _(
+                                "You have to add a budget spreadsheet before submitting the application"
+                            ),
+                        )
+                        url = url or (self.request.path_info.split("?")[0] + "#summary")
+
                     if self.round.applicant_cv_required:
                         if (
-                            not instance.submitted_by
-                            or not models.CurriculumVitae.where(
-                                owner=instance.submitted_by
-                            ).exists()
+                            not a.submitted_by
+                            or not models.CurriculumVitae.where(owner=a.submitted_by).exists()
                         ):
-                            if not instance.submitted_by or instance.submitted_by != user:
+                            if not a.submitted_by or a.submitted_by != user:
                                 messages.error(
                                     self.request,
                                     _(
@@ -1087,16 +1096,21 @@ class ApplicationView(LoginRequiredMixin):
                                     "to your profile. Otherwise the Prize application cannot be considered."
                                 ),
                             )
-                            return redirect(reverse("profile-cvs") + "?next=" + next_url)
+                            url = url or (reverse("profile-cvs") + "?next=" + next_url)
+
                         elif not a.cv and (
-                            cv := models.CurriculumVitae.where(owner=instance.submitted_by)
+                            cv := models.CurriculumVitae.where(owner=a.submitted_by)
                             .order_by("-id")
                             .first()
                         ):
                             a.cv = cv
 
+                    if url:
+                        return redirect(url)
+
                     a.submit(request=self.request)
                     a.save()
+
                 elif (
                     self.request.method == "POST"
                     or "save_draft" in self.request.POST
@@ -1105,10 +1119,11 @@ class ApplicationView(LoginRequiredMixin):
                     a.save_draft(request=self.request)
                     a.save()
                     if "send_invitations" in self.request.POST:
-                        return HttpResponseRedirect(url)
+                        url = self.request.path_info.split("?")[0] + "#referees"
+                        return redirect(url)
             except Exception as e:
                 messages.error(self.request, str(e))
-                return HttpResponseRedirect(self.request.get_full_path())
+                return redirect(self.request.get_full_path())
 
         return resp
 
@@ -2173,11 +2188,11 @@ class NominationView(CreateUpdateView):
         return context
 
 
-class TestimonyView(CreateUpdateView):
+class TestimonialView(CreateUpdateView):
 
-    model = models.Testimony
-    form_class = forms.TestimonyForm
-    template_name = "testimony.html"
+    model = models.Testimonial
+    form_class = forms.TestimonialForm
+    template_name = "testimonial.html"
 
     @property
     def application(self):
@@ -2208,8 +2223,8 @@ class TestimonyView(CreateUpdateView):
                         messages.success(
                             self.request,
                             _(
-                                "Your testimony form was converted into PDF file. "
-                                "Please review the converted testimony form version <a href='%s'>%s</a>."
+                                "Your testimonial form was converted into PDF file. "
+                                "Please review the converted testimonial form version <a href='%s'>%s</a>."
                             )
                             % (cf.file.url, os.path.basename(cf.file.name)),
                         )
@@ -2218,8 +2233,8 @@ class TestimonyView(CreateUpdateView):
                     messages.error(
                         self.request,
                         _(
-                            "Failed to convert your testimony form into PDF. "
-                            "Please save your testimony form into PDF format and try to upload it again."
+                            "Failed to convert your testimonial form into PDF. "
+                            "Please save your testimonial form into PDF format and try to upload it again."
                         ),
                     )
                     return HttpResponseRedirect(self.request.get_full_path())
@@ -2238,7 +2253,7 @@ class TestimonyView(CreateUpdateView):
                         messages.error(
                             self.request,
                             _(
-                                "To complete the testimony, you must provide a CV, please add a current CV "
+                                "To complete the testimonial, you must provide a CV, please add a current CV "
                                 "to your profile. Otherwise the Prize application cannot be considered."
                             ),
                         )
@@ -2255,8 +2270,8 @@ class TestimonyView(CreateUpdateView):
                 t.referee.save()
                 self.model.where(id=t.id).delete()
                 send_mail(
-                    _("A Referee opted out of Testimony"),
-                    _("Your Referee %s has opted out of Testimony") % t.referee,
+                    _("A Referee opted out of Testimonial"),
+                    _("Your Referee %s has opted out of Testimonial") % t.referee,
                     settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[
                         t.referee.application.submitted_by.email
@@ -2269,22 +2284,22 @@ class TestimonyView(CreateUpdateView):
                 )
                 messages.info(
                     self.request,
-                    _("You opted out of Testimony."),
+                    _("You opted out of Testimonial."),
                 )
-                return HttpResponseRedirect(reverse("testimonies"))
+                return HttpResponseRedirect(reverse("testimonials"))
         else:
             messages.warning(
                 self.request,
-                _("Testimony is already submitted."),
+                _("Testimonial is already submitted."),
             )
-        return HttpResponseRedirect(reverse("testimony-detail", kwargs=dict(pk=t.id)))
+        return HttpResponseRedirect(reverse("testimonial-detail", kwargs=dict(pk=t.id)))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,
-                _("Please submit testimony."),
+                _("Please submit testimonial."),
             )
         return context
 
@@ -2366,11 +2381,11 @@ class NominationDetail(DetailView):
         return context
 
 
-class TestimonyList(LoginRequiredMixin, SingleTableView):
+class TestimonialList(LoginRequiredMixin, SingleTableView):
 
-    model = models.Testimony
-    table_class = tables.TestimonyTable
-    template_name = "testimonies.html"
+    model = models.Testimonial
+    table_class = tables.TestimonialTable
+    template_name = "testimonials.html"
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -2389,10 +2404,10 @@ class TestimonyList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
-class TestimonyDetail(DetailView):
+class TestimonialDetail(DetailView):
 
-    model = models.Testimony
-    template_name = "testimony_detail.html"
+    model = models.Testimonial
+    template_name = "testimonial_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2401,13 +2416,13 @@ class TestimonyDetail(DetailView):
             context["extra_object"] = referee.application
         if self.get_object().state == "new":
             context["update_view_name"] = f"{self.model.__name__.lower()}-create"
-            context["update_button_name"] = _("Add Testimony")
+            context["update_button_name"] = _("Add Testimonial")
         else:
-            context["update_button_name"] = _("Edit Testimony")
+            context["update_button_name"] = _("Edit Testimonial")
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,
-                _("Please Check the application details and submit testimony."),
+                _("Please Check the application details and submit testimonial."),
             )
         return context
 
@@ -2480,8 +2495,8 @@ class ApplicationExportView(ExportView):
     def get_objects(self, pk):
         app = self.model.get(id=pk)
         objects = [app]
-        testimonies = app.get_testimonies()
-        objects.extend(testimonies)
+        testimonials = app.get_testimonials()
+        objects.extend(testimonials)
         return objects
 
     def get_attachments(self, pk):
@@ -2489,8 +2504,8 @@ class ApplicationExportView(ExportView):
         app = self.model.get(id=pk)
         if app.file:
             attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.file))
-        testimonies = app.get_testimonies()
-        for t in testimonies:
+        testimonials = app.get_testimonials()
+        for t in testimonials:
             if t.file:
                 attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file))
 
@@ -2577,15 +2592,15 @@ class RoundExportView(ExportView):
         #     return redirect(self.request.META.get("HTTP_REFERER"))
 
 
-class TestimonyExportView(ExportView, TestimonyDetail):
-    """Testimony PDF export view"""
+class TestimonialExportView(ExportView, TestimonialDetail):
+    """Testimonial PDF export view"""
 
-    model = models.Testimony
+    model = models.Testimonial
 
     def get_attachments(self, pk):
-        testimony = self.model.get(id=pk)
-        if testimony.file:
-            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimony.file)]
+        testimonial = self.model.get(id=pk)
+        if testimonial.file:
+            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.file)]
         return []
 
 
@@ -3384,5 +3399,5 @@ def application_summary(request, number, lang=None):
 def application_exported_view(request, number, lang=None):
     number = vignere.decode(number)
     a = get_object_or_404(models.Application, number=number)
-    objects = [a, *a.get_testimonies()]
+    objects = [a, *a.get_testimonials()]
     return render(request, "application-export.html", locals())

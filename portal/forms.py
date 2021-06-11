@@ -293,10 +293,10 @@ class ApplicationForm(forms.ModelForm):
                     css_id="id-verification",
                 ),
             )
-        if round.scheme.animal_ethics_required:
+        if round.scheme.ethics_statement_required:
             tabs.append(
                 Tab(
-                    _("Animal Ethics"),
+                    _("Ethics"),
                     Field(
                         "photo_identity",
                         data_toggle="tooltip",
@@ -616,7 +616,7 @@ class NominationForm(forms.ModelForm):
         )
 
 
-class TestimonyForm(forms.ModelForm):
+class TestimonialForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -634,7 +634,7 @@ class TestimonyForm(forms.ModelForm):
             # fields.insert(0, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             self.fields["file"].help_text = help_text
         fields = [
-            Fieldset(_("Testimony"), *fields),
+            Fieldset(_("Testimonial"), *fields),
         ]
 
         self.helper.layout = Layout(
@@ -645,7 +645,7 @@ class TestimonyForm(forms.ModelForm):
                     _("Save"),
                     css_class="btn btn-primary",
                     data_toggle="tooltip",
-                    title=_("Save draft testimony"),
+                    title=_("Save draft testimonial"),
                 ),
                 Submit(
                     "submit",
@@ -666,7 +666,7 @@ class TestimonyForm(forms.ModelForm):
         )
 
     class Meta:
-        model = models.Testimony
+        model = models.Testimonial
         fields = [
             "summary",
             "file",

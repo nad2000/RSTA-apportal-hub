@@ -450,8 +450,8 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
     inlines = [StateLogInline]
 
 
-@admin.register(models.Testimony)
-class TestimonyAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
+@admin.register(models.Testimonial)
+class TestimonialAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
 
     summernote_fields = ["summary"]
     list_display = ["referee", "application", "state"]

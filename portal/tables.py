@@ -74,15 +74,15 @@ class NominationTable(tables.Table):
         )
 
 
-class TestimonyTable(tables.Table):
+class TestimonialTable(tables.Table):
 
     round = tables.Column(
         accessor="referee.application.round",
-        linkify=lambda record: reverse("testimony-detail", kwargs=dict(pk=record.id)),
+        linkify=lambda record: reverse("testimonial-detail", kwargs=dict(pk=record.id)),
     )
 
     class Meta:
-        model = models.Testimony
+        model = models.Testimonial
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
         fields = (

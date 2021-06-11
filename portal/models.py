@@ -980,6 +980,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     )
     def submit(self, *args, **kwargs):
         request = kwargs.get("request")
+        if self.round.budget_template and not self.budget:
+            raise Exception(
+                _("You have to add a budget spreadsheet before submitting the application")
+            )
         if not self.is_tac_accepted:
             if request and request.user:
                 if self.submitted_by == request.user:
@@ -1125,18 +1129,18 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def user_draft_applications(cls, user):
         return cls.user_applications(user, ["draft", "new"])
 
-    def get_testimonies(self, has_testifed=None):
+    def get_testimonials(self, has_testifed=None):
         sql = (
             "SELECT DISTINCT tm.* FROM referee AS r "
             "JOIN application AS app "
             "  ON app.id = r.application_id "
-            "LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
+            "LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
             "WHERE (r.application_id=%s OR app.id=%s)"
         )
         if has_testifed:
             sql += " AND r.has_testified IS NOT NULL"
 
-        return Testimony.objects.raw(sql, [self.id, self.id])
+        return Testimonial.objects.raw(sql, [self.id, self.id])
 
     def to_pdf(self, request=None):
         """Create PDF file for export and return PdfFileMerger"""
@@ -1150,10 +1154,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             )
         attachments.extend(
             (
-                _("Testimony Form Submitted By %s") % t.referee.full_name,
+                _("Testimonial Form Submitted By %s") % t.referee.full_name,
                 settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
             )
-            for t in self.get_testimonies()
+            for t in self.get_testimonials()
             if t.file and t.referee
         )
 
@@ -1293,8 +1297,8 @@ class Referee(RefereeMixin, PersonMixin, Model):
     @classmethod
     def outstanding_requests(cls, user):
         return Invitation.objects.raw(
-            "SELECT DISTINCT r.*, tm.id AS testimony_id FROM referee AS r JOIN account_emailaddress AS ae ON "
-            "ae.email = r.email LEFT JOIN testimony AS tm ON r.id = tm.referee_id "
+            "SELECT DISTINCT r.*, tm.id AS testimonial_id FROM referee AS r JOIN account_emailaddress AS ae ON "
+            "ae.email = r.email LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
             "WHERE (r.user_id=%s OR ae.user_id=%s) AND status NOT IN ('testified', 'opted_out')",
             [user.id, user.id],
         )
@@ -1567,7 +1571,7 @@ class Invitation(Model):
             r.status = Referee.STATUS.accepted
             r.save()
             if self.status != self.STATUS.accepted:
-                t = Testimony.objects.create(referee=r)
+                t = Testimonial.objects.create(referee=r)
                 t.save()
                 referee_group, created = Group.objects.get_or_create(name="REFEREE")
                 by.groups.add(referee_group)
@@ -1651,15 +1655,15 @@ class Invitation(Model):
         db_table = "invitation"
 
 
-class Testimony(PdfFileMixin, Model):
-    """A Testimony/endorsement/feedback given by a referee."""
+class Testimonial(PdfFileMixin, Model):
+    """A Testimonial/endorsement/feedback given by a referee."""
 
-    referee = OneToOneField(Referee, related_name="testimony", on_delete=CASCADE)
+    referee = OneToOneField(Referee, related_name="testimonial", on_delete=CASCADE)
     summary = TextField(blank=True, null=True)
     file = PrivateFileField(
-        verbose_name=_("endorsement, testimony, or feedback"),
-        help_text=_("Please upload your endorsement, testimony, or feedback"),
-        upload_subfolder=lambda instance: ["testimonies", hash_int(instance.referee_id)],
+        verbose_name=_("endorsement, testimonial, or feedback"),
+        help_text=_("Please upload your endorsement, testimonial, or feedback"),
+        upload_subfolder=lambda instance: ["testimonials", hash_int(instance.referee_id)],
         blank=True,
         null=True,
     )
@@ -1683,7 +1687,7 @@ class Testimony(PdfFileMixin, Model):
         self.referee.save()
 
     @classmethod
-    def user_testimonies(cls, user, state=None, round=None):
+    def user_testimonials(cls, user, state=None, round=None):
         q = cls.objects.all()
         if not (user.is_staff and user.is_superuser):
             q = q.filter(referee__user=user)
@@ -1695,18 +1699,18 @@ class Testimony(PdfFileMixin, Model):
         return q
 
     @classmethod
-    def user_testimony_count(cls, user, state=None, round=None):
-        return cls.user_testimonies(user, state=state, round=round).count()
+    def user_testimonial_count(cls, user, state=None, round=None):
+        return cls.user_testimonials(user, state=state, round=round).count()
 
     def __str__(self):
         if self.referee_id:
-            return _("Testimony By Referee {0} For Application {1}").format(
+            return _("Testimonial By Referee {0} For Application {1}").format(
                 self.referee, self.referee.application
             )
         return self.file.name if self.file else gettext("N/A")
 
     class Meta:
-        db_table = "testimony"
+        db_table = "testimonial"
 
 
 FILE_TYPE = Choices("CV")
@@ -1761,7 +1765,7 @@ class Scheme(Model):
     presentation_required = BooleanField(default=False)
     cv_required = BooleanField(_("CVs required"), default=True)
     pid_required = BooleanField(_("photo ID required"), default=True)
-    animal_ethics_required = BooleanField(default=False)
+    ethics_statement_required = BooleanField(default=False)
     # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
     code = CharField(max_length=10, blank=True, default="")
 
