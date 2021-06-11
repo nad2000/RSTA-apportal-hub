@@ -1055,25 +1055,6 @@ class ApplicationView(LoginRequiredMixin):
                 url = None
                 if "submit" in self.request.POST:
 
-                    if not a.is_tac_accepted:
-                        if a.submitted_by == user:
-                            messages.error(
-                                self.request,
-                                _(
-                                    "You have to accept the Terms and Conditions before submitting the application"
-                                ),
-                            )
-                            url = url or (self.request.path_info.split("?")[0] + "#tac")
-
-                    if a.round.budget_template and not a.budget:
-                        messages.error(
-                            self.request,
-                            _(
-                                "You have to add a budget spreadsheet before submitting the application"
-                            ),
-                        )
-                        url = url or (self.request.path_info.split("?")[0] + "#summary")
-
                     if self.round.applicant_cv_required:
                         if (
                             not a.submitted_by
@@ -1096,7 +1077,8 @@ class ApplicationView(LoginRequiredMixin):
                                     "to your profile. Otherwise the Prize application cannot be considered."
                                 ),
                             )
-                            url = url or (reverse("profile-cvs") + "?next=" + next_url)
+                            url = reverse("profile-cvs") + "?next=" + next_url
+                            return redirect(url)
 
                         elif not a.cv and (
                             cv := models.CurriculumVitae.where(owner=a.submitted_by)
@@ -1104,6 +1086,25 @@ class ApplicationView(LoginRequiredMixin):
                             .first()
                         ):
                             a.cv = cv
+
+                    if not a.is_tac_accepted:
+                        if a.submitted_by == user:
+                            messages.error(
+                                self.request,
+                                _(
+                                    "You have to accept the Terms and Conditions before submitting the application"
+                                ),
+                            )
+                            url = url or (self.request.path_info.split("?")[0] + "#tac")
+
+                    if a.round.budget_template and not a.budget:
+                        messages.error(
+                            self.request,
+                            _(
+                                "You have to add a budget spreadsheet before submitting the application"
+                            ),
+                        )
+                        url = url or (self.request.path_info.split("?")[0] + "#summary")
 
                     if url:
                         return redirect(url)
