@@ -2419,12 +2419,12 @@ class SchemeApplication(Model):
 
 NOMINATION_STATUS = Choices(
     (None, None),
-    ("new", _("new")),
-    ("draft", _("draft")),
-    ("sent", _("sent")),
-    ("submitted", _("submitted")),
     ("accepted", _("accepted")),
     ("bounced", _("bounced")),
+    ("draft", _("draft")),
+    ("new", _("new")),
+    ("sent", _("sent")),
+    ("submitted", _("submitted")),
 )
 
 

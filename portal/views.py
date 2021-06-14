@@ -2504,11 +2504,16 @@ class ApplicationExportView(ExportView):
         attachments = []
         app = self.model.get(id=pk)
         if app.file:
-            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.file))
+            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.pdf_file))
+        if app.cv and app.cv.file:
+            attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(app.cv.pdf_file))
+
         testimonials = app.get_testimonials()
         for t in testimonials:
             if t.file:
-                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.file))
+                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file))
+            if t.cv and t.cv.file:
+                attachments.append(settings.PRIVATE_STORAGE_ROOT + "/" + str(t.cv.pdf_file))
 
         return attachments
 
@@ -2601,7 +2606,7 @@ class TestimonialExportView(ExportView, TestimonialDetail):
     def get_attachments(self, pk):
         testimonial = self.model.get(id=pk)
         if testimonial.file:
-            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.file)]
+            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.pdf_file)]
         return []
 
 
