@@ -72,10 +72,60 @@ class Migration(migrations.Migration):
             },
             bases=(portal.models.PdfFileMixin, common.models.HelperMixin, models.Model),
         ),
-        migrations.RenameField(
+        migrations.RemoveField(
+            model_name="testimony",
+            name="converted_file",
+        ),
+        migrations.RemoveField(
+            model_name="testimony",
+            name="referee",
+        ),
+        migrations.DeleteModel(
+            name="SchemeApplicationGroup",
+        ),
+        migrations.RemoveField(
             model_name="scheme",
-            old_name="animal_ethics_required",
-            new_name="ethics_statement_required",
+            name="animal_ethics_required",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="cv_required",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="description",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="description_en",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="description_mi",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="groups",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="guidelines",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="pid_required",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="presentation_required",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="research_summary_required",
+        ),
+        migrations.RemoveField(
+            model_name="scheme",
+            name="team_can_apply",
         ),
         migrations.AddField(
             model_name="application",
@@ -209,8 +259,41 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="historicalround",
+            name="description",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="description_en",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="description_mi",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
             name="direct_application_allowed",
             field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="ethics_statement_required",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="guidelines",
+            field=models.CharField(
+                blank=True, max_length=120, null=True, verbose_name="guideline link URL"
+            ),
         ),
         migrations.AddField(
             model_name="historicalround",
@@ -219,8 +302,28 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="historicalround",
+            name="pid_required",
+            field=models.BooleanField(default=True, verbose_name="photo ID required"),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="presentation_required",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
             name="referee_cv_required",
             field=models.BooleanField(default=True, verbose_name="Referee CV required"),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="research_summary_required",
+            field=models.BooleanField(default=False, verbose_name="research summary required"),
+        ),
+        migrations.AddField(
+            model_name="historicalround",
+            name="team_can_apply",
+            field=models.BooleanField(default=False, verbose_name="can be submitted by a team"),
         ),
         migrations.AddField(
             model_name="nomination",
@@ -273,8 +376,41 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="round",
+            name="description",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="description_en",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="description_mi",
+            field=models.TextField(
+                blank=True, max_length=1000, null=True, verbose_name="short description"
+            ),
+        ),
+        migrations.AddField(
+            model_name="round",
             name="direct_application_allowed",
             field=models.BooleanField(default=True),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="ethics_statement_required",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="guidelines",
+            field=models.CharField(
+                blank=True, max_length=120, null=True, verbose_name="guideline link URL"
+            ),
         ),
         migrations.AddField(
             model_name="round",
@@ -283,8 +419,28 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="round",
+            name="pid_required",
+            field=models.BooleanField(default=True, verbose_name="photo ID required"),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="presentation_required",
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name="round",
             name="referee_cv_required",
             field=models.BooleanField(default=True, verbose_name="Referee CV required"),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="research_summary_required",
+            field=models.BooleanField(default=False, verbose_name="research summary required"),
+        ),
+        migrations.AddField(
+            model_name="round",
+            name="team_can_apply",
+            field=models.BooleanField(default=False, verbose_name="can be submitted by a team"),
         ),
         migrations.AlterField(
             model_name="application",

@@ -11,7 +11,6 @@ from urllib.parse import urljoin, urlparse
 import simple_history
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.files.base import File
@@ -1573,8 +1572,8 @@ class Invitation(Model):
             if self.status != self.STATUS.accepted:
                 t = Testimonial.objects.create(referee=r)
                 t.save()
-                referee_group, created = Group.objects.get_or_create(name="REFEREE")
-                by.groups.add(referee_group)
+                # referee_group, created = Group.objects.get_or_create(name="REFEREE")
+                # by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
             p.status = PANELLIST_STATUS.accepted
@@ -1755,20 +1754,10 @@ def default_scheme_code(title):
 
 class Scheme(Model):
     title = CharField(max_length=100)
-    groups = ManyToManyField(
-        Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
-    )
-    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
-    description = TextField(_("short description"), max_length=1000, null=True, blank=True)
-    research_summary_required = BooleanField(_("research summary required"), default=False)
-    team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
-    presentation_required = BooleanField(default=False)
-    cv_required = BooleanField(_("CVs required"), default=True)
-    pid_required = BooleanField(_("photo ID required"), default=True)
-    ethics_statement_required = BooleanField(default=False)
-    # number_or_endorsements = PositiveSmallIntegerField(_("number or endorsements"), null=True, blank=True)
+    # groups = ManyToManyField(
+    #     Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
+    # )
     code = CharField(max_length=10, blank=True, default="")
-
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
@@ -1793,6 +1782,41 @@ class Scheme(Model):
     def can_be_nominated_to(self):
         return self.can_be_started_by("NOMINATOR")
 
+    @property
+    def guidelines(self):
+        if self.current_round:
+            return self.current_round.guidelines
+
+    @property
+    def description(self):
+        if self.current_round:
+            return self.current_round.description
+
+    @property
+    def research_summary_required(self):
+        if self.current_round:
+            return self.current_round.research_summary_required
+
+    @property
+    def team_can_apply(self):
+        if self.current_round:
+            return self.current_round.team_can_apply
+
+    @property
+    def presentation_required(self):
+        if self.current_round:
+            return self.current_round.presentation_required
+
+    @property
+    def pid_required(self):
+        if self.current_round:
+            return self.current_round.pid_required
+
+    @property
+    def ethics_statement_required(self):
+        if self.current_round:
+            return self.current_round.ethics_statement_required
+
     class Meta:
         db_table = "scheme"
 
@@ -1808,6 +1832,26 @@ class Round(Model):
     scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds")
     opens_on = DateField(null=True, blank=True)
     closes_on = DateField(null=True, blank=True)
+
+    guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
+    description = TextField(_("short description"), max_length=1000, null=True, blank=True)
+
+    research_summary_required = BooleanField(_("research summary required"), default=False)
+    team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
+    presentation_required = BooleanField(default=False)
+    # cv_required = BooleanField(_("CVs required"), default=True)
+    pid_required = BooleanField(_("photo ID required"), default=True)
+    ethics_statement_required = BooleanField(default=False)
+    # budget_required = BooleanField(_("Budget required"), default=False)
+    applicant_cv_required = BooleanField(
+        _("Applicant/Team representative CV required"), default=True
+    )
+    nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
+    referee_cv_required = BooleanField(_("Referee CV required"), default=True)
+
+    direct_application_allowed = BooleanField(default=True)
+    can_nominate = BooleanField(default=True)
+
     has_online_scoring = BooleanField(default=True)
     score_sheet_template = FileField(
         null=True,
@@ -1908,15 +1952,6 @@ class Round(Model):
             )
         ],
     )
-    # budget_required = BooleanField(_("Budget required"), default=False)
-    applicant_cv_required = BooleanField(
-        _("Applicant/Team representative CV required"), default=True
-    )
-    nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
-    referee_cv_required = BooleanField(_("Referee CV required"), default=True)
-
-    direct_application_allowed = BooleanField(default=True)
-    can_nominate = BooleanField(default=True)
 
     def clean(self):
         if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
@@ -1957,10 +1992,18 @@ class Round(Model):
 
             for f in [
                 "applicant_cv_required",
-                "nominator_cv_required",
-                "referee_cv_required",
-                "direct_application_allowed",
                 "can_nominate",
+                "description_en",
+                "description_mi",
+                "direct_application_allowed",
+                "ethics_statement_required",
+                "guidelines",
+                "nominator_cv_required",
+                "pid_required",
+                "presentation_required",
+                "referee_cv_required",
+                "research_summary_required",
+                "team_can_apply",
                 # "budget_required",
             ]:
                 if f not in kwargs:
@@ -2253,15 +2296,15 @@ class Score(Model):
         db_table = "score"
 
 
-class SchemeApplicationGroup(Base):
-    scheme = ForeignKey(
-        "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"
-    )
-    group = ForeignKey(Group, on_delete=CASCADE, related_name="+")
+# class SchemeApplicationGroup(Base):
+#     scheme = ForeignKey(
+#         "SchemeApplication", on_delete=CASCADE, db_column="scheme_id", related_name="+"
+#     )
+#     group = ForeignKey(Group, on_delete=CASCADE, related_name="+")
 
-    class Meta:
-        managed = False
-        db_table = "scheme_group"
+#     class Meta:
+#         managed = False
+#         db_table = "scheme_group"
 
 
 class SchemeApplication(Model):

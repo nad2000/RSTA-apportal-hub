@@ -8,13 +8,16 @@ from . import models
 class SchemeTranslationOptions(TranslationOptions):
     fields = (
         "title",
-        "description",
+        # "description",
     )
 
 
 @register(models.Round)
 class RoundTranslationOptions(TranslationOptions):
-    fields = ("title",)
+    fields = (
+        "title",
+        "description",
+    )
 
 
 simple_history.register(models.Round, inherit=True, table_name="round_history")
