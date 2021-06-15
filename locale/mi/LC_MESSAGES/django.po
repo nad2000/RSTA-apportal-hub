@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-08 19:09+1200\n"
+"POT-Creation-Date: 2021-06-16 11:38+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr ""
 msgid "Portal Administration"
 msgstr ""
 
-#: portal/admin.py:188 portal/models.py:1375
+#: portal/admin.py:188 portal/models.py:1209 portal/models.py:1402
 #: portal/templates/portal/conflictofinterest_list.html:141
 #: portal/templates/portal/evaluation_form.html:28
 #: portal/templates/round_scores.html:106
@@ -98,16 +98,10 @@ msgid ""
 msgstr ""
 
 #: portal/forms.py:299
-msgid "Animal Ethics"
+msgid "Ethics"
 msgstr ""
 
-#: portal/forms.py:304
-msgid ""
-"Please upload a scanned copy of the ethics approval in PDF, JPG, or PNG "
-"format"
-msgstr ""
-
-#: portal/forms.py:312
+#: portal/forms.py:316
 msgid ""
 "As authorized lead in this application, I affirm that all information is to "
 "the best of my knowledge true and correct. <br/><br/>I affirm that if "
@@ -115,141 +109,141 @@ msgid ""
 "content of this application can be use in promotion of the Prizes."
 msgstr ""
 
-#: portal/forms.py:319
+#: portal/forms.py:323
 msgid "Terms and Conditions"
 msgstr ""
 
-#: portal/forms.py:342 portal/forms.py:578 portal/forms.py:644
-#: portal/forms.py:791 portal/templates/portal/evaluation_form.html:55
+#: portal/forms.py:346 portal/forms.py:590 portal/forms.py:657
+#: portal/forms.py:804 portal/templates/portal/evaluation_form.html:55
 msgid "Submit"
 msgstr ""
 
-#: portal/forms.py:345
+#: portal/forms.py:349
 msgid "Submit the application"
 msgstr ""
 
-#: portal/forms.py:353 portal/forms.py:524 portal/forms.py:530
-#: portal/forms.py:571 portal/forms.py:637
+#: portal/forms.py:357 portal/forms.py:536 portal/forms.py:542
+#: portal/forms.py:583 portal/forms.py:650
 #: portal/templates/application.html:137
 #: portal/templates/portal/conflictofinterest_list.html:191
 #: portal/templates/profile_protection_patterns.html:63
 msgid "Save"
 msgstr ""
 
-#: portal/forms.py:356
+#: portal/forms.py:360
 msgid "Save draft application"
 msgstr ""
 
-#: portal/forms.py:368 portal/forms.py:531 portal/forms.py:714
-#: portal/forms.py:762 portal/templates/portal/conflictofinterest_list.html:193
+#: portal/forms.py:372 portal/forms.py:543 portal/forms.py:727
+#: portal/forms.py:775 portal/templates/portal/conflictofinterest_list.html:193
 #: portal/templates/portal/evaluation_form.html:58
 #: portal/templates/profile_form.html:32
 msgid "Cancel"
 msgstr ""
 
-#: portal/forms.py:381 portal/forms.py:605
+#: portal/forms.py:392 portal/forms.py:618
 msgid "Choose an organisation or create a new one ..."
 msgstr ""
 
-#: portal/forms.py:500 portal/templates/portal/conflictofinterest_list.html:38
+#: portal/forms.py:512 portal/templates/portal/conflictofinterest_list.html:38
 msgid "Previous"
 msgstr ""
 
-#: portal/forms.py:506
+#: portal/forms.py:518
 msgid "Complete"
 msgstr ""
 
-#: portal/forms.py:508
+#: portal/forms.py:520
 msgid "Skip the rest of the profile sections and complete the profile now"
 msgstr ""
 
-#: portal/forms.py:516 portal/templates/portal/conflictofinterest_list.html:55
+#: portal/forms.py:528 portal/templates/portal/conflictofinterest_list.html:55
 #: portal/templates/profile_form.html:25
 msgid "Next"
 msgstr ""
 
-#: portal/forms.py:524
+#: portal/forms.py:536
 msgid "Finish and Save"
 msgstr ""
 
-#: portal/forms.py:543
+#: portal/forms.py:555
 msgid "Nominee"
 msgstr ""
 
-#: portal/forms.py:557
+#: portal/forms.py:569
 #, python-format
 msgid ""
 "You can download the nomination form template at <strong><a href=\"%s\">%s</"
 "a></strong>"
 msgstr ""
 
-#: portal/forms.py:574
+#: portal/forms.py:586
 msgid "Save draft nomination"
 msgstr ""
 
-#: portal/forms.py:583 portal/forms.py:654 portal/forms.py:796
+#: portal/forms.py:595 portal/forms.py:667 portal/forms.py:809
 #: portal/templates/index.html:24
 msgid "Close"
 msgstr ""
 
-#: portal/forms.py:624
+#: portal/forms.py:637
 #, python-format
 msgid ""
 "You can download the application review form template at <strong><a href=\"%s"
 "\">%s</a></strong>"
 msgstr ""
 
-#: portal/forms.py:629
-msgid "Testimony"
+#: portal/forms.py:642
+msgid "Testimonial"
 msgstr ""
 
-#: portal/forms.py:640
-msgid "Save draft testimony"
+#: portal/forms.py:653
+msgid "Save draft testimonial"
 msgstr ""
 
-#: portal/forms.py:649
+#: portal/forms.py:662
 msgid "I do not wish to provide a testimonial"
 msgstr ""
 
-#: portal/forms.py:697
+#: portal/forms.py:710
 msgid "Accept"
 msgstr ""
 
-#: portal/forms.py:702
+#: portal/forms.py:715
 msgid "Request resubmission"
 msgstr ""
 
-#: portal/forms.py:721
+#: portal/forms.py:734
 msgid "Please add a comment if you request a resubmission"
 msgstr ""
 
-#: portal/forms.py:758 portal/templates/index.html:209
+#: portal/forms.py:771 portal/templates/index.html:214
 msgid "Invite"
 msgstr ""
 
-#: portal/forms.py:767 portal/forms.py:903
+#: portal/forms.py:780 portal/forms.py:916
 msgid "Conflict of Interest"
 msgstr ""
 
-#: portal/forms.py:779 portal/tables.py:217 portal/tables.py:240
+#: portal/forms.py:792 portal/tables.py:217 portal/tables.py:240
 #: portal/tables.py:243 portal/templates/portal/conflictofinterest_list.html:67
 #: portal/templates/portal/conflictofinterest_list.html:175
-#: portal/views.py:2806
+#: portal/views.py:2963
 msgid "No"
 msgstr ""
 
-#: portal/forms.py:780 portal/tables.py:216 portal/tables.py:240
+#: portal/forms.py:793 portal/tables.py:216 portal/tables.py:240
 #: portal/tables.py:243 portal/templates/portal/conflictofinterest_list.html:69
 #: portal/templates/portal/conflictofinterest_list.html:177
-#: portal/views.py:2805
+#: portal/views.py:2962
 msgid "Yes"
 msgstr ""
 
-#: portal/forms.py:951
+#: portal/forms.py:964
 msgid "Upload the Score Sheet"
 msgstr ""
 
-#: portal/forms.py:956
+#: portal/forms.py:969
 #, python-format
 msgid ""
 "You can download the round score sheet template at <strong><a href=\"%s\">"
@@ -384,287 +378,299 @@ msgstr ""
 msgid "Not Stated"
 msgstr ""
 
-#: portal/models.py:209 portal/views.py:1035
+#: portal/models.py:214 portal/views.py:1048
 msgid ""
 "Failed to convert your application form into PDF. Please save your "
 "application form into PDF format and try to upload it again."
 msgstr ""
 
-#: portal/models.py:365 portal/models.py:381
+#: portal/models.py:370 portal/models.py:386
 msgid "description"
 msgstr "whakaahuatanga"
 
-#: portal/models.py:380
+#: portal/models.py:385
 msgid "code"
 msgstr "waehere"
 
-#: portal/models.py:421
+#: portal/models.py:426
 #, python-format
 msgid ""
 "Invalid ORCID iD %(value)s. It should be in the form of 'xxxx-xxxx-xxxx-"
 "xxxx' where x is a digit."
 msgstr ""
 
-#: portal/models.py:432
+#: portal/models.py:437
 #, python-format
 msgid ""
 "Invalid ORCID iD %(value)s checksum. Make sure you have entered correct "
 "ORCID iD."
 msgstr ""
 
-#: portal/models.py:460
+#: portal/models.py:465
 #, python-format
 msgid "ISNI value %(value)s should be at least 16 characters long."
 msgstr ""
 
-#: portal/models.py:467
+#: portal/models.py:472
 #, python-format
 msgid ""
 "ISNI value %(value)s pattern in not valid. It should contain digits or 'X' "
 "as the final character."
 msgstr ""
 
-#: portal/models.py:474
+#: portal/models.py:479
 #, python-format
 msgid "ISNI value %(value)s checksum does not match the given control value."
 msgstr ""
 
-#: portal/models.py:489
+#: portal/models.py:494
 #, fuzzy
 #| msgid "organisation"
 msgid "organisation identifier type"
 msgstr "tōpūtanga"
 
-#: portal/models.py:498
+#: portal/models.py:503
 msgid "the New Zealand Qualifications Framework Qualification level"
 msgstr ""
 
-#: portal/models.py:562
+#: portal/models.py:567
 #, python-format
 msgid "Date of birth cannot be in the future: %(value)s"
 msgstr ""
 
-#: portal/models.py:753
+#: portal/models.py:758
 msgid "prestigious prize or medal"
 msgstr ""
 
-#: portal/models.py:764
+#: portal/models.py:769
 msgid "year of recognition"
 msgstr ""
 
-#: portal/models.py:765
+#: portal/models.py:770
 msgid "award"
 msgstr ""
 
-#: portal/models.py:766
+#: portal/models.py:771
 msgid "awarded by"
 msgstr ""
 
-#: portal/models.py:768
+#: portal/models.py:773
 #, fuzzy
 #| msgid "Account"
 msgid "amount"
 msgstr "Pūkete Kaiwhakamahi"
 
-#: portal/models.py:770 portal/templates/profile_summary.html:137
+#: portal/models.py:775 portal/templates/profile_summary.html:137
 msgid "Currency code"
 msgstr ""
 
-#: portal/models.py:786 portal/models.py:832 portal/models.py:1211
-#: portal/models.py:1269 portal/models.py:1326 portal/models.py:1412
-#: portal/models.py:2384 users/models.py:25
+#: portal/models.py:791 portal/models.py:838 portal/models.py:1238
+#: portal/models.py:1296 portal/models.py:1353 portal/models.py:1439
+#: portal/models.py:2463 users/models.py:25
 msgid "middle names"
 msgstr ""
 
-#: portal/models.py:790 portal/models.py:836 portal/models.py:1215
-#: portal/models.py:1273 portal/models.py:1330 portal/models.py:1416
-#: portal/models.py:2388 users/models.py:29
+#: portal/models.py:795 portal/models.py:842 portal/models.py:1242
+#: portal/models.py:1300 portal/models.py:1357 portal/models.py:1443
+#: portal/models.py:2467 users/models.py:29
 msgid "Comma separated list of middle names"
 msgstr ""
 
-#: portal/models.py:806 portal/models.py:2143 portal/models.py:2360
+#: portal/models.py:811 portal/models.py:2222 portal/models.py:2442
 msgid "new"
 msgstr ""
 
-#: portal/models.py:807 portal/models.py:2144 portal/models.py:2361
+#: portal/models.py:812 portal/models.py:2223 portal/models.py:2441
 msgid "draft"
 msgstr ""
 
-#: portal/models.py:808
+#: portal/models.py:813
 msgid "TAC accepted"
 msgstr ""
 
-#: portal/models.py:809 portal/models.py:2145 portal/models.py:2363
+#: portal/models.py:814 portal/models.py:2224 portal/models.py:2444
 msgid "submitted"
 msgstr ""
 
-#: portal/models.py:852
+#: portal/models.py:858
 msgid "daytime phone number"
 msgstr ""
 
-#: portal/models.py:853
+#: portal/models.py:859
 msgid "mobile phone number"
 msgstr ""
 
-#: portal/models.py:854 portal/models.py:1409 portal/models.py:2381
+#: portal/models.py:860 portal/models.py:1436 portal/models.py:2460
 #, fuzzy
 #| msgid "E-mail Addresses"
 msgid "email address"
 msgstr "Wāhitau mera"
 
-#: portal/models.py:860
+#: portal/models.py:866
 msgid "completed application form"
 msgstr ""
 
-#: portal/models.py:861
+#: portal/models.py:867
 msgid "Please upload completed application form"
 msgstr ""
 
-#: portal/models.py:884 portal/models.py:2506
+#: portal/models.py:890 portal/models.py:2586
 #: portal/templates/application_detail.html:189
 msgid "Photo Identity"
 msgstr ""
 
-#: portal/models.py:886
+#: portal/models.py:892
 msgid ""
 "Please upload a scanned copy of your passport or drivers license in PDF, "
 "JPG, or PNG format"
 msgstr ""
 
-#: portal/models.py:893
+#: portal/models.py:899
 msgid "Presentation URL"
 msgstr ""
 
-#: portal/models.py:894
+#: portal/models.py:900
 msgid "Please enter the URL where your presentation video can be viewed"
 msgstr ""
 
-#: portal/models.py:898
+#: portal/models.py:904
 msgid "I have read and accept Terms and Conditions"
 msgstr ""
 
-#: portal/models.py:910
+#: portal/models.py:916
 msgid "completed application budget spreadsheet"
 msgstr ""
 
-#: portal/models.py:911
+#: portal/models.py:917
 msgid "Please upload completed application budget spreadsheet"
 msgstr ""
 
-#: portal/models.py:981 portal/views.py:1054
+#: portal/models.py:984 portal/views.py:1109
+msgid "You have to add a budget spreadsheet before submitting the application"
+msgstr ""
+
+#: portal/models.py:991 portal/views.py:1100
 msgid ""
 "You have to accept the Terms and Conditions before submitting the application"
 msgstr ""
 
-#: portal/models.py:987
+#: portal/models.py:997
 msgid ""
 "Your team lead has to accept the Terms and Conditions before submitting the "
 "application"
 msgstr ""
 
-#: portal/models.py:994 portal/models.py:2183
+#: portal/models.py:1004 portal/models.py:2262
 msgid ""
 "The application is not completed. Missing summary and/or uploaded "
 "application form"
 msgstr ""
 
-#: portal/models.py:1003
+#: portal/models.py:1013
 msgid ""
 "Your identity has not been verified. Please upload a copy of your photo "
 "identity"
 msgstr ""
 
-#: portal/models.py:1010
+#: portal/models.py:1020
 msgid ""
 "Not all nominated referees have responded. Please contact your referees or "
 "modify the list of your referees"
 msgstr ""
 
-#: portal/models.py:1017
+#: portal/models.py:1027
 msgid ""
 "Not all team members have responded and given their consent. Please contact "
 "your team members or modify the list of the team members"
 msgstr ""
 
-#: portal/models.py:1142
+#: portal/models.py:1152
 msgid "Application Form"
 msgstr ""
 
-#: portal/models.py:1146
+#: portal/models.py:1156
 #, python-format
-msgid "Testimony Form Submitted By %s"
+msgid "Testimonial Form Submitted By %s"
 msgstr ""
 
-#: portal/models.py:1190 portal/models.py:1248 portal/models.py:1306
-#: portal/models.py:2362
-msgid "sent"
+#: portal/models.py:1202
+msgid "ethics statement"
 msgstr ""
 
-#: portal/models.py:1191 portal/models.py:1249 portal/models.py:1307
-#: portal/models.py:2146 portal/models.py:2364
+#: portal/models.py:1203
+msgid "Please upload human or animal ethics statement."
+msgstr ""
+
+#: portal/models.py:1217 portal/models.py:1276 portal/models.py:1334
+#: portal/models.py:2225 portal/models.py:2439
 msgid "accepted"
 msgstr ""
 
-#: portal/models.py:1192
+#: portal/models.py:1218
 msgid "authorized"
 msgstr ""
 
-#: portal/models.py:1193 portal/models.py:1251
-msgid "opted out"
-msgstr ""
-
-#: portal/models.py:1194 portal/models.py:1252 portal/models.py:1308
-#: portal/models.py:2365
+#: portal/models.py:1219 portal/models.py:1279 portal/models.py:1335
+#: portal/models.py:2440
 msgid "bounced"
 msgstr ""
 
-#: portal/models.py:1250
+#: portal/models.py:1220 portal/models.py:1278
+msgid "opted out"
+msgstr ""
+
+#: portal/models.py:1221 portal/models.py:1275 portal/models.py:1333
+#: portal/models.py:2443
+msgid "sent"
+msgstr ""
+
+#: portal/models.py:1277
 #, fuzzy
 #| msgid "Verified"
 msgid "testified"
 msgstr "Kua manatoko"
 
-#: portal/models.py:1379
+#: portal/models.py:1406
 #, python-format
 msgid "Statement of Conflict of Interest of %s"
 msgstr ""
 
-#: portal/models.py:1394
+#: portal/models.py:1421
 msgid "apply"
 msgstr ""
 
-#: portal/models.py:1395
+#: portal/models.py:1422
 msgid "join"
 msgstr ""
 
-#: portal/models.py:1396
+#: portal/models.py:1423
 msgid "testify"
 msgstr ""
 
-#: portal/models.py:1397
+#: portal/models.py:1424
 msgid "authorize"
 msgstr ""
 
-#: portal/models.py:1398
+#: portal/models.py:1425
 msgid "panellist"
 msgstr ""
 
-#: portal/models.py:1477
+#: portal/models.py:1504
 msgid "You are invited to authorize your team representative"
 msgstr ""
 
-#: portal/models.py:1480
+#: portal/models.py:1507
 #, python-format
 msgid ""
 "You are invited to authorize your team representative. Please follow the "
 "link: %s"
 msgstr ""
 
-#: portal/models.py:1485
+#: portal/models.py:1512
 msgid "You are invited to testify an application"
 msgstr ""
 
-#: portal/models.py:1487
+#: portal/models.py:1514
 #, python-format
 msgid ""
 "You are invited to provide a testimonial for %(inviter)s's application to "
@@ -672,230 +678,222 @@ msgid ""
 "%(url)s"
 msgstr ""
 
-#: portal/models.py:1492
+#: portal/models.py:1519
 #, python-format
 msgid "You were nominated for %s"
 msgstr ""
 
-#: portal/models.py:1494
+#: portal/models.py:1521
 #, python-format
 msgid ""
 "You were nominated for %(round)s by %(inviter)s. To accept please follow the "
 "link: %(url)s"
 msgstr ""
 
-#: portal/models.py:1501
+#: portal/models.py:1528
 msgid "You are invited to be a Panellist"
 msgstr ""
 
-#: portal/models.py:1502
+#: portal/models.py:1529
 #, python-format
 msgid "You are invited to as a panellist. Please follow the link: %s"
 msgstr ""
 
-#: portal/models.py:1504
+#: portal/models.py:1531
 msgid "You are invited to join the PM Science Prize portal"
 msgstr ""
 
-#: portal/models.py:1507
+#: portal/models.py:1534
 #, python-format
 msgid ""
 "You are invited to join the PM Science Prize portal. Please follow the link: "
 "%s"
 msgstr ""
 
-#: portal/models.py:1589
+#: portal/models.py:1616
 #, python-format
 msgid ""
 "We are sorry to have to inform you that your invitation message could not be "
 "delivered to %s."
 msgstr ""
 
-#: portal/models.py:1617
+#: portal/models.py:1644
 #, python-format
 msgid "Please correct the email address to resend the invitation: %s"
 msgstr ""
 
-#: portal/models.py:1622
+#: portal/models.py:1649
 msgid "Your Invitation Undelivered"
 msgstr ""
 
-#: portal/models.py:1653
-msgid "endorsement, testimony, or feedback"
+#: portal/models.py:1680
+msgid "endorsement, testimonial, or feedback"
 msgstr ""
 
-#: portal/models.py:1654
-msgid "Please upload your endorsement, testimony, or feedback"
+#: portal/models.py:1681
+msgid "Please upload your endorsement, testimonial, or feedback"
 msgstr ""
 
-#: portal/models.py:1695
+#: portal/models.py:1723
 #, python-brace-format
-msgid "Testimony By Referee {0} For Application {1}"
+msgid "Testimonial By Referee {0} For Application {1}"
 msgstr ""
 
-#: portal/models.py:1698 portal/tables.py:214
+#: portal/models.py:1726 portal/tables.py:214
 #: portal/templates/application_detail.html:171
 #: portal/templates/application_detail.html:193 portal/templates/detail.html:28
 #: portal/templatetags/tags.py:28
 msgid "N/A"
 msgstr ""
 
-#: portal/models.py:1744
-msgid "who starts the application"
-msgstr ""
-
-#: portal/models.py:1746
+#: portal/models.py:1853
 msgid "guideline link URL"
 msgstr ""
 
-#: portal/models.py:1747
+#: portal/models.py:1854
 #, fuzzy
 #| msgid "description"
 msgid "short description"
 msgstr "whakaahuatanga"
 
-#: portal/models.py:1748
+#: portal/models.py:1856
 msgid "research summary required"
 msgstr ""
 
-#: portal/models.py:1749
+#: portal/models.py:1857
 msgid "can be submitted by a team"
 msgstr ""
 
-#: portal/models.py:1751
-msgid "CVs required"
-msgstr ""
-
-#: portal/models.py:1752
+#: portal/models.py:1860
 msgid "photo ID required"
 msgstr ""
 
-#: portal/models.py:1801
+#: portal/models.py:1864
+msgid "Applicant/Team representative CV required"
+msgstr ""
+
+#: portal/models.py:1866
+msgid "Nominator CV required"
+msgstr ""
+
+#: portal/models.py:1867
+msgid "Referee CV required"
+msgstr ""
+
+#: portal/models.py:1877
 msgid "Score Sheet Template"
 msgstr ""
 
-#: portal/models.py:1808
+#: portal/models.py:1884
 #, fuzzy
 #| msgid "organisation"
 msgid "Nomination Template"
 msgstr "tōpūtanga"
 
-#: portal/models.py:1831
+#: portal/models.py:1907
 msgid "Application Template"
 msgstr ""
 
-#: portal/models.py:1854
+#: portal/models.py:1930
 msgid "Referee Template"
 msgstr ""
 
-#: portal/models.py:1877
+#: portal/models.py:1953
 msgid "Budget Template"
 msgstr ""
 
-#: portal/models.py:1898
-msgid "Applicant/Team representative CV required"
-msgstr ""
-
-#: portal/models.py:1900
-msgid "Nominator CV required"
-msgstr ""
-
-#: portal/models.py:1901
-msgid "Referee CV required"
-msgstr ""
-
-#: portal/models.py:1908
+#: portal/models.py:1975
 msgid "the round cannot close before it opens."
 msgstr ""
 
-#: portal/models.py:2126
+#: portal/models.py:2205
 msgid "The panelist should comment their score"
 msgstr ""
 
-#: portal/models.py:2133
+#: portal/models.py:2212
 msgid "criteria"
 msgstr ""
 
-#: portal/models.py:2162 portal/templates/round_scores.html:101
-#: portal/views.py:2926 portal/views.py:3180
+#: portal/models.py:2241 portal/templates/round_scores.html:101
+#: portal/views.py:3083 portal/views.py:3337
 msgid "Overall Comment"
 msgstr ""
 
-#: portal/models.py:2164 portal/templates/round_scores.html:160
+#: portal/models.py:2243 portal/templates/round_scores.html:160
 msgid "Total Score"
 msgstr ""
 
-#: portal/models.py:2213
+#: portal/models.py:2292
 #, python-format
 msgid "Evaluation of %s by %s"
 msgstr ""
 
-#: portal/models.py:2227 portal/templates/portal/evaluation_form.html:27
+#: portal/models.py:2306 portal/templates/portal/evaluation_form.html:27
 msgid "Score"
 msgstr ""
 
-#: portal/models.py:2381
+#: portal/models.py:2460
 #, fuzzy
 #| msgid "Email address or username"
 msgid "Email address of the nominee"
 msgstr "Wāhitau īmēra ingoa kaiwhakamahi ranei"
 
-#: portal/models.py:2396 portal/views.py:779
+#: portal/models.py:2475 portal/views.py:779
 msgid "organisation"
 msgstr "tōpūtanga"
 
-#: portal/models.py:2397
+#: portal/models.py:2476
 #, fuzzy
 #| msgid "organisation"
 msgid "Organisation of the nominee"
 msgstr "tōpūtanga"
 
-#: portal/models.py:2406
+#: portal/models.py:2485
 msgid "Nominator form"
 msgstr ""
 
-#: portal/models.py:2407
+#: portal/models.py:2486
 msgid "Upload filled-in nominator form"
 msgstr ""
 
-#: portal/models.py:2489
+#: portal/models.py:2569
 #, python-format
 msgid "Nomination for \"%s\""
 msgstr ""
 
-#: portal/models.py:2527
+#: portal/models.py:2607
 #, fuzzy
 #| msgid "Re-send Identity Verification"
 msgid "User Identity Verification"
 msgstr "Tukuna he whakamana"
 
-#: portal/models.py:2529
+#: portal/models.py:2609
 #, python-format
 msgid ""
 "User %(user)s submitted a photo identity for verification. Please review the "
 "ID here: %(url)s"
 msgstr ""
 
-#: portal/models.py:2549
+#: portal/models.py:2629
 msgid "Your ID verification requires your attention"
 msgstr ""
 
-#: portal/models.py:2550
+#: portal/models.py:2630
 #, python-format
 msgid "Please resubmit a new copy of your ID: %s"
 msgstr ""
 
-#: portal/models.py:2563
+#: portal/models.py:2643
 #, fuzzy, python-format
 #| msgid "Re-send Verification"
 msgid "Identity Verification of \"%s\""
 msgstr "Tukuna he whakamana"
 
-#: portal/models.py:2608
+#: portal/models.py:2688
 msgid "Score Sheet"
 msgstr ""
 
-#: portal/models.py:2609
+#: portal/models.py:2689
 msgid "Upload filled-in for all the applications in bulk"
 msgstr ""
 
@@ -1339,9 +1337,9 @@ msgid "Do you want to close the form without saving it?"
 msgstr ""
 
 #: portal/templates/application_detail.html:24 portal/templates/index.html:144
-#: portal/templates/index.html:188 portal/templates/round_scores.html:99
-#: portal/templates/round_scores.html:158 portal/views.py:3178
-#: portal/views.py:3192
+#: portal/templates/index.html:193 portal/templates/round_scores.html:99
+#: portal/templates/round_scores.html:158 portal/views.py:3335
+#: portal/views.py:3349
 msgid "Application"
 msgstr ""
 
@@ -1358,7 +1356,7 @@ msgid "Submitted By"
 msgstr ""
 
 #: portal/templates/application_detail.html:78 portal/templates/index.html:15
-#: portal/templates/index.html:202
+#: portal/templates/index.html:207
 msgid "Round"
 msgstr ""
 
@@ -1649,7 +1647,7 @@ msgstr ""
 msgid "More"
 msgstr ""
 
-#: portal/templates/index.html:125 portal/templates/index.html:195
+#: portal/templates/index.html:125 portal/templates/index.html:200
 msgid "Show"
 msgstr ""
 
@@ -1665,7 +1663,7 @@ msgstr ""
 msgid "You are a panellist of this round and cannot apply for it"
 msgstr ""
 
-#: portal/templates/index.html:155 portal/templates/index.html:175
+#: portal/templates/index.html:155 portal/templates/index.html:179
 msgid "The application will be open on"
 msgstr ""
 
@@ -1673,60 +1671,64 @@ msgstr ""
 msgid "You have already submited one application in this round"
 msgstr ""
 
-#: portal/templates/index.html:162
+#: portal/templates/index.html:163
+msgid "You need to be nominated in order to apply for the application"
+msgstr ""
+
+#: portal/templates/index.html:165
 msgid "Start a new application"
 msgstr ""
 
-#: portal/templates/index.html:167 portal/templates/index.html:182
+#: portal/templates/index.html:170 portal/templates/index.html:186
 #: portal/templates/pages/home.html:27
 msgid "Apply"
 msgstr ""
 
-#: portal/templates/index.html:167
+#: portal/templates/index.html:170
 msgid "Now"
 msgstr ""
 
-#: portal/templates/index.html:177
+#: portal/templates/index.html:181
 msgid "The application period closed on"
 msgstr ""
 
-#: portal/templates/index.html:182
+#: portal/templates/index.html:186
 msgid "Nominate to"
 msgstr ""
 
-#: portal/templates/index.html:188 portal/templates/index.html:190
+#: portal/templates/index.html:193 portal/templates/index.html:195
 msgid "Review"
 msgstr ""
 
-#: portal/templates/index.html:190 portal/templates/index.html:195
+#: portal/templates/index.html:195 portal/templates/index.html:200
 #: portal/templates/portal/conflictofinterest_list.html:139
 #: portal/templates/sidebar.html:9 portal/templates/sidebar.html:12
 msgid "Applications"
 msgstr ""
 
-#: portal/templates/index.html:202 portal/templates/profile.html:93
+#: portal/templates/index.html:207 portal/templates/profile.html:93
 #: portal/templates/profile_detail.html:92
 msgid "Edit"
 msgstr ""
 
-#: portal/templates/index.html:210
+#: portal/templates/index.html:215
 msgid "Panellist"
 msgstr ""
 
-#: portal/templates/index.html:217
+#: portal/templates/index.html:222
 msgid "Conflicts of"
 msgstr ""
 
-#: portal/templates/index.html:218
+#: portal/templates/index.html:223
 msgid "Interest"
 msgstr ""
 
-#: portal/templates/index.html:225
+#: portal/templates/index.html:230
 msgid "Scheme has no round available to apply for"
 msgstr ""
 
 #: portal/templates/nomination_detail.html:10
-#: portal/templates/testimony_detail.html:10
+#: portal/templates/testimonial_detail.html:10
 msgid "Start Applying"
 msgstr ""
 
@@ -1880,7 +1882,7 @@ msgid "The user has accepted your invitation"
 msgstr ""
 
 #: portal/templates/portal/widgets/invitation_status.html:12
-msgid "The referee has submitted a testimony"
+msgid "The referee has submitted a testimonial"
 msgstr ""
 
 #: portal/templates/portal/widgets/invitation_status.html:15
@@ -2113,14 +2115,14 @@ msgid "Approve"
 msgstr ""
 
 #: portal/templates/round_scores.html:75 portal/templates/round_scores.html:79
-#: portal/templates/round_scores.html:102 portal/views.py:2927
-#: portal/views.py:3181 portal/views.py:3192
+#: portal/templates/round_scores.html:102 portal/views.py:3084
+#: portal/views.py:3338 portal/views.py:3349
 msgid "Total"
 msgstr ""
 
 #: portal/templates/round_scores.html:100
-#: portal/templates/round_scores.html:159 portal/views.py:2925
-#: portal/views.py:3179 portal/views.py:3192
+#: portal/templates/round_scores.html:159 portal/views.py:3082
+#: portal/views.py:3336 portal/views.py:3349
 msgid "Lead"
 msgstr ""
 
@@ -2191,19 +2193,19 @@ msgid "Submitted and previous nominations"
 msgstr ""
 
 #: portal/templates/sidebar.html:89 portal/templates/sidebar.html:94
-msgid "Testimonies"
+msgid "Testimonials"
 msgstr ""
 
 #: portal/templates/sidebar.html:93
-msgid "No testimonies saved or submitted"
+msgid "No testimonials saved or submitted"
 msgstr ""
 
 #: portal/templates/sidebar.html:106
-msgid "Saved testimony drafts"
+msgid "Saved testimonial drafts"
 msgstr ""
 
 #: portal/templates/sidebar.html:116
-msgid "Submitted and previous testimonies"
+msgid "Submitted and previous testimonials"
 msgstr ""
 
 #: portal/templates/sidebar.html:132 portal/templates/sidebar.html:138
@@ -2385,7 +2387,7 @@ msgstr ""
 msgid "Please complete your profile."
 msgstr ""
 
-#: portal/views.py:520 portal/views.py:1544
+#: portal/views.py:520 portal/views.py:1617
 msgid ""
 "In order to import ORCID profile, please, link your ORCID account to your "
 "portal account."
@@ -2420,169 +2422,205 @@ msgstr ""
 msgid "Please review the application and authorize your team representative."
 msgstr ""
 
-#: portal/views.py:989
+#: portal/views.py:992
 #, python-format
 msgid "%d invitation(s) to authorize the team representative sent."
 msgstr ""
 
-#: portal/views.py:1008
+#: portal/views.py:1013
 #, python-format
 msgid "%d referee invitation(s) sent."
 msgstr ""
 
-#: portal/views.py:1025
+#: portal/views.py:1038
 #, python-format
 msgid ""
 "Your application form was converted into PDF file. Please review the "
 "converted application form version <a href='%s'>%s</a>."
 msgstr ""
 
-#: portal/views.py:1177
+#: portal/views.py:1072
+msgid ""
+"Your team lead/representative has to submit a resume before submitting the "
+"application"
+msgstr ""
+
+#: portal/views.py:1081
+msgid ""
+"To complete the application, you must provide a CV, please add a current CV "
+"to your profile. Otherwise the Prize application cannot be considered."
+msgstr ""
+
+#: portal/views.py:1250
 #, python-format
 msgid "You are a panellist for this round. You cannot apply for this round: %s"
 msgstr ""
 
-#: portal/views.py:1190
+#: portal/views.py:1263
 msgid "You have already created an application. Please update it."
 msgstr ""
 
-#: portal/views.py:1345
+#: portal/views.py:1418
 msgid "Application Filter"
 msgstr ""
 
-#: portal/views.py:1537
+#: portal/views.py:1610
 #, python-format
 msgid " %s ORCID records imported"
 msgstr ""
 
-#: portal/views.py:1620
+#: portal/views.py:1693
 #, python-format
 msgid "Record deleted: %s"
 msgstr ""
 
-#: portal/views.py:1625
+#: portal/views.py:1698
 #, python-format
 msgid "%d records deleted"
 msgstr ""
 
-#: portal/views.py:1917
+#: portal/views.py:1932
+#, python-format
+msgid ""
+"Your CV was converted into PDF file. Please review the converted version <a "
+"href='%s'>%s</a>."
+msgstr ""
+
+#: portal/views.py:1941
+#, python-format
+msgid "A CV successfully uploaded: <a href=\"%s\">%s</a>"
+msgstr ""
+
+#: portal/views.py:2018
 msgid "Import from ORCiD"
 msgstr ""
 
-#: portal/views.py:1987
+#: portal/views.py:2088
 msgid ""
 "No Profile summary found or User haven't completed his/her Profile. Please "
 "come back again!"
 msgstr ""
 
-#: portal/views.py:2021
+#: portal/views.py:2134
 #, python-format
 msgid ""
 "Your nomination form was converted into PDF file. Please review the "
 "converted nomination form version <a href='%s'>%s</a>."
 msgstr ""
 
-#: portal/views.py:2031
+#: portal/views.py:2144
 msgid ""
 "Failed to convert your nomination form into PDF. Please save your nomination "
 "form into PDF format and try to upload it again."
 msgstr ""
 
-#: portal/views.py:2042
+#: portal/views.py:2164
+msgid ""
+"To complete the nomination, you must provide a CV, please add a current CV "
+"to your profile. Otherwise the Prize nomination cannot be considered."
+msgstr ""
+
+#: portal/views.py:2174
 #, python-format
 msgid "Invitation to submit an application sent to %s."
 msgstr ""
 
-#: portal/views.py:2111
+#: portal/views.py:2244
 #, python-format
 msgid ""
-"Your testimony form was converted into PDF file. Please review the converted "
-"testimony form version <a href='%s'>%s</a>."
+"Your testimonial form was converted into PDF file. Please review the "
+"converted testimonial form version <a href='%s'>%s</a>."
 msgstr ""
 
-#: portal/views.py:2121
+#: portal/views.py:2254
 msgid ""
-"Failed to convert your testimony form into PDF. Please save your testimony "
-"form into PDF format and try to upload it again."
+"Failed to convert your testimonial form into PDF. Please save your "
+"testimonial form into PDF format and try to upload it again."
 msgstr ""
 
-#: portal/views.py:2139
-msgid "A Referee opted out of Testimony"
+#: portal/views.py:2274
+msgid ""
+"To complete the testimonial, you must provide a CV, please add a current CV "
+"to your profile. Otherwise the Prize application cannot be considered."
 msgstr ""
 
-#: portal/views.py:2140
+#: portal/views.py:2291
+msgid "A Referee opted out of Testimonial"
+msgstr ""
+
+#: portal/views.py:2292
 #, python-format
-msgid "Your Referee %s has opted out of Testimony"
+msgid "Your Referee %s has opted out of Testimonial"
 msgstr ""
 
-#: portal/views.py:2153
-msgid "You opted out of Testimony."
+#: portal/views.py:2305
+msgid "You opted out of Testimonial."
 msgstr ""
 
-#: portal/views.py:2159
-msgid "Testimony is already submitted."
+#: portal/views.py:2311
+msgid "Testimonial is already submitted."
 msgstr ""
 
-#: portal/views.py:2168
-msgid "Please submit testimony."
+#: portal/views.py:2320
+msgid "Please submit testimonial."
 msgstr ""
 
-#: portal/views.py:2207
+#: portal/views.py:2359
 #, python-format
 msgid "You have been invited by %(inviter)s to apply for %(round)s"
 msgstr ""
 
-#: portal/views.py:2285
-msgid "Add Testimony"
+#: portal/views.py:2437
+msgid "Add Testimonial"
 msgstr ""
 
-#: portal/views.py:2287
-msgid "Edit Testimony"
+#: portal/views.py:2439
+msgid "Edit Testimonial"
 msgstr ""
 
-#: portal/views.py:2291
-msgid "Please Check the application details and submit testimony."
+#: portal/views.py:2443
+msgid "Please Check the application details and submit testimonial."
 msgstr ""
 
-#: portal/views.py:2332
+#: portal/views.py:2484
 #, python-brace-format
 msgid "Error while converting to pdf. Please contact Administrator: {ex}"
 msgstr ""
 
-#: portal/views.py:2341 portal/views.py:2408
+#: portal/views.py:2493 portal/views.py:2565
 msgid "Only the round panellist and staff can export the application"
 msgstr ""
 
-#: portal/views.py:2498
+#: portal/views.py:2655
 #, python-format
 msgid "%d invitation(s) to panellist sent."
 msgstr ""
 
-#: portal/views.py:2589 portal/views.py:2613
+#: portal/views.py:2746 portal/views.py:2770
 msgid "You have conflict of interest for this application."
 msgstr ""
 
-#: portal/views.py:2726
+#: portal/views.py:2883
 msgid "Evaluation scoring was already created"
 msgstr ""
 
-#: portal/views.py:2746
+#: portal/views.py:2903
 msgid ""
 "Evaluation has been already submitted. It cannot be changed after it was "
 "submitted"
 msgstr ""
 
-#: portal/views.py:2924
+#: portal/views.py:3081
 msgid "Proposal/Application"
 msgstr ""
 
-#: portal/views.py:3055
+#: portal/views.py:3212
 msgid ""
 "You have not yet submitted all statements of the conflict of interests. "
 "Please submit the statements for all the applcation submitted in the round."
 msgstr ""
 
-#: portal/views.py:3192
+#: portal/views.py:3349
 msgid "Total Scores"
 msgstr ""
 
