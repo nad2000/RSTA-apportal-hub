@@ -973,17 +973,19 @@ class ApplicationView(LoginRequiredMixin):
             form.instance.organisation = form.instance.org.name
             resp = super().form_valid(form)
             has_deleted = False
+            user = self.request.user
+            a = self.object
 
-            if self.object.is_team_application:
+            if a.is_team_application:
                 members = context["members"]
                 has_deleted = bool(members.deleted_forms)
                 if has_deleted:
                     # url = self.request.path_info + "?members=1"
                     url = self.request.path_info.split("?")[0] + "#application"
                 if members.is_valid():
-                    members.instance = self.object
+                    members.instance = a
                     members.save()
-                    count = invite_team_members(self.request, self.object)
+                    count = invite_team_members(self.request, a)
                     if count > 0:
                         messages.success(
                             self.request,
@@ -998,13 +1000,13 @@ class ApplicationView(LoginRequiredMixin):
                     identity_verification.save()
 
             if referees.is_valid():
-                referees.instance = self.object
+                referees.instance = a
                 has_deleted = bool(has_deleted or referees.deleted_forms)
                 if has_deleted or "send_invitations" in self.request.POST:
                     # url = self.request.path_info.split("?")[0] + "?referees=1"
                     url = self.request.path_info.split("?")[0] + "#referees"
                 referees.save()
-                count = invite_referee(self.request, self.object)
+                count = invite_referee(self.request, a)
                 if count > 0:
                     messages.success(
                         self.request,
@@ -1021,6 +1023,11 @@ class ApplicationView(LoginRequiredMixin):
                 )
                 iv.send(self.request)
                 iv.save()
+
+            if ethics_statement_form := context.get("ethics_statement"):
+                ethics_statement_form.instance.application = a
+                if ethics_statement_form.is_valid():
+                    ethics_statement_form.save()
 
             if "file" in form.changed_data and form.instance.file:
                 try:
@@ -1049,8 +1056,6 @@ class ApplicationView(LoginRequiredMixin):
         if has_deleted:  # keep editing
             return redirect(url)
         else:
-            user = self.request.user
-            a = self.object
             try:
                 url = None
                 if "submit" in self.request.POST:
@@ -1133,6 +1138,19 @@ class ApplicationView(LoginRequiredMixin):
         latest_application = (
             models.Application.where(submitted_by=self.request.user).order_by("-id").first()
         )
+        if self.round.ethics_statement_required:
+            EthicsStatementForm = model_forms.modelform_factory(
+                models.EthicsStatement, exclude=["application"]
+            )
+            context["ethics_statement"] = EthicsStatementForm(
+                self.request.POST or None,
+                instance=self.object.ethics_statement
+                if self.object
+                and self.object.id
+                and models.EthicsStatement.where(application=self.object).exists()
+                else None,
+            )
+
         if self.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
             if self.request.POST:
@@ -2089,7 +2107,6 @@ class NominationView(CreateUpdateView):
     def form_valid(self, form):
 
         n = form.instance
-        breakpoint()
 
         if not n.id:
             n.nominator = self.request.user

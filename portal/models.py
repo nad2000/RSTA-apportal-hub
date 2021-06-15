@@ -77,17 +77,17 @@ AFFILIATION_TYPES = Choices(
 )
 
 ETHNICITIES = Choices(
-    "European",
-    "Maori",
     "Chinese",
-    "Indian",
-    "Samoan",
-    "Tongan",
     "Cook Islands Maori",
     "English",
+    "European",
     "Filipino",
+    "Indian",
+    "Maori",
     "New Zealander",
     "Other",
+    "Samoan",
+    "Tongan",
 )
 
 QUALIFICATION_LEVEL = Choices(
@@ -139,10 +139,11 @@ LANGUAGES = Choices(
     "Malayalam",
     "Malaysian",
     "Mandarin Chinese",
-    "Māori",
     "Min Chinese",
+    "Māori",
     "New Zealand Sign Language",
     "Niuean",
+    "Other",
     "Persian",
     "Punjabi",
     "Russian",
@@ -157,7 +158,6 @@ LANGUAGES = Choices(
     "Urdu",
     "Vietnamese",
     "Yue Chinese (Cantonese)",
-    "Other",
 )
 
 
@@ -1195,13 +1195,30 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         db_table = "application"
 
 
+class EthicsStatement(PdfFileMixin, Model):
+
+    application = OneToOneField(Application, on_delete=CASCADE, related_name="ethics_statement")
+    file = PrivateFileField(
+        verbose_name=_("ethics statement"),
+        help_text=_("Please upload human or animal ethics statement."),
+        upload_subfolder=lambda instance: ["statements", hash_int(instance.referee_id)],
+        blank=True,
+        null=True,
+    )
+    not_relevant = BooleanField(default=False)
+    comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
+
+    class Meta:
+        db_table = "ethics_statement"
+
+
 MEMBER_STATUS = Choices(
     (None, None),
-    ("sent", _("sent")),
     ("accepted", _("accepted")),
     ("authorized", _("authorized")),
-    ("opted_out", _("opted out")),
     ("bounced", _("bounced")),
+    ("opted_out", _("opted out")),
+    ("sent", _("sent")),
 )
 
 

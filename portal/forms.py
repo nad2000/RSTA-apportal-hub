@@ -89,13 +89,13 @@ class InlineSubform(LayoutObject):
     template = "portal/sub_form.html"
 
     def __init__(self, form_name_in_context, template=None):
-        self.formset_name_in_context = form_name_in_context
+        self.subform_name_in_context = form_name_in_context
         self.fields = []
         if template:
             self.template = template
 
     def render(self, form, form_style, context, template_pack=TEMPLATE_PACK):
-        form = context[self.formset_name_in_context]
+        form = context[self.subform_name_in_context]
         return render_to_string(self.template, {"form": form})
 
 
@@ -297,14 +297,18 @@ class ApplicationForm(forms.ModelForm):
             tabs.append(
                 Tab(
                     _("Ethics"),
-                    Field(
-                        "photo_identity",
-                        data_toggle="tooltip",
-                        title=_(
-                            "Please upload a scanned copy of the ethics approval in PDF, JPG, or PNG format"
-                        ),
-                    ),
-                    css_id="id-verification",
+                    Div(InlineSubform("ethics_statement")),
+                    # Field(
+                    #     "ethics_statement.file",
+                    #     css_id="ethics_statement",
+                    #     data_toggle="tooltip",
+                    #     title=_(
+                    #         "Please upload a scanned copy of the ethics approval in PDF, JPG, or PNG format"
+                    #     ),
+                    # ),
+                    # Field("ethics_statement.comment"),
+                    # # Field("ethics_statement__not_relevant"),
+                    css_id="ethics-statement",
                 ),
             )
         if instance.submitted_by and instance.submitted_by == user:
@@ -393,6 +397,7 @@ class ApplicationForm(forms.ModelForm):
             summary=SummernoteInplaceWidget(),
             summary_en=SummernoteInplaceWidget(),
             summary_mi=SummernoteInplaceWidget(),
+            ethics_statement__comment=SummernoteInplaceWidget(),
             # round=HiddenInput(),
         )
 
