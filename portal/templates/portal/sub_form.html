@@ -10,7 +10,7 @@
 {% if form.helper %}
   {% crispy form form.helper %}
 {% else %}
-  {{ form|crispy }}
+  {% crispy form %}
 {% endif %}
 
 {% if form_tag %}</form>{% endif %}
