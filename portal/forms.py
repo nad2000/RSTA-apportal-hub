@@ -293,21 +293,11 @@ class ApplicationForm(forms.ModelForm):
                     css_id="id-verification",
                 ),
             )
-        if round.scheme.ethics_statement_required:
+        if round.ethics_statement_required:
             tabs.append(
                 Tab(
                     _("Ethics"),
-                    Div(InlineSubform("ethics_statement")),
-                    # Field(
-                    #     "ethics_statement.file",
-                    #     css_id="ethics_statement",
-                    #     data_toggle="tooltip",
-                    #     title=_(
-                    #         "Please upload a scanned copy of the ethics approval in PDF, JPG, or PNG format"
-                    #     ),
-                    # ),
-                    # Field("ethics_statement.comment"),
-                    # # Field("ethics_statement__not_relevant"),
+                    InlineSubform("ethics_statement"),
                     css_id="ethics-statement",
                 ),
             )

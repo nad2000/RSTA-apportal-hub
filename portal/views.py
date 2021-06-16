@@ -1073,7 +1073,7 @@ class ApplicationView(LoginRequiredMixin):
                                         "before submitting the application"
                                     ),
                                 )
-                                return HttpResponseRedirect(self.request.get_full_path())
+                                return redirect(self.request.get_full_path())
                             next_url = self.request.get_full_path()
                             messages.error(
                                 self.request,
@@ -1091,6 +1091,18 @@ class ApplicationView(LoginRequiredMixin):
                             .first()
                         ):
                             a.cv = cv
+
+                    if self.round.ethics_statement_required and not (
+                        a.ethics_statement.not_relevant or a.ethics_statement.file
+                    ):
+                        messages.error(
+                            self.request,
+                            _(
+                                "You must submit a Ethics Statement with your application "
+                                "before submitting the application"
+                            ),
+                        )
+                        url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
 
                     if not a.is_tac_accepted:
                         if a.submitted_by == user:
@@ -1140,16 +1152,21 @@ class ApplicationView(LoginRequiredMixin):
         )
         if self.round.ethics_statement_required:
             EthicsStatementForm = model_forms.modelform_factory(
-                models.EthicsStatement, exclude=["application"]
+                models.EthicsStatement,
+                exclude=["application"],
             )
-            context["ethics_statement"] = EthicsStatementForm(
+            ethics_statement_form = EthicsStatementForm(
                 self.request.POST or None,
                 instance=self.object.ethics_statement
                 if self.object
                 and self.object.id
                 and models.EthicsStatement.where(application=self.object).exists()
                 else None,
+                prefix="et",
             )
+            ethics_statement_form.helper = forms.FormHelper(ethics_statement_form)
+            ethics_statement_form.helper.form_tag = False
+            context["ethics_statement"] = ethics_statement_form
 
         if self.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
@@ -1929,7 +1946,7 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
                 messages.success(
                     self.request,
                     _(
-                        "Your CV was converted into PDF file. Please review the converted version <a href='%s'>%s</a>."
+                        "Your CV was converted into PdF file. Please review the converted version <a href='%s'>%s</a>."
                     )
                     % (cf.file.url, os.path.basename(cf.file.name)),
                 )
