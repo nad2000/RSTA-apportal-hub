@@ -1539,11 +1539,10 @@ class Invitation(Model):
         resp = send_mail(
             subject,
             body,
-            by.email if by else settings.DEFAULT_FROM_EMAIL,
             recipient_list=[self.email],
             fail_silently=False,
             request=request,
-            reply_to=settings.DEFAULT_FROM_EMAIL,
+            reply_to=by.email if by else settings.DEFAULT_FROM_EMAIL,
             invitation=self,
         )
 
@@ -1648,11 +1647,10 @@ class Invitation(Model):
             send_mail(
                 _("Your Invitation Undelivered"),
                 body,
-                settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[self.inviter.email],
                 fail_silently=False,
                 request=request,
-                reply_to=settings.DEFAULT_FROM_EMAIL,
+                reply_to=by.email if by else settings.DEFAULT_FROM_EMAIL,
             )
 
     @classmethod
@@ -2632,11 +2630,10 @@ class IdentityVerification(Model):
         send_mail(
             subject,
             body,
-            settings.DEFAULT_FROM_EMAIL,
             recipient_list=[self.user.email],
             fail_silently=False,
             request=request,
-            reply_to=settings.DEFAULT_FROM_EMAIL,
+            reply_to=by.email if by else settings.DEFAULT_FROM_EMAIL,
         )
 
     def __str__(self):
