@@ -13,35 +13,41 @@
     {% with request.resolver_match.view_name as view_name %}
       {% if view_name == "profile-employments" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Organisations that you have an affiliation with. 
+          Note that the organsation where you are primarily employed, or study, will be published if you are awarded a prize.          
         {% endblocktrans %}
       {% elif view_name == "profile-career-stages" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Career stage is requested to be able to understand the proportion of researchers at different stages of their career. 
+          The expectation is that this will assist in the development of funding mechanisms and support tools.
+          Only used at aggregated levels for statistical and reporting purposes. 
         {% endblocktrans %}
       {% elif view_name == "profile-external-ids" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Identifiers for you in public research systems, e.g. authenticated ORCID iD, Scopus ID and/or ResearcherID.
+          Please DO NOT enter personal identifiers such as IRD Number, National Student Number or National Health Number.
         {% endblocktrans %}
       {% elif view_name == "profile-cvs" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Please upload a current CV.  A CV in the <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred for research-related prizes. 
         {% endblocktrans %}
       {% elif view_name == "profile-academic-records" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Academic record is requested to enable analysis of the effect of qualifications on research performance, career trajectories, and to better understand needs for succession planing and support for particular groups.
         {% endblocktrans %}
       {% elif view_name == "profile-recognitions" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Prizes and/or medals are requested in order to enable analysis over time of the causes and effects of recognition of contribution.
         {% endblocktrans %}
       {% elif view_name == "profile-professional-records" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Information on professional bodies, is useful for demonstating participation in the research community, including membership in organisations responsible for accrediation, as well as providing space for recognising non-academic qualifications.
         {% endblocktrans %}
-      {% elif view_name == "profile-career-stages" %}
+      {% elif view_name == "profile-protection-patterns" %}
         {% blocktrans %}
-          TODO: add some guidlines to the section
+          Protection Pattern settings are used by us to determine what we can and can't share about you.  
+          Note these options come from the New Zealand Research Information System (NZRIS) and control how, and whether, your data will appear in NZRIS. 
+          Each option has tooltips to explain what they control.  If you wish any protection to expire, please state when protection can be removed.
         {% endblocktrans %}
       {% endif %}
     {% endwith %}
