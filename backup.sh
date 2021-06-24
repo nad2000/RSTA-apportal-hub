@@ -16,7 +16,7 @@ psql -U postgres -c "SELECT pg_stop_backup();"
 find ./archive -mtime +10 -exec rm -f {} \;
 
 # SEE: https://www.vultr.com/docs/how-to-use-s3cmd-with-vultr-object-storage
-if which s3cmd ; then
+if which s3cmd && [ -f $HOME/.s3cfg ] ; then
     s3cmd put ./archive/${TS_LABEL}_DB.tar.xz s3://pmspp-archive/${TS_LABEL}_DB.tar.xz
     s3cmd put ./archive/${TS_LABEL}_MEDIA.tar.xz s3://pmspp-archive/${TS_LABEL}_MEDIA.tar.xz
 fi
