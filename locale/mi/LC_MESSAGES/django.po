@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-23 20:40+1200\n"
+"POT-Creation-Date: 2021-06-24 12:45+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -76,7 +76,7 @@ msgstr ""
 msgid "Applicant"
 msgstr ""
 
-#: portal/forms.py:272 portal/tables.py:230
+#: portal/forms.py:272 portal/tables.py:233
 #: portal/templates/application_detail.html:200
 msgid "Referees"
 msgstr ""
@@ -225,15 +225,15 @@ msgstr ""
 msgid "Conflict of Interest"
 msgstr ""
 
-#: portal/forms.py:782 portal/tables.py:217 portal/tables.py:240
-#: portal/tables.py:243 portal/templates/portal/conflictofinterest_list.html:67
+#: portal/forms.py:782 portal/tables.py:220 portal/tables.py:243
+#: portal/tables.py:246 portal/templates/portal/conflictofinterest_list.html:67
 #: portal/templates/portal/conflictofinterest_list.html:175
 #: portal/views.py:2980
 msgid "No"
 msgstr ""
 
-#: portal/forms.py:783 portal/tables.py:216 portal/tables.py:240
-#: portal/tables.py:243 portal/templates/portal/conflictofinterest_list.html:69
+#: portal/forms.py:783 portal/tables.py:219 portal/tables.py:243
+#: portal/tables.py:246 portal/templates/portal/conflictofinterest_list.html:69
 #: portal/templates/portal/conflictofinterest_list.html:177
 #: portal/views.py:2979
 msgid "Yes"
@@ -739,7 +739,7 @@ msgstr ""
 msgid "Testimonial By Referee {0} For Application {1}"
 msgstr ""
 
-#: portal/models.py:1724 portal/tables.py:214
+#: portal/models.py:1724 portal/tables.py:217
 #: portal/templates/application_detail.html:171
 #: portal/templates/application_detail.html:193 portal/templates/detail.html:28
 #: portal/templatetags/tags.py:28
@@ -897,35 +897,47 @@ msgstr ""
 msgid "Upload filled-in for all the applications in bulk"
 msgstr ""
 
-#: portal/tables.py:26 portal/templates/portal/widgets/invitation_status.html:6
-msgid "The invitation was sent"
-msgstr ""
-
-#: portal/tables.py:27
+#: portal/tables.py:26
 msgid "The invitation was accepted"
 msgstr ""
 
+#: portal/tables.py:27
+msgid "The invitation failed. Please check the email address"
+msgstr ""
+
 #: portal/tables.py:28
-msgid "The application was submitted"
+msgid "The invitation was created"
 msgstr ""
 
 #: portal/tables.py:29
 msgid "The invitee has turned down the nomination"
 msgstr ""
 
+#: portal/tables.py:30 portal/templates/portal/widgets/invitation_status.html:6
+msgid "The invitation was sent"
+msgstr ""
+
+#: portal/tables.py:31
+msgid "The invitation was submitted"
+msgstr ""
+
 #: portal/tables.py:32
+msgid "The application was submitted"
+msgstr ""
+
+#: portal/tables.py:35
 msgid "The invitation has not been processed yet or it is in draft version"
 msgstr ""
 
-#: portal/tables.py:228
+#: portal/tables.py:231
 msgid "Status"
 msgstr ""
 
-#: portal/tables.py:229
+#: portal/tables.py:232
 msgid "T&C"
 msgstr ""
 
-#: portal/tables.py:231
+#: portal/tables.py:234
 #, fuzzy
 #| msgid "Re-send Verification"
 msgid "Identity Verified"
