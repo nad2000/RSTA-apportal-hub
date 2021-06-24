@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-24 12:45+1200\n"
+"POT-Creation-Date: 2021-06-24 13:36+1200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,8 +41,10 @@ msgstr ""
 msgid "Please read and consent to the Privacy Policy"
 msgstr ""
 
-#: portal/forms.py:153
-msgid "I have read and agreed to the <a href='#'>Privacy Policy</a>"
+#: portal/forms.py:154
+msgid ""
+"I have read and agreed to the <a href='#' data-toggle='modal' data-"
+"target='#privacy-policy'>Privacy Policy</a>"
 msgstr ""
 
 #: portal/forms.py:172 portal/templates/application.html:70
@@ -137,7 +139,7 @@ msgstr ""
 #: portal/forms.py:362 portal/forms.py:533 portal/forms.py:717
 #: portal/forms.py:765 portal/templates/portal/conflictofinterest_list.html:193
 #: portal/templates/portal/evaluation_form.html:58
-#: portal/templates/profile_form.html:32
+#: portal/templates/profile_form.html:59
 msgid "Cancel"
 msgstr ""
 
@@ -158,7 +160,7 @@ msgid "Skip the rest of the profile sections and complete the profile now"
 msgstr ""
 
 #: portal/forms.py:518 portal/templates/portal/conflictofinterest_list.html:55
-#: portal/templates/profile_form.html:25
+#: portal/templates/profile_form.html:52
 msgid "Next"
 msgstr ""
 
@@ -182,7 +184,7 @@ msgid "Save draft nomination"
 msgstr ""
 
 #: portal/forms.py:585 portal/forms.py:657 portal/forms.py:799
-#: portal/templates/index.html:24
+#: portal/templates/index.html:24 portal/templates/profile_form.html:34
 msgid "Close"
 msgstr ""
 
@@ -1996,11 +1998,24 @@ msgstr ""
 msgid "E-Mail"
 msgstr ""
 
-#: portal/templates/profile_form.html:28
+#: portal/templates/profile_form.html:20
+msgid "Privace Policy"
+msgstr ""
+
+#: portal/templates/profile_form.html:26
+msgid ""
+"\n"
+"            ...\n"
+"              Privicy Policy placeholder...\n"
+"            ...\n"
+"            "
+msgstr ""
+
+#: portal/templates/profile_form.html:55
 msgid "Update"
 msgstr ""
 
-#: portal/templates/profile_form.html:30
+#: portal/templates/profile_form.html:57
 msgid "Create"
 msgstr ""
 
