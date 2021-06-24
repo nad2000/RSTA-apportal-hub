@@ -23,10 +23,13 @@ class StatusColumn(tables.Column):
         "td": {
             "data-toggle": "tooltip",
             "title": lambda record: {
-                "sent": _("The invitation was sent"),
                 "accepted": _("The invitation was accepted"),
-                "testified": _("The application was submitted"),
+                "bounced": _("The invitation failed. Please check the email address"),
+                "new": _("The invitation was created"),
                 "opted_out": _("The invitee has turned down the nomination"),
+                "sent": _("The invitation was sent"),
+                "submitted": _("The invitation was submitted"),
+                "testified": _("The application was submitted"),
             }.get(
                 record.status,
                 _("The invitation has not been processed yet or it is in draft version"),
