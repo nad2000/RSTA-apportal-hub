@@ -400,10 +400,10 @@ class FieldOfStudy(Model):
 
 class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
+    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2100)]
     )
-    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
 
     class Meta:
         db_table = "profile_career_stage"
@@ -2633,7 +2633,9 @@ class IdentityVerification(Model):
             recipient_list=[self.user.email],
             fail_silently=False,
             request=request,
-            reply_to=by.email if by else settings.DEFAULT_FROM_EMAIL,
+            reply_to=request.user.email
+            if request and request.user
+            else settings.DEFAULT_FROM_EMAIL,
         )
 
     def __str__(self):

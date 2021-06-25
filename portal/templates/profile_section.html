@@ -7,20 +7,19 @@
   {{ block.super }}
 {% endblock %}
 
-
 {% block section %}
-  <div class="jumbotron">
-    {% with request.resolver_match.view_name as view_name %}
+  {% with request.resolver_match.view_name as view_name %}
+    <div class="jumbotron">
       {% if view_name == "profile-employments" %}
         {% blocktrans %}
-          Organisations that you have an affiliation with. 
-          Note that the organsation where you are primarily employed, or study, will be published if you are awarded a prize.          
+          Organisations that you have an affiliation with.
+          Note that the organsation where you are primarily employed, or study, will be published if you are awarded a prize.
         {% endblocktrans %}
       {% elif view_name == "profile-career-stages" %}
         {% blocktrans %}
-          Career stage is requested to be able to understand the proportion of researchers at different stages of their career. 
+          Career stage is requested to be able to understand the proportion of researchers at different stages of their career.
           The expectation is that this will assist in the development of funding mechanisms and support tools.
-          Only used at aggregated levels for statistical and reporting purposes. 
+          Only used at aggregated levels for statistical and reporting purposes.
         {% endblocktrans %}
       {% elif view_name == "profile-external-ids" %}
         {% blocktrans %}
@@ -29,7 +28,7 @@
         {% endblocktrans %}
       {% elif view_name == "profile-cvs" %}
         {% blocktrans %}
-          Please upload a current CV.  A CV in the <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred for research-related prizes. 
+          Please upload a current CV.  A CV in the <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred for research-related prizes.
         {% endblocktrans %}
       {% elif view_name == "profile-academic-records" %}
         {% blocktrans %}
@@ -45,14 +44,47 @@
         {% endblocktrans %}
       {% elif view_name == "profile-protection-patterns" %}
         {% blocktrans %}
-          Protection Pattern settings are used by us to determine what we can and can't share about you.  
-          Note these options come from the New Zealand Research Information System (NZRIS) and control how, and whether, your data will appear in NZRIS. 
+          Protection Pattern settings are used by us to determine what we can and can't share about you.
+          Note these options come from the New Zealand Research Information System (NZRIS) and control how, and whether, your data will appear in NZRIS.
           Each option has tooltips to explain what they control.  If you wish any protection to expire, please state when protection can be removed.
         {% endblocktrans %}
       {% endif %}
-    {% endwith %}
-  </div>
-  {% crispy formset helper %}
+    </div>
+    {% crispy formset helper %}
+    {% if view_name == "profile-career-stages" %}
+      <table role="table" class="table table-striped">
+      <!-- table role="table" class="table table-striped table-bordered" -->
+        <thead>
+          <tr>
+            <th scope="col">{% trans 'Description' %}</th>
+            <th scope="col">{% trans 'Definition' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">{% trans 'First Stage Researcher' %}</th>
+            <td>{% trans 'A First Stage Researcher conducts research under supervision. This may include PhD and research masters students.' %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans 'Emerging Researcher' %}</th>
+            <td>{% trans 'An Emerging Researcher has made a contribution through original research by developing a substantial body of work, innovation or application which may merit national or internationally refereed publications, patents, and papers at conferences and congresses.' %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans 'Established Researcher' %}</th>
+            <td>{% trans 'An Established Researcher identifies research problems and opportunities within their area of expertise, conducts research independently which advances a research agenda, can form research consortia, and secure research funding/budgets from funding agencies or industry, publishes papers as lead author, acts as a mentor for other researchers.' %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans 'Leading Researcher' %}</th>
+            <td>{% trans 'A Leading Researcher has an international reputation based on research excellence in their field and a proven record of securing significant research funding.  This researcher is a professional development role model for others. They focus on long term team planning and career paths for researchers, securing funding for team positions.' %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans 'Not Applicable' %}</th>
+            <td>{% trans 'Non-Researchers.' %}</td>
+          </tr>
+        </tbody>
+      </table>
+    {% endif %}
+  {% endwith %}
 {% endblock %}
 
 {% block javascript %}
@@ -60,14 +92,14 @@
   {{ formset.media.js }}
   <!-- script>
     /* $('#add_more').click(function() {
-      var form_idx = $('#id_form-TOTAL_FORMS').val();
-      var el = $('<tr>' + $('#empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
-      setDatePickers(el);
-      $('#form_set').append(el);
-      $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+    var form_idx = $('#id_form-TOTAL_FORMS').val();
+    var el = $('<tr>' + $('#empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
+    setDatePickers(el);
+    $('#form_set').append(el);
+    $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
     }); */
     /* $(".modelselect2").select2({ */
     /*   width: null // remove calculated with of the select2 span elements */
     /* }); */
-  </script -->
-{% endblock %}
+    </script -->
+  {% endblock %}
