@@ -12,21 +12,37 @@
 {% block section %}
 
     <!-- Privacy Statement Modal -->
-    <div class="modal fade" id="privacy-policy" tabindex="-1" role="dialog"
-      aria-labelledby="privacy-policy-title" aria-hidden="true">
+    <div class="modal fade" id="privacy-statement" tabindex="-1" role="dialog"
+      aria-labelledby="privacy-statement-title" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="privacy-policy-title">{% trans 'Privace Policy' %}</h5>
+            <h5 class="modal-title" id="privacy-statement-title">{% trans 'Privacy Statement' %}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
             {% blocktranslate %}
-            ...
-              Privicy Policy placeholder...
-            ...
+              Through the use of this portal, we collect personal information from you, including information about your:
+              <ul>
+                <li>name</li>
+                <li>contact information, such as your email</li>
+                <li>career and education history</li>
+                <li>demographic information, such as your gender and ethnicity</li>
+                <li>your ORCID iD and other research identifiers that you choose</li>
+              </ul>
+              <p>We collect your personal information in order to be able to administer the Prizes' selection and award processes.</br>
+              We collect demographic data in order to understand the nature of the research community and test ourselves for potential biases in Prize participation and selection.</br>
+              We collect research identifiers to allow you to reuse information from your ORCID record in creating your profile in this portal, and to suppliment CV information where available.</br>
+              <p>If you are the recipient of a Prize, your name and current place of education/employment will be made public.</p>
+              <p>Besides our staff, we will share information with the New Zealand Research Information System (NZRIS) in order to meet our obligations for administering the Prizes; what is shared and the use premitted within NZRIS is under your control through using the Protection Pattern section of your portal profile.</p>
+              <p>Providing some information to this portal is optional.</p>
+              <p>If you choose not to enter contact and career information, we may be unable to process Prize applications that involve your participation.</p>
+              <p>If you choose not to enter demographic information, we will have less information about our support for the New Zealand research sector, but this will have no effect on the assessment of Prizes that you are involved with.</p>
+              <p>We keep your information safe by following current best practice for cloud services.</p>
+              You have the right to ask for a copy of any personal information we hold about you, and to ask for it to be corrected if you think it is wrong.</br>
+              Please contact privacy.officer@royalsociety.org.nz if you would like to do this.
             {% endblocktranslate %}
           </div>
           <div class="modal-footer">

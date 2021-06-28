@@ -152,7 +152,7 @@ class ProfileForm(forms.ModelForm):
         labels = dict(
             is_accepted=_(
                 "I have read and agreed to the "
-                "<a href='#' data-toggle='modal' data-target='#privacy-policy'>Privacy Policy</a>"
+                "<a href='#' data-toggle='modal' data-target='#privacy-statement'>Privacy Statement</a>"
             )
         )
 
