@@ -2,7 +2,7 @@
 
 {% load static i18n %}
 
-{% block title %}User: {{ object.username }}{% endblock %}
+{% block title %}{% if object %}{{ object }}{% else %}{{ profile }}{% endif %}{% if section_name %} - {{ section_name }}{% endif %}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="profile" %}{% endblock sidebar %}
 
 {% block css %}

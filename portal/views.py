@@ -1649,8 +1649,18 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         previous_step = next_step = None
         # if not profile.is_completed:
         #     self.request.session["wizard"] = True
+        url_name = self.request.resolver_match.url_name
+        context["section_name"] = {
+            "profile-employments": _("Organisation Affiliations"),
+            "profile-professional-records": _("Professional Bodies"),
+            "profile-career-stages": _("Career Stages"),
+            "profile-external-ids": _("External IDs"),
+            "profile-cvs": _("Curriculum Vitae"),
+            "profile-academic-records": _("Academic Records"),
+            "profile-recognitions": _("Prizes and/or Medals"),
+        }.get(url_name)
         if self.request.session.get("wizard"):
-            view_idx = self.section_views.index(self.request.resolver_match.url_name)
+            view_idx = self.section_views.index(url_name)
             if view_idx > 0:
                 previous_step = self.section_views[view_idx - 1]
                 context["previous_step"] = previous_step
