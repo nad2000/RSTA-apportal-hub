@@ -402,7 +402,8 @@ class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
     career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
-        validators=[MinValueValidator(1900), MaxValueValidator(2100)]
+        validators=[MinValueValidator(1900), MaxValueValidator(2100)],
+        help_text=_("Year that you first attained the career stage")
     )
 
     class Meta:
