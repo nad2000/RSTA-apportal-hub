@@ -3419,7 +3419,8 @@ def status(request):
         with connection.cursor() as cursor:
             now = cursor.execute(
                 "SELECT current_timestamp" if cursor.db.vendor == "sqlite" else "SELECT now()"
-            ).fetchone()[0]
+            ).fetchone()
+            now = now[0]
         total, used, free = shutil.disk_usage(__file__)
         free = round(free * 100 / total)
         return JsonResponse(
