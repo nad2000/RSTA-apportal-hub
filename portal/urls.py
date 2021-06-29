@@ -12,6 +12,7 @@ urlpatterns = [
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
     path("about", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path("logout", views.logout, name="logout"),
+    path("status", views.status, name="status"),
     path(
         "robots.txt",
         cache_page(3600)(
@@ -264,8 +265,12 @@ urlpatterns = [
         "testimonials/",
         include(
             [
-                path("<int:pk>/~create", views.TestimonialView.as_view(), name="testimonial-create"),
-                path("<int:pk>/~update", views.TestimonialView.as_view(), name="testimonial-update"),
+                path(
+                    "<int:pk>/~create", views.TestimonialView.as_view(), name="testimonial-create"
+                ),
+                path(
+                    "<int:pk>/~update", views.TestimonialView.as_view(), name="testimonial-update"
+                ),
                 path("<int:pk>", views.TestimonialDetail.as_view(), name="testimonial-detail"),
                 path("draft", views.TestimonialList.as_view(), name="testimonials-draft"),
                 path("submitted", views.TestimonialList.as_view(), name="testimonials-submitted"),

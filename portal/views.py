@@ -1,5 +1,6 @@
 import io
 import os
+import shutil
 from functools import wraps
 from urllib.parse import quote
 
@@ -17,13 +18,19 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
+from django.db import connection, transaction
 from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
 from django.forms import models as model_forms
 from django.forms import widgets
-from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
+from django.http import (
+    FileResponse,
+    Http404,
+    HttpResponse,
+    HttpResponseRedirect,
+    JsonResponse,
+)
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils.translation import gettext as _
@@ -3400,6 +3407,37 @@ def round_scores(request, round):
     criteria = models.Criterion.where(round_id=round)
 
     return render(request, "round_scores.html", locals())
+
+
+def status(request):
+    """Check the application health status attempting to connect to the DB.
+
+    NB! This entry point should be protected and accessible
+    only form the application monitoring servers.
+    """
+    try:
+        with connection.cursor() as cursor:
+            now = cursor.execute(
+                "SELECT current_timestamp" if cursor.db.vendor == "sqlite" else "SELECT now()"
+            ).fetchone()[0]
+        total, used, free = shutil.disk_usage(__file__)
+        free = round(free * 100 / total)
+        return JsonResponse(
+            {
+                "status": "OK" if free > 5 else "FAIL",
+                "db-timestamp": now if isinstance(now, str) else now.isoformat(),
+                "free-storage-percent": free,
+            },
+            status=200 if free > 5 else 418,
+        )
+    except Exception as ex:
+        return JsonResponse(
+            {
+                "status": "Error",
+                "message": str(ex),
+            },
+            status=503,
+        )
 
 
 class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
