@@ -124,15 +124,14 @@
   {% endif %}
 </div>
 
+{% if request.user.is_superuser or request.user.is_staff or review_count > 0 %}
 <div class="card mb-2">
   <div class="card-header">
     {% if review_count %}
-      {% if request.user.is_superuser or request.user.is_staff %}
         <a href="{% url 'reviews' %}">
           {% trans 'Reviews' %}
           <span class="badge badge-primary">{{ review_count }}</span>
         </a>
-      {% endif %}
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No reviews saved or submitted' %}">
         {% trans 'Reviews' %}
@@ -167,6 +166,7 @@
     </div>
   {% endif %}
 </div>
+{% endif %}
 
 {% endif %}
 
