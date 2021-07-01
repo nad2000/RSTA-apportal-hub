@@ -272,6 +272,7 @@ class Ethnicity(Model):
     class Meta:
         db_table = "ethnicity"
         ordering = ["code"]
+        verbose_name_plural = _("ethnicities")
 
 
 class Language(Model):
@@ -379,6 +380,7 @@ class FieldOfResearch(Model):
 
     class Meta:
         db_table = "field_of_research"
+        verbose_name_plural = _("fields of research")
 
 
 class FieldOfStudy(Model):
@@ -396,6 +398,7 @@ class FieldOfStudy(Model):
     class Meta:
         db_table = "field_of_study"
         ordering = ["description"]
+        verbose_name_plural = _("fields of study")
 
 
 class ProfileCareerStage(Model):
@@ -403,7 +406,7 @@ class ProfileCareerStage(Model):
     career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
-        help_text=_("Year that you first attained the career stage")
+        help_text=_("Year that you first attained the career stage"),
     )
 
     class Meta:
@@ -1408,6 +1411,7 @@ class ConflictOfInterest(Model):
 
     class Meta:
         db_table = "conflict_of_interest"
+        verbose_name_plural = _("conflicts of interest")
 
 
 def get_unique_invitation_token():
