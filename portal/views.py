@@ -11,6 +11,7 @@ import tablib
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Field, Layout
 from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
@@ -1001,16 +1002,16 @@ class ApplicationView(LoginRequiredMixin):
                         )
                 if has_deleted:
                     return redirect(url)
-            if not self.request.user.is_identity_verified and "identity_verification" in context:
-                identity_verification = context["identity_verification"]
-                if identity_verification.is_valid():
-                    identity_verification.save()
+
+            if identity_verification_form := context.get("identity_verification"):
+                identity_verification_form.instance.application = a
+                if identity_verification_form.is_valid():
+                    identity_verification_form.save()
 
             if referees.is_valid():
                 referees.instance = a
                 has_deleted = bool(has_deleted or referees.deleted_forms)
                 if has_deleted or "send_invitations" in self.request.POST:
-                    # url = self.request.path_info.split("?")[0] + "?referees=1"
                     url = self.request.path_info.split("?")[0] + "#referees"
                 referees.save()
                 count = invite_referee(self.request, a)
@@ -1164,6 +1165,7 @@ class ApplicationView(LoginRequiredMixin):
             )
             ethics_statement_form = EthicsStatementForm(
                 self.request.POST or None,
+                self.request.FILES or None,
                 instance=self.object.ethics_statement
                 if self.object
                 and self.object.id
@@ -1174,6 +1176,47 @@ class ApplicationView(LoginRequiredMixin):
             ethics_statement_form.helper = forms.FormHelper(ethics_statement_form)
             ethics_statement_form.helper.form_tag = False
             context["ethics_statement"] = ethics_statement_form
+
+        if (
+            self.round.pid_required
+            and not self.request.user.is_identity_verified
+            and (
+                not (self.object and self.object.id)
+                or (
+                    not self.object.submitted_by_id
+                    or self.object.submitted_by == self.request.user
+                )
+            )
+        ):
+            IdentityVerificationForm = model_forms.modelform_factory(
+                models.IdentityVerification,
+                exclude=["application", "resolution", "state"],
+                widgets={"user": HiddenInput()},
+            )
+            identity_verification_form = IdentityVerificationForm(
+                self.request.POST or None,
+                self.request.FILES or None,
+                instance=self.object.identity_verification
+                if self.object
+                and self.object.id
+                and models.IdentityVerification.where(application=self.object).exists()
+                else None,
+                prefix="iv",
+                initial={"user": self.request.user},
+            )
+            identity_verification_form.helper = forms.FormHelper(ethics_statement_form)
+            identity_verification_form.helper.form_tag = False
+            identity_verification_form.helper.layout = Layout(
+                Field(
+                    "photo_identity",
+                    data_toggle="tooltip",
+                    title=_(
+                        "Please upload a scanned copy of the passport or drivers license "
+                        "of the team lead in PDF, JPG, or PNG format"
+                    ),
+                ),
+            )
+            context["identity_verification"] = identity_verification_form
 
         if self.round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()

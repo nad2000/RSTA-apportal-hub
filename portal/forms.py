@@ -281,18 +281,19 @@ class ApplicationForm(forms.ModelForm):
                 *summary_fields,
             ),
         ]
-        if user and not user.is_identity_verified:
+        # if user and not user.is_identity_verified:
+        if (
+            round.pid_required
+            and not user.is_identity_verified
+            and (
+                not (instance and instance.id)
+                or (not instance.submitted_by_id or instance.submitted_by == user)
+            )
+        ):
             tabs.append(
                 Tab(
                     _("Identity Verification"),
-                    Field(
-                        "photo_identity",
-                        data_toggle="tooltip",
-                        title=_(
-                            "Please upload a scanned copy of the passport or drivers license "
-                            "of the team lead in PDF, JPG, or PNG format"
-                        ),
-                    ),
+                    InlineSubform("identity_verification"),
                     css_id="id-verification",
                 ),
             )

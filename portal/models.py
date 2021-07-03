@@ -1205,7 +1205,7 @@ class EthicsStatement(PdfFileMixin, Model):
     file = PrivateFileField(
         verbose_name=_("ethics statement"),
         help_text=_("Please upload human or animal ethics statement."),
-        upload_subfolder=lambda instance: ["statements", hash_int(instance.referee_id)],
+        upload_subfolder=lambda instance: ["statements", hash_int(instance.application_id)],
         blank=True,
         null=True,
     )
@@ -2642,6 +2642,10 @@ class IdentityVerification(Model):
             if request and request.user
             else settings.DEFAULT_FROM_EMAIL,
         )
+        self.user.is_identity_verified = False
+        self.user.identity_verified_by = request and request.user
+        self.user.identity_verified_at = datetime.now()
+        self.user.save()
 
     def __str__(self):
         return _('Identity Verification of "%s"') % self.user

@@ -382,7 +382,7 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
             or models.Application.where(email=obj.user.email).order_by("id").first()
         )
         if app:
-            return reverse("round-coi-list", kwargs={"pk": app.id})
+            return reverse("round-coi-list", kwargs={"round": app.round_id})
 
 
 @admin.register(models.ConflictOfInterest)
