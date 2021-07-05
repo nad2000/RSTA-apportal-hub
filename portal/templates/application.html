@@ -71,6 +71,15 @@
           $("a[href='#applicant']").text("{% trans 'Team' %}");
         };
       });
+      $('#id_et-not_relevant').change(function() {
+        if ($(this).is(':checked')) {
+          document.getElementById("id_et-comment").setAttribute("required", "true");
+          $("label[for='id_et-comment']").append('<span class="asteriskField">*</span>');
+        } else {
+          document.getElementById("id_et-comment").removeAttribute("required");
+          $("label[for='id_et-comment']").children().remove();
+        }
+      });
       {% if not form.is_bilingual_summary.value %}
         $("#div_id_summary_en").hide();
         $("#div_id_summary_mi").hide();

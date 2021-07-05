@@ -1101,13 +1101,16 @@ class ApplicationView(LoginRequiredMixin):
                             a.cv = cv
 
                     if self.round.ethics_statement_required and not (
-                        a.ethics_statement.not_relevant or a.ethics_statement.file
+                        a.ethics_statement
+                        or (a.ethics_statement.not_relevant and a.ethics_statement.comment)
+                        or a.ethics_statement.file
                     ):
                         messages.error(
                             self.request,
                             _(
                                 "You must submit a Ethics Statement with your application "
-                                "before submitting the application"
+                                "before submitting the application. If it is not relevant, "
+                                "please provide details."
                             ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
@@ -1175,6 +1178,17 @@ class ApplicationView(LoginRequiredMixin):
             )
             ethics_statement_form.helper = forms.FormHelper(ethics_statement_form)
             ethics_statement_form.helper.form_tag = False
+            ethics_statement_form.helper.layout = Layout(
+                "file",
+                "not_relevant",
+                Field(
+                    "comment",
+                    oninvalid=f"""this.setCustomValidity('{_("Please confirm and explain ...")}')""",
+                    oninput="this.setCustomValidity('')",
+                ),
+            )
+            if self.object and (es := getattr(self.object, "ethics_statement", None)):
+                ethics_statement_form.fields["comment"].required = es.not_relevant
             context["ethics_statement"] = ethics_statement_form
 
         if (
