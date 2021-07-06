@@ -143,6 +143,7 @@ urlpatterns = [
                     views.ProfileCurriculumVitaeFormSetView.as_view(),
                     name="profile-cvs",
                 ),
+                path("files/", views.user_files, name="profile-files"),
                 path("~check", views.check_profile, name="check-profile"),
                 path(
                     "professional/",

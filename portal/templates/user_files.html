@@ -1,0 +1,42 @@
+{% extends 'profile.html' %}
+{% load crispy_forms_tags static i18n %}
+
+{% block css %}
+  {{ ethics_statement_formset.media.css }}
+  {{ identity_verifications_formset.media.css }}
+  {{ block.super }}
+{% endblock %}
+
+
+{% block head_title %}{{ object }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' with category="profile" %}{% endblock sidebar %}
+
+{% block section %}
+
+  {% if ethics_statement_queryset.count > 0 %}
+    {% crispy ethics_statement_formset ethics_statement_formset.helper %}
+  {% endif %}
+
+  {% if identity_verification_queryset.count > 0 %}
+    {% crispy identity_verification_formset identity_verification_formset.helper %}
+  {% endif %}
+
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {{ identity_verification_formset.media.js }}
+  {{ ethics_statement_formset.media.js }}
+  <!-- script>
+    /* $('#add_more').click(function() {
+    var form_idx = $('#id_form-TOTAL_FORMS').val();
+    var el = $('<tr>' + $('#empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
+    setDatePickers(el);
+    $('#form_set').append(el);
+    $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+    }); */
+    /* $(".modelselect2").select2({ */
+    /*   width: null // remove calculated with of the select2 span elements */
+    /* }); */
+    </script -->
+{% endblock %}

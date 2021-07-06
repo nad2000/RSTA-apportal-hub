@@ -22,7 +22,15 @@ from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
 from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
-from django.forms import BooleanField, DateInput, Form, HiddenInput, TextInput
+from django.forms import (
+    BooleanField,
+    DateInput,
+    Form,
+    HiddenInput,
+    TextInput,
+    inlineformset_factory,
+    modelformset_factory,
+)
 from django.forms import models as model_forms
 from django.forms import widgets
 from django.http import (
@@ -3547,3 +3555,54 @@ def application_exported_view(request, number, lang=None):
     a = get_object_or_404(models.Application, number=number)
     objects = [a, *a.get_testimonials()]
     return render(request, "application-export.html", locals())
+
+
+@login_required
+def user_files(request):
+
+    if "error" in request.GET:
+        raise Exception(request.GET["error"])
+
+    # EthicsStatementForm = model_forms.modelform_factory(models.EthicsStatement, fields=["file"])
+
+    EthicsStatementFormSet = modelformset_factory(
+        models.EthicsStatement,
+        fields=["file"],
+        # form=EthicsStatementForm,
+        extra=0,
+        can_delete=True,
+    )
+    ethics_statement_queryset = models.EthicsStatement.where(application__submitted_by=request.user)
+    ethics_statement_formset = EthicsStatementFormSet(
+        request.POST or None,
+        queryset=ethics_statement_queryset,
+    )
+    ethics_statement_formset.helper = FormHelper()
+    ethics_statement_formset.helper.layout = Layout(
+        forms.Div(
+            forms.TableInlineFormset("ethics_statement_formset"),
+            css_id="ethics_statements",
+        )
+    )
+
+    identity_verification_queryset = models.IdentityVerification.where(user=request.user)
+    IdentityVerificationFormSet = modelformset_factory(
+        models.IdentityVerification,
+        fields=["file"],
+        # form=EthicsStatementForm,
+        extra=0,
+        can_delete=True,
+    )
+    identity_verification_formset = IdentityVerificationFormSet(
+        request.POST or None,
+        queryset=identity_verification_queryset,
+    )
+    identity_verification_formset.helper = FormHelper()
+    identity_verification_formset.helper.layout = Layout(
+        forms.Div(
+            forms.TableInlineFormset("identity_verification_formset"),
+            css_id="identity_verifications",
+        )
+    )
+
+    return render(request, "user_files.html", locals())
