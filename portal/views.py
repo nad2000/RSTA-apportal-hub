@@ -28,7 +28,6 @@ from django.forms import (
     Form,
     HiddenInput,
     TextInput,
-    inlineformset_factory,
     modelformset_factory,
 )
 from django.forms import models as model_forms
@@ -3572,12 +3571,18 @@ def user_files(request):
         extra=0,
         can_delete=True,
     )
-    ethics_statement_queryset = models.EthicsStatement.where(application__submitted_by=request.user)
+    ethics_statement_queryset = models.EthicsStatement.where(
+        application__submitted_by=request.user
+    )
     ethics_statement_formset = EthicsStatementFormSet(
         request.POST or None,
+        request.FILES or None,
         queryset=ethics_statement_queryset,
+        prefix="es",
     )
     ethics_statement_formset.helper = FormHelper()
+    ethics_statement_formset.helper.help_text_inline = True
+    ethics_statement_formset.helper.html5_required = True
     ethics_statement_formset.helper.layout = Layout(
         forms.Div(
             forms.TableInlineFormset("ethics_statement_formset"),
@@ -3595,7 +3600,9 @@ def user_files(request):
     )
     identity_verification_formset = IdentityVerificationFormSet(
         request.POST or None,
+        request.FILES or None,
         queryset=identity_verification_queryset,
+        prefix="iv",
     )
     identity_verification_formset.helper = FormHelper()
     identity_verification_formset.helper.layout = Layout(

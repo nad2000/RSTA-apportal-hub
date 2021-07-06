@@ -13,14 +13,26 @@
 
 {% block section %}
 
-  {% if ethics_statement_queryset.count > 0 %}
-    {% crispy ethics_statement_formset ethics_statement_formset.helper %}
-  {% endif %}
+  <form {{ flat_attrs|safe }} method="post" enctype="multipart/form-data">
+    {% csrf_token %}
 
-  {% if identity_verification_queryset.count > 0 %}
-    {% crispy identity_verification_formset identity_verification_formset.helper %}
-  {% endif %}
+    {{ ethics_statement_formset.management_form }}
+    {{ identity_verification_formset.management_form }}
 
+    {% if ethics_statement_queryset.count > 0 %}
+      {% crispy ethics_statement_formset ethics_statement_formset.helper %}
+    {% endif %}
+
+    {% if identity_verification_queryset.count > 0 %}
+      {% crispy identity_verification_formset identity_verification_formset.helper %}
+    {% endif %}
+
+    <div class="buttonHolder buttonHolder mb-5 float-right">
+      <input type="submit" name="save" value="{% trans 'Save' %}" class="btn btn btn-primary" id="save" data-toggle="tooltip" title="{% trans 'Save' %}">
+      <a href="{% url 'profile' %}" type="button" role="button" class="btn btn-secondary" id="cancel">{% trans 'Cancel' %}</a>
+    </div>
+
+  </form>
 {% endblock %}
 
 {% block javascript %}
@@ -39,4 +51,4 @@
     /*   width: null // remove calculated with of the select2 span elements */
     /* }); */
     </script -->
-{% endblock %}
+  {% endblock %}
