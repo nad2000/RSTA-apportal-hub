@@ -427,6 +427,17 @@ class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdm
         return reverse("nomination-detail", kwargs={"pk": obj.id})
 
 
+class OrganisationResource(ModelResource):
+    class Meta:
+        model = models.Organisation
+        fields = ["code", "name", "identifier_type", "identifier"]
+        import_id_fields = ["name"]
+        export_order = ["code", "name", "identifier_type", "identifier"]
+        skip_unchanged = True
+        report_skipped = True
+        raise_errors = False
+
+
 @admin.register(models.Organisation)
 class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
 
@@ -435,6 +446,7 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
     list_filter = ["created_at", "updated_at", "applications__round"]
     search_fields = ["name", "code"]
     date_hierarchy = "created_at"
+    resource_class = OrganisationResource
 
 
 @admin.register(models.Invitation)
