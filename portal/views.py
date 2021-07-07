@@ -1225,7 +1225,7 @@ class ApplicationView(LoginRequiredMixin):
                 prefix="iv",
                 initial={"user": self.request.user},
             )
-            identity_verification_form.helper = forms.FormHelper(ethics_statement_form)
+            identity_verification_form.helper = forms.FormHelper(identity_verification_form)
             identity_verification_form.helper.form_tag = False
             identity_verification_form.helper.layout = Layout(
                 Field(

@@ -12,7 +12,7 @@ register = template.Library()
 @register.filter()
 def can_edit(value, user):
     """User can edit the application."""
-    return value.submitted_by == user or value.all().filter(user=user).exists()
+    return value.submitted_by == user or value.members.all().filter(user=user).exists()
 
 
 @register.filter()

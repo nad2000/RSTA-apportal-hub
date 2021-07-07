@@ -297,6 +297,7 @@ class ApplicationForm(forms.ModelForm):
                     css_id="id-verification",
                 ),
             )
+
         if round.ethics_statement_required:
             tabs.append(
                 Tab(
@@ -305,6 +306,7 @@ class ApplicationForm(forms.ModelForm):
                     css_id="ethics-statement",
                 ),
             )
+
         if instance.submitted_by and instance.submitted_by == user:
             tac_text = _(
                 "As authorized lead in this application, I affirm that all information is "
