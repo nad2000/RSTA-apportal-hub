@@ -309,10 +309,12 @@ class ApplicationForm(forms.ModelForm):
 
         if instance.submitted_by and instance.submitted_by == user:
             tac_text = _(
-                "As authorized lead in this application, I affirm that all information is "
+                "As authorized lead applicant, I affirm that all information provided in this application is "
                 "to the best of my knowledge true and correct. "
-                "<br/><br/>I affirm that if successful, I (and my team) will participate in publicity "
-                "and that the content of this application can be use in promotion of the Prizes."
+                "<br/><br/>I affirm that if successful, I (and where relevant, my team) will participate in publicity "
+                "and that the content of this application can be used in promotion of the Prizes."
+                "<br/><br/>If the Prize comes with conditions on use, I affirm that any Prize money will be used in "
+                "accordance with the Prize's guidelines, and in accord with any plan submitted as part of the Prize application"
             )
             tabs.append(
                 Tab(
@@ -327,7 +329,7 @@ class ApplicationForm(forms.ModelForm):
             submit_button = HTML(
                 f"""<span class="d-inline-block" tabindex="0"
     data-toggle="tooltip"
-    title="{_('Your team lead has to accept the Terms and Conditions before the submission of the applicain')}">
+    title="{_('Your team lead must accept the Terms and Conditions before the submission of the application')}">
     <input
         type="submit"
         name="submit"
