@@ -1815,6 +1815,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
     model = models.ProfilePersonIdentifier
     # formset_class = forms.ProfilePersonIdentifierFormSet
     orcid_sections = ["externalid"]
+    form_class = forms.ProfilePersonIdentifierForm
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

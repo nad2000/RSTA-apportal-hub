@@ -1,5 +1,9 @@
 {% for error in formset.errors %}
-  <div class="alert alert-danger">{{ error }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+  {% for key, error in error.items %}
+    {% if error and key != '__all__' %}
+      <div class="alert alert-danger">{{ error|safe }}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+    {% endif %}
+  {% endfor %}
 {% endfor %}
 
 {% for form in formset.forms %}

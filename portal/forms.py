@@ -461,6 +461,33 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
 )
 
 
+class ProfilePersonIdentifierForm(forms.ModelForm):
+    def clean(self):
+        data = super().clean()
+        if getattr(data.get("code"), "code") == "02":
+            p = data.get("profile")
+            u = p.user
+            orcid = data["value"]
+            if (
+                not u.orcid.endswith(orcid)
+                or not u.socialaccount_set.all().filter(provider="orcid", uid=orcid).exists()
+            ):
+                raise forms.ValidationError(
+                    _(
+                        "Invalid ORCID iD value: %(value)s. "
+                        "The ID should be authenticated either by linking your account to ORCID or TUAKIRI"
+                    ),
+                    code="invalid",
+                    params={"value": orcid},
+                )
+
+        return data
+
+    class Meta:
+        exclude = ()
+        model = models.ProfilePersonIdentifier
+
+
 class MemberFormSetHelper(FormHelper):
 
     template = "portal/table_inline_formset.html"

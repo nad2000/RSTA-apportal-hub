@@ -60,7 +60,7 @@ class OrcidHelper:
         return org
 
     def fetch_and_load_orcid_data(self):
-        """Fetch the data from orcid. ["employment", "education", "qualification"]"""
+        """Fetch the data from orcid. ["employment", "education", "qualification", ...]"""
         orcid = self.user.orcid
         if (
             not orcid
