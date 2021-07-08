@@ -1,5 +1,5 @@
-{% load static i18n compress %}<!DOCTYPE html>
-<html lang="en">
+{% load static i18n compress %}<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -126,10 +126,10 @@
                     </li>
                   {% endif %}
 
+                  {% comment %}
                   <form action="{% url 'set_language' %}" method="post">
                     {% csrf_token %}
                     <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
-                    {% get_current_language as LANGUAGE_CODE %}
                     {% get_available_languages as LANGUAGES %}
                     {% get_language_info_list for LANGUAGES as languages %}
 
@@ -151,7 +151,7 @@
                       </div>
                     </div>
                   </form>
-
+                  {% endcomment %}
 
                 </ul>
               </div>

@@ -1190,7 +1190,8 @@ class ApplicationView(LoginRequiredMixin):
                 "not_relevant",
                 Field(
                     "comment",
-                    oninvalid=f"""this.setCustomValidity('{_("Please confirm and explain ...")}')""",
+                    oninvalid=f"""this.setCustomValidity('{_("If not relevant, please comment. "
+                    "For example, the work in this application did not involve people or animals.")}')""",
                     oninput="this.setCustomValidity('')",
                 ),
             )

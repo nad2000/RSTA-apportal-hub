@@ -314,7 +314,8 @@ class ApplicationForm(forms.ModelForm):
                 "<br/><br/>I affirm that if successful, I (and where relevant, my team) will participate in publicity "
                 "and that the content of this application can be used in promotion of the Prizes."
                 "<br/><br/>If the Prize comes with conditions on use, I affirm that any Prize money will be used in "
-                "accordance with the Prize's guidelines, and in accord with any plan submitted as part of the Prize application"
+                "accordance with the Prize's guidelines, and in accord with any plan submitted as part "
+                "of the Prize application"
             )
             tabs.append(
                 Tab(
