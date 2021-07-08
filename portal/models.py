@@ -518,7 +518,12 @@ class Qualification(Model):
 
 def default_organisation_code(name):
     name = name.lower()
-    code = "".join(w[0] for w in name.split() if w).upper()
+    prefix = "".join(w[0] for w in name.split() if w).upper()
+    code = prefix
+    suffix = 1
+    while Organisation.where(code=code).exists():
+        code = f"{prefix}{suffix}"
+        suffix += 1
     return code
 
 
@@ -533,6 +538,11 @@ class Organisation(Model):
 
     def __str__(self):
         return self.name
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get("name") and not kwargs.get("code"):
+            kwargs["code"] = default_organisation_code(kwargs.get("name"))
+        super().__init__(*args, **kwargs)
 
     def get_code(self):
         return self.code or default_organisation_code(self.name)
