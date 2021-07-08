@@ -1332,7 +1332,11 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
-        r = models.Round.get(kwargs["round"])
+        r = (
+            models.Round.get(kwargs["round"])
+            if "round" in kwargs
+            else models.Nomination.get(kwargs["nomination"]).round
+        )
         if r.panellists.all().filter(user=request.user).exists():
             messages.error(
                 self.request,
