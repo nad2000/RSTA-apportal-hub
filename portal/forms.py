@@ -612,7 +612,7 @@ class NominationForm(forms.ModelForm):
                     data_toggle="tooltip",
                     title=_("Save draft nomination"),
                 ),
-                Submit(
+                Button(
                     "submit",
                     _("Submit"),
                     css_class="btn-outline-primary",
