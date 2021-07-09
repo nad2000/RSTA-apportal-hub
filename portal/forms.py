@@ -576,6 +576,7 @@ class NominationForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
+        self.helper.form_id = "nomination-form"
         fields = [
             Fieldset(
                 _("Nominee"),
@@ -607,14 +608,16 @@ class NominationForm(forms.ModelForm):
                 Submit(
                     "save_draft",
                     _("Save"),
-                    css_class="btn btn-primary",
+                    css_class="btn-primary",
                     data_toggle="tooltip",
                     title=_("Save draft nomination"),
                 ),
                 Submit(
                     "submit",
                     _("Submit"),
-                    css_class="btn btn-outline-primary",
+                    css_class="btn-outline-primary",
+                    data_toggle="modal",
+                    data_target="#confirm-submit",
                 ),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
