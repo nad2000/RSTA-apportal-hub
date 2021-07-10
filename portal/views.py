@@ -2361,7 +2361,7 @@ class TestimonialView(CreateUpdateView):
                     )
                     return HttpResponseRedirect(self.request.get_full_path())
 
-            if "submit" in self.request.POST:
+            if "submit" in self.request.POST or self.request.POST.get("action") == "submit":
 
                 if self.application.round.referee_cv_required:
                     if (

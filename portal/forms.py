@@ -604,6 +604,7 @@ class NominationForm(forms.ModelForm):
         fields.append("summary")
         self.helper.layout = Layout(
             *fields,
+            HTML("""<input type="hidden" name="action">"""),
             ButtonHolder(
                 Submit(
                     "save_draft",
@@ -613,15 +614,14 @@ class NominationForm(forms.ModelForm):
                     title=_("Save draft nomination"),
                 ),
                 Button(
-                    "submit_action",
+                    "submit_button",
                     _("Submit"),
                     css_class="btn-outline-primary",
                     # data_toggle="modal",
                     # data_target="#confirm-submit",
                 ),
                 HTML(
-                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>
-                    <input type="hidden" name="action">"""
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
                     % _("Close")
                 ),
                 css_class="mb-4 float-right",
@@ -657,6 +657,7 @@ class TestimonialForm(forms.ModelForm):
 
         self.helper = FormHelper(self)
         self.helper.include_media = False
+        self.helper.form_id = "entry-form"
         round = self.instance.application.round
         fields = [
             Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
@@ -674,6 +675,7 @@ class TestimonialForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             *fields,
+            HTML("""<input type="hidden" name="action">"""),
             ButtonHolder(
                 Submit(
                     "save_draft",
@@ -682,8 +684,8 @@ class TestimonialForm(forms.ModelForm):
                     data_toggle="tooltip",
                     title=_("Save draft testimonial"),
                 ),
-                Submit(
-                    "submit",
+                Button(
+                    "submit_button",
                     _("Submit"),
                     css_class="btn btn-outline-primary",
                 ),

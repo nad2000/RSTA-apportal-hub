@@ -47,7 +47,7 @@
   {{ block.super }}
   <script>
     $(document).ready(function(){
-      $('#button-id-submit_action').click(function() {
+      $('#button-id-submit_button').click(function() {
         if (this.form.checkValidity()) $('#confirm-submit').modal('show');
         else this.form.reportValidity();
       });
