@@ -2251,7 +2251,7 @@ class NominationView(CreateUpdateView):
                 )
                 return redirect(self.request.get_full_path())
 
-        if "submit" in self.request.POST:
+        if "submit" in self.request.POST or self.request.POST.get("action") == "submit":
 
             if self.round.nominator_cv_required:
                 if (

@@ -47,10 +47,18 @@
   {{ block.super }}
   <script>
     $(document).ready(function(){
-      // $('#button-id-submit').click(function() {});
+      $('#button-id-submit_action').click(function() {
+        if (this.form.checkValidity()) $('#confirm-submit').modal('show');
+        else this.form.reportValidity();
+      });
       $('#submit-button').click(function(){
-          /* when the submit button in the modal is clicked, submit the form */
-          $('#nomination-form').submit();
+        /* when the submit button in the modal is clicked, submit the form */
+        var form = document.getElementById('nomination-form');
+        if (form.checkValidity()) {
+          form.action.value = "submit";
+          form.submit();
+        }
+        else form.reportValidity();
       });
     });
   </script>

@@ -613,14 +613,15 @@ class NominationForm(forms.ModelForm):
                     title=_("Save draft nomination"),
                 ),
                 Button(
-                    "submit",
+                    "submit_action",
                     _("Submit"),
                     css_class="btn-outline-primary",
-                    data_toggle="modal",
-                    data_target="#confirm-submit",
+                    # data_toggle="modal",
+                    # data_target="#confirm-submit",
                 ),
                 HTML(
-                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
+                    """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>
+                    <input type="hidden" name="action">"""
                     % _("Close")
                 ),
                 css_class="mb-4 float-right",
