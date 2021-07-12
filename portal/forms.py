@@ -64,6 +64,7 @@ class Submit(BaseInput):
     def __init__(self, *args, **kwargs):
         self.field_classes = "btn" if "css_class" in kwargs else "btn btn-primary"
         super().__init__(*args, **kwargs)
+        self.attrs.update(kwargs)
 
 
 class TelInput(TextInput):
@@ -602,6 +603,7 @@ class NominationForm(forms.ModelForm):
             fields.append("file")
 
         fields.append("summary")
+        was_submitted = self.instance and self.instance.id and self.instance.status == "submitted"
         self.helper.layout = Layout(
             *fields,
             HTML("""<input type="hidden" name="action">"""),
@@ -611,11 +613,14 @@ class NominationForm(forms.ModelForm):
                     _("Save"),
                     css_class="btn-primary",
                     data_toggle="tooltip",
-                    title=_("Save draft nomination"),
+                    disabled=was_submitted,
+                    title=_("Nomination was already submitted")
+                    if was_submitted
+                    else _("Save draft nomination"),
                 ),
                 Button(
                     "submit_button",
-                    _("Submit"),
+                    _("Re-submit") if was_submitted else _("Submit"),
                     css_class="btn-outline-primary",
                     # data_toggle="modal",
                     # data_target="#confirm-submit",

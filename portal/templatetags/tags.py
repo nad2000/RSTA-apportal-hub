@@ -10,6 +10,21 @@ register = template.Library()
 
 
 @register.filter()
+def dump(value):
+    """User can edit the application."""
+    if not isinstance(value, dict):
+        data = {k:getattr(value,k) for k in dir(value)}
+    else:
+        data = value
+    return "\r\n".join(f"\t<b>{k}</b>: {v}" for k, v in data.items())
+
+
+@register.filter()
+def has_tooltip(value):
+    return hasattr(value, "flat_attrs") and "tooltip" in value.flat_attrs
+
+
+@register.filter()
 def can_edit(value, user):
     """User can edit the application."""
     return value.submitted_by == user or value.members.all().filter(user=user).exists()
