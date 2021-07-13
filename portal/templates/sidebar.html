@@ -84,11 +84,9 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    {% if testimonial_count %}
-      {% if request.user.is_superuser or request.user.is_staff %}
-        <a href="{% url 'testimonials' %}"> {% trans 'Testimonials' %} </a>
-        <span class="badge badge-primary">{{ testimonial_count }}</span>
-      {% endif %}
+    {% if testimonial_count or request.user.is_superuser or request.user.is_staff %}
+      <a href="{% url 'testimonials' %}"> {% trans 'Testimonials' %} </a>
+      <span class="badge badge-primary">{{ testimonial_count }}</span>
     {% else %}
       <span data-toggle="tooltip" title="{% trans 'No testimonials saved or submitted' %}">
         {% trans 'Testimonials' %}
