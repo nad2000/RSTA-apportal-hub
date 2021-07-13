@@ -55,9 +55,3 @@ PyPdf2==1.26.0
 django-bootstrap4<2.4.0
 django-filter<2.5.0
 django-sql-explorer<2.2.0
-
-# Limited requrement for pgadmin4:
-pytz<2021
-pyopenssl<20.0.0
-# cryptography<=3.0
-sqlalchemy<1.4.0
