@@ -15,7 +15,7 @@
   data-toggle="tooltip" title="{% trans 'The user has opted out of your invitation'%}"></i>
 {% elif widget.value == 'bounced' %}
 <i class="fa fa-exclamation-triangle text-danger text-center" aria-hidden="true"
-  data-toggle="tooltip" title="{% trans 'The invitation delivery failed. Please correct the email addres and resend the invitation.'%}"></i>
+  data-toggle="tooltip" title="{% trans 'The invitation delivery failed. Please correct the email address and resend the invitation.'%}"></i>
 {% endif %}
 <input type="hidden" name="{{ widget.name }}"
   {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
