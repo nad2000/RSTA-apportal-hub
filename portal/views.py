@@ -1926,6 +1926,30 @@ class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
     affiliation_type = {"membership": "MEM", "service": "SER"}
 
 
+class EthnicityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return False  # request.user.is_authenticated
+
+    def get_queryset(self):
+
+        if self.q:
+            return models.Ethnicity.where(description__icontains=self.q).order_by("description")
+        return models.Ethnicity.objects.order_by("description")
+
+
+class IwiGroupAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def has_add_permission(self, request):
+        # Authenticated users can add new records
+        return False  # request.user.is_authenticated
+
+    def get_queryset(self):
+
+        if self.q:
+            return models.IwiGroup.where(description__icontains=self.q).order_by("description")
+        return models.IwiGroup.objects.order_by("description")
+
+
 class OrgAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def has_add_permission(self, request):
         # Authenticated users can add new records

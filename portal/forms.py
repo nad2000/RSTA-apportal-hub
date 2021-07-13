@@ -29,7 +29,6 @@ from django_select2.forms import ModelSelect2MultipleWidget
 from django_summernote.widgets import SummernoteInplaceWidget
 
 from . import models
-from .models import Ethnicity, Language, Profile, ProfileCareerStage, Subscription
 
 DateInput = partial(
     forms.DateInput,
@@ -102,7 +101,7 @@ class InlineSubform(LayoutObject):
 
 class SubscriptionForm(forms.ModelForm):
     class Meta:
-        model = Subscription
+        model = models.Subscription
         fields = "__all__"
 
 
@@ -120,7 +119,7 @@ class ProfileForm(forms.ModelForm):
         return True
 
     class Meta:
-        model = Profile
+        model = models.Profile
         fields = [
             "date_of_birth",
             "gender",
@@ -134,19 +133,21 @@ class ProfileForm(forms.ModelForm):
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
+            # ethnicities=autocomplete.ModelSelect2Multiple(url="ethnicity-autocomplete"),
             ethnicities=ModelSelect2MultipleWidget(
-                model=Ethnicity,
+                model=models.Ethnicity,
                 search_fields=["description__icontains"],
             ),
             sex=forms.RadioSelect,
-            languages_spoken=ModelSelect2MultipleWidget(
-                model=Language,
-                search_fields=["description__icontains"],
-            ),
+            # languages_spoken=ModelSelect2MultipleWidget(
+            #     model=models.Language,
+            #     search_fields=["description__icontains"],
+            # ),
             iwi_groups=ModelSelect2MultipleWidget(
                 model=models.IwiGroup,
                 search_fields=["description__icontains"],
             ),
+            # iwi_groups=autocomplete.ModelSelect2Multiple(url="iwi-group-autocomplete"),
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
@@ -444,11 +445,11 @@ RefereeFormSet = inlineformset_factory(
 class ProfileCareerStageForm(forms.ModelForm):
     class Meta:
         exclude = ()
-        model = ProfileCareerStage
+        model = models.ProfileCareerStage
 
 
 ProfileCareerStageFormSet = modelformset_factory(
-    ProfileCareerStage,
+    models.ProfileCareerStage,
     # form=ProfileCareerStageForm,
     # fields=["profile", "year_achieved", "career_stage"],
     exclude=(),

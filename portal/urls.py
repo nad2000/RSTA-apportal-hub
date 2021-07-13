@@ -190,6 +190,16 @@ urlpatterns = [
         include(
             [
                 path(
+                    "iwi_group/",
+                    views.IwiGroupAutocomplete.as_view(model=models.IwiGroup),
+                    name="iwi-group-autocomplete",
+                ),
+                path(
+                    "ethnicity/",
+                    views.EthnicityAutocomplete.as_view(model=models.Ethnicity),
+                    name="ethnicity-autocomplete",
+                ),
+                path(
                     "org/",
                     views.OrgAutocomplete.as_view(model=models.Organisation, create_field="name"),
                     name="org-autocomplete",
