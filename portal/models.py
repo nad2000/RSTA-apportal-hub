@@ -1519,14 +1519,14 @@ class Invitation(Model):
                 )
                 % url
             )
-        if self.type == INVITATION_TYPES.R:
+        elif self.type == INVITATION_TYPES.R:
             subject = _("You are invited to testify an application")
             body = _(
                 "You are invited to provide a testimonial for %(inviter)s's application to "
                 "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
             ) % dict(inviter=by, url=url)
 
-        if self.type == INVITATION_TYPES.A:
+        elif self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
                 "You were nominated for %(round)s by %(inviter)s. To accept please follow the link: %(url)s"
@@ -1535,7 +1535,7 @@ class Invitation(Model):
                 inviter=self.inviter,
                 url=url,
             )
-        if self.type == INVITATION_TYPES.P:
+        elif self.type == INVITATION_TYPES.P:
             subject = _("You are invited to be a Panellist")
             body = _("You are invited to as a panellist. Please follow the link: %s") % url
         else:
