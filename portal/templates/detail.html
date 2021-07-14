@@ -14,19 +14,22 @@
 
       {% for field in object|fields %}
         {% if field.name != 'id' and exclude is None or field.name not in exclude %}
-          {% if object|field_value:field.name %}
+          {% if not object|field_is_empty:field.name %}
           <tr>
             <th class="table-dark" scope="row" style="width: 21%; min-width: 160px; max-width: 180px;">
               {{ field.verbose_name|title }}
             </th>
             <td>
-              {% if field.name == "summary" %}
+              {% if object|field_is_empty:field.name %}
+                {% trans 'N/A' %}
+              {% elif field.name == "summary" %}
                 {{ object|field_value:field.name|safe }}
-                {% if field|is_file_field %}
-                  <a href="{{ object|field_file_url:field.name }}" target="_blank">{{ object|field_file_name:field.name }}</a>
-                {% else %}
-                  {% trans 'N/A' %}
-                {% endif %}
+              {% elif field|is_file_field %}
+                <a href="{{ object|field_file_url }}" target="_blank">{{ object|field_file_name|basename }}</a>
+              {% elif field.name == "converted_file"%}
+                <a href="{{ object.converted_file|field_file_url }}" target="_blank">
+                  {{ object.converted_file|field_file_name|basename }}
+                </a>
               {% else %}
                 {{ object|field_value:field.name }}
               {% endif %}
@@ -58,11 +61,15 @@
                   {{ field.verbose_name|title }}
                 </th>
                 <td>
-                  {% if field.name == "summary" or field.name == "summary_en" or field.name == "summary_mi" %}
-                      {{ extra_object|field_value:field.name|safe }}
+                  {% if extra_object|field_is_empty:field.name %}
+                    {% trans 'N/A' %}
+                  {% elif field.name == "summary" or field.name == "summary_en" or field.name == "summary_mi" %}
+                    {{ extra_object|field_value:field.name|safe }}
                   {% elif field|is_file_field %}
-                    <a href="{{ extra_object|field_file_url:field.name }}" target="_blank">
-                      {{ extra_object|field_file_name:field.name|basename }}
+                      <a href="{{ extra_object|field_file_url }}" target="_blank">{{ extra_object|field_file_name|basename }}</a>
+                  {% elif field.name == "converted_file"%}
+                    <a href="{{ extra_object.converted_file|field_file_url }}" target="_blank">
+                      {{ extra_object.converted_file|field_file_name|basename }}
                     </a>
                   {% else %}
                     {{ extra_object|field_value:field.name }}

@@ -13,7 +13,7 @@ register = template.Library()
 def dump(value):
     """User can edit the application."""
     if not isinstance(value, dict):
-        data = {k:getattr(value,k) for k in dir(value)}
+        data = {k: getattr(value, k) for k in dir(value)}
     else:
         data = value
     return "\r\n".join(f"\t<b>{k}</b>: {v}" for k, v in data.items())
@@ -44,13 +44,22 @@ def field_value(value, name):
 
 
 @register.filter()
-def field_file_name(value, name):
+def field_is_empty(value, name):
+    return not (value and hasattr(value, name) and getattr(value, name))
+
+
+@register.filter()
+def field_file_name(value, name="file"):
+    if not value:
+        return _("N/A")
     v = getattr(value, name)
     return v.name if v else None
 
 
 @register.filter()
-def field_file_url(value, name):
+def field_file_url(value, name="file"):
+    if not value:
+        return _("N/A")
     v = getattr(value, name)
     return v.url if v else None
 
@@ -100,7 +109,13 @@ def person_name(value, with_email=False):
     output = f"{value.title} " if hasattr(value, "title") and value.title else ""
     output += value.first_name or u and u.first_name or ""
 
-    if middle_names := u and u.middle_names or hasattr(value, "middle_names") and value.middle_names or "":
+    if (
+        middle_names := u
+        and u.middle_names
+        or hasattr(value, "middle_names")
+        and value.middle_names
+        or ""
+    ):
         output = f"{output} {middle_names}"
 
     output = f"{output} {u and u.last_name or value.last_name or ''}"
