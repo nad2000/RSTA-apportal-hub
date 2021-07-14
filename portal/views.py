@@ -1141,6 +1141,13 @@ class ApplicationView(LoginRequiredMixin):
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#summary")
 
+                    if not a.file:
+                        messages.error(
+                            self.request,
+                            _("Missing the application form. Please attach an application form and re-submit"),
+                        )
+                        url = url or (self.request.path_info.split("?")[0] + "#summary")
+
                     if url:
                         return redirect(url)
 
@@ -2276,6 +2283,13 @@ class NominationView(CreateUpdateView):
                 return redirect(self.request.get_full_path())
 
         if "submit" in self.request.POST or self.request.POST.get("action") == "submit":
+
+            if not n.file:
+                messages.error(
+                    self.request,
+                    _("Missing the nomination form. Please attach a nomination form and re-submit"),
+                )
+                return resp
 
             if self.round.nominator_cv_required:
                 if (
