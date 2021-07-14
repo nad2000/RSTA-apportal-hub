@@ -211,6 +211,9 @@ class ApplicationForm(forms.ModelForm):
             ),
             # ButtonHolder(Submit("submit", "Submit", css_class="button white")),
         ]
+        if instance.submitted_by and not instance.submitted_by == user:
+            fields.append(Field("is_tac_accepted", type="hidden"))
+
         round = (
             models.Round.get(self.initial["round"]) if "round" in self.initial else instance.round
         )
@@ -309,7 +312,7 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
 
-        if instance.submitted_by and instance.submitted_by == user:
+        if not instance.submitted_by or instance.submitted_by == user:
             tac_text = _(
                 "As authorized lead applicant, I affirm that all information provided in this application is "
                 "to the best of my knowledge true and correct. "
