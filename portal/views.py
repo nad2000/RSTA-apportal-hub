@@ -1867,7 +1867,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                     "start_date": forms.DateInput(),
                     "end_date": forms.DateInput(),
                 },
-                "labels": {"role": "Position"},
+                "labels": {"role": _("Position")},
             }
         )
         return kwargs

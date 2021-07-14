@@ -133,21 +133,21 @@ class ProfileForm(forms.ModelForm):
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
-            # ethnicities=autocomplete.ModelSelect2Multiple(url="ethnicity-autocomplete"),
-            ethnicities=ModelSelect2MultipleWidget(
-                model=models.Ethnicity,
-                search_fields=["description__icontains"],
-            ),
+            ethnicities=autocomplete.ModelSelect2Multiple(url="ethnicity-autocomplete"),
+            # ethnicities=ModelSelect2MultipleWidget(
+            #     model=models.Ethnicity,
+            #     search_fields=["description__icontains"],
+            # ),
             sex=forms.RadioSelect,
             # languages_spoken=ModelSelect2MultipleWidget(
             #     model=models.Language,
             #     search_fields=["description__icontains"],
             # ),
-            iwi_groups=ModelSelect2MultipleWidget(
-                model=models.IwiGroup,
-                search_fields=["description__icontains"],
-            ),
-            # iwi_groups=autocomplete.ModelSelect2Multiple(url="iwi-group-autocomplete"),
+            # iwi_groups=ModelSelect2MultipleWidget(
+            #     model=models.IwiGroup,
+            #     search_fields=["description__icontains"],
+            # ),
+            iwi_groups=autocomplete.ModelSelect2Multiple(url="iwi-group-autocomplete"),
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )
