@@ -165,7 +165,7 @@
                 {% if a|can_edit:user %}
                   <a href="{{ a.file.url }}" target="_blank"> {{ a.filename }} </a>
                 {% else %}
-                  <a href="{{ a.pd_file.url }}" target="_blank"> {{ a.pdf_filename }} </a>
+                  <a href="{{ a.pdf_file.url }}" target="_blank"> {{ a.pdf_filename }} </a>
                 {% endif %}
               {% else %}
                 {% trans 'N/A' %}
