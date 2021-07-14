@@ -1,7 +1,7 @@
 {% extends 'profile.html' %}
 {% load static i18n %}
 
-{% block title %}{% trans 'Protection Patters' %}{% endblock %}
+{% block title %}{% trans 'Protection Patterns' %}{% endblock %}
 
 {% block css %}
   {{block.super }}
@@ -9,6 +9,13 @@
 {% endblock %}
 
 {% block section %}
+<div class="jumbotron">
+  {% blocktrans %}
+    Protection Pattern settings are used by us to determine what we can and can't share about you.
+    Note these options come from the New Zealand Research Information System (NZRIS) and control how, and whether, your data will appear in NZRIS.
+    Each option has tooltips to explain what they control.  If you wish any protection to expire, please state when protection can be removed.
+  {% endblocktrans %}
+</div>  
   <form method="post" style="max-width: 440px;" id="pattern-form">
     {% csrf_token %}
     <div class="checkbox">
@@ -78,7 +85,6 @@
             } else {
               $('#ppEnabled-5').prop('checked', true);
               $('#ppEnabled-6').prop('checked', true);
-              $('#ppEnabled-7').prop('checked', true);
             }
           })
         })
