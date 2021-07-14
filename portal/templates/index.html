@@ -2,7 +2,7 @@
 {% load static i18n cache tags %}
 
 {% if not request.user.is_superuser and not request.user.is_staff %}
-{% block title %}{% trans "Apply for The Prime Minister’s Science Prize" %}{% endblock title %}
+{% block title %}{% trans "The Prime Minister’s Science Prize Portal" %}{% endblock title %}
 {% endif %}
 
 {% block content %}
@@ -41,7 +41,7 @@
     </div>
 
   {% else %}
-<!-- h1>{% trans "Apply for The Prime Minister’s Science Prize" %}</h1 -->
+<!-- h1>{% trans "Apply for The Prime Minister’s Science Prizes" %}</h1 -->
 
   {% if draft_applications %}
     <div class="card text-white bg-success border-success mb-3">

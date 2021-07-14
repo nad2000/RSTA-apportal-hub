@@ -104,11 +104,6 @@ QUALIFICATION_LEVEL = Choices(
     (10, _("Doctorate Degree")),
     (23, _("Overseas Secondary School Qualification")),
     (94, _("Don't Know")),
-    (95, _("Refused to Answer")),
-    (96, _("Repeated Value")),
-    (97, _("Response Unidentifiable")),
-    (98, _("Response Outside Scope")),
-    (99, _("Not Stated")),
 )
 
 EMPLOYMENT_STATUS = Choices(
@@ -116,6 +111,7 @@ EMPLOYMENT_STATUS = Choices(
     (2, "Employer"),
     (3, "Self-employed and without employees"),
     (4, "Unpaid family worker"),
+    (6, "Student"),
     (5, "Not stated"),
 )
 
