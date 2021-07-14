@@ -251,15 +251,15 @@ class ApplicationForm(forms.ModelForm):
             summary_fields.append(Field("budget"))
             self.fields["budget"].help_text = help_text
 
-        if round.scheme.research_summary_required:
-            summary_fields.extend(
-                [
-                    Field(
-                        "is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"
-                    ),
-                    Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
-                ]
-            )
+        # if round.scheme.research_summary_required:
+        #     summary_fields.extend(
+        #         [
+        #             Field(
+        #                 "is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"
+        #             ),
+        #             Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+        #         ]
+        #     )
         if round.scheme.presentation_required:
             self.fields["presentation_url"].required = True
             summary_fields.insert(
@@ -398,9 +398,9 @@ class ApplicationForm(forms.ModelForm):
             # summary=SummernoteWidget(),
             daytime_phone=TelInput(),
             mobile_phone=TelInput(),
-            summary=SummernoteInplaceWidget(),
-            summary_en=SummernoteInplaceWidget(),
-            summary_mi=SummernoteInplaceWidget(),
+            # summary=SummernoteInplaceWidget(),
+            # summary_en=SummernoteInplaceWidget(),
+            # summary_mi=SummernoteInplaceWidget(),
             ethics_statement__comment=SummernoteInplaceWidget(),
             # round=HiddenInput(),
         )
@@ -606,7 +606,7 @@ class NominationForm(forms.ModelForm):
         else:
             fields.append("file")
 
-        fields.append("summary")
+        # fields.append("summary")
         was_submitted = self.instance and self.instance.id and self.instance.status == "submitted"
         self.helper.layout = Layout(
             *fields,
@@ -646,7 +646,7 @@ class NominationForm(forms.ModelForm):
             "last_name",
             "email",
             "org",
-            "summary",
+            # "summary",
             "file",
             # "nominator",
             "file",
@@ -656,7 +656,7 @@ class NominationForm(forms.ModelForm):
                 "org-autocomplete",
                 attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
-            summary=SummernoteInplaceWidget(),
+            # summary=SummernoteInplaceWidget(),
         )
 
 
@@ -670,7 +670,7 @@ class TestimonialForm(forms.ModelForm):
         round = self.instance.application.round
         fields = [
             Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-            Field("summary"),
+            # Field("summary"),
         ]
         if round.referee_template:
             help_text = _(
@@ -714,13 +714,13 @@ class TestimonialForm(forms.ModelForm):
     class Meta:
         model = models.Testimonial
         fields = [
-            "summary",
+            # "summary",
             "file",
         ]
 
-        widgets = dict(
-            summary=SummernoteInplaceWidget(),
-        )
+        # widgets = dict(
+        #     summary=SummernoteInplaceWidget(),
+        # )
 
 
 class IdentityVerificationForm(forms.ModelForm):
