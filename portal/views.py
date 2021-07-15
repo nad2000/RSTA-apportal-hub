@@ -20,7 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Count, Exists, F, OuterRef, Q, Subquery, Value
+from django.db.models import Count, Exists, F, Func, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.forms import (
     BooleanField,
