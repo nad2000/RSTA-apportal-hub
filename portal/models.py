@@ -991,20 +991,20 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         request = kwargs.get("request")
         if self.round.budget_template and not self.budget:
             raise Exception(
-                _("You have to add a budget spreadsheet before submitting the application")
+                _("You must upload a budget spreadsheet to complete your Prize application")
             )
         if not self.is_tac_accepted:
             if request and request.user:
                 if self.submitted_by == request.user:
                     raise Exception(
                         _(
-                            "You have to accept the Terms and Conditions before submitting the application"
+                            "You must accept the Prize's Terms and Conditions to submit an application"
                         )
                     )
                 else:
                     raise Exception(
                         _(
-                            "Your team lead has to accept the Terms and Conditions before submitting the application"
+                            "Your team lead has not yet accepted the Prize's Terms and Conditions"
                         )
                     )
 
@@ -1015,27 +1015,26 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "and/or uploaded application form"
                 )
             )
-        if not self.submitted_by.needs_identity_verification and not (
-            self.photo_identity and self.photo_identity.state != "accepted"
-        ):
+        if not self.submitted_by.needs_identity_verification and not self.photo_identity:
             raise Exception(
                 _(
                     "Your identity has not been verified. "
-                    "Please upload a copy of your photo identity"
+                    "Please upload a scan of a document proving your identity"
                 )
             )
         if Referee.where(application=self, testified_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
-                    "Not all nominated referees have responded. "
-                    "Please contact your referees or modify the list of your referees"
+                    "Not all nominated referees have responded which prevents your submission. "
+                    "Please either contact your referees, or replace them with one that will respond."
                 )
             )
         if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
-                    "Not all team members have responded and given their consent. "
-                    "Please contact your team members or modify the list of the team members"
+                    "Not all team members have given their consent to be part of the team "
+                    " which prevents your submission. "
+                    "Please either contact your team's members, or modify the team membership"
                 )
             )
         pass

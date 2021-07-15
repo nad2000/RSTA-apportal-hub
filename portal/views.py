@@ -158,7 +158,7 @@ def should_be_approved(function):
         if not user.is_approved:
             messages.error(
                 request,
-                _("Your profile has not been approved, Admin is looking into your request"),
+                _("Your portal access has not been authorised, please allow up to two working days for admin us to look into your request."),
             )
             return redirect("index")
         return function(request, *args, **kwargs)
@@ -375,9 +375,9 @@ def check_profile(request, token=None):
                 request,
                 _(
                     f"Unable to identify your invitation token: {ex} "
-                    f"So your profile has not been approved by default, "
+                    f"So your portal access has not been approved by default, "
                     f"Admin is looking into your request. "
-                    f"Approval will be based on you completing your below profile"
+                    f"Access will be influenced by the information provided in your profile"
                 ),
             )
             return redirect(next_url or "home")
@@ -2473,7 +2473,7 @@ class TestimonialView(CreateUpdateView):
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,
-                _("Please submit testimonial."),
+                _("Please submit your review."),
             )
         return context
 
@@ -3365,8 +3365,8 @@ def score_sheet(request, round):
     messages.error(
         request,
         _(
-            "You have not yet submitted all statements of the conflict of interests. "
-            "Please submit the statements for all the applcation submitted in the round."
+            "You have not yet stated your conflict of interest statement for all applications. "
+            "Please submit the statements for all the applications submitted in the round."
         ),
     )
     return redirect(
