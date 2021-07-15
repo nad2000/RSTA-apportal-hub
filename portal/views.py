@@ -1004,7 +1004,7 @@ class ApplicationView(LoginRequiredMixin):
                     if count > 0:
                         messages.success(
                             self.request,
-                            _("%d invitation(s) to authorize the team representative sent.")
+                            _("%d invitation(s) to join the team have been sent.")
                             % count,
                         )
                 if has_deleted:
@@ -1084,7 +1084,7 @@ class ApplicationView(LoginRequiredMixin):
                                 messages.error(
                                     self.request,
                                     _(
-                                        "Your team lead/representative has to submit a resume "
+                                        "Your team lead/representative must submit a CV"
                                         "before submitting the application"
                                     ),
                                 )
@@ -1115,9 +1115,8 @@ class ApplicationView(LoginRequiredMixin):
                         messages.error(
                             self.request,
                             _(
-                                "You must submit a Ethics Statement with your application "
-                                "before submitting the application. If it is not relevant, "
-                                "please provide details."
+                                "You must submit a ethics statement with your application "
+                                "If it is not relevant, please state why."
                             ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
@@ -1136,7 +1135,7 @@ class ApplicationView(LoginRequiredMixin):
                         messages.error(
                             self.request,
                             _(
-                                "You have to add a budget spreadsheet before submitting the application"
+                                "You must add a budget spreadsheet before submitting the application"
                             ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#summary")

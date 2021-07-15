@@ -1512,37 +1512,38 @@ class Invitation(Model):
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
-            subject = _("You are invited to authorize your team representative")
+            subject = _("You are invited to part of a Prime Minister's Science Prize application")
             body = (
                 _(
-                    "You are invited to authorize your team representative. Please follow the link: %s"
+                    "You have been invited to join %(inviter)s's team for their PM's Science Prize application. "
+                    "To review this invitation, please follow the link: %(url)s"
                 )
-                % url
+                % dict(inviter=by, url=url)
             )
         elif self.type == INVITATION_TYPES.R:
-            subject = _("You are invited to testify an application")
+            subject = _("You are invited as a referee for a Prime Minister's Science Prize application")
             body = _(
-                "You are invited to provide a testimonial for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
+                "You have been invited to be a referee for %(inviter)s's application to "
+                "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s"
             ) % dict(inviter=by, url=url)
 
         elif self.type == INVITATION_TYPES.A:
-            subject = _("You were nominated for %s") % self.nomination.round
+            subject = _("You have been nominated for %s") % self.nomination.round
             body = _(
-                "You were nominated for %(round)s by %(inviter)s. To accept please follow the link: %(url)s"
+                "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please follow the link: %(url)s"
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
                 url=url,
             )
         elif self.type == INVITATION_TYPES.P:
-            subject = _("You are invited to be a Panellist")
-            body = _("You are invited to as a panellist. Please follow the link: %s") % url
+            subject = _("You are invited to be a Panellist for the Prime Minister's Science Prizes")
+            body = _("You are invited to be a panellist for the Prime Minister's Science Prizes. To review this invitation, please follow the link: %s") % url
         else:
-            subject = _("You are invited to join the PM Science Prize portal")
+            subject = _("You have been given access to the Prime Minister's Science Prize portal")
             body = (
                 _(
-                    "You are invited to join the PM Science Prize portal. Please follow the link: %s"
+                    "You are invited to join the PM Science Prize portal. To review this invitation, please follow the link: %s "
                 )
                 % url
             )
