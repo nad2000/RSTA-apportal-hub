@@ -20,7 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Count, Exists, F, OuterRef, Q, Subquery
+from django.db.models import Count, Exists, F, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce
 from django.forms import (
     BooleanField,
@@ -1144,7 +1144,9 @@ class ApplicationView(LoginRequiredMixin):
                     if not a.file:
                         messages.error(
                             self.request,
-                            _("Missing the application form. Please attach an application form and re-submit"),
+                            _(
+                                "Missing the application form. Please attach an application form and re-submit"
+                            ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#summary")
 
@@ -1945,6 +1947,10 @@ class EthnicityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView
         return models.Ethnicity.objects.order_by("description")
 
 
+class Unaccent(Func):
+    function = "unaccent"
+
+
 class IwiGroupAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def has_add_permission(self, request):
         # Authenticated users can add new records
@@ -1953,7 +1959,14 @@ class IwiGroupAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     def get_queryset(self):
 
         if self.q:
-            return models.IwiGroup.where(description__icontains=self.q).order_by("description")
+            if django.db.connection.vendor == "sqlite3":
+                return models.IwiGroup.where(description__icontains=self.q).order_by("description")
+            else:
+                return (
+                    models.IwiGroup.objects.annotate(ia_description=Unaccent("description"))
+                    .filter(ia_description__icontains=Unaccent(Value(self.q)))
+                    .order_by("ia_description")
+                )
         return models.IwiGroup.objects.order_by("description")
 
 
@@ -2287,7 +2300,9 @@ class NominationView(CreateUpdateView):
             if not n.file:
                 messages.error(
                     self.request,
-                    _("Missing the nomination form. Please attach a nomination form and re-submit"),
+                    _(
+                        "Missing the nomination form. Please attach a nomination form and re-submit"
+                    ),
                 )
                 return resp
 
