@@ -22,16 +22,9 @@ from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
 from django.db.models import Count, Exists, F, Func, OuterRef, Q, Subquery, Value
 from django.db.models.functions import Coalesce
-from django.forms import (
-    BooleanField,
-    DateInput,
-    Form,
-    HiddenInput,
-    TextInput,
-    modelformset_factory,
-)
+from django.forms import widgets  # BooleanField,
+from django.forms import DateInput, Form, HiddenInput, TextInput, modelformset_factory
 from django.forms import models as model_forms
-from django.forms import widgets
 from django.http import (
     FileResponse,
     Http404,
@@ -844,7 +837,7 @@ class MemberInline(InlineFormSetFactory):
 
 class AuthorizationForm(Form):
 
-    authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
+    # authorize_team_lead = BooleanField(label=_("I authorize the team leader."), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -853,9 +846,9 @@ class AuthorizationForm(Form):
         self.helper.include_media = False
         # self.helper.label_class = "offset-md-1 col-md-1"
         # self.helper.field_class = "col-md-8"
-        self.helper.add_input(Submit("submit", _("Authorize")))
+        self.helper.add_input(Submit("submit", _("I agree to be part of this team")))
         self.helper.add_input(
-            Submit("turn_down", _("I don't wish to join the team"), css_class="btn-outline-danger")
+            Submit("turn_down", _("I decline the invitation"), css_class="btn-outline-danger")
         )
         # Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid",)
 
@@ -877,11 +870,21 @@ class ApplicationDetail(DetailView):
         member = self.object.members.filter(
             has_authorized__isnull=True, user=self.request.user
         ).first()
-        if "authorize_team_lead" in request.POST:
+        if "submit" in request.POST:
             member.has_authorized = True
             member.status = models.MEMBER_STATUS.authorized
             # member.authorized_at = datetime.now()
             member.save()
+            if self.object.submitted_by.email:
+                send_mail(
+                    _("A team member accepted your invitation"),
+                    _("Your team member %s has accepted your invitation.") % member,
+                    settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[self.object.submitted_by.email],
+                    fail_silently=False,
+                    request=self.request,
+                    reply_to=settings.DEFAULT_FROM_EMAIL,
+                )
         elif "turn_down" in request.POST:
             member.has_authorized = False
             member.status = models.MEMBER_STATUS.opted_out
@@ -896,8 +899,7 @@ class ApplicationDetail(DetailView):
                     request=self.request,
                     reply_to=settings.DEFAULT_FROM_EMAIL,
                 )
-
-        return self.get(request, *args, **kwargs)
+        return redirect(request.path)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1948,7 +1950,9 @@ class EthnicityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView
 
         if self.q:
             if django.db.connection.vendor == "sqlite3":
-                return models.Ethnicity.where(description__icontains=self.q).order_by("description")
+                return models.Ethnicity.where(description__icontains=self.q).order_by(
+                    "description"
+                )
             else:
                 return (
                     models.Ethnicity.objects.annotate(ia_description=Unaccent("description"))
