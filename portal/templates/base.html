@@ -228,9 +228,9 @@
                 {% if o.created_at >= three_days_ago %}
                   <span class="badge badge-primary">{% trans 'New' %}</span>
                 {% endif %}
-                {% trans "You have a request to review and endorse an application that hasn't been reviewed yet." %}
+                {% trans "You have a request to review a Prize application to act on." %}
                 <a href="{% url 'testimonial-detail' pk=o.testimonial_id %}" class="alert-link">
-                  {% trans 'Please click here to review the application' %}!
+                  {% trans 'Please click here to view the review request' %}!
                 </a>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                   <span aria-hidden="true">&times;</span>

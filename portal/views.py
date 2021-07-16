@@ -2512,7 +2512,7 @@ class NominationDetail(DetailView):
             nominator = self.object.nominator
             messages.info(
                 request,
-                _("You have been invited by %(inviter)s to apply for %(round)s")
+                _("You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please \"Start Prize Application\"")
                 % dict(inviter=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
