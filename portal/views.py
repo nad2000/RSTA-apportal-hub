@@ -151,7 +151,10 @@ def should_be_approved(function):
         if not user.is_approved:
             messages.error(
                 request,
-                _("Your portal access has not been authorised, please allow up to two working days for admin us to look into your request."),
+                _(
+                    "Your portal access has not been authorised, please allow up to two "
+                    "working days for admin us to look into your request."
+                ),
             )
             return redirect("index")
         return function(request, *args, **kwargs)
@@ -1006,8 +1009,7 @@ class ApplicationView(LoginRequiredMixin):
                     if count > 0:
                         messages.success(
                             self.request,
-                            _("%d invitation(s) to join the team have been sent.")
-                            % count,
+                            _("%d invitation(s) to join the team have been sent.") % count,
                         )
                 if has_deleted:
                     return redirect(url)
@@ -2543,7 +2545,10 @@ class NominationDetail(DetailView):
             nominator = self.object.nominator
             messages.info(
                 request,
-                _("You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please \"Start Prize Application\"")
+                _(
+                    "You have been nominated for the %(round)s by %(inviter)s. "
+                    'To accept this nomination, please "Start Prize Application"'
+                )
                 % dict(inviter=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
