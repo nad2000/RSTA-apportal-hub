@@ -559,7 +559,10 @@ class Affiliation(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE, related_name="affiliations")
     org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name="organisation")
     type = CharField(max_length=10, choices=AFFILIATION_TYPES)
-    role = CharField(max_length=100, null=True, blank=True)  # , help_text="position or degree")
+    role = CharField(max_length=512, null=True, blank=True)  # , help_text="position or degree")
+    qualification = CharField(
+        max_length=512, null=True, blank=True
+    )  # , help_text="position or degree")
     start_date = DateField(null=True, blank=True)
     end_date = DateField(null=True, blank=True)
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)

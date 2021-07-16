@@ -1875,6 +1875,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                     "org": autocomplete.ModelSelect2("org-autocomplete"),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
+                    "qualification": HiddenInput(),
                     "start_date": forms.DateInput(),
                     "end_date": forms.DateInput(),
                 },
@@ -1935,6 +1936,25 @@ class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
 
     orcid_sections = ["membership", "service"]
     affiliation_type = {"membership": "MEM", "service": "SER"}
+
+    def get_factory_kwargs(self):
+        kwargs = super().get_factory_kwargs()
+        kwargs.update(
+            {
+                "widgets": {
+                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "type": HiddenInput(),
+                    "profile": HiddenInput(),
+                    "start_date": forms.DateInput(),
+                    "end_date": forms.DateInput(),
+                },
+                "labels": {
+                    "role": _("Professional Membership"),
+                    "qualification": _("Professional Qualification"),
+                },
+            }
+        )
+        return kwargs
 
 
 class Unaccent(Func):
