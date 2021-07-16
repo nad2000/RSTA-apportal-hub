@@ -151,7 +151,7 @@ def should_be_approved(function):
         if not user.is_approved:
             messages.error(
                 request,
-                _("Your profile has not been approved, Admin is looking into your request"),
+                _("Your portal access has not been authorised, please allow up to two working days for admin us to look into your request."),
             )
             return redirect("index")
         return function(request, *args, **kwargs)
@@ -368,9 +368,9 @@ def check_profile(request, token=None):
                 request,
                 _(
                     f"Unable to identify your invitation token: {ex} "
-                    f"So your profile has not been approved by default, "
+                    f"So your portal access has not been approved by default, "
                     f"Admin is looking into your request. "
-                    f"Approval will be based on you completing your below profile"
+                    f"Access will be influenced by the information provided in your profile"
                 ),
             )
             return redirect(next_url or "home")
@@ -1006,7 +1006,7 @@ class ApplicationView(LoginRequiredMixin):
                     if count > 0:
                         messages.success(
                             self.request,
-                            _("%d invitation(s) to authorize the team representative sent.")
+                            _("%d invitation(s) to join the team have been sent.")
                             % count,
                         )
                 if has_deleted:
@@ -1086,7 +1086,7 @@ class ApplicationView(LoginRequiredMixin):
                                 messages.error(
                                     self.request,
                                     _(
-                                        "Your team lead/representative has to submit a resume "
+                                        "Your team lead/representative must submit a CV"
                                         "before submitting the application"
                                     ),
                                 )
@@ -1117,9 +1117,8 @@ class ApplicationView(LoginRequiredMixin):
                         messages.error(
                             self.request,
                             _(
-                                "You must submit a Ethics Statement with your application "
-                                "before submitting the application. If it is not relevant, "
-                                "please provide details."
+                                "You must submit a ethics statement with your application "
+                                "If it is not relevant, please state why."
                             ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
@@ -1138,7 +1137,7 @@ class ApplicationView(LoginRequiredMixin):
                         messages.error(
                             self.request,
                             _(
-                                "You have to add a budget spreadsheet before submitting the application"
+                                "You must add a budget spreadsheet before submitting the application"
                             ),
                         )
                         url = url or (self.request.path_info.split("?")[0] + "#summary")
@@ -2505,7 +2504,7 @@ class TestimonialView(CreateUpdateView):
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,
-                _("Please submit testimonial."),
+                _("Please submit your review."),
             )
         return context
 
@@ -2544,7 +2543,7 @@ class NominationDetail(DetailView):
             nominator = self.object.nominator
             messages.info(
                 request,
-                _("You have been invited by %(inviter)s to apply for %(round)s")
+                _("You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please \"Start Prize Application\"")
                 % dict(inviter=nominator.full_name_with_email, round=self.object.round),
             )
         return super().get(request, *args, **kwargs)
@@ -3397,8 +3396,8 @@ def score_sheet(request, round):
     messages.error(
         request,
         _(
-            "You have not yet submitted all statements of the conflict of interests. "
-            "Please submit the statements for all the applcation submitted in the round."
+            "You have not yet stated your conflict of interest statement for all applications. "
+            "Please submit the statements for all the applications submitted in the round."
         ),
     )
     return redirect(
