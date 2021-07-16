@@ -21,12 +21,41 @@ def send_mail(
     auth_password=None,
     connection=None,
     html_message=None,
+    html_footer="<br>To learn more about the Prime Minister’s Science Prizes visit: "
+    "<a href=\"https://www.pmscienceprizes.org.nz/\">https://www.pmscienceprizes.org.nz/</a>.<br><br>Ngā mihi,<br>"
+    "the Prime Minister’s Science Prize Secretariat.<br><br><table border=0 cellspacing=0 cellpadding=0 "
+    "style='border-collapse:collapse;mso-yfti-tbllook:1184;mso-padding-alt:0cm 0cm 0cm 0cm'>"
+    "<tr><td><p><b><span style='font-size:10.0pt;font-family:\"Helvetica\",sans-serif;'>Ko te Kaiwahakahaere</span>"
+    "</b>&nbsp;<b><span style='font-size:10.0pt;font-family:\"Helvetica\",sans-serif;color:black'>Prime Minister’s "
+    "Science Prizes Secretariat</span></b><p style='line-height:115%'><b><span style='font-size:8.5pt;"
+    "line-height:115%;font-family:\"Helvetica\",sans-serif;color:black'>DDI</span></b>"
+    "<span style='font-size:8.5pt;line-height:115%;font-family:\"Helvetica\",sans-serif; color:black'>&nbsp;"
+    "+64 4 470 57</span><span style='font-size:8.5pt;line-height:115%;font-family:\"Helvetica\",sans-serif'>62<span "
+    "style='color:black'><br><b>E</b>&nbsp;</span></span><span style='font-size:10.0pt;line-height:115%;font-family:"
+    "\"Helvetica\",sans-serif;color:blue;background:white'><a href=\"mailto:pmscienceprizes@royalsociety.org.nz\">"
+    "<span style='text-decoration:none;text-underline:none'>pmscienceprizes@royalsociety.org.nz</span></a>"
+    "</span><span style='font-size:8.5pt;line-height:115%;font-family:\"Helvetica\",sans-serif;color:black'></span>"
+    "</p><p><b><span style='font-size:8.5pt;font-family:\"Helvetica\",sans-serif;color:black'>Royal Society Te "
+    "Apārangi</span></b><span style='font-size:8.5pt;font-family:\"Helvetica\",sans-serif;color:black'><br>11 "
+    "Turnbull Street, Thorndon, Wellington 6011<br>PO Box 598, Wellington 6140, New Zealand<br>"
+    "<a href=\"http://royalsociety.org.nz/\"><b><span style='color:black'>ROYALSOCIETY.ORG.NZ</span>"
+    "</b></a></span><span style='font-family:\"Helvetica\",sans-serif;color:black;'>"
+    "</span></p><p><i><span style='font-size:8.0pt;font-family:\"Helvetica\",sans-serif;color:black;'>"
+    "Please consider the environment before printing this email. The information contained in this email message is "
+    "intended only for the addressee and may be confidential. If you are not the intended recipient,</span></i>"
+    "</p></td><td width=\"25%\" valign=bottom style='width:25.0%;padding:0cm 5.4pt 0cm 5.4pt'>"
+    "<p align=right style='text-align:right'>"
+    "<span style='font-size:12.0pt;font-family:\"Helvetica\",sans-serif;color:black'>"
+    "<img border=0 width=298 height=96 src=\"static/images/alt_logo.jpg\" style='height:1in; width:3.108in' "
+    "alt=\"PM's Science Prizes Logo Alternative\"></span></p></td></tr></table></body></html>",
     request=None,
     reply_to=settings.DEFAULT_FROM_EMAIL,
     invitation=None,
     token=None,
     convert_to_html=False,
 ):
+    if html_message:
+        html_message = html_message + html_footer
 
     if not message and html_message:
         message = html2text.html2text(html_message)
