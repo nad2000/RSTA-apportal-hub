@@ -165,8 +165,8 @@
         {% if requery.user.needs_identity_verification %}
           <div class="alert alert-info alert-dismissible fade show" role="alert">
             <span class="badge badge-info">{% trans 'New' %}</span>
-            {% trans "Your indentity has not been yet verified." %}
-            <a href="{% url 'photo-identity' %}" class="alert-link">{% trans 'Please upload a copy of a photo identity here' %}!</a>
+            {% trans "This Prize requires photo identification for the the lead applicant." %}
+            <a href="{% url 'photo-identity' %}" class="alert-link">{% trans 'Please upload a scan of your Driver's Licence or Passport' %}!</a>
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -179,9 +179,9 @@
               {% if oi.created_at >= three_days_ago %}
                 <span class="badge badge-primary">{% trans 'New' %}</span>
               {% endif %}
-              {% trans "You have an invitation that hasn't been accepted yet." %}
+              {% trans "You have an invitation that hasn't been acted on." %}
               <a href="{% url 'onboard-with-token' token=oi.token %}" class="alert-link">
-                {% trans 'Please click here to accept it' %}!
+                {% trans 'Please click here to review it' %}!
               </a>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -196,7 +196,7 @@
               {% if oiv.created_at >= three_days_ago %}
                 <span class="badge badge-primary">{% trans 'New' %}</span>
               {% endif %}
-              {% trans "A user has submited a photo idenentity for identity verification." %}
+              {% trans "A user has submited a photo for identity verification." %}
               <a href="{% url 'identity-verification' pk=oiv.id %}" class="alert-link">{% trans 'Please click here to review it' %}!</a>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -209,7 +209,7 @@
           {% for o in outstanding_authorization_requests %}
             {% if o.application and o.application.id %}
               <div class="alert alert-info alert-dismissible fade show" role="alert">
-                {% trans "You have a team representative authorization request that hasn't been accepted yet." %}
+                {% trans "You have a request to join a Prize team that you still have to act on." %}
                 <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
                   {% trans 'Please click here to review the request' %}!
                 </a>
