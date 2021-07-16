@@ -401,6 +401,8 @@ class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
     career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
     year_achieved = PositiveSmallIntegerField(
+        null=True,
+        blank=True,
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
         help_text=_("Year that you first attained the career stage"),
     )
@@ -557,7 +559,10 @@ class Affiliation(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE, related_name="affiliations")
     org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name="organisation")
     type = CharField(max_length=10, choices=AFFILIATION_TYPES)
-    role = CharField(max_length=100, null=True, blank=True)  # , help_text="position or degree")
+    role = CharField(max_length=512, null=True, blank=True)  # , help_text="position or degree")
+    qualification = CharField(
+        max_length=512, null=True, blank=True
+    )  # , help_text="position or degree")
     start_date = DateField(null=True, blank=True)
     end_date = DateField(null=True, blank=True)
     put_code = PositiveIntegerField(null=True, blank=True, editable=False)
@@ -991,20 +996,20 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         request = kwargs.get("request")
         if self.round.budget_template and not self.budget:
             raise Exception(
-                _("You have to add a budget spreadsheet before submitting the application")
+                _("You must upload a budget spreadsheet to complete your Prize application")
             )
         if not self.is_tac_accepted:
             if request and request.user:
                 if self.submitted_by == request.user:
                     raise Exception(
                         _(
-                            "You have to accept the Terms and Conditions before submitting the application"
+                            "You must accept the Prize's Terms and Conditions to submit an application"
                         )
                     )
                 else:
                     raise Exception(
                         _(
-                            "Your team lead has to accept the Terms and Conditions before submitting the application"
+                            "Your team lead has not yet accepted the Prize's Terms and Conditions"
                         )
                     )
 
@@ -1015,27 +1020,26 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "and/or uploaded application form"
                 )
             )
-        if not self.submitted_by.needs_identity_verification and not (
-            self.photo_identity and self.photo_identity.state != "accepted"
-        ):
+        if not self.submitted_by.needs_identity_verification and not self.photo_identity:
             raise Exception(
                 _(
                     "Your identity has not been verified. "
-                    "Please upload a copy of your photo identity"
+                    "Please upload a scan of a document proving your identity"
                 )
             )
         if Referee.where(application=self, testified_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
-                    "Not all nominated referees have responded. "
-                    "Please contact your referees or modify the list of your referees"
+                    "Not all nominated referees have responded which prevents your submission. "
+                    "Please either contact your referees, or replace them with one that will respond."
                 )
             )
         if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
-                    "Not all team members have responded and given their consent. "
-                    "Please contact your team members or modify the list of the team members"
+                    "Not all team members have given their consent to be part of the team "
+                    " which prevents your submission. "
+                    "Please either contact your team's members, or modify the team membership"
                 )
             )
         pass
@@ -1261,7 +1265,7 @@ class Member(PersonMixin, MemberMixin, Model):
     )
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.email})"
+        return self.full_name_with_email
 
     @classmethod
     def outstanding_requests(cls, user):
@@ -1512,7 +1516,7 @@ class Invitation(Model):
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
-            subject = _("You are invited to authorize your team representative")
+            subject = _("You are invited to part of a Prime Minister's Science Prize application")
             body = (
                 _(
                     "Kia ora, "
@@ -1527,10 +1531,10 @@ class Invitation(Model):
                     "<html><body>Kia ora,<br/>You have been invited to join %(inviter)s's team for their Prime Minister's Science Prize application.<br/>"
                     "To review this invitation, please follow the link: %(url)s<br/>"
                 )
-                % url
+                % dict(inviter=by, url=url)
             )
         elif self.type == INVITATION_TYPES.R:
-            subject = _("You are invited to testify an application")
+            subject = _("You are invited as a referee for a Prime Minister's Science Prize application")
             body = _(
                 "Kia ora, "
                 "You have been invited to be a referee for %(inviter)s's application to "
@@ -1546,7 +1550,7 @@ class Invitation(Model):
                 % dict(inviter=by, url=url)
             )
         elif self.type == INVITATION_TYPES.A:
-            subject = _("You were nominated for %s") % self.nomination.round
+            subject = _("You have been nominated for %s") % self.nomination.round
             body = _(
                 "Kia ora, "
                 "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please follow the link: %(url)s"
@@ -1580,7 +1584,7 @@ class Invitation(Model):
                 ) % url
             )
         else:
-            subject = _("You are invited to join the PM Science Prize portal")
+            subject = _("You have been given access to the Prime Minister's Science Prize portal")
             body = (
                 _(
                     "You have been given access to the Prime Minister's Science Prize portal. To confirm this access, please follow the link: %s "

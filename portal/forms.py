@@ -335,7 +335,7 @@ class ApplicationForm(forms.ModelForm):
             submit_button = HTML(
                 f"""<span class="d-inline-block" tabindex="0"
     data-toggle="tooltip"
-    title="{_('Your team lead must accept the Terms and Conditions before the submission of the application')}">
+    title="{_('Your team leader must accept the Terms and Conditions before the submission can happen')}">
     <input
         type="submit"
         name="submit"

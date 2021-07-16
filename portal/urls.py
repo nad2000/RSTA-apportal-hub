@@ -9,7 +9,7 @@ from . import apis, models, views
 # app_name = "portal"  ## in case if there is anohter app, add this prefix
 urlpatterns = [
     # path('<int:pk>', ProductDetailView.as_view(), name="product-detail"),
-    # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
+    path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
     path(
         "webmanifest",
         cache_page(3600)(
@@ -331,9 +331,9 @@ urlpatterns = [
         ),
     ),
     # path("", views.subscribe, name="comingsoon"),
+    path("root/", views.index, name="root"),
     path("subscribe/", views.subscribe, name="subscription"),
     path("confirm/<token>", views.confirm_subscription, name="subscription-confirmation"),
-    path("", views.index, name="root"),
     path("unsubscribe/<token>", views.unsubscribe, name="unsubscribe"),
     # path(
     #     "subscription/update/<int:pk>",
