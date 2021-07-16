@@ -1564,11 +1564,12 @@ class Invitation(Model):
                 _(
                     "<html><body>Kia ora,<br/>You have been nominated for the %(round)s by %(inviter)s.<br/>"
                     "To accept this nomination, please follow the link: %(url)s<br/>"
+                )
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
                 url=url,
-            )                
+            )
         elif self.type == INVITATION_TYPES.P:
             subject = _("You are invited to be a Panellist for the Prime Minister's Science Prizes")
             body = (
