@@ -97,7 +97,6 @@
 
   {% block javascript %}
 
-      {% compress js %}
         <script src="{% static '/comingsoon/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
         <script src="{% static '/comingsoon/vendor/bootstrap/js/popper.js' %}"></script>
         <script src="{% static '/comingsoon/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
@@ -129,7 +128,7 @@
           })
         </script>
         <script src="{% static '/comingsoon/js/main.js' %}"></script>
-      {% endcompress %}
+
   {% endblock %}
 
 {% endblock %}
