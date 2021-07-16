@@ -1515,34 +1515,82 @@ class Invitation(Model):
             subject = _("You are invited to authorize your team representative")
             body = (
                 _(
-                    "You are invited to authorize your team representative. Please follow the link: %s"
+                    "Kia ora, "
+                    "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
+                    "To review this invitation, please follow the link: %(url)s"
+                    "Ngā mihi"
+                )
+                % dict(inviter=by, url=url)
+            )
+            html_body = (
+                _(
+                    "<html><body>Kia ora,<br/>You have been invited to join %(inviter)s's team for their Prime Minister's Science Prize application.<br/>"
+                    "To review this invitation, please follow the link: %(url)s<br/>"
                 )
                 % url
             )
         elif self.type == INVITATION_TYPES.R:
             subject = _("You are invited to testify an application")
             body = _(
-                "You are invited to provide a testimonial for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. To accept please follow the link: %(url)s"
+                "Kia ora, "
+                "You have been invited to be a referee for %(inviter)s's application to "
+                "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s"
+                "Ngā mihi"
             ) % dict(inviter=by, url=url)
-
+            html_body = (
+                _(
+                    "<html><body>Kia ora,<br/>You have been invited to be a referee for %(inviter)s's application to the "
+                    "Prime Minister's Science Prize application.<br/>"
+                    "To review this invitation, please follow the link: %(url)s<br/>"
+                )
+                % dict(inviter=by, url=url)
+            )
         elif self.type == INVITATION_TYPES.A:
             subject = _("You were nominated for %s") % self.nomination.round
             body = _(
-                "You were nominated for %(round)s by %(inviter)s. To accept please follow the link: %(url)s"
+                "Kia ora, "
+                "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, please follow the link: %(url)s"
+                "Ngā mihi"
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
                 url=url,
             )
+            html_body = (
+                _(
+                    "<html><body>Kia ora,<br/>You have been nominated for the %(round)s by %(inviter)s.<br/>"
+                    "To accept this nomination, please follow the link: %(url)s<br/>"
+            ) % dict(
+                round=self.nomination.round,
+                inviter=self.inviter,
+                url=url,
+            )                
         elif self.type == INVITATION_TYPES.P:
-            subject = _("You are invited to be a Panellist")
-            body = _("You are invited to as a panellist. Please follow the link: %s") % url
+            subject = _("You are invited to be a Panellist for the Prime Minister's Science Prizes")
+            body = (
+                _(
+                "Kia ora"
+                "You are invited to be a panellist for the Prime Minister's Science Prizes. "
+                "To review this invitation, please follow the link: %s<br/>") % url
+            )
+            html_body = (
+                _(
+                    "<html><body>Kia ora,<br/>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
+                    "To review this invitation, please follow the link: %s<br/>"
+                ) % url
+            )
         else:
             subject = _("You are invited to join the PM Science Prize portal")
             body = (
                 _(
-                    "You are invited to join the PM Science Prize portal. Please follow the link: %s"
+                    "You have been given access to the Prime Minister's Science Prize portal. To confirm this access, please follow the link: %s "
+                )
+                % url
+            )
+            html_body = (
+                _(
+                    "<html><body>Kia ora,<br/>You have been given access to the Prime Minister's Science Prize portal.<br>"
+                    "To confirm this access, please follow the link: %s<br/>"
                 )
                 % url
             )
@@ -1550,6 +1598,7 @@ class Invitation(Model):
         resp = send_mail(
             subject,
             body,
+            html_body,
             recipient_list=[self.email],
             fail_silently=False,
             request=request,
