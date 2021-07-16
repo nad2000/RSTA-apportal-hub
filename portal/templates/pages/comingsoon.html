@@ -107,13 +107,14 @@
         <script src="{% static '/comingsoon/vendor/countdowntime/moment-timezone-with-data.min.js' %}"></script>
         <script src="{% static '/comingsoon/vendor/countdowntime/countdowntime.js' %}"></script>
         <script>
+          var d = new Date();
           $('.cd100').countdown100({
             /*Set Endtime here*/
             /*Endtime must be > current time*/
             endtimeYear: 0,
             endtimeMonth: 0,
-            endtimeDate: 35,
-            endtimeHours: 18,
+            endtimeDate: 30-d.getDate(),
+            endtimeHours: 0,
             endtimeMinutes: 0,
             endtimeSeconds: 0,
             timeZone: ""

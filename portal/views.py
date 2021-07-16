@@ -1959,7 +1959,7 @@ class IwiGroupAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     def get_queryset(self):
 
         if self.q:
-            if django.db.connection.vendor == "sqlite3":
+            if django.db.connection.vendor == "sqlite":
                 return models.IwiGroup.where(description__icontains=self.q).order_by("description")
             else:
                 return (
