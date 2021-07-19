@@ -356,26 +356,31 @@ class ApplicationForm(forms.ModelForm):
         self.helper.layout = Layout(
             TabHolder(*tabs),
             ButtonHolder(
-                Submit(
-                    "save_draft",
-                    _("Save"),
-                    css_class="btn btn-primary",
-                    data_toggle="tooltip",
-                    title=_("Save draft application"),
+                Button("previous", "« " + _("Previous"), css_class="btn btn-outline-primary"),
+                ButtonHolder(
+                    Submit(
+                        "save_draft",
+                        _("Save"),
+                        css_class="btn btn-primary",
+                        data_toggle="tooltip",
+                        title=_("Save draft application"),
+                    ),
+                    submit_button,
+                    HTML(
+                        """
+                        <a href="{{ view.get_success_url }}"
+                        type="button"
+                        role="button"
+                        class="btn btn-secondary"
+                        id="cancel">
+                            %s
+                        </a>"""
+                        % _("Cancel")
+                    ),
+                    Button("next", _("Next") + " »", css_class="btn btn-primary"),
+                    css_class="buttonHolder float-right",
                 ),
-                submit_button,
-                HTML(
-                    """
-                    <a href="{{ view.get_success_url }}"
-                       type="button"
-                       role="button"
-                       class="btn btn-secondary"
-                       id="cancel">
-                        %s
-                    </a>"""
-                    % _("Cancel")
-                ),
-                css_class="buttonHolder mb-5 float-right",
+                css_class="buttonHolder mb-5",
             ),
         )
         self.helper.include_media = False

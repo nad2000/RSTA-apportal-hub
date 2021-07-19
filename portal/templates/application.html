@@ -50,7 +50,7 @@
       document.getElementById("submit-id-submit").hidden = true;
       document.getElementById("cancel").hidden = true;
     }
-    $(function() {
+    $(document).ready(function() {
       bootbox.addLocale('mi', {
         OK      : 'Pai',
         CANCEL  : 'Whakakore',
@@ -135,10 +135,12 @@
         if (location.hash) {
           if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
           if (location.hash == "#referees") activateRefereeTab();
-        }
+        };
+        if (!location.hash || location.hash == "#applicant")
+          document.getElementById("button-id-previous").disabled = true;
+        else if (location.hash.endsWith($(".tab-pane").last().attr('id')))
+          document.getElementById("button-id-next").disabled = true;
       {% endif %}
-    });
-    $(document).ready(function() {
       /* $("#div_id_title").parent().css("min-width", "4rem");
       $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
       $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
@@ -147,6 +149,30 @@
         document.getElementById("submit-id-save_draft").name = "save_draft";
         document.getElementById("submit-id-submit").hidden = false;
         document.getElementById("cancel").hidden = false;
+      });
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        document.getElementById("button-id-next").disabled = (e.target.hash.endsWith($(".tab-pane").last().attr('id')));
+        document.getElementById("button-id-previous").disabled = (e.target.hash == "#applicant");
+      })
+      $('#button-id-next').on('click', function (e) {
+        var active = $(".nav-link.active");
+        if (active.length > 0) {
+          var nextTab = active.parent().next().children();
+          if (nextTab.length > 0) {
+            var nextTabHash = nextTab.attr("href");
+            $('a[href="'+nextTabHash+'"').tab("show");
+          }
+        }
+      });
+      $('#button-id-previous').on('click', function (e) {
+        var active = $(".nav-link.active");
+        if (active.length > 0) {
+          var prevTab = active.parent().prev().children();
+          if (prevTab.length > 0) {
+            var prevTabHash = prevTab.attr("href");
+            $('a[href="'+prevTabHash+'"').tab("show");
+          }
+        }
       });
     });
   </script>
