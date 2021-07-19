@@ -351,17 +351,17 @@ class ApplicationForm(forms.ModelForm):
                 # disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
                 data_toggle="tooltip",
                 title=_("Submit the application"),
-                css_class="btn btn-outline-primary",
+                css_class="btn-outline-primary",
             )
         self.helper.layout = Layout(
             TabHolder(*tabs),
             ButtonHolder(
-                Button("previous", "« " + _("Previous"), css_class="btn btn-outline-primary"),
+                Button("previous", "« " + _("Previous"), css_class="btn-outline-primary"),
                 ButtonHolder(
                     Submit(
                         "save_draft",
                         _("Save"),
-                        css_class="btn btn-primary",
+                        css_class="btn-primary",
                         data_toggle="tooltip",
                         title=_("Save draft application"),
                     ),
@@ -377,7 +377,7 @@ class ApplicationForm(forms.ModelForm):
                         </a>"""
                         % _("Cancel")
                     ),
-                    Button("next", _("Next") + " »", css_class="btn btn-primary"),
+                    Button("next", _("Next") + " »", css_class="btn-primary"),
                     css_class="buttonHolder float-right",
                 ),
                 css_class="buttonHolder mb-5",
@@ -545,7 +545,7 @@ class ProfileSectionFormSetHelper(FormHelper):
         # )
         if previous_step or next_step:
             previous_button = Button(
-                "previous", "« " + _("Previous"), css_class="btn btn-outline-primary"
+                "previous", "« " + _("Previous"), css_class="btn-outline-primary"
             )
             previous_button.input_type = "submit"
             self.add_input(previous_button)
@@ -554,14 +554,14 @@ class ProfileSectionFormSetHelper(FormHelper):
                 _("Complete"),
                 data_toggle="tooltip",
                 title=_("Skip the rest of the profile sections and complete the profile now"),
-                css_class="btn btn-outline-secondary",
+                css_class="btn-outline-secondary",
             )
             complete_button.input_type = "submit"
             self.add_input(complete_button)
             # self.add_input(add_more_button)
             if next_step:
                 next_button = Button(
-                    "next", _("Next") + " »", css_class="btn btn-primary float-right"
+                    "next", _("Next") + " »", css_class="btn-primary float-right"
                 )
                 next_button.input_type = "submit"
                 self.add_input(next_button)
@@ -576,7 +576,7 @@ class ProfileSectionFormSetHelper(FormHelper):
         else:
             # self.add_input(add_more_button)
             self.add_input(Submit("save", _("Save")))
-            self.add_input(Button("cancel", _("Cancel"), css_class="btn btn-danger"))
+            self.add_input(Button("cancel", _("Cancel"), css_class="btn-danger"))
 
 
 class NominationForm(forms.ModelForm):
@@ -694,14 +694,14 @@ class TestimonialForm(forms.ModelForm):
                 Submit(
                     "save_draft",
                     _("Save"),
-                    css_class="btn btn-primary",
+                    css_class="btn-primary",
                     data_toggle="tooltip",
                     title=_("Save draft testimonial"),
                 ),
                 Button(
                     "submit_button",
                     _("Submit"),
-                    css_class="btn btn-outline-primary",
+                    css_class="btn-outline-primary",
                 ),
                 Submit(
                     "turn_down",
@@ -754,12 +754,12 @@ class IdentityVerificationForm(forms.ModelForm):
                 Submit(
                     "accept",
                     _("Accept"),
-                    css_class="btn btn-primary",
+                    css_class="btn-primary",
                 ),
                 Submit(
                     "reject",
                     _("Request resubmission"),
-                    css_class="btn btn-outline-danger",
+                    css_class="btn-outline-danger",
                 ),
                 HTML(
                     """
@@ -815,10 +815,10 @@ class PanellistFormSetHelper(FormHelper):
             Submit(
                 "send_invite",
                 _("Invite"),
-                css_class="btn btn-primary",
+                css_class="btn-primary",
             )
         )
-        self.add_input(Submit("cancel", _("Cancel"), css_class="btn btn-danger"))
+        self.add_input(Submit("cancel", _("Cancel"), css_class="btn-danger"))
 
 
 class ConflictOfInterestForm(forms.ModelForm):
@@ -848,7 +848,7 @@ class ConflictOfInterestForm(forms.ModelForm):
                 Submit(
                     "submit",
                     _("Submit"),
-                    css_class="btn btn-outline-primary",
+                    css_class="btn-outline-primary",
                 ),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""
@@ -1007,7 +1007,7 @@ class ScoreSheetForm(forms.ModelForm):
         fields = [
             "file",
             Submit(
-                "submit", _("Upload the Score Sheet"), css_class="btn btn-primary mb-5 float-right"
+                "submit", _("Upload the Score Sheet"), css_class="btn-primary mb-5 float-right"
             ),
         ]
         if r.score_sheet_template:
