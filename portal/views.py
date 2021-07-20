@@ -52,7 +52,7 @@ from extra_views import (
     UpdateWithInlinesView,
 )
 from private_storage.views import PrivateStorageDetailView
-from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2 import PdfFileMerger
 from sentry_sdk import last_event_id
 from weasyprint import HTML
 
@@ -2638,8 +2638,12 @@ class TestimonialDetail(DetailView):
 
 
 class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
+
     model = None
     template = "pdf_export_template.html"
+
+    def get_metadata(self, pk):
+        return {"/Title": f"{self.model.get(pk)}"}
 
     def get_objects(self, pk):
         return [self.model.get(id=pk)]
@@ -2655,16 +2659,21 @@ class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
             objects = self.get_objects(pk)
             template = get_template(self.template)
             attachments = self.get_attachments(pk)
-            pdf_file_merger = PdfFileMerger()
+            merger = PdfFileMerger()
+            merger.addMetadata(self.get_metadata(pk))
+
             html = HTML(string=template.render({"objects": objects}))
             pdf_object = html.write_pdf(presentational_hints=True)
             # converting pdf bytes to stream which is required for pdf merger.
             pdf_stream = io.BytesIO(pdf_object)
-            pdf_file_merger.append(pdf_stream)
-            for i in attachments:
-                pdf_file_merger.append(PdfFileReader(i, "rb"))
+            merger.append(pdf_stream)
+            for a in attachments:
+                if isinstance(a, (tuple, list)):
+                    merger.append(a[1], bookmark=a[0], import_bookmarks=True)
+                else:
+                    merger.append(a, import_bookmarks=True)
             pdf_content = io.BytesIO()
-            pdf_file_merger.write(pdf_content)
+            merger.write(pdf_content)
             pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
             pdf_response[
                 "Content-Disposition"
@@ -2812,11 +2821,53 @@ class TestimonialExportView(ExportView, TestimonialDetail):
 
     model = models.Testimonial
 
+    def get_metadata(self, pk):
+        testimonial = self.model.get(pk)
+        metadata = super().get_metadata(pk)
+        metadata.update(
+            {
+                "/Author": testimonial.referee.full_name_with_email,
+                "/Subject": testimonial.application.title or testimonial.application.round.title,
+                "/Number": testimonial.application.number,
+            }
+        )
+        return metadata
+
+    def get_filename(self, pk):
+        testimonial = self.model.get(pk)
+        return f"{testimonial.application.number}-{testimonial.referee.full_name_with_email}"
+
+    def test_func(self):
+        u = self.request.user
+        # staff, superuser, or a panellist of the round
+        return (
+            u.is_staff
+            or u.is_superuser
+            or (
+                "pk" in self.kwargs
+                and (t := get_object_or_404(models.Testimonial, pk=self.kwargs["pk"]))
+                and t.referee.user == u
+            )
+        )
+
     def get_attachments(self, pk):
         testimonial = self.model.get(id=pk)
+        attachments = []
         if testimonial.file:
-            return [settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.pdf_file)]
-        return []
+            attachments.append(
+                (
+                    f"{testimonial} {_('Form')}",
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.pdf_file),
+                )
+            )
+        if testimonial.cv:
+            attachments.append(
+                (
+                    f"{testimonial.referee.full_name} {_('Curriculum Vitae')}",
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.cv.pdf_file),
+                )
+            )
+        return attachments
 
 
 class PanellistView(LoginRequiredMixin, ModelFormSetView):

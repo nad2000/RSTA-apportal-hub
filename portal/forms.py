@@ -25,7 +25,6 @@ from django.forms.models import modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
-from django_select2.forms import ModelSelect2MultipleWidget
 from django_summernote.widgets import SummernoteInplaceWidget
 
 from . import models
@@ -165,7 +164,7 @@ class ApplicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         initial = kwargs.get("initial", {})
         user = initial.get("user")
-        language = initial.get("language", "en")
+        # language = initial.get("language", "en")
 
         self.helper = FormHelper(self)
         instance = self.instance

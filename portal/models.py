@@ -50,6 +50,7 @@ from django.db.models import (
     prefetch_related_objects,
 )
 from django.db.models.functions import Cast, Coalesce
+from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.translation import get_language, gettext
 from django.utils.translation import ugettext_lazy as _
@@ -63,7 +64,7 @@ from weasyprint import HTML
 
 from common.models import TITLES, Base, Model, PersonMixin
 
-from .utils import send_mail, vignere
+from .utils import send_mail
 
 GENDERS = Choices(
     (0, _("Prefer not to say")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
@@ -838,7 +839,14 @@ class ApplicationMixin:
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
-    cv = ForeignKey("CurriculumVitae", editable=True, null=True, blank=True, on_delete=PROTECT)
+    cv = ForeignKey(
+        "CurriculumVitae",
+        editable=True,
+        null=True,
+        blank=True,
+        on_delete=PROTECT,
+        verbose_name=_("Curriculum Vitae"),
+    )
     application_title = CharField(max_length=200, null=True, blank=True)
 
     round = ForeignKey("Round", on_delete=PROTECT, related_name="applications")
@@ -924,6 +932,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         null=True,
         blank=True,
         default=None,
+        verbose_name=_("Terms and Conditions accepted at"),
     )
     budget = PrivateFileField(
         blank=True,
@@ -1156,7 +1165,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def to_pdf(self, request=None):
         """Create PDF file for export and return PdfFileMerger"""
 
-        import ssl
+        # import ssl
 
         attachments = []
         if self.file:
@@ -1172,7 +1181,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             if t.file and t.referee
         )
 
-        ssl._create_default_https_context = ssl._create_unverified_context
+        # ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger()
         merger.addMetadata(
@@ -1183,13 +1192,25 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         merger.addMetadata({"/Number": self.number})
         # merger.addMetadata({"/Keywords": self.round.title})
 
-        number = vignere.encode(self.number)
-        url = reverse("application-exported-view", kwargs={"number": number})
-        if request:
-            summary_url = request.build_absolute_uri(url)
-        else:
-            summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
-        html = HTML(summary_url)
+        objects = [self]
+        if (
+            request
+            and (u := request.user)
+            and not (self.submitted_by == u or self.members.all().filter(user=u).exists())
+        ):
+            objects.extend(self.get_testimonials())
+
+        # number = vignere.encode(self.number)
+        # url = reverse("application-exported-view", kwargs={"number": number})
+        # if request:
+        #     summary_url = request.build_absolute_uri(url)
+        # else:
+        #     summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+        # html = HTML(summary_url)
+
+        template = get_template("application-export.html")
+        html = HTML(string=template.render({"objects": objects}))
+
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
         pdf_stream = io.BytesIO(pdf_object)
@@ -1746,7 +1767,14 @@ class Testimonial(PdfFileMixin, Model):
         null=True,
     )
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
-    cv = ForeignKey("CurriculumVitae", editable=True, null=True, blank=True, on_delete=PROTECT)
+    cv = ForeignKey(
+        "CurriculumVitae",
+        editable=True,
+        null=True,
+        blank=True,
+        on_delete=PROTECT,
+        verbose_name=_("Curriculum Vitae"),
+    )
     state = FSMField(default="new")
 
     @property
@@ -2555,7 +2583,14 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
     application = OneToOneField(
         Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
     )
-    cv = ForeignKey(CurriculumVitae, editable=True, null=True, blank=True, on_delete=PROTECT)
+    cv = ForeignKey(
+        CurriculumVitae,
+        editable=True,
+        null=True,
+        blank=True,
+        on_delete=PROTECT,
+        verbose_name=_("Curriculum Vitae"),
+    )
 
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
 
