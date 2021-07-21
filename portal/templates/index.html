@@ -158,16 +158,17 @@
                     {% elif has_submitted %}
                       disabled
                       data-title="{% trans 'You have already submited one application in this round' %}"
-                    {% elif not round.direct_application_allowed or not round|user_has_nomination:user %}
+                    {% elif not round.direct_application_allowed and not round|user_has_nomination:user %}
                       disabled
                       data-title="{% trans 'You need to be nominated in order to apply for the application' %}"
                     {% else %}
                       data-title="{% trans 'Start a new application' %}"
                     {% endif %}
                   >
-                    <a href="{% url 'application-create' round=round.id %}" class="btn btn-primary {% if not round.is_open or s.is_panellist or has_submitted or not round.direct_application_allowed or not round|user_has_nomination:user %}disabled{% endif %}"
+                    <a href="{% url 'application-create' round=round.id %}" class="btn btn-primary {% if not round.is_open or s.is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}"
+
                       style="text-transform: uppercase;"
-                      {% if not round.is_open or not round.direct_application_allowed or not round|user_has_nomination:user %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                      {% if not round.is_open or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
                     </a>
                   </div>
                 {% endif %}

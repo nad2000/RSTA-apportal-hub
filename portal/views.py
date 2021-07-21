@@ -1387,9 +1387,14 @@ class ApplicationCreate(ApplicationView, CreateView):
         a.round = self.round
         a.scheme = a.round.scheme
         resp = super().form_valid(form)
-        n = self.nomination
+        n = (
+            self.nomination
+            or self.round.user_nominations(self.request.user).order_by("-id").first()
+        )
         if n:
             n.application = self.object
+            if not n.user:
+                n.user = self.request.user
             n.save()
         return resp
 
@@ -2303,6 +2308,16 @@ class NominationView(CreateUpdateView):
         #         _("You cannot nominate yourself to apply to this round."),
         #     )
         #     return redirect(self.request.get_full_path())
+
+        # user = self.request.user
+        # if not user.is_superuser and (
+        #     n.email == user.email or EmailAddress.objects.filter(email=n.email, user=user)
+        # ):
+        #     messages.error(
+        #         self.request,
+        #         _("You cannot nominate yourself for this round."),
+        #     )
+        #     return resp
 
         if self.request.method == "POST" and "file" in form.changed_data and n.file:
 

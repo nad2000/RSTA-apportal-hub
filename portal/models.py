@@ -9,6 +9,7 @@ from datetime import date, datetime
 from urllib.parse import urljoin, urlparse
 
 import simple_history
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -43,6 +44,7 @@ from django.db.models import (
     Prefetch,
     Q,
     SmallIntegerField,
+    Subquery,
     Sum,
     TextField,
     URLField,
@@ -2160,9 +2162,20 @@ class Round(Model):
     def get_absolute_url(self):
         return f"{reverse('applications')}?round={self.id}"
 
+    def user_nominations(self, user):
+
+        return Nomination.where(
+            Q(user=user)
+            | Q(email=user.email)
+            | Q(email__in=Subquery(EmailAddress.objects.filter(user=user).values("email"))),
+            status__in=["submitted", "accepted"],
+            round=self,
+        )
+
     def user_has_nomination(self, user):
         """User has a nomination to apply for the round."""
-        return Nomination.where(user=user, state__in=["submitted", "accepted"]).exists()
+
+        return self.user_nominations(user).exists()
 
     @property
     def is_open(self):
@@ -2595,6 +2608,19 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
     )
 
     status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
+
+    def clean(self, *args, **kwargs):
+        super().clean(*args, **kwargs)
+        user = self.nominator
+        if (
+            user
+            and not user.is_superuser
+            and (
+                self.email == user.email
+                or EmailAddress.objects.filter(email=self.email, user=user)
+            )
+        ):
+            raise ValidationError(_("You cannot nominate yourself for this round."))
 
     @transition(
         field=status,
