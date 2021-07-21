@@ -2596,7 +2596,7 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
         User, null=True, blank=True, on_delete=SET_NULL, related_name="nominations_to_apply"
     )
     application = OneToOneField(
-        Application, null=True, blank=True, on_delete=CASCADE, related_name="nomination"
+        Application, null=True, blank=True, on_delete=SET_NULL, related_name="nomination"
     )
     cv = ForeignKey(
         CurriculumVitae,
@@ -2660,6 +2660,13 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
             return (i, False)
         return (i, True)
 
+    @transition(
+        field=status,
+        target=NOMINATION_STATUS.accepted,
+    )
+    def accept(self, *args, **kwargs):
+        pass
+
     @classmethod
     def user_nomination_count(cls, user, status=None):
         sql = """
@@ -2712,7 +2719,7 @@ class IdentityVerification(Model):
     )
     application = OneToOneField(
         Application,
-        on_delete=CASCADE,
+        on_delete=SET_NULL,
         null=True,
         blank=True,
         related_name="identity_verification",

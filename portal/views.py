@@ -1391,11 +1391,15 @@ class ApplicationCreate(ApplicationView, CreateView):
             self.nomination
             or self.round.user_nominations(self.request.user).order_by("-id").first()
         )
-        if n:
+        if n and not n.application:
             n.application = self.object
             if not n.user:
                 n.user = self.request.user
+            if n.status != models.NOMINATION_STATUS.accepted:
+                n.accept()
             n.save()
+            reset_cache(self.request)
+
         return resp
 
 
