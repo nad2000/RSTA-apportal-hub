@@ -20,7 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Count, Exists, F, Func, OuterRef, Q, Subquery, Value
+from django.db.models import Count, Exists, F, Func, OuterRef, Q, Value
 from django.db.models.functions import Coalesce
 from django.forms import widgets  # BooleanField,
 from django.forms import DateInput, Form, HiddenInput, TextInput, modelformset_factory
@@ -2493,6 +2493,7 @@ class TestimonialView(CreateUpdateView):
                     self.request,
                     _("You opted out of Testimonial."),
                 )
+                reset_cache(self.request)
                 return HttpResponseRedirect(reverse("testimonials"))
         else:
             messages.warning(
@@ -2598,20 +2599,9 @@ class TestimonialList(LoginRequiredMixin, SingleTableView):
     template_name = "testimonials.html"
 
     def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        u = self.request.user
-        if not (u.is_staff or u.is_superuser):
-            referee = models.Referee.where(user=u).values("id")
-            queryset = queryset.filter(referee__in=Subquery(referee))
 
         state = self.request.path.split("/")[-1]
-        if state == "draft":
-            queryset = queryset.filter(state__in=[state, "new"])
-        elif state == "submitted":
-            queryset = queryset.filter(state=state)
-        else:
-            queryset = queryset.filter(state__in=["draft", "submitted"])
-        return queryset
+        return self.model.user_testimonials(user=self.request.user, state=state)
 
 
 class TestimonialDetail(DetailView):

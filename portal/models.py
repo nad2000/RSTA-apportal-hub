@@ -1795,8 +1795,10 @@ class Testimonial(PdfFileMixin, Model):
     @classmethod
     def user_testimonials(cls, user, state=None, round=None):
         q = cls.objects.all()
-        if not (user.is_staff and user.is_superuser):
+        if not (user.is_staff or user.is_superuser):
             q = q.filter(referee__user=user)
+        if state == "draft":
+            q = q.filter(state__in=[state, "new"])
         if state:
             q = q.filter(state=state)
         else:
