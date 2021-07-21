@@ -888,6 +888,11 @@ class ApplicationDetail(DetailView):
                     request=self.request,
                     reply_to=settings.DEFAULT_FROM_EMAIL,
                 )
+            messages.info(
+                self.request,
+                _("Thank you for accepting the invitation."),
+            )
+
         elif "turn_down" in request.POST:
             member.has_authorized = False
             member.status = models.MEMBER_STATUS.opted_out
@@ -1158,6 +1163,13 @@ class ApplicationView(LoginRequiredMixin):
 
                     a.submit(request=self.request)
                     a.save()
+                    messages.info(
+                        self.request,
+                        _(
+                            "Your application has been successfully submitted. "
+                            "The Prize secretariat will be in touch if there is anything more needed. Good luck."
+                        ),
+                    )
 
                 elif (
                     self.request.method == "POST"
@@ -2487,6 +2499,14 @@ class TestimonialView(CreateUpdateView):
 
                 t.submit(request=self.request)
                 t.save()
+                messages.info(
+                    self.request,
+                    _(
+                        "Your referee report has been submitted. The Prize secretariat will be in touch "
+                        "if there is anything more needed. Thank you for your participation."
+                    ),
+                )
+
             elif "save_draft" in self.request.POST:
                 t.save_draft(request=self.request)
                 t.save()
