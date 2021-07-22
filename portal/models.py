@@ -1183,6 +1183,21 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             if t.file and t.referee
         )
 
+        if cv := (
+            self.cv
+            or CurriculumVitae.where(
+                Q(owner=self.submitted_by) | Q(profile__user_id=self.submitted_by_id)
+            )
+            .order_by("-id")
+            .first()
+        ):
+            attachments.append(
+                (
+                    f"{cv.full_name} {_('Curriculum Vitae')}",
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(cv.pdf_file),
+                )
+            )
+
         # ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger()
@@ -1839,7 +1854,7 @@ FILE_TYPE = Choices("CV")
 #         db_table = "private_file"
 
 
-class CurriculumVitae(PdfFileMixin, Model):
+class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
     profile = ForeignKey(Profile, on_delete=CASCADE)
     owner = ForeignKey(User, on_delete=CASCADE)
     title = CharField("title", max_length=200, null=True, blank=True)

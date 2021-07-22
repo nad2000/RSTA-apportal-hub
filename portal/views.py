@@ -2892,7 +2892,7 @@ class TestimonialExportView(ExportView, TestimonialDetail):
         if testimonial.cv:
             attachments.append(
                 (
-                    f"{testimonial.referee.full_name} {_('Curriculum Vitae')}",
+                    f"{testimonial.cv} {_('Curriculum Vitae')}",
                     settings.PRIVATE_STORAGE_ROOT + "/" + str(testimonial.cv.pdf_file),
                 )
             )

@@ -84,28 +84,29 @@ class PersonMixin:
     def get_user(self):
         if hasattr(self, "user"):
             return self.user
+        elif hasattr(self, "owner") and self.owner:
+            return self.owner
         elif hasattr(self, "submitted_by"):
             return self.submitted_by
+        elif hasattr(self, "profile") and self.profile.user:
+            return self.profile.user
 
     @property
     def full_name(self):
-        full_name = self.first_name or self.user and self.user.first_name or ""
         user = self.get_user()
-        if self.middle_names or user and user.middle_names:
-            full_name += f" {(self.middle_names or user.middle_names)}"
-        if self.last_name or user and user.last_name:
-            full_name += f" {self.last_name or user.last_name}"
+        full_name = hasattr(self, "first_name") and self.first_name or user and user.first_name or ""
+        if hasattr(self, "middle_names") or user and user.middle_names:
+            full_name += f" {getattr(self, 'middle_names', user.middle_names)}"
+        if hasattr(self, "last_name") or user and user.last_name:
+            full_name += f" {getattr(self, 'last_name', user.last_name)}"
         if hasattr(self, "title") and self.title:
             full_name = f"{self.title} {full_name}"
         return full_name
 
     @property
     def full_name_with_email(self):
-        full_name = self.first_name or self.user.first_name
-        user = self.get_user()
-        if self.middle_names or user.middle_names:
-            full_name += f" {(self.middle_names or user.middle_names)}"
-        return f"{full_name} {self.last_name or user.last_name} ({self.email or user.email})"
+        email = getattr(self, "email", self.user.email)
+        return f"{self.full_name} ({email})"
 
     def __str__(self):
         return self.full_name
