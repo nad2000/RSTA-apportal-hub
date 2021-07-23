@@ -135,7 +135,8 @@
               {% trans 'Username' %}
               <span class="asteriskField">*</span> </label>
             <div>
-              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value|default_if_none:'' }}">
+              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value|default_if_none:'' }}"
+              onfocus="setDefaultUsername(this)">
             </div>
           </div>
 

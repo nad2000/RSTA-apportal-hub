@@ -21,3 +21,18 @@
 {% block footer %}
   {% include 'footer_full.html' %}
 {% endblock footer %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    function setDefaultUsername(el) {
+      if (!el.value) {
+        var email = document.getElementById("id_email").value;
+        if (email) {
+          var parts = email.split("@");
+          if (parts && parts.length > 0) el.value = parts[0];
+        }
+      }
+    }
+  </script>
+{% endblock javascript %}
