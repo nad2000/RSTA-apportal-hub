@@ -1554,15 +1554,15 @@ class Invitation(Model):
         if self.type == INVITATION_TYPES.T:
             subject = _("You are invited to part of a Prime Minister's Science Prize application")
             body = _(
-                "Kia ora, "
+                "Kia ora,\n"
                 "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
-                "To review this invitation, please follow the link: %(url)s"
+                "To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = _(
                 "Kia ora,<br/>You have been invited to join %(inviter)s's team for their "
                 "Prime Minister's Science Prize application.<br/>"
-                "To review this invitation, please follow the link: %(url)s<br/>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.R:
             subject = _(
@@ -1571,20 +1571,20 @@ class Invitation(Model):
             body = _(
                 "Kia ora, "
                 "You have been invited to be a referee for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s"
+                "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = _(
                 "Kia ora,<br/>You have been invited to be a referee for %(inviter)s's application to the "
                 "Prime Minister's Science Prize application.<br/>"
-                "To review this invitation, please follow the link: %(url)s<br/>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.A:
             subject = _("You have been nominated for %s") % self.nomination.round
             body = _(
-                "Kia ora, "
+                "Kia ora,\n"
                 "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, "
-                "please follow the link: %(url)s"
+                "please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(
                 round=self.nomination.round,
@@ -1594,7 +1594,7 @@ class Invitation(Model):
             html_body = (
                 _(
                     "Kia ora,<br/>You have been nominated for the %(round)s by %(inviter)s.<br/>"
-                    "To accept this nomination, please follow the link: %(url)s<br/>"
+                    "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
                 )
             ) % dict(
                 round=self.nomination.round,
@@ -1608,7 +1608,7 @@ class Invitation(Model):
             body = (
                 _(
                     "Kia ora"
-                    "You are invited to be a panellist for the Prime Minister's Science Prizes. "
+                    "You are invited to be a panellist for the Prime Minister's Science Prizes. \n"
                     "To review this invitation, please follow the link: %s<br/>"
                 )
                 % url
@@ -1616,7 +1616,7 @@ class Invitation(Model):
             html_body = (
                 _(
                     "Kia ora,<br/>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
-                    "To review this invitation, please follow the link: %s<br/>"
+                    "To review this invitation, please follow the link: <a href='%(url)s'>%s</a><br/>"
                 )
                 % url
             )
@@ -1632,7 +1632,7 @@ class Invitation(Model):
             html_body = (
                 _(
                     "Kia ora,<br/>You have been given access to the Prime Minister's Science Prize portal.<br>"
-                    "To confirm this access, please follow the link: %s<br/>"
+                    "To confirm this access, please follow the link: <a href='%s'>%s</a><br/>"
                 )
                 % url
             )
