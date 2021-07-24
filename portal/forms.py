@@ -587,6 +587,8 @@ class NominationForm(forms.ModelForm):
         self.helper.include_media = False
         self.helper.form_id = "nomination-form"
         fields = [
+            "round",
+            "nominator",
             Fieldset(
                 _("Nominee"),
                 Row(
@@ -644,6 +646,8 @@ class NominationForm(forms.ModelForm):
     class Meta:
         model = models.Nomination
         fields = [
+            "round",
+            "nominator",
             "title",
             "first_name",
             "middle_names",
@@ -652,14 +656,14 @@ class NominationForm(forms.ModelForm):
             "org",
             # "summary",
             "file",
-            # "nominator",
-            "file",
         ]
         widgets = dict(
             org=autocomplete.ModelSelect2(
                 "org-autocomplete",
                 attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
+            nominator=HiddenInput(),
+            round=HiddenInput(),
             # summary=SummernoteInplaceWidget(),
         )
 

@@ -2573,7 +2573,7 @@ class NominationMixin:
 
 class Nomination(NominationMixin, PdfFileMixin, Model):
 
-    round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="nominations")
+    round = ForeignKey(Round, on_delete=CASCADE, related_name="nominations")
 
     # Nominee personal data
     title = CharField(max_length=40, null=True, blank=True, choices=TITLES)

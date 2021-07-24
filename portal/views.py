@@ -1991,7 +1991,7 @@ class EthnicityAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView
     def get_queryset(self):
 
         if self.q:
-            if django.db.connection.vendor == "sqlite3":
+            if django.db.connection.vendor == "sqlite":
                 return models.Ethnicity.where(description__icontains=self.q).order_by(
                     "description"
                 )
@@ -2310,8 +2310,10 @@ class NominationView(CreateUpdateView):
         n = form.instance
 
         if not n.id:
-            n.nominator = self.request.user
-            n.round = self.round
+            if not n.nominator:
+                n.nominator = self.request.user
+            if not n.round:
+                n.round = self.round
 
         resp = super().form_valid(form)
 
@@ -2417,6 +2419,7 @@ class NominationView(CreateUpdateView):
             if a:
                 kwargs["initial"]["org"] = a.org
         kwargs["initial"]["round"] = self.round
+        kwargs["initial"]["nominator"] = self.request.user
         return kwargs
 
     def get_context_data(self, **kwargs):
