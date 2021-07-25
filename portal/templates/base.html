@@ -190,6 +190,23 @@
           {% endfor %}
         {% endif %}
 
+        {% if outstanding_nominations and outstanding_nominations.count %}
+          {% for n in outstanding_nominations %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              {% if n.created_at >= three_days_ago %}
+                <span class="badge badge-primary">{% trans 'New' %}</span>
+              {% endif %}
+              {% trans "You have a nomination to apply that hasn't been acted on." %}
+              <a href="{% url 'nomination-application-create' nomination=n.pk %}" class="alert-link">
+                {% trans 'Please click here to review it' %}!
+              </a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
         {% if outstanding_identity_verifications  %}
           {% for oiv in outstanding_identity_verifications %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">

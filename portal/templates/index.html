@@ -139,7 +139,7 @@
                     {% endif %}
                   >
                 <a href="{% if application and application.id %}{% url 'application-update' pk=application.id %}{% else %}#{% endif %}"
-                    class="btn btn-primary{% if s.application.state == 'submitted'%} disabled{% endif %}"
+                    class="btn btn-primary{% if application.state == 'submitted'%} disabled{% endif %}"
                     style="text-transform: uppercase;"
                   > {% trans "Continue" %} <b>{% trans "Application" %}</b>
                   </a>

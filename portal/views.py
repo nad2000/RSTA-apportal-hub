@@ -315,6 +315,7 @@ def index(request):
         outstanding_authorization_requests = models.Member.outstanding_requests(user)
         outstanding_testimonial_requests = models.Referee.outstanding_requests(user)
         outstanding_review_requests = models.Panellist.outstanding_requests(user)
+        outstanding_nominations = models.Nomination.where(status__in=["sent", "submitted"], user=user)
         draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
@@ -2390,11 +2391,12 @@ class NominationView(CreateUpdateView):
                     return redirect(reverse("profile-cvs") + "?next=" + next_url)
 
             invitation, created = n.submit(request=self.request)
-            if created:
-                messages.info(
-                    self.request,
-                    _("Invitation to submit an application sent to %s.") % invitation.email,
-                )
+            messages.info(
+                self.request,
+                _("Invitation to submit an application sent to %s.") % invitation.email
+                if created
+                else _("Invitation to submit an application resent to %s.") % invitation.email,
+            )
         elif self.request.method == "POST" or "save_draft" in self.request.POST:
             n.save_draft()
 
