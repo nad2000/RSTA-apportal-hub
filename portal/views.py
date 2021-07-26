@@ -463,6 +463,7 @@ class ProfileView:
         if not form.is_valid():
             return self.form_invalid(form)
         form.save()
+        reset_cache(self.request)
         return super().post(request, *args, **kwargs)
 
 
@@ -501,6 +502,7 @@ def profile_protection_patterns(request):
         if "wizard" in request.session:
             del request.session["wizard"]
             request.session.modified = True
+        reset_cache(request)
         return redirect("index")
 
     protection_patterns = profile.protection_patterns
@@ -995,94 +997,99 @@ class ApplicationView(LoginRequiredMixin):
         referees = context["referees"]
         reset_cache(self.request)
 
-        with transaction.atomic():
-            form.instance.organisation = form.instance.org.name
-            resp = super().form_valid(form)
-            has_deleted = False
-            user = self.request.user
-            a = self.object
+        try:
+            with transaction.atomic():
 
-            if a.is_team_application:
-                members = context["members"]
-                has_deleted = bool(members.deleted_forms)
-                if has_deleted:
-                    # url = self.request.path_info + "?members=1"
-                    url = self.request.path_info.split("?")[0] + "#application"
-                if members.is_valid():
-                    members.instance = a
-                    members.save()
-                    count = invite_team_members(self.request, a)
+                form.instance.organisation = form.instance.org.name
+                resp = super().form_valid(form)
+
+                has_deleted = False
+                user = self.request.user
+                a = self.object
+
+                if a.is_team_application:
+                    members = context["members"]
+                    has_deleted = bool(members.deleted_forms)
+                    if has_deleted:
+                        # url = self.request.path_info + "?members=1"
+                        url = self.request.path_info.split("?")[0] + "#application"
+                    if members.is_valid():
+                        members.instance = a
+                        members.save()
+                        count = invite_team_members(self.request, a)
+                        if count > 0:
+                            messages.success(
+                                self.request,
+                                _("%d invitation(s) to join the team have been sent.") % count,
+                            )
+                    if has_deleted:
+                        return redirect(url)
+
+                if identity_verification_form := context.get("identity_verification"):
+                    identity_verification_form.instance.application = a
+                    if identity_verification_form.is_valid():
+                        identity_verification_form.save()
+
+                referees.instance = a
+                if referees.is_valid():
+                    # referees.instance = a
+                    has_deleted = bool(has_deleted or referees.deleted_forms)
+                    if has_deleted or "send_invitations" in self.request.POST:
+                        url = self.request.path_info.split("?")[0] + "#referees"
+                    referees.save()
+                    count = invite_referee(self.request, a)
                     if count > 0:
                         messages.success(
                             self.request,
-                            _("%d invitation(s) to join the team have been sent.") % count,
+                            _("%d referee invitation(s) sent.") % count,
                         )
-                if has_deleted:
-                    return redirect(url)
+                    if has_deleted:
+                        return redirect(url)
+                else:
+                    for f in referees.forms:
+                        if not f.is_valid():
+                            form.errors.update(f.errors)
+                            raise Exception(_("Invalid referee form"))
 
-            if identity_verification_form := context.get("identity_verification"):
-                identity_verification_form.instance.application = a
-                if identity_verification_form.is_valid():
-                    identity_verification_form.save()
-
-            if referees.is_valid():
-                referees.instance = a
-                has_deleted = bool(has_deleted or referees.deleted_forms)
-                if has_deleted or "send_invitations" in self.request.POST:
-                    url = self.request.path_info.split("?")[0] + "#referees"
-                referees.save()
-                count = invite_referee(self.request, a)
-                if count > 0:
-                    messages.success(
-                        self.request,
-                        _("%d referee invitation(s) sent.") % count,
+                if "photo_identity" in form.changed_data and form.instance.photo_identity:
+                    iv, created = models.IdentityVerification.get_or_create(
+                        application=form.instance,
+                        user=self.request.user,
+                        defaults=dict(file=form.instance.photo_identity),
                     )
-                if has_deleted:
-                    return redirect(url)
-            else:
-                for f in referees.forms:
-                    if not f.is_valid():
-                        form.errors.update(f.errors)
-                        break
-                return self.form_invalid(form)
+                    iv.send(self.request)
+                    iv.save()
 
-            if "photo_identity" in form.changed_data and form.instance.photo_identity:
-                iv, created = models.IdentityVerification.get_or_create(
-                    application=form.instance,
-                    user=self.request.user,
-                    defaults=dict(file=form.instance.photo_identity),
-                )
-                iv.send(self.request)
-                iv.save()
+                if ethics_statement_form := context.get("ethics_statement"):
+                    ethics_statement_form.instance.application = a
+                    if ethics_statement_form.is_valid():
+                        ethics_statement_form.save()
 
-            if ethics_statement_form := context.get("ethics_statement"):
-                ethics_statement_form.instance.application = a
-                if ethics_statement_form.is_valid():
-                    ethics_statement_form.save()
+                if "file" in form.changed_data and form.instance.file:
+                    try:
+                        if cf := form.instance.update_converted_file():
+                            messages.success(
+                                self.request,
+                                _(
+                                    "Your application form was converted into PDF file. "
+                                    "Please review the converted application form version <a href='%s'>%s</a>."
+                                )
+                                % (cf.file.url, os.path.basename(cf.file.name)),
+                            )
 
-            if "file" in form.changed_data and form.instance.file:
-                try:
-                    if cf := form.instance.update_converted_file():
-                        messages.success(
+                    except:
+                        messages.error(
                             self.request,
                             _(
-                                "Your application form was converted into PDF file. "
-                                "Please review the converted application form version <a href='%s'>%s</a>."
-                            )
-                            % (cf.file.url, os.path.basename(cf.file.name)),
+                                "Failed to convert your application form into PDF. "
+                                "Please save your application form into PDF format and try to upload it again."
+                            ),
                         )
-
-                except:
-                    messages.error(
-                        self.request,
-                        _(
-                            "Failed to convert your application form into PDF. "
-                            "Please save your application form into PDF format and try to upload it again."
-                        ),
-                    )
-                    # url = self.request.path_info.split("?")[0] + "?summary=1"
-                    url = self.request.path_info.split("?")[0] + "#summary"
-                    return redirect(url)
+                        # url = self.request.path_info.split("?")[0] + "?summary=1"
+                        url = self.request.path_info.split("?")[0] + "#summary"
+                        return redirect(url)
+        except:
+            return self.form_invalid(form)
 
         if has_deleted:  # keep editing
             return redirect(url)
@@ -1323,6 +1330,10 @@ class ApplicationView(LoginRequiredMixin):
         """Return the keyword arguments for instantiating the form."""
         kwargs = super().get_form_kwargs()
         kwargs["initial"]["user"] = self.request.user
+
+        if self.object and self.object.id:
+            return kwargs
+
         if "nomination" in self.kwargs:
             kwargs["initial"]["nomination"] = self.kwargs["nomination"]
             kwargs["initial"]["round"] = self.round.id

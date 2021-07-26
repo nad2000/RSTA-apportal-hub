@@ -1362,7 +1362,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
     )
 
     def clean(self):
-        if not self.application.file:
+        if self.application_id and not self.application.file:
             raise ValidationError(
                 _("Before inviting referees, please upload a completed application form.")
             )

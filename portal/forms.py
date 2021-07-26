@@ -21,7 +21,7 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput, Widget, inlineformset_factory
-from django.forms.models import modelformset_factory, BaseInlineFormSet
+from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
