@@ -21,7 +21,7 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.forms import HiddenInput, Widget, inlineformset_factory
-from django.forms.models import modelformset_factory
+from django.forms.models import modelformset_factory, BaseInlineFormSet
 from django.forms.widgets import NullBooleanSelect, TextInput
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
@@ -159,6 +159,7 @@ class ProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -440,10 +441,16 @@ class RefereeForm(forms.ModelForm):
         )
 
 
+class MandatoryApplicationFormInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        pass
+
+
 RefereeFormSet = inlineformset_factory(
     models.Application,
     models.Referee,
     form=RefereeForm,
+    formset=MandatoryApplicationFormInlineFormSet,
     extra=1,
     can_delete=True,
 )

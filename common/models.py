@@ -91,21 +91,23 @@ class PersonMixin:
         elif hasattr(self, "profile") and self.profile.user:
             return self.profile.user
 
+
     @property
     def full_name(self):
         user = self.get_user()
         full_name = hasattr(self, "first_name") and self.first_name or user and user.first_name or ""
         if hasattr(self, "middle_names") or user and user.middle_names:
-            full_name += f" {getattr(self, 'middle_names', user.middle_names)}"
+            full_name += f" {getattr(self, 'middle_names', None) or user and user.middle_names}"
         if hasattr(self, "last_name") or user and user.last_name:
-            full_name += f" {getattr(self, 'last_name', user.last_name)}"
+            full_name += f" {getattr(self, 'last_name', None) or user and user.last_name}"
         if hasattr(self, "title") and self.title:
             full_name = f"{self.title} {full_name}"
         return full_name
 
     @property
     def full_name_with_email(self):
-        email = getattr(self, "email", self.user.email)
+        user = self.get_user()
+        email = getattr(self, "email", None) or user.email
         return f"{self.full_name} ({email})"
 
     def __str__(self):

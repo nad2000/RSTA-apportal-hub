@@ -1357,6 +1357,10 @@ class Referee(RefereeMixin, PersonMixin, Model):
         monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
     )
 
+    def clean(self):
+        if not self.application.file:
+            raise ValidationError(_("Before inviting referees, please upload a completed application form."))
+
     def __str__(self):
         return str(self.user or self.email)
 

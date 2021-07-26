@@ -1039,6 +1039,12 @@ class ApplicationView(LoginRequiredMixin):
                     )
                 if has_deleted:
                     return redirect(url)
+            else:
+                for f in referees.forms:
+                    if not f.is_valid():
+                        form.errors.update(f.errors)
+                        break
+                return self.form_invalid(form)
 
             if "photo_identity" in form.changed_data and form.instance.photo_identity:
                 iv, created = models.IdentityVerification.get_or_create(
@@ -1370,17 +1376,16 @@ class ApplicationCreate(ApplicationView, CreateView):
             )
             return redirect("home")
 
-        if "nomination" not in kwargs:
-            a = (
-                models.Application.where(submitted_by=request.user, round=r)
-                .order_by("-id")
-                .first()
+        a = (
+            models.Application.where(submitted_by=request.user, round=r)
+            .order_by("-id")
+            .first()
+        )
+        if a:
+            messages.warning(
+                self.request, _("You have already created an application. Please update it.")
             )
-            if a:
-                messages.warning(
-                    self.request, _("You have already created an application. Please update it.")
-                )
-                return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
+            return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
         return super().get(request, *args, **kwargs)
 
     # def get_context_data(self, **kwargs):

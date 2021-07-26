@@ -25,7 +25,13 @@
           {% if inlines %}
             <hr />
             {% for formset in inlines %}
-              {% crispy formset helper %}
+              {% if helper %}
+                {% crispy formset helper %}
+              {% elif formset.helper %}
+                {% crispy formset formset.helper %}
+              {% else %}
+                {% crispy formset %}
+              {% endif %}
             {% endfor %}
           {% endif %}
 
