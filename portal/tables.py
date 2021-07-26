@@ -99,10 +99,10 @@ def application_link(table, record, value):
     u = table.request.user
     if u.is_staff or u.is_superuser:
         return reverse("admin:portal_application_change", kwargs={"object_id": record.id})
-    if record.state == "submitted":
-        return record.get_absolute_url()
-    else:
+    if record.state != "submitted" and record.is_applicant(u):
         return reverse("application-update", kwargs={"pk": record.id})
+    else:
+        return record.get_absolute_url()
 
 
 def application_round_link(table, record, value):

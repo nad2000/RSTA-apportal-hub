@@ -23,7 +23,7 @@
             <th class="table-dark" scope="row" style="width: 21%; min-width: 160px; max-width: 180px;">
               {% trans 'Application' %}</th>
             <td colspan="3">
-              {% if request.user.is_superuser %}
+              {% if u.is_superuser %}
                 <a href="{% url 'admin:portal_application_change' object_id=a.id %}">
                   {{ a.number }}{% if a.application_title %}: {{ a.application_title }}{% endif %}
                 </a>
@@ -184,7 +184,7 @@
 
         {% endif %}
 
-        {% if request.user.is_staff or request.user.is_superuser %}
+        {% if u.is_staff or u.is_superuser %}
           <tr>
             <th class="table-dark" scope="row">{% trans 'Photo Identity' %}</th>
             <td colspan="3">
@@ -195,7 +195,7 @@
           </tr>
         {% endif %}
 
-        {% if a.referees.all.count %}
+        {% if a.referees.all.count and a|can_see_referees:u %}
           <tr>
             <th class="table-dark" scope="row">{% trans 'Referees' %}</th>
             <td colspan="3">

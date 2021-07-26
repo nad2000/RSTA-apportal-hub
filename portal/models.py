@@ -961,6 +961,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         ],
     )
 
+    def is_applicant(self, user):
+        """Is user the mail applicant or a memeber."""
+        return self.submitted_by == user or self.members.all().filter(user=user).exists()
+
     def get_score_entries(self, user=None, panellist=None):
         if not panellist:
             panellist = Panellist.get(user=user, round=self.round)
@@ -1359,7 +1363,9 @@ class Referee(RefereeMixin, PersonMixin, Model):
 
     def clean(self):
         if not self.application.file:
-            raise ValidationError(_("Before inviting referees, please upload a completed application form."))
+            raise ValidationError(
+                _("Before inviting referees, please upload a completed application form.")
+            )
 
     def __str__(self):
         return str(self.user or self.email)

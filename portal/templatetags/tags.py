@@ -31,6 +31,12 @@ def can_edit(value, user):
 
 
 @register.filter()
+def can_see_referees(value, user):
+    """User can access list of the referees - applicants or panellists."""
+    return value.submitted_by == user or value.round.panellists.all().filter(user=user).exists()
+
+
+@register.filter()
 def field_value(value, name):
     """Returns the value of the field of an object."""
     try:
