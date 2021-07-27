@@ -25,6 +25,7 @@ from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django_summernote.widgets import SummernoteInplaceWidget
 
 from . import models
@@ -151,7 +152,7 @@ class ProfileForm(forms.ModelForm):
             is_accepted=forms.CheckboxInput(),
         )
         labels = dict(
-            is_accepted=_(
+            is_accepted=gettext_lazy(
                 "I have read and agreed to the "
                 "<a href='#' data-toggle='modal' data-target='#privacy-statement'>Privacy Statement</a>"
             )

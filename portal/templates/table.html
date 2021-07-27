@@ -88,7 +88,7 @@
   {% if filter and not filter_disabled %}
     <form action="" method="GET" class="form form-inline mb-3" autocomplete="on">
       {% bootstrap_field filter.form.application_filter show_label=False %}
-      {% bootstrap_button 'Filter' extra_classes='ml-1' %}
+      <button class="btn btn-primary ml-1">{% trans 'Filter' %}</button>
     </form>
   {% endif %}
 
@@ -100,13 +100,13 @@
 
     <div class="buttonHolder mb-5 mt-3 float-right" style="display: inline-flex;">
 
-          <!-- label for="_export">{% trans 'Export Format' %}</label -->
-          <select class="form-control mr-1"  name="_export" id="_export">
-            {% for format in view.export_formats %}
-              <option value="{{ format }}">{{ format }}</option>
-            {% endfor %}
-          </select>
-          <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
+      <!-- label for="_export">{% trans 'Export Format' %}</label -->
+      <select class="form-control mr-1"  name="_export" id="_export">
+        {% for format in view.export_formats %}
+          <option value="{{ format }}">{{ format }}</option>
+        {% endfor %}
+      </select>
+      <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
 
     </div>
 

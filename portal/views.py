@@ -35,6 +35,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy
 from django.views import View
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -1555,7 +1556,7 @@ class ApplicationFilter(django_filters.FilterSet):
     #     return parent.filter(is_published=True) | parent.filter(author=author)
 
     application_filter = django_filters.CharFilter(
-        method="set_filter", label=_("Application Filter")
+        method="set_filter", label=ugettext_lazy("Application Filter")
     )
 
     class Meta:

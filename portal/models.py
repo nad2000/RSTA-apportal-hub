@@ -589,18 +589,32 @@ def validate_bod(value):
 
 class Profile(Model):
 
-    user = OneToOneField(User, on_delete=CASCADE)
-    gender = PositiveSmallIntegerField(choices=GENDERS, null=True, blank=False, default=0)
-    date_of_birth = DateField(null=True, blank=True, validators=[validate_bod])
-    ethnicities = ManyToManyField(Ethnicity, db_table="profile_ethnicity", blank=True)
+    user = OneToOneField(User, on_delete=CASCADE, verbose_name=_("user"))
+    gender = PositiveSmallIntegerField(
+        _("gender"), choices=GENDERS, null=True, blank=False, default=0
+    )
+    date_of_birth = DateField(_("date of birth"), null=True, blank=True, validators=[validate_bod])
+    ethnicities = ManyToManyField(
+        Ethnicity, db_table="profile_ethnicity", blank=True, verbose_name="ethnicities"
+    )
     is_ethnicities_completed = BooleanField(default=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
-    education_level = PositiveSmallIntegerField(null=True, blank=True, choices=QUALIFICATION_LEVEL)
-    employment_status = PositiveSmallIntegerField(null=True, blank=True, choices=EMPLOYMENT_STATUS)
+    education_level = PositiveSmallIntegerField(
+        _("education level"), null=True, blank=True, choices=QUALIFICATION_LEVEL
+    )
+    employment_status = PositiveSmallIntegerField(
+        _("employment status"), null=True, blank=True, choices=EMPLOYMENT_STATUS
+    )
     # years since arrival in New Zealand
-    primary_language_spoken = CharField(max_length=40, null=True, blank=True, choices=LANGUAGES)
-    languages_spoken = ManyToManyField(Language, db_table="profile_language", blank=True)
-    iwi_groups = ManyToManyField(IwiGroup, db_table="profile_iwi_group", blank=True)
+    primary_language_spoken = CharField(
+        _("primary language spoken"), max_length=40, null=True, blank=True, choices=LANGUAGES
+    )
+    languages_spoken = ManyToManyField(
+        Language, db_table="profile_language", blank=True, verbose_name=_("languages spoken")
+    )
+    iwi_groups = ManyToManyField(
+        IwiGroup, db_table="profile_iwi_group", blank=True, verbose_name=_("iwi groups")
+    )
     is_iwi_groups_completed = BooleanField(default=True)
     # study participation
     # legally registered relationship status
@@ -610,11 +624,16 @@ class Profile(Model):
     # hours usually worked
     # status in employment
     # occupation
-    is_accepted = BooleanField("Privacy Policy Accepted", default=False)
-    career_stages = ManyToManyField(CareerStage, blank=True, through="ProfileCareerStage")
+    is_accepted = BooleanField(_("privacy policy accepted"), default=False)
+    career_stages = ManyToManyField(
+        CareerStage, blank=True, through="ProfileCareerStage", verbose_name=_("career stages")
+    )
     is_career_stages_completed = BooleanField(default=False)
     external_ids = ManyToManyField(
-        PersonIdentifierType, blank=True, through="ProfilePersonIdentifier"
+        PersonIdentifierType,
+        blank=True,
+        through="ProfilePersonIdentifier",
+        verbose_name=_("external IDs"),
     )
     # affiliations = ManyToManyField(Organisation, blank=True, through="Affiliation")
 
@@ -839,8 +858,12 @@ class ApplicationMixin:
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
-    number = CharField(_("number"), max_length=24, null=True, blank=True, editable=False, unique=True)
-    submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    number = CharField(
+        _("number"), max_length=24, null=True, blank=True, editable=False, unique=True
+    )
+    submitted_by = ForeignKey(
+        User, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("submitted by")
+    )
     cv = ForeignKey(
         "CurriculumVitae",
         editable=True,
@@ -849,7 +872,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         on_delete=PROTECT,
         verbose_name=_("curriculum vitae"),
     )
-    application_title = CharField(max_length=200, null=True, blank=True, verbose_name=_("application name"))
+    application_title = CharField(
+        max_length=200, null=True, blank=True, verbose_name=_("application name")
+    )
 
     round = ForeignKey(
         "Round", on_delete=PROTECT, related_name="applications", verbose_name=_("round")
@@ -859,7 +884,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     team_name = CharField(max_length=200, null=True, blank=True, verbose_name=_("team name"))
 
     # Applicant or nominator:
-    title = CharField(max_length=40, null=True, blank=True, choices=TITLES, verbose_name=_("title"))
+    title = CharField(
+        max_length=40, null=True, blank=True, choices=TITLES, verbose_name=_("title")
+    )
     first_name = CharField(_("first name"), max_length=30)
     middle_names = CharField(
         _("middle names"),
@@ -909,7 +936,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             )
         ],
     )
-    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file"))
+    converted_file = ForeignKey(
+        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file")
+    )
     photo_identity = PrivateFileField(
         null=True,
         blank=True,
@@ -1786,8 +1815,10 @@ class Invitation(Model):
 class Testimonial(PdfFileMixin, Model):
     """A Testimonial/endorsement/feedback given by a referee."""
 
-    referee = OneToOneField(Referee, related_name="testimonial", on_delete=CASCADE)
-    summary = TextField(blank=True, null=True)
+    referee = OneToOneField(
+        Referee, related_name="testimonial", on_delete=CASCADE, verbose_name=_("referee")
+    )
+    summary = TextField(blank=True, null=True, verbose_name=_("referee"))
     file = PrivateFileField(
         verbose_name=_("endorsement, testimonial, or feedback"),
         help_text=_("Please upload your endorsement, testimonial, or feedback"),
@@ -1795,16 +1826,18 @@ class Testimonial(PdfFileMixin, Model):
         blank=True,
         null=True,
     )
-    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
+    converted_file = ForeignKey(
+        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("referee")
+    )
     cv = ForeignKey(
         "CurriculumVitae",
         editable=True,
         null=True,
         blank=True,
         on_delete=PROTECT,
-        verbose_name=_("Curriculum Vitae"),
+        verbose_name=_("curriculum vitae"),
     )
-    state = FSMField(default="new")
+    state = FSMField(_("state"), default="new")
 
     @property
     def application(self):
@@ -1867,13 +1900,16 @@ FILE_TYPE = Choices("CV")
 
 
 class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
-    profile = ForeignKey(Profile, on_delete=CASCADE)
-    owner = ForeignKey(User, on_delete=CASCADE)
-    title = CharField("title", max_length=200, null=True, blank=True)
+    profile = ForeignKey(Profile, on_delete=CASCADE, verbose_name=_("profile"))
+    owner = ForeignKey(User, on_delete=CASCADE, verbose_name=_("owner"))
+    title = CharField(_("title"), max_length=200, null=True, blank=True)
     file = PrivateFileField(
-        upload_subfolder=lambda instance: ["cv", hash_int(instance.profile_id)]
+        upload_subfolder=lambda instance: ["cv", hash_int(instance.profile_id)],
+        verbose_name=_("file"),
     )
-    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
+    converted_file = ForeignKey(
+        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file")
+    )
 
     def __str__(self):
         return self.filename
@@ -1891,11 +1927,11 @@ def default_scheme_code(title):
 
 
 class Scheme(Model):
-    title = CharField(max_length=100)
+    title = CharField(_("title"), max_length=100)
     # groups = ManyToManyField(
     #     Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
     # )
-    code = CharField(max_length=10, blank=True, default="")
+    code = CharField(_("code"), max_length=10, blank=True, default="")
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
@@ -1966,10 +2002,10 @@ def round_template_path(instance, filename):
 
 class Round(Model):
 
-    title = CharField(max_length=100, null=True, blank=True)
-    scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds")
-    opens_on = DateField(null=True, blank=True)
-    closes_on = DateField(null=True, blank=True)
+    title = CharField(_("title"), max_length=100, null=True, blank=True)
+    scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds", verbose_name=_("scheme"))
+    opens_on = DateField(_("opens on"), null=True, blank=True)
+    closes_on = DateField(_("closes on"), null=True, blank=True)
 
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
@@ -2585,12 +2621,14 @@ class NominationMixin:
 
 class Nomination(NominationMixin, PdfFileMixin, Model):
 
-    round = ForeignKey(Round, on_delete=CASCADE, related_name="nominations")
+    round = ForeignKey(
+        Round, on_delete=CASCADE, related_name="nominations", verbose_name=_("round")
+    )
 
     # Nominee personal data
-    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
+    title = CharField(_("title"), max_length=40, null=True, blank=True, choices=TITLES)
     email = EmailField(_("email address"), help_text=_("Email address of the nominee"))
-    first_name = CharField(max_length=30)
+    first_name = CharField(_("first name"), max_length=30)
     middle_names = CharField(
         _("middle names"),
         blank=True,
@@ -2598,7 +2636,7 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
         max_length=280,
         help_text=_("Comma separated list of middle names"),
     )
-    last_name = CharField(max_length=150)
+    last_name = CharField(_("last name"), max_length=150)
     org = ForeignKey(
         Organisation,
         null=True,
@@ -2620,10 +2658,20 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
     converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
 
     user = ForeignKey(
-        User, null=True, blank=True, on_delete=SET_NULL, related_name="nominations_to_apply"
+        User,
+        null=True,
+        blank=True,
+        on_delete=SET_NULL,
+        related_name="nominations_to_apply",
+        verbose_name=_("user"),
     )
     application = OneToOneField(
-        Application, null=True, blank=True, on_delete=SET_NULL, related_name="nomination"
+        Application,
+        null=True,
+        blank=True,
+        on_delete=SET_NULL,
+        related_name="nomination",
+        verbose_name=_("application"),
     )
     cv = ForeignKey(
         CurriculumVitae,
@@ -2634,7 +2682,7 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
         verbose_name=_("Curriculum Vitae"),
     )
 
-    status = StateField(null=True, blank=True, default=NOMINATION_STATUS.new)
+    status = StateField(_("status"), null=True, blank=True, default=NOMINATION_STATUS.new)
 
     def clean(self, *args, **kwargs):
         super().clean(*args, **kwargs)
