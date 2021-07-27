@@ -43,11 +43,11 @@
             {% endif %}
 
             {% if object.id %}
-              <input class="btn btn-primary" type="submit" value="Update">
+              <input class="btn btn-primary" type="submit" value="{% trans 'Update' %}">
             {% else %}
-              <input class="btn btn-primary" type="submit" value="Create">
+              <input class="btn btn-primary" type="submit" value="{% trans 'Create' %}">
             {% endif %}
-            <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+            <a href="{{ view.get_success_url }}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
           </form>
         {% endif %}
 
