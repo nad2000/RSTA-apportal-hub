@@ -839,7 +839,7 @@ class ApplicationMixin:
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
-    number = CharField(max_length=24, null=True, blank=True, editable=False, unique=True)
+    number = CharField(_("number"), max_length=24, null=True, blank=True, editable=False, unique=True)
     submitted_by = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     cv = ForeignKey(
         "CurriculumVitae",
@@ -847,18 +847,20 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         null=True,
         blank=True,
         on_delete=PROTECT,
-        verbose_name=_("Curriculum Vitae"),
+        verbose_name=_("curriculum vitae"),
     )
-    application_title = CharField(max_length=200, null=True, blank=True)
+    application_title = CharField(max_length=200, null=True, blank=True, verbose_name=_("application name"))
 
-    round = ForeignKey("Round", on_delete=PROTECT, related_name="applications")
+    round = ForeignKey(
+        "Round", on_delete=PROTECT, related_name="applications", verbose_name=_("round")
+    )
     # Members of the team must also complete the "Team Members & Signatures" Form.
-    is_team_application = BooleanField(default=False)
-    team_name = CharField(max_length=200, null=True, blank=True)
+    is_team_application = BooleanField(default=False, verbose_name=_("team application"))
+    team_name = CharField(max_length=200, null=True, blank=True, verbose_name=_("team name"))
 
     # Applicant or nominator:
-    title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
-    first_name = CharField(max_length=30)
+    title = CharField(max_length=40, null=True, blank=True, choices=TITLES, verbose_name=_("title"))
+    first_name = CharField(_("first name"), max_length=30)
     middle_names = CharField(
         _("middle names"),
         blank=True,
@@ -866,25 +868,25 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         max_length=280,
         help_text=_("Comma separated list of middle names"),
     )
-    last_name = CharField(max_length=150)
+    last_name = CharField(max_length=150, verbose_name=_("last name"))
     org = ForeignKey(
         Organisation,
         blank=False,
         null=True,
         on_delete=SET_NULL,
-        verbose_name="organisation",
+        verbose_name=_("organisation"),
         related_name="applications",
     )
-    organisation = CharField(max_length=200)
-    position = CharField(max_length=80)
-    postal_address = CharField(max_length=120)
-    city = CharField(max_length=80)
-    postcode = CharField(max_length=4)
+    organisation = CharField(max_length=200, verbose_name=_("organisation"))
+    position = CharField(max_length=80, verbose_name=_("position"))
+    postal_address = CharField(max_length=120, verbose_name=_("postal address"))
+    city = CharField(max_length=80, verbose_name=_("city"))
+    postcode = CharField(max_length=4, verbose_name=_("postcode"))
     daytime_phone = CharField(_("daytime phone number"), max_length=24, null=True, blank=True)
     mobile_phone = CharField(_("mobile phone number"), max_length=24, null=True, blank=True)
     email = EmailField(_("email address"), blank=True)
-    is_bilingual_summary = BooleanField(default=False)
-    summary = TextField(blank=True, null=True)
+    is_bilingual_summary = BooleanField(default=False, verbose_name=_("is bilingual summary"))
+    summary = TextField(blank=True, null=True, verbose_name=_("summary"))
     file = PrivateFileField(
         blank=True,
         null=True,
@@ -907,7 +909,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             )
         ],
     )
-    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL)
+    converted_file = ForeignKey(ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file"))
     photo_identity = PrivateFileField(
         null=True,
         blank=True,
@@ -924,7 +926,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         verbose_name=_("Presentation URL"),
         help_text=_("Please enter the URL where your presentation video can be viewed"),
     )
-    state = StateField(default=APPLICATION_STATUS.new)
+    state = StateField(default=APPLICATION_STATUS.new, verbose_name=_("Position"))
     is_tac_accepted = BooleanField(
         default=False, verbose_name=_("I have read and accept Terms and Conditions")
     )
