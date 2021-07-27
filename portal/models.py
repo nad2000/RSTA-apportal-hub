@@ -339,10 +339,10 @@ class IwiGroup(Model):
 
 
 class ProtectionPattern(Model):
-    code = PositiveSmallIntegerField(primary_key=True)
-    description = CharField(max_length=80)
-    pattern = CharField(max_length=80)
-    comment = TextField(max_length=200, null=True, blank=True)
+    code = PositiveSmallIntegerField(_("code"), primary_key=True)
+    description = CharField(_("description"), max_length=80)
+    pattern = CharField(_("pattern"), max_length=80)
+    comment = TextField(_("comment"), max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.description
@@ -724,9 +724,12 @@ class ProfileProtectionPattern(Model):
 
     profile = ForeignKey(Profile, on_delete=CASCADE, related_name="profile_protection_patterns")
     protection_pattern = ForeignKey(
-        ProtectionPattern, on_delete=CASCADE, related_name="profile_protection_patterns"
+        ProtectionPattern,
+        on_delete=CASCADE,
+        related_name="profile_protection_patterns",
+        verbose_name=_("protection pattern"),
     )
-    expires_on = DateField(null=True, blank=True)
+    expires_on = DateField(_("expires on"), null=True, blank=True)
 
     class Meta:
         db_table = "profile_protection_pattern"
@@ -735,12 +738,12 @@ class ProfileProtectionPattern(Model):
 
 class ProtectionPatternProfile(Model):
 
-    code = PositiveSmallIntegerField(primary_key=True)
-    description = CharField(max_length=80)
-    pattern = CharField(max_length=80)
-    comment = TextField(null=True, blank=True)
-    profile = ForeignKey(Profile, null=True, on_delete=DO_NOTHING)
-    expires_on = DateField(null=True, blank=True)
+    code = PositiveSmallIntegerField(_("code"), primary_key=True)
+    description = CharField(_("description"), max_length=80)
+    pattern = CharField(_("pattern"), max_length=80)
+    comment = TextField(_("comment"), null=True, blank=True)
+    profile = ForeignKey(Profile, null=True, on_delete=DO_NOTHING, verbose_name=_("profile"))
+    expires_on = DateField(_("expires on"), null=True, blank=True)
 
     @classmethod
     # for people only demographic, identifiable and professional protections make sense

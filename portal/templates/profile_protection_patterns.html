@@ -15,13 +15,17 @@
     Note these options come from the New Zealand Research Information System (NZRIS) and control how, and whether, your data will appear in NZRIS.
     Each option has tooltips to explain what they control.  If you wish any protection to expire, please state when protection can be removed.
   {% endblocktrans %}
-</div>  
+</div>
   <form method="post" style="max-width: 440px;" id="pattern-form">
     {% csrf_token %}
     <div class="checkbox">
       <input
         type="checkbox" {% if not profile.has_protection_patterns %}checked{% endif %}
-        data-toggle="toggle" name="no_protection_needed" id="no_protection_needed">
+        data-toggle="toggle"
+        name="no_protection_needed"
+        id="no_protection_needed"
+        data-on="{% trans 'On' %}"
+        data-off="{% trans 'Off' %}" >
       <label for="no_protection_needed">
         {% trans 'No Protection needed' %}
       </label>
@@ -30,8 +34,8 @@
     <table class="table pb-3" id="patterns">
       <thead>
         <tr>
-          <th>Protection needed</th>
-          <th>Expires on date</th>
+          <th>{% trans 'Protection needed' %}</th>
+          <th>{% trans 'Expires on date' %}</th>
         </tr>
       </thead>
       <tbody>
