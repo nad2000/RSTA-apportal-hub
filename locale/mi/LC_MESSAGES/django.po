@@ -462,13 +462,13 @@ msgid ""
 "ISNI value %(value)s pattern in not valid. It should contain digits or 'X' "
 "as the final character."
 msgstr ""
-"He tauira wāriu ISNI %(value) koremana. Me whai mati, 'X' rānei"
+"He tauira wāriu ISNI %(value)s koremana. Me whai mati, 'X' rānei"
 "hei pūtohu whakamutunga."
 
 #: portal/models.py:484
 #, python-format
 msgid "ISNI value %(value)s checksum does not match the given control value."
-msgstr "Kāore te wāriu ISNI i te tūhono ki te wāriu whakatina i hoatu."
+msgstr "Kāore te wāriu ISNI %(value)s i te tūhono ki te wāriu whakatina i hoatu."
 
 #: portal/models.py:499
 #, fuzzy
@@ -483,7 +483,7 @@ msgstr "te taumata Tohu Mātauranga e ai ki te Taura Here Tohu Mātauranga o Aot
 #: portal/models.py:585
 #, python-format
 msgid "Date of birth cannot be in the future: %(value)s"
-msgstr "Kāore e taea he rā whānau i te wāheke:"
+msgstr "Kāore e taea he rā whānau i te wāheke: %(value)s"
 
 #: portal/models.py:776
 msgid "prestigious prize or medal"
@@ -741,8 +741,10 @@ msgid ""
 "link: %(url)s\n"
 "Ngā mihi"
 msgstr ""
-"E tono ana ki a koe ki te whakamana i to māngai ā-rōpū. Tēnā whāia te"
+"Kia ora,\n"
+"E tono ana ki a koe ki te whakamana i to māngai ā-rōpū %(inviter)s. Tēnā whāia te"
 "hononga: %(url)s\n"
+"Ngā mihi"
 
 #: portal/models.py:1563
 #, python-format
@@ -751,8 +753,8 @@ msgid ""
 "Prime Minister's Science Prize application.<br/>To review this invitation, "
 "please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
 msgstr ""
-"E tono ana ki a koe ki te whakamana i to māngai ā-rōpū. Tēnā whāia te"
-"hononga: <a href='%(url)s'>%(url)s</a><br/>\n"
+"E tono ana ki a koe ki te whakamana i to māngai ā-rōpū %(inviter)s. Tēnā whāia te"
+"hononga: <a href='%(url)s'>%(url)s</a><br/>"
 
 #: portal/models.py:1569
 msgid ""
@@ -768,8 +770,9 @@ msgid ""
 "follow the link: %(url)s\n"
 "Ngā mihi"
 msgstr ""
-"E tono ana ki a koe ki te tuku i tētahi tuhinga tautoko mō te tono ki "
-"ngā Paraihe Pūtaiao a te Pirimia. Me whakaae mā te whai i te hononga: "
+"Kia ora, E tono ana ki a koe ki te tuku i tētahi tuhinga tautoko mō %(inviter)s's te tono ki "
+"ngā Paraihe Pūtaiao a te Pirimia. Me whakaae mā te whai i te hononga: %(url)s\n"
+"Ngā mihi"
 
 #: portal/models.py:1578
 #, python-format
@@ -778,7 +781,7 @@ msgid ""
 "application to the Prime Minister's Science Prize application.<br/>To review "
 "this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
 msgstr ""
-"E tono ana ki a koe ki te tuku i tētahi tuhinga tautoko mō te tono ki "
+"E tono ana ki a koe ki te tuku i tētahi tuhinga tautoko mō %(inviter)s's te tono ki "
 "ngā Paraihe Pūtaiao a te Pirimia. Me whakaae mā te whai i te hononga: "
 "<a href='%(url)s'>%(url)s</a><br/>"
 
@@ -795,7 +798,9 @@ msgid ""
 "nomination, please follow the link: %(url)s\n"
 "Ngā mihi"
 msgstr ""
-"I tautapatia koe mō %(round)s Me whakaae mā te whai i te hononga: %(url)s\n"
+"Kia ora,\n"
+"%(inviter)s I tautapatia koe mō %(round)s Me whakaae mā te whai i te hononga: %(url)s\n"
+"Ngā mihi"
 
 #: portal/models.py:1596
 #, python-format
@@ -804,7 +809,7 @@ msgid ""
 ">To accept this nomination, please follow the link: <a href='%(url)s'>"
 "%(url)s</a><br/>"
 msgstr ""
-"I tautapatia koe mō %(round)s Me whakaae mā te whai i te hononga: "
+"Kia ora, %(inviter)s I tautapatia koe mō %(round)s Me whakaae mā te whai i te hononga: "
 "<a href='%(url)s'>%(url)s</a><br/>"
 
 #: portal/models.py:1606
@@ -820,8 +825,9 @@ msgid ""
 "Prizes. \n"
 "To review this invitation, please follow the link: %s<br/>"
 msgstr ""
+"Kia ora\n"
 " E tono ana ki a koe kia tū hei kaiwhiriwhiri. Tēnā whāia te"
-"hononga: %s\n"
+"hononga: %s<br>"
 
 #: portal/models.py:1618
 msgid ""
@@ -1337,7 +1343,8 @@ msgid ""
 msgstr ""
 "\n"
 "    Tēnā pāwhiria te hononga kia whakaaetia a %(username)s "
-" mā te wāhitau īmēra: <a href='%(approval_url)s'> %(approval_url)s </a>\n"
+" mā te wāhitau īmēra %(email)s: <a href='%(approval_url)s'> %(approval_url)s </a>\n"
+"  "
 
 #: portal/templates/account/email_confirm.html:4
 #: portal/templates/account/email_confirm.html:11
@@ -1355,6 +1362,7 @@ msgstr ""
 "\n"
 "    Tēnā tūtohua ko <a href=\"mailto:%(email)s\">%(email)s</a> tētahi īmēra"
 " wāhitau mēra mō te kaiwhakamahi %(user_display)s.\n"
+"    "
 
 #: portal/templates/account/email_confirm.html:24
 msgid "Confirm"
@@ -1513,7 +1521,7 @@ msgid ""
 "          <a href=\"%(email_url)s\">change your e-mail address</a>."
 msgstr ""
 "Ki te kore ka taea tonu te "
-"tō wāhitau īmēra. "
+"<a href=\"%(email_url)s\">tō wāhitau īmēra</a>. "
 
 #: portal/templates/admin/base_site.html:10
 msgid "Portal Admin"
@@ -2425,10 +2433,13 @@ msgid ""
 "format.\n"
 "        "
 msgstr ""
-"Tēnā tukuatu tētahi tātai pūmanawa o nāianei. "
+"\n"
+"Tēnā tukuatu tētahi tātai pūmanawa o nāianei. \n"
 "He pai ake te tātai pūmanawa e whai ana i te tātauira "
 "<a href=\"https://www.royalsociety.org.nz/assets/documents/NZ-RST-"
-"CV-Template.doc\">Tātauir</a> mō ngā paraihe e pā ana ki te rangahau."
+"CV-Template.doc\">Tātauir</a> mō ngā paraihe e pā ana ki te rangahau.\n"
+"\n\n\n\n\n\n\n\n\n"
+"        "
 
 #: portal/templates/profile_section.html:44
 msgid ""
@@ -2712,7 +2723,7 @@ msgid ""
 "statement of the conflict of interest in the round \"%(round)s\""
 msgstr ""
 "Ka taea e koe te tukuatu i tētahi raupepa tatau ki konei mō ngā tauākī raru whaipānga e "
-"hāngai ana ki ngā tono katoa i tukuna ai e koe i te whiringa"
+"hāngai ana ki ngā tono katoa i tukuna ai e koe i te whiringa \"%(round)s\""
 
 #: portal/templates/score_sheet.html:13
 #, python-format
@@ -2721,7 +2732,7 @@ msgid ""
 "the round \"%(round)s\""
 msgstr ""
 "Ka taea e koe te whakatika me te tuku anō i ngā tauākī raru whiapānga mō "
-"te whiringa"
+"te whiringa \"%(round)s\""
 
 #: portal/templates/sidebar.html:22
 msgid "Saved application drafts"
@@ -3037,7 +3048,7 @@ msgid ""
 "converted application form version <a href='%s'>%s</a>."
 msgstr ""
 "I hurihia tō puka tono hei kōnae PDF. Tēnā tirotirohia te putanga o "
-"te puka tono i hurihia"
+"te puka tono i hurihia <a href='%s'>%s</a>"
 
 #: portal/views.py:1097
 msgid ""
@@ -3198,7 +3209,7 @@ msgid ""
 "converted testimonial form version <a href='%s'>%s</a>."
 msgstr ""
 "I hurihia tō puka tautoko hei kōnae PDF. Tēna tirotirohia te putanga "
-"o te puka tautoko i hurihia"
+"o te puka tautoko i hurihia <a href='%s'>%s</a>."
 
 #: portal/views.py:2479
 msgid ""
