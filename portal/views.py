@@ -315,16 +315,17 @@ def index(request):
         outstanding_authorization_requests = models.Member.outstanding_requests(user)
         outstanding_testimonial_requests = models.Referee.outstanding_requests(user)
         outstanding_review_requests = models.Panellist.outstanding_requests(user)
-        outstanding_nominations = models.Nomination.where(status__in=["sent", "submitted"], user=user)
+        outstanding_nominations = models.Nomination.where(
+            status__in=["sent", "submitted"], user=user
+        )
         draft_applications = models.Application.user_draft_applications(user)
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
         )
         if user.is_staff:
             outstanding_identity_verifications = models.IdentityVerification.where(
-                state__in=["new", "sent"]
+                ~Q(file=""), file__isnull=False, state__in=["new", "sent"]
             )
-
         schemes = models.SchemeApplication.get_data(user)
     else:
         messages.info(
@@ -1387,11 +1388,7 @@ class ApplicationCreate(ApplicationView, CreateView):
             )
             return redirect("home")
 
-        a = (
-            models.Application.where(submitted_by=request.user, round=r)
-            .order_by("-id")
-            .first()
-        )
+        a = models.Application.where(submitted_by=request.user, round=r).order_by("-id").first()
         if a:
             messages.warning(
                 self.request, _("You have already created an application. Please update it.")
