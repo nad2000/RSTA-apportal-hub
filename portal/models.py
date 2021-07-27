@@ -402,8 +402,9 @@ class FieldOfStudy(Model):
 
 class ProfileCareerStage(Model):
     profile = ForeignKey("Profile", on_delete=CASCADE)
-    career_stage = ForeignKey(CareerStage, on_delete=CASCADE)
+    career_stage = ForeignKey(CareerStage, on_delete=CASCADE, verbose_name=_("career stage"))
     year_achieved = PositiveSmallIntegerField(
+        _("year achieved"),
         null=True,
         blank=True,
         validators=[MinValueValidator(1900), MaxValueValidator(2100)],
@@ -451,9 +452,9 @@ class ProfilePersonIdentifier(Model):
         "Profile",
         on_delete=CASCADE,
     )
-    code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name="type")
-    value = CharField(max_length=100)
-    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
+    code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name=_("type"))
+    value = CharField(_("value"), max_length=100)
+    put_code = PositiveIntegerField(_("put-code"), null=True, blank=True, editable=False)
 
     class Meta:
         db_table = "profile_person_identifier"
@@ -560,15 +561,17 @@ class Organisation(Model):
 class Affiliation(Model):
 
     profile = ForeignKey("Profile", on_delete=CASCADE, related_name="affiliations")
-    org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name="organisation")
-    type = CharField(max_length=10, choices=AFFILIATION_TYPES)
-    role = CharField(max_length=512, null=True, blank=True)  # , help_text="position or degree")
-    qualification = CharField(
-        max_length=512, null=True, blank=True
+    org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name=_("organisation"))
+    type = CharField(_("type"), max_length=10, choices=AFFILIATION_TYPES)
+    role = CharField(
+        _("role"), max_length=512, null=True, blank=True
     )  # , help_text="position or degree")
-    start_date = DateField(null=True, blank=True)
-    end_date = DateField(null=True, blank=True)
-    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
+    qualification = CharField(
+        _("qualification"), max_length=512, null=True, blank=True
+    )  # , help_text="position or degree")
+    start_date = DateField(_("start date"), null=True, blank=True)
+    end_date = DateField(_("end date"), null=True, blank=True)
+    put_code = PositiveIntegerField(_("put-code"), null=True, blank=True, editable=False)
 
     history = HistoricalRecords(table_name="affiliation_history")
 
@@ -595,7 +598,7 @@ class Profile(Model):
     )
     date_of_birth = DateField(_("date of birth"), null=True, blank=True, validators=[validate_bod])
     ethnicities = ManyToManyField(
-        Ethnicity, db_table="profile_ethnicity", blank=True, verbose_name="ethnicities"
+        Ethnicity, db_table="profile_ethnicity", blank=True, verbose_name=_("ethnicities")
     )
     is_ethnicities_completed = BooleanField(default=True)
     # CharField(max_length=20, null=True, blank=True, choices=ETHNICITIES)
@@ -781,14 +784,21 @@ class ProtectionPatternProfile(Model):
 class AcademicRecord(Model):
     profile = ForeignKey(Profile, related_name="academic_records", on_delete=CASCADE)
     start_year = PositiveIntegerField(
-        validators=[MinValueValidator(1960), MaxValueValidator(2099)], null=True, blank=True
+        _("start year"),
+        validators=[MinValueValidator(1960), MaxValueValidator(2099)],
+        null=True,
+        blank=True,
     )
-    qualification = ForeignKey(Qualification, null=True, blank=True, on_delete=DO_NOTHING)
-    conferred_on = DateField(null=True, blank=True)
-    discipline = ForeignKey(FieldOfStudy, on_delete=CASCADE, null=True, blank=True)
-    awarded_by = ForeignKey(Organisation, on_delete=CASCADE)
-    research_topic = CharField(max_length=80, null=True, blank=True)
-    put_code = PositiveIntegerField(null=True, blank=True, editable=False)
+    qualification = ForeignKey(
+        Qualification, null=True, blank=True, on_delete=DO_NOTHING, verbose_name=_("qualification")
+    )
+    conferred_on = DateField(_("conferred on"), null=True, blank=True)
+    discipline = ForeignKey(
+        FieldOfStudy, on_delete=CASCADE, null=True, blank=True, verbose_name=_("discipline")
+    )
+    awarded_by = ForeignKey(Organisation, on_delete=CASCADE, verbose_name=_("awarded by"))
+    research_topic = CharField(_("research topic"), max_length=80, null=True, blank=True)
+    put_code = PositiveIntegerField(_("put-code"), null=True, blank=True, editable=False)
 
     class Meta:
         db_table = "academic_record"
@@ -1529,7 +1539,7 @@ class Invitation(Model):
     inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
-    first_name = CharField(max_length=30)
+    first_name = CharField(_("first name"), max_length=30)
     middle_names = CharField(
         _("middle names"),
         blank=True,
@@ -1537,10 +1547,12 @@ class Invitation(Model):
         max_length=280,
         help_text=_("Comma separated list of middle names"),
     )
-    last_name = CharField(max_length=150)
-    organisation = CharField("organisation", max_length=200, null=True, blank=True)  # entered name
+    last_name = CharField(_("last name"), max_length=150)
+    organisation = CharField(
+        _("organisation"), max_length=200, null=True, blank=True
+    )  # entered name
     org = ForeignKey(
-        Organisation, verbose_name="organisation", on_delete=SET_NULL, null=True, blank=True
+        Organisation, verbose_name=_("organisation"), on_delete=SET_NULL, null=True, blank=True
     )  # the org matched with the entered name
     application = ForeignKey(
         Application, null=True, blank=True, on_delete=CASCADE, related_name="invitations"

@@ -1892,7 +1892,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
         context.get("helper").add_input(
             Submit(
                 "load_from_orcid",
-                "Import from ORCiD",
+                _("Import from ORCiD"),
                 css_class="btn-orcid",
             )
         )
@@ -1953,7 +1953,7 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
+            Submit("load_from_orcid", _("Import from ORCiD"), css_class="btn-orcid")
         )
         return context
 
@@ -1986,8 +1986,8 @@ class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
                     "end_date": forms.DateInput(),
                 },
                 "labels": {
-                    "role": _("Professional Membership"),
-                    "qualification": _("Professional Qualification"),
+                    "role": ugettext_lazy("Professional Membership"),
+                    "qualification": ugettext_lazy("Professional Qualification"),
                 },
             }
         )
@@ -2198,7 +2198,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
 
         context = super().get_context_data(**kwargs)
         context.get("helper").add_input(
-            Submit("load_from_orcid", "Import from ORCiD", css_class="btn-orcid")
+            Submit("load_from_orcid", _("Import from ORCiD"), css_class="btn-orcid")
         )
         return context
 
