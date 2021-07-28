@@ -953,12 +953,13 @@ class ApplicationView(LoginRequiredMixin):
     form_class = forms.ApplicationForm
 
     def dispatch(self, request, *args, **kwargs):
+
         u = request.user
-        if not (u.is_staff or u.is_superuser):
+        if u.is_authenticated and not (u.is_staff or u.is_superuser):
             if (
                 (pk := self.kwargs.get("pk"))
                 and (a := get_object_or_404(models.Application, pk=pk))
-                and (a.submitted_by != u and not a.members.filter(user=u).exists())
+                and not a.is_applicant(u)
             ):
                 messages.error(
                     request, _("You do not have permissions to edit this application.")
