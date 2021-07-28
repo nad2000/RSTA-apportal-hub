@@ -289,7 +289,8 @@ class ApplicationAdmin(
         "org__name",
         "round__title",
     ]
-    summernote_fields = ["summary"]
+    # summernote_fields = ["summary"]
+    exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary"]
 
     class MemberInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
@@ -417,11 +418,12 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 @admin.register(models.Nomination)
 class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
 
-    summernote_fields = ["summary"]
     date_hierarchy = "created_at"
     list_filter = ["created_at", "updated_at", "round", "status"]
     fsm_field = ["status"]
     search_fields = ["title", "email", "first_name", "last_name", "round__title"]
+    # summernote_fields = ["summary"]
+    exclude = ["summary"]
 
     def view_on_site(self, obj):
         return reverse("nomination-detail", kwargs={"pk": obj.id})
@@ -465,7 +467,8 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 @admin.register(models.Testimonial)
 class TestimonialAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
 
-    summernote_fields = ["summary"]
+    # summernote_fields = ["summary"]
+    exclude = ["summary"]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
     search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
