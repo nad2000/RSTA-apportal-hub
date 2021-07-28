@@ -687,6 +687,7 @@ class TestimonialForm(forms.ModelForm):
         fields = [
             Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
             # Field("summary"),
+            # Field("referee"),
         ]
         if round.referee_template:
             help_text = _(

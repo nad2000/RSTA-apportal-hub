@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
-from django_summernote.admin import SummernoteModelAdmin
 from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
@@ -272,7 +271,7 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
 
 @admin.register(models.Application)
 class ApplicationAdmin(
-    StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SummernoteModelAdmin, SimpleHistoryAdmin
+    StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin
 ):
 
     date_hierarchy = "created_at"
@@ -387,7 +386,7 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
 
 
 @admin.register(models.ConflictOfInterest)
-class ConflictOfInterestAdmin(StaffPermsMixin, SummernoteModelAdmin):
+class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
 
     list_display = ["panellist", "application"]
     readonly_fields = [
@@ -416,7 +415,7 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 
 @admin.register(models.Nomination)
-class NominationAdmin(FSMTransitionMixin, SummernoteModelAdmin, SimpleHistoryAdmin):
+class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
 
     date_hierarchy = "created_at"
     list_filter = ["created_at", "updated_at", "round", "status"]
@@ -465,7 +464,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 
 
 @admin.register(models.Testimonial)
-class TestimonialAdmin(StaffPermsMixin, FSMTransitionMixin, SummernoteModelAdmin):
+class TestimonialAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     # summernote_fields = ["summary"]
     exclude = ["summary"]

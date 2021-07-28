@@ -97,14 +97,14 @@ def send_mail(
 
     resp = msg.send()
 
-    for r in recipient_list:
+    for no, r in enumerate(recipient_list):
         models.MailLog.create(
             user=request.user if request and request.user.is_authenticated else None,
             recipient=r,
             sender=from_email,
             subject=subject,
             was_sent_successfully=resp,
-            token=token,
+            token=f"{token}#{no}" if no else token,
             invitation=invitation,
         )
     if not resp:

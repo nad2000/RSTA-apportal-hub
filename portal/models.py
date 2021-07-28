@@ -968,7 +968,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         verbose_name=_("Presentation URL"),
         help_text=_("Please enter the URL where your presentation video can be viewed"),
     )
-    state = StateField(default=APPLICATION_STATUS.new, verbose_name=_("Position"))
+    state = StateField(default=APPLICATION_STATUS.new, verbose_name=_("state"))
     is_tac_accepted = BooleanField(
         default=False, verbose_name=_("I have read and accept Terms and Conditions")
     )
@@ -1007,7 +1007,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
     def is_applicant(self, user):
         """Is user the mail applicant or a memeber."""
-        return self.submitted_by == user or self.members.all().filter(user=user).exists()
+        return (
+            self.submitted_by == user
+            or self.members.all().filter(Q(user=user) | Q(email=user.email)).exists()
+        )
 
     def get_score_entries(self, user=None, panellist=None):
         if not panellist:
@@ -1077,11 +1080,13 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "and/or uploaded application form"
                 )
             )
-        if self.submitted_by.needs_identity_verification:
+        if self.submitted_by.needs_identity_verification and not (
+            self.photo_identity or IdentityVerification.where(application=self).exists()
+        ):
             raise Exception(
                 _(
                     "Your identity has not been verified. "
-                    "Please upload a scan of a document proving your identity"
+                    "Please upload a scan of a document proving your identity."
                 )
             )
         if Referee.where(
@@ -1832,13 +1837,26 @@ class Invitation(Model):
         db_table = "invitation"
 
 
-class Testimonial(PdfFileMixin, Model):
+TESTIMONIAL_STATUS = Choices(
+    (None, None),
+    ("new", _("new")),
+    ("draft", _("draft")),
+    ("submitted", _("submitted")),
+)
+
+
+class TestimonialMixin:
+
+    STATUS = TESTIMONIAL_STATUS
+
+
+class Testimonial(TestimonialMixin, PdfFileMixin, Model):
     """A Testimonial/endorsement/feedback given by a referee."""
 
     referee = OneToOneField(
         Referee, related_name="testimonial", on_delete=CASCADE, verbose_name=_("referee")
     )
-    summary = TextField(blank=True, null=True, verbose_name=_("referee"))
+    summary = TextField(blank=True, null=True, verbose_name=_("summary"))
     file = PrivateFileField(
         verbose_name=_("endorsement, testimonial, or feedback"),
         help_text=_("Please upload your endorsement, testimonial, or feedback"),
@@ -1847,7 +1865,7 @@ class Testimonial(PdfFileMixin, Model):
         null=True,
     )
     converted_file = ForeignKey(
-        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("referee")
+        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file")
     )
     cv = ForeignKey(
         "CurriculumVitae",
@@ -1857,7 +1875,7 @@ class Testimonial(PdfFileMixin, Model):
         on_delete=PROTECT,
         verbose_name=_("curriculum vitae"),
     )
-    state = FSMField(_("state"), default="new")
+    state = StateField(_("state"), default=TESTIMONIAL_STATUS.new)
 
     @property
     def application(self):

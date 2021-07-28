@@ -2488,7 +2488,6 @@ class TestimonialView(CreateUpdateView):
                 t.referee = models.Referee.get(user=self.request.user, application=a)
             else:
                 t.referee = models.Referee.where(user=self.request.user).order("-id").first()
-        super().form_valid(form)
 
         if t.state != "submitted":
 

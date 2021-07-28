@@ -18,7 +18,7 @@ from simple_history.models import HistoricalRecords
 from common.models import TITLES, HelperMixin, PersonMixin
 
 
-class User(HelperMixin, PersonMixin, AbstractUser):
+class User(HelperMixin, AbstractUser, PersonMixin):
 
     title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     middle_names = CharField(
