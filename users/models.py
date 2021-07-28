@@ -15,10 +15,10 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 
-from common.models import TITLES, HelperMixin
+from common.models import TITLES, HelperMixin, PersonMixin
 
 
-class User(HelperMixin, AbstractUser):
+class User(HelperMixin, PersonMixin, AbstractUser):
 
     title = CharField(max_length=40, null=True, blank=True, choices=TITLES)
     middle_names = CharField(

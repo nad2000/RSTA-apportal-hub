@@ -110,5 +110,11 @@ class PersonMixin:
         email = getattr(self, "email", None) or user.email
         return f"{self.full_name} ({email})"
 
+    @property
+    def full_email_address(self):
+        user = self.get_user()
+        email = getattr(self, "email", None) or user.email
+        return f'"{self.full_name}" <{email}>'
+
     def __str__(self):
         return self.full_name

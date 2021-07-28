@@ -923,9 +923,7 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        is_owner = (
-            self.object.submitted_by == u or self.object.members.all().filter(user=u).exists()
-        )
+        is_owner = self.object.submitted_by == u or self.object.members.filter(user=u).exists()
         context["is_owner"] = is_owner
         context["was_submitted"] = self.object.state == "submitted"
         if not is_owner:
@@ -933,12 +931,18 @@ class ApplicationDetail(DetailView):
                 u.is_staff
                 or u.is_superuser
                 or models.ConflictOfInterest.where(
+                    Q(has_conflict=False) | Q(has_conflict__isnull=False),
                     application=self.object,
                     panellist__user=u,
-                    has_conflict=False,
-                    has_conflict__isnull=False,
                 ).exists()
             )
+            if (
+                t := models.Testimonial.where(referee__user=u, referee__application=self.object)
+                .order_by("-id")
+                .first()
+            ):
+                context["testimonial"] = t
+
         return context
 
 
@@ -2518,6 +2522,52 @@ class TestimonialView(CreateUpdateView):
 
                 t.submit(request=self.request)
                 t.save()
+
+                # All testimonials are completed:
+                if (a := t.application) and not models.Testimonial.where(
+                    ~Q(state="submitted"), referee__application=a
+                ).exists():
+                    url = self.request.build_absolute_uri(
+                        reverse("application-update", kwargs={"pk": a.id})
+                    )
+                    recipients = [a.submitted_by, *a.members.all()]
+                    params = {
+                        "user_display": ", ".join(r.full_name for r in recipients),
+                        "number": a.number,
+                        "title": a.title or a.round.title,
+                        "url": url,
+                    }
+                    send_mail(
+                        _("All testimonials were completed"),
+                        _(
+                            "Kia ora %(user_display)s\n\n"
+                            "All invited referees have now responded.\n\n"
+                            "Please log into the portal to confirm that you have enough, "
+                            "and where relevant the correct types, of referees.\n\n"
+                            "If you do need to replace a referee, please do so and you'll "
+                            "receive a new notification whenever they reply.\n\n"
+                            "If all members have agreed, and you have the full compliment of referees, "
+                            "you may now submit your completed application %(number)s: %(title)s here: %(url)s"
+                        )
+                        % params,
+                        html_message=_(
+                            "<p>Kia ora %(user_display)s</p>"
+                            "<p>All invited referees have now responded.</p>"
+                            "<p>Please log into the portal to confirm that you have enough, "
+                            "and where relevant the correct types, of referees.</p>"
+                            "<p>If you do need to replace a referee, please do so and you'll "
+                            "receive a new notification whenever they reply.</p>"
+                            "<p>If all members have agreed, and you have the full compliment of referees, "
+                            'you may now submit your completed application <a href="%(url)s">%(number)s: '
+                            "%(title)s</a></p>"
+                        )
+                        % params,
+                        recipient_list=[r.full_email_address for r in recipients],
+                        fail_silently=False,
+                        request=self.request,
+                        reply_to=settings.DEFAULT_FROM_EMAIL,
+                    )
+
                 messages.info(
                     self.request,
                     _(

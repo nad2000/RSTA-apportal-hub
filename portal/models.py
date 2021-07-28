@@ -1077,14 +1077,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "and/or uploaded application form"
                 )
             )
-        if not self.submitted_by.needs_identity_verification and not self.photo_identity:
+        if self.submitted_by.needs_identity_verification:
             raise Exception(
                 _(
                     "Your identity has not been verified. "
                     "Please upload a scan of a document proving your identity"
                 )
             )
-        if Referee.where(application=self, testified_at__isnull=True, user__isnull=True).exists():
+        if Referee.where(
+            Q(testified_at__isnull=True)
+            | Q(user__isnull=True)
+            | ~Q(testimonial__state="submitted"),
+            application=self,
+        ).exists():
             raise Exception(
                 _(
                     "Not all nominated referees have responded which prevents your submission. "

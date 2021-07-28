@@ -252,6 +252,21 @@
       </div>
     {% endif %}
 
+    {% if testimonial %}
+
+      <div class="tooltip-wrapper{% if testimonial.state == "submitted" %} disabled{% endif %}"
+          {% if testimonial.state == "submitted" %}
+            disabled
+            data-title="{% trans 'The testimonial was already submitted and cannot be updated' %}"
+          {% else %}
+            data-title="{% trans 'Update and submit the testimonial' %}"
+          {% endif %}
+      >
+      <a class="btn btn-outline-primary{% if testimonial.state == "submitted" %} disabled{% endif %}"
+      href="{% url 'testimonial-update' pk=testimonial.pk %}">{% trans 'Update' %} <strong>{% trans 'Testimonial' %}</strong></a>
+      </div>
+    {% endif %}
+
   </div>
 
 {% endwith %}
