@@ -952,6 +952,20 @@ class ApplicationView(LoginRequiredMixin):
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
+    def dispatch(self, request, *args, **kwargs):
+        u = request.user
+        if not (u.is_staff or u.is_superuser):
+            if (
+                (pk := self.kwargs.get("pk"))
+                and (a := get_object_or_404(models.Application, pk=pk))
+                and (a.submitted_by != u and not a.members.filter(user=u).exists())
+            ):
+                messages.error(
+                    request, _("You do not have permissions to edit this application.")
+                )
+                return redirect("application", pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
     def get_initial(self):
         user = self.request.user
         initial = super().get_initial()
@@ -2524,9 +2538,13 @@ class TestimonialView(CreateUpdateView):
                 t.save()
 
                 # All testimonials are completed:
-                if (a := t.application) and not models.Testimonial.where(
-                    ~Q(state="submitted"), referee__application=a
-                ).exists():
+                if (
+                    (a := t.application)
+                    and not models.Testimonial.where(
+                        ~Q(state="submitted"), referee__application=a
+                    ).exists()
+                    and not a.referees.filter(~Q(status="testified")).exists()
+                ):
                     url = self.request.build_absolute_uri(
                         reverse("application-update", kwargs={"pk": a.id})
                     )
