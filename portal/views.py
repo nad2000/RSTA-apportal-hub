@@ -66,6 +66,11 @@ from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
 
 
+def __(s):
+    """Temporarily disabale 'gettex'"""
+    return s
+
+
 def reset_cache(request):
     u = request.user
     cache.delete(u.username)
@@ -250,8 +255,8 @@ def subscribe(request):
         # return_url = request.GET.get("next") or request.META.get("HTTP_REFERER")
         # url = f"{url}?next={return_url}"
         send_mail(
-            _("Please confirm subscription"),
-            _("Please confirm your subscription to our newsletter: %s") % url,
+            __("Please confirm subscription"),
+            __("Please confirm your subscription to our newsletter: %s") % url,
             recipient_list=[email],
             fail_silently=False,
             token=token,
@@ -885,8 +890,8 @@ class ApplicationDetail(DetailView):
             member.save()
             if self.object.submitted_by.email:
                 send_mail(
-                    _("A team member accepted your invitation"),
-                    _("Your team member %s has accepted your invitation.") % member,
+                    __("A team member accepted your invitation"),
+                    __("Your team member %s has accepted your invitation.") % member,
                     settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[self.object.submitted_by.email],
                     fail_silently=False,
@@ -904,8 +909,8 @@ class ApplicationDetail(DetailView):
             member.save()
             if self.object.submitted_by.email:
                 send_mail(
-                    _("A team member opted out of application"),
-                    _("Your team member %s has opted out of application") % member,
+                    __("A team member opted out of application"),
+                    __("Your team member %s has opted out of application") % member,
                     settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[self.object.submitted_by.email],
                     fail_silently=False,
@@ -961,9 +966,7 @@ class ApplicationView(LoginRequiredMixin):
                 and (a := get_object_or_404(models.Application, pk=pk))
                 and not a.is_applicant(u)
             ):
-                messages.error(
-                    request, _("You do not have permissions to edit this application.")
-                )
+                messages.error(request, _("You do not have permissions to edit this application."))
                 return redirect("application", pk=pk)
         return super().dispatch(request, *args, **kwargs)
 
@@ -2556,8 +2559,8 @@ class TestimonialView(CreateUpdateView):
                         "url": url,
                     }
                     send_mail(
-                        _("All testimonials were completed"),
-                        _(
+                        __("All testimonials were completed"),
+                        __(
                             "Kia ora %(user_display)s\n\n"
                             "All invited referees have now responded.\n\n"
                             "Please log into the portal to confirm that you have enough, "
@@ -2568,7 +2571,7 @@ class TestimonialView(CreateUpdateView):
                             "you may now submit your completed application %(number)s: %(title)s here: %(url)s"
                         )
                         % params,
-                        html_message=_(
+                        html_message=__(
                             "<p>Kia ora %(user_display)s</p>"
                             "<p>All invited referees have now responded.</p>"
                             "<p>Please log into the portal to confirm that you have enough, "
@@ -2603,8 +2606,8 @@ class TestimonialView(CreateUpdateView):
                 t.referee.save()
                 self.model.where(id=t.id).delete()
                 send_mail(
-                    _("A Referee opted out of Testimonial"),
-                    _("Your Referee %s has opted out of Testimonial") % t.referee,
+                    __("A Referee opted out of Testimonial"),
+                    __("Your Referee %s has opted out of Testimonial") % t.referee,
                     settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[
                         t.referee.application.submitted_by.email

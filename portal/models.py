@@ -68,6 +68,12 @@ from common.models import TITLES, Base, Model, PersonMixin
 
 from .utils import send_mail
 
+
+def __(s):
+    """Temporarily disabale 'gettex'"""
+    return s
+
+
 GENDERS = Choices(
     (0, _("Prefer not to say")), (1, _("Male")), (2, _("Female")), (3, _("Gender diverse"))
 )
@@ -1618,36 +1624,36 @@ class Invitation(Model):
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
-            subject = _("You are invited to part of a Prime Minister's Science Prize application")
-            body = _(
+            subject = __("You are invited to part of a Prime Minister's Science Prize application")
+            body = __(
                 "Kia ora,\n"
                 "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
                 "To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
-            html_body = _(
+            html_body = __(
                 "Kia ora,<br/>You have been invited to join %(inviter)s's team for their "
                 "Prime Minister's Science Prize application.<br/>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.R:
-            subject = _(
+            subject = __(
                 "You are invited as a referee for a Prime Minister's Science Prize application"
             )
-            body = _(
+            body = __(
                 "Kia ora, "
                 "You have been invited to be a referee for %(inviter)s's application to "
                 "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
-            html_body = _(
+            html_body = __(
                 "Kia ora,<br/>You have been invited to be a referee for %(inviter)s's application to the "
                 "Prime Minister's Science Prize application.<br/>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.A:
-            subject = _("You have been nominated for %s") % self.nomination.round
-            body = _(
+            subject = __("You have been nominated for %s") % self.nomination.round
+            body = __(
                 "Kia ora,\n"
                 "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, "
                 "please follow the link: %(url)s\n"
@@ -1658,7 +1664,7 @@ class Invitation(Model):
                 url=url,
             )
             html_body = (
-                _(
+                __(
                     "Kia ora,<br/>You have been nominated for the %(round)s by %(inviter)s.<br/>"
                     "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
                 )
@@ -1668,40 +1674,34 @@ class Invitation(Model):
                 url=url,
             )
         elif self.type == INVITATION_TYPES.P:
-            subject = _(
+            subject = __(
                 "You are invited to be a Panellist for the Prime Minister's Science Prizes"
             )
             body = (
-                _(
+                __(
                     "Kia ora"
                     "You are invited to be a panellist for the Prime Minister's Science Prizes. \n"
                     "To review this invitation, please follow the link: %s<br/>"
                 )
                 % url
             )
-            html_body = (
-                _(
-                    "Kia ora,<br/>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
-                    "To review this invitation, please follow the link: <a href='%(url)s'>%s</a><br/>"
-                )
-                % url
-            )
+            html_body = __(
+                "Kia ora,<br/>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+            ) % {"url": url}
         else:
-            subject = _("You have been given access to the Prime Minister's Science Prize portal")
+            subject = __("You have been given access to the Prime Minister's Science Prize portal")
             body = (
-                _(
+                __(
                     "You have been given access to the Prime Minister's Science Prize portal. "
                     "To confirm this access, please follow the link: %s "
                 )
                 % url
             )
-            html_body = (
-                _(
-                    "Kia ora,<br/>You have been given access to the Prime Minister's Science Prize portal.<br>"
-                    "To confirm this access, please follow the link: <a href='%s'>%s</a><br/>"
-                )
-                % url
-            )
+            html_body = __(
+                "Kia ora,<br/>You have been given access to the Prime Minister's Science Prize portal.<br>"
+                "To confirm this access, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+            ) % {"url": url}
 
         resp = send_mail(
             subject,
@@ -1779,7 +1779,7 @@ class Invitation(Model):
             return url
 
         body = (
-            _(
+            __(
                 "We are sorry to have to inform you that your invitation message could not be delivered to %s."
             )
             % self.email
@@ -1808,12 +1808,12 @@ class Invitation(Model):
 
         if url:
             body += (
-                "\n\n" + _("Please correct the email address to resend the invitation: %s") % url
+                "\n\n" + __("Please correct the email address to resend the invitation: %s") % url
             )
 
         if self.inviter:
             send_mail(
-                _("Your Invitation Undelivered"),
+                __("Your Invitation Undelivered"),
                 body,
                 recipient_list=[self.inviter.email],
                 fail_silently=False,
@@ -2871,8 +2871,8 @@ class IdentityVerification(Model):
     )
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))
-        subject = _("Your ID verification requires your attention")
-        body = _("Please resubmit a new copy of your ID: %s") % url
+        subject = __("Your ID verification requires your attention")
+        body = __("Please resubmit a new copy of your ID: %s") % url
 
         send_mail(
             subject,
