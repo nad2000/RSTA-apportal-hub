@@ -1,5 +1,6 @@
 import modeltranslation
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.db.models import Q
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
@@ -270,12 +271,10 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
 
 
 @admin.register(models.Application)
-class ApplicationAdmin(
-    StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin
-):
+class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin):
 
     date_hierarchy = "created_at"
-    list_display = ["number", "application_title", "full_name", "org"]
+    list_display = ["number", "complete", "application_title", "full_name", "org"]
     list_filter = ["round", "state", "created_at", "updated_at"]
     readonly_fields = ["created_at", "updated_at"]
     search_fields = [
@@ -290,6 +289,11 @@ class ApplicationAdmin(
     ]
     # summernote_fields = ["summary"]
     exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary"]
+
+    def complete(self, obj):
+        return obj.state == "submitted" or obj.state == "archive"
+
+    complete.boolean = True
 
     class MemberInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
@@ -309,6 +313,31 @@ class ApplicationAdmin(
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.id})
+
+    def send_identity_verification_reminder(modeladmin, request, queryset):
+        recipients = []
+        for a in queryset.filter(
+            Q(submitted_by__is_identity_verified=False)
+            | Q(submitted_by__is_identity_verified__isnull=True)
+        ):
+            for iv in models.IdentityVerification.where(~Q(state="accepted"), application=a):
+                iv.send(request)
+                recipients.append(iv.user or a.submitted_by)
+
+        if recipients:
+            messages.success(
+                request,
+                "Successfully sent reminders to verify %d applicants: %s"
+                % (len(recipients), ", ".join(u.full_name_with_email for u in recipients)),
+            )
+        else:
+            messages.success(
+                request,
+                "No reminder sent, there is either no user requiring "
+                "verification or ID has not been submitted",
+            )
+
+    admin.site.add_action(send_identity_verification_reminder, "Remind to verify identities")
 
 
 admin.site.register(models.Award)
