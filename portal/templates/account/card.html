@@ -80,7 +80,7 @@
                       <input name="login"
                              id="inputEmail"
                              class="form-control"
-                             value="{{ form.login.value }}"
+                             value="{{ form.login.value|default:'' }}"
                              placeholder="{% trans 'Email address or username' %}"
                              required{% if not form.login.value %} autofocus{% endif %}>
                       <label for="inputEmail">{% trans 'Email address or username' %}</label>

@@ -880,9 +880,7 @@ class ApplicationDetail(DetailView):
     def post(self, request, *args, **kwargs):
 
         self.object = self.get_object()
-        member = self.object.members.filter(
-            has_authorized__isnull=True, user=self.request.user
-        ).first()
+        member = self.object.members.filter(user=self.request.user).first()
         if "submit" in request.POST:
             member.has_authorized = True
             member.status = models.MEMBER_STATUS.authorized
