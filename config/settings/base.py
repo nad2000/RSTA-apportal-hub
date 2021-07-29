@@ -324,7 +324,7 @@ EMAIL_SUBJECT_PREFIX = env(
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("Royal Society of New Zealand Te Apārangi", "pmspp@mailinator.com")]
+ADMINS = [("Royal Society of New Zealand Te Apārangi", "pmspp001@mailinator.com")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 

@@ -85,9 +85,18 @@ def approve_user(request, user_id=None):
 class LoginView(allauth_views.LoginView):
 
     def get_context_data(self, **kwargs):
-        ret = super().get_context_data(**kwargs)
-        ret["signup_form"] = forms.UserSignupForm()
-        return ret
+        context = super().get_context_data(**kwargs)
+        context["signup_form"] = forms.UserSignupForm()
+
+        invitation_token = self.request.session.get("invitation_token")
+        if invitation_token:
+            invitation = Invitation.where(token=invitation_token).first()
+            if invitation:
+                form = context["form"]
+                form.fields["login"].initial = invitation.email
+                # form.fields["username"].initial = invitation.email.split("@")[0]
+
+        return context
 
 
 class SignupView(allauth_views.SignupView):

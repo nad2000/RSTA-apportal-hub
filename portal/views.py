@@ -988,7 +988,9 @@ class ApplicationView(LoginRequiredMixin):
             )
             if current_affiliation:
                 initial["org"] = current_affiliation.org
-                initial["position"] = current_affiliation.role
+                initial["position"] = (
+                    current_affiliation.role or latest_application and latest_application.position
+                )
             elif latest_application:
                 initial["org"] = latest_application.org
                 initial["position"] = latest_application.position

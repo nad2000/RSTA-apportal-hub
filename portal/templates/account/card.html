@@ -15,16 +15,19 @@
           </li>
           <li class="nav-item{% if active == 'signup' %} active{% endif %}" style="width: 50%">
             <!-- a class="nav-link" href="{{ signup_url }}">{% trans 'Sign Up' %}</a -->
-            <a class="nav-link{% if active == 'signup' %} active{% endif %}" href="#signup" id="signup-tab"
-                                               data-toggle="tab" role="tab" aria-controls="home"
-                                                                            aria-selected="true">{% trans 'Sign Up' %}</a>
+            <a class="nav-link{% if active == 'signup' %} active{% endif %}"
+               href="#signup"
+               id="signup-tab"
+               data-toggle="tab" role="tab" aria-controls="home"
+                                            aria-selected="true">{% trans 'Sign Up' %}</a>
           </li>
         </ul>
       </div>
 
       <div class="card-body">
         <div class="tab-content">
-          <div class="tab-pane fade{% if active == 'login' %} in show active{% endif %}" id="login" role="tabpanel" aria-labelledby="login-tab">
+          <div class="tab-pane fade{% if active == 'login' %} in show active{% endif %}"
+               id="login" role="tabpanel" aria-labelledby="login-tab">
 
             <!-- form class="login-form" autocomplete="on"  method="POST" action="{% url 'account_login' %}" -->
             <form autocomplete="on" class="login-form" method="POST" action="{% url 'account_login' %}">
@@ -60,36 +63,44 @@
                   style="border-color: #3e3f3a; border-bottom-width: 1px;"
                   </a -->
 
-                <a
-                  title="Tuakiri"
-                  class="btn btn-outline-secondary btn-lg btn-block tuakiri"
-                  href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
-                  <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
-                </a>
+                  <a
+                    title="Tuakiri"
+                    class="btn btn-outline-secondary btn-lg btn-block tuakiri"
+                    href="{% provider_login_url 'rapidconnect' process=process scope=scope auth_params=auth_params %}">
+                    <img src="https://rapidconnect.staging.tuakiri.ac.nz/REANNZ_Tuakiri_service_120x42.png">
+                  </a>
 
-                <hr class="my-4">
-                <!-- div class="or-seperator"><b>or</b></div -->
+                  <hr class="my-4">
+                  <!-- div class="or-seperator"><b>or</b></div -->
 
-                <div class="form-label-group">
-                  <!-- span class="input-group-prepend">
-                    <div class="input-group-text bg-transparent border-right-0"><i class="fa fa-user"></i></div>
-                    </span -->
-                    <input name="login" id="inputEmail" class="form-control"
-                                                        placeholder="{% trans 'Email address or username' %}" required autofocus>
-                    <label for="inputEmail">{% trans 'Email address or username' %}</label>
-                </div>
+                  <div class="form-label-group">
+                    <!-- span class="input-group-prepend">
+                      <div class="input-group-text bg-transparent border-right-0"><i class="fa fa-user"></i></div>
+                      </span -->
+                      <input name="login"
+                             id="inputEmail"
+                             class="form-control"
+                             value="{{ form.login.value }}"
+                             placeholder="{% trans 'Email address or username' %}"
+                             required{% if not form.login.value %} autofocus{% endif %}>
+                      <label for="inputEmail">{% trans 'Email address or username' %}</label>
+                  </div>
 
-                <div class="form-label-group">
-                  <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                  <label for="inputPassword">{% trans 'Password' %}</label>
-                </div>
+                  <div class="form-label-group">
+                    <input name="password"
+                           type="password"
+                           id="inputPassword"
+                           class="form-control"
+                           placeholder="Password" required{% if form.login.value %} autofocus{% endif %}>
+                    <label for="inputPassword">{% trans 'Password' %}</label>
+                  </div>
 
-                <div class="custom-control custom-checkbox mb-3">
-                  <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
-                  <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
-                </div>
+                  <div class="custom-control custom-checkbox mb-3">
+                    <input name="remember" type="checkbox" class="custom-control-input" id="customCheck1">
+                    <label class="custom-control-label" for="customCheck1">{% trans 'Remember password' %}</label>
+                  </div>
 
-                <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
+                  <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans 'Sign in' %}</button>
             </form>
 
             <p class="text-center small"><a style="color: gray;" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a></p>
@@ -135,8 +146,17 @@
               {% trans 'Username' %}
               <span class="asteriskField">*</span> </label>
             <div>
-              <input type="text" name="username" placeholder="Username" autofocus="autofocus" minlength="1" maxlength="150" class="textinput textInput form-control" required id="id_username" value="{{ form.username.value|default_if_none:'' }}"
-              onfocus="setDefaultUsername(this)">
+              <input type="text"
+                     name="username"
+                     placeholder="Username"
+                     autofocus="autofocus"
+                     minlength="1"
+                     maxlength="150"
+                     class="textinput textInput form-control"
+                     required
+                     id="id_username"
+                     value="{{ form.username.value|default_if_none:'' }}"
+                     onfocus="setDefaultUsername(this)">
             </div>
           </div>
 
@@ -153,10 +173,12 @@
           </div> <div id="div_id_password2" class="form-group">
             <label for="id_password2" class=" requiredField">
               Password (again)<span class="asteriskField">*</span> </label> <div class="">
-              <input type="password" name="password2"
-                                    value="{{ form.password2.value|default_if_none:'' }}"
-                                    placeholder="Password (again)" class="textinput textInput form-control"
-                                    required="" id="id_password2"> </div> </div>
+              <input type="password"
+                     name="password2"
+                     value="{{ form.password2.value|default_if_none:'' }}"
+                     placeholder="Password (again)"
+                     class="textinput textInput form-control"
+                     required="" id="id_password2"> </div> </div>
 
           <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans "Sign Up" %} &raquo;</button>
         </form>
