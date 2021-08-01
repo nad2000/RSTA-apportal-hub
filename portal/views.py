@@ -2561,7 +2561,7 @@ class TestimonialView(CreateUpdateView):
                     send_mail(
                         __("All testimonials were completed"),
                         __(
-                            "Kia ora %(user_display)s\n\n"
+                            "Tēnā koe %(user_display)s\n\n"
                             "All invited referees have now responded.\n\n"
                             "Please log into the portal to confirm that you have enough, "
                             "and where relevant the correct types, of referees.\n\n"
@@ -2572,7 +2572,7 @@ class TestimonialView(CreateUpdateView):
                         )
                         % params,
                         html_message=__(
-                            "<p>Kia ora %(user_display)s</p>"
+                            "<p>Tēnā koe %(user_display)s</p>"
                             "<p>All invited referees have now responded.</p>"
                             "<p>Please log into the portal to confirm that you have enough, "
                             "and where relevant the correct types, of referees.</p>"

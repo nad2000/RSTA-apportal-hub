@@ -31,9 +31,9 @@ Turnbull Street, Thorndon, Wellington 6011<br>PO Box 598, Wellington 6140, New Z
 </b></a></span><span style='font-family:"Helvetica",sans-serif;color:black;'>"
 </span></p><p><i><span style='font-size:8.0pt;font-family:"Helvetica",sans-serif;color:black;'>
 Please consider the environment before printing this email. The information contained in this email message is
-intended only for the addressee and may be confidential. If you are not the intended recipient,</span></i>
-</p></td><td width="25%%" valign=bottom style='width:25.0%%;padding:0cm 5.4pt 0cm 5.4pt'>
-<p align=right style='text-align:right'>
+intended only for the addressee and may be confidential. If you are not the intended recipient,
+please notify us immediately.</span></i></p></td><td width="25%%" valign=bottom style='width:25.0%%;
+padding:0cm 5.4pt 0cm 5.4pt'><p align=right style='text-align:right'>
 <span style='font-size:12.0pt;font-family:"Helvetica",sans-serif;color:black'>
 <img border=0 width=298 height=96 src="%(logo_url)s" style='height:1in; width:3.108in'
 alt="PM's Science Prizes Logo Alternative"></span></p></td></tr></table></body></html>
