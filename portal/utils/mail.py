@@ -19,16 +19,14 @@ style='border-collapse:collapse;mso-yfti-tbllook:1184;mso-padding-alt:0cm 0cm 0c
 Science Prizes Secretariat</span></b><p style='line-height:115%%'><b><span style='font-size:8.5pt;
 line-height:115%%;font-family:"Helvetica",sans-serif;color:black'>DDI</span></b>
 <span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif; color:black'>&nbsp;
-+64 4 470 57</span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif'>62<span
-style='color:black'><br><b>E</b>&nbsp;</span></span><span style='font-size:10.0pt;line-height:115%%;font-family:
-"Helvetica",sans-serif;color:blue;background:white'><a href="mailto:pmscienceprizes@royalsociety.org.nz">
-pmscienceprizes@royalsociety.org.nz</a>
++64 4 470 5762<span style='color:black'><br><b>E</b>&nbsp;</span></span><span style='font-size:10.0pt;line-height:115%%;font-family:
+"Helvetica",sans-serif;color:blue;background:white'><a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a>
 </span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif;color:black'></span>
 </p><p><b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'>Royal Society Te
 Apārangi</span></b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'><br>11
 Turnbull Street, Thorndon, Wellington 6011<br>PO Box 598, Wellington 6140, New Zealand<br>
 <a href="http://royalsociety.org.nz/"><b><span style='color:black'>ROYALSOCIETY.ORG.NZ</span>
-</b></a></span><span style='font-family:"Helvetica",sans-serif;color:black;'>"
+</b></a></span><span style='font-family:"Helvetica",sans-serif;color:black;'>
 </span></p><p><i><span style='font-size:8.0pt;font-family:"Helvetica",sans-serif;color:black;'>
 Please consider the environment before printing this email. The information contained in this email message is
 intended only for the addressee and may be confidential. If you are not the intended recipient,
