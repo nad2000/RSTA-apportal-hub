@@ -24,13 +24,19 @@ tr:nth-child(even) {background-color: #f2f2f2;}
     </picture>
   </header>
 </div>
-
+{% with a=application u=user %}
+  <h2>
+    {{ a.number }}: {{ a.application_title|default:a.round.title|title }}
+  </h2>
+  {% include 'snippets/application_detail_table.html' with export=True %}
+{% endwith %}
 {% for object in objects %}
 <h2>
   {{ object }}
 </h2>
 <table class="table table-bordered searchable">
   <tbody>
+
   {% for field in object|fields %}
     {% with name=field.name %}
       {% if name != 'budget' and name != 'organisation' and name != 'id' and name != 'summary' and name != 'summary_en' and name != 'summary_mi' and exclude is None or name not in exclude %}
@@ -48,9 +54,11 @@ tr:nth-child(even) {background-color: #f2f2f2;}
       {% endif %}
     </td>
   </tr>
+
       {% endif %}
     {% endwith %}
   {% endfor %}
+
   </tbody>
 </table>
 {% endfor %}

@@ -1307,7 +1307,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         merger.addMetadata({"/Number": self.number})
         # merger.addMetadata({"/Keywords": self.round.title})
 
-        objects = [self]
+        objects = []
         if (
             request
             and (u := request.user)
@@ -1324,7 +1324,15 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         # html = HTML(summary_url)
 
         template = get_template("application-export.html")
-        html = HTML(string=template.render({"objects": objects}))
+        html = HTML(
+            string=template.render(
+                {
+                    "application": self,
+                    "objects": objects,
+                    "user": request and request.user,
+                }
+            )
+        )
 
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
