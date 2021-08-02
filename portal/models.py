@@ -11,6 +11,7 @@ from urllib.parse import urljoin, urlparse
 import simple_history
 from allauth.account.models import EmailAddress
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
@@ -1116,6 +1117,39 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
         pass
+
+    @transition(field=state, source=["submitted"], target="draft")
+    def request_resubmission(self, request=None, *args, **kwargs):
+        recipients = [self.submitted_by, *self.members.all()]
+        url = request.build_absolute_uri(reverse("application-update", kwargs={"pk": self.id}))
+        params = {
+            "user_display": ", ".join(r.full_name for r in recipients),
+            "number": self.number,
+            "title": self.title or self.round.title,
+            "url": url,
+        }
+        send_mail(
+            __("Application '%s' Review ") % self,
+            __(
+                "Kia ora %(user_display)s\n\n"
+                "Please review your application %(number)s: %(title)s here %(url)s.\n\n"
+            )
+            % params,
+            html_message=__(
+                "<p>Kia ora %(user_display)s</p>"
+                '<p>Please review your application <a href="%(url)s">%(number)s: "%(title)s</a></p>'
+            )
+            % params,
+            recipient_list=[r.full_email_address for r in recipients],
+            fail_silently=False,
+            request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
+        )
+        messages.success(
+            request,
+            "Successfully sent notificatio to review applicant to %s"
+            % ", ".join(u.full_name_with_email for u in recipients),
+        )
 
     def __str__(self):
         title = self.application_title or self.round.title

@@ -320,7 +320,7 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
             Q(submitted_by__is_identity_verified=False)
             | Q(submitted_by__is_identity_verified__isnull=True)
         ):
-            for iv in models.IdentityVerification.where(~Q(state="accepted"), application=a):
+            for iv in models.IdentityVerification.where(~Q(state="accepted"), application=a, file__isnull=False):
                 iv.send(request)
                 recipients.append(iv.user or a.submitted_by)
 
@@ -337,6 +337,15 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
                 "verification or ID has not been submitted",
             )
 
+    def request_resubmission(modeladmin, request, queryset):
+        for a in queryset.filter(
+            Q(submitted_by__is_identity_verified=False)
+            | Q(submitted_by__is_identity_verified__isnull=True)
+        ):
+            a.request_resubmission(request)
+            a.save()
+
+    admin.site.add_action(request_resubmission, "Request resubmission")
     admin.site.add_action(send_identity_verification_reminder, "Remind to verify identities")
 
 
