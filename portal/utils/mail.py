@@ -10,11 +10,11 @@ from .. import models
 
 __send_mail = mail.send_mail
 
-DEFAULT_HTML_FOOTER = """<br>To learn more about the Prime Minister’s Science Prizes visit:
-<a href="https://www.pmscienceprizes.org.nz/">https://www.pmscienceprizes.org.nz/</a>.<br><br>Ngā mihi,<br>
-the Prime Minister’s Science Prize Secretariat.<br><br><table border=0 cellspacing=0 cellpadding=0
+DEFAULT_HTML_FOOTER = """<br>To learn more about the Prime Minister’s Science Prizes 
+<a href="https://www.pmscienceprizes.org.nz/">click here</a>.<br><br>Ngā mihi,<br>
+Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>Prime Minister’s Science Prize Secretariat<br><br><table border=0 cellspacing=0 cellpadding=0
 style='border-collapse:collapse;mso-yfti-tbllook:1184;mso-padding-alt:0cm 0cm 0cm 0cm'>
-<tr><td><p><b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;'>Ko te Kaiwahakahaere</span>
+<tr><td><p><b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;'>Ko te Kaiwhakahaere</span>
 </b>&nbsp;<b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;color:black'>Prime Minister’s
 Science Prizes Secretariat</span></b><p style='line-height:115%%'><b><span style='font-size:8.5pt;
 line-height:115%%;font-family:"Helvetica",sans-serif;color:black'>DDI</span></b>
@@ -22,7 +22,7 @@ line-height:115%%;font-family:"Helvetica",sans-serif;color:black'>DDI</span></b>
 +64 4 470 57</span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif'>62<span
 style='color:black'><br><b>E</b>&nbsp;</span></span><span style='font-size:10.0pt;line-height:115%%;font-family:
 "Helvetica",sans-serif;color:blue;background:white'><a href="mailto:pmscienceprizes@royalsociety.org.nz">
-<span style='text-decoration:none;text-underline:none'>pmscienceprizes@royalsociety.org.nz</span></a>"
+pmscienceprizes@royalsociety.org.nz</a>
 </span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif;color:black'></span>
 </p><p><b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'>Royal Society Te
 Apārangi</span></b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'><br>11
