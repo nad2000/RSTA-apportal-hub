@@ -1178,7 +1178,12 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
     @classmethod
     def user_applications(cls, user, state=None, round=None):
-        if user.is_staff or user.is_superuser:
+        if (
+            user.is_staff
+            or user.is_superuser
+            or round
+            and (round and (p := Panellist.where(round=round, user=user)))
+        ):
             q = cls.objects.all()
             if round:
                 q = q.filter(round=round)
@@ -1186,6 +1191,12 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 q = q.filter(state=state)
             else:
                 q = q.filter(~Q(state="archived"))
+            if round and p:
+                q = q.filter(
+                    conflict_of_interests__panellist=p,
+                    conflict_of_interests__has_conflict=False,
+                    conflict_of_interests__has_conflict__isnull=False,
+                )
             return q
         params = [user.id, user.id, user.id, user.id]
         sql = """
@@ -1213,12 +1224,23 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
     @classmethod
     def user_application_count(cls, user, state=None, round=None):
-        if user.is_staff or user.is_superuser:
+        if (
+            user.is_staff
+            or user.is_superuser
+            or round
+            and (round and (p := Panellist.where(round=round, user=user)))
+        ):
             q = cls.objects.all()
             if state:
                 q = q.filter(state=state)
             else:
                 q = q.filter(~Q(state="archived"))
+            if round and p:
+                q = q.filter(
+                    conflict_of_interests__panellist=p,
+                    conflict_of_interests__has_conflict=False,
+                    conflict_of_interests__has_conflict__isnull=False,
+                )
             return q.count()
         params = [user.id, user.id, user.id, user.id]
         sql = """
@@ -1272,14 +1294,6 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             attachments.append(
                 (_("Application Form"), settings.PRIVATE_STORAGE_ROOT + "/" + str(self.pdf_file))
             )
-        attachments.extend(
-            (
-                _("Testimonial Form Submitted By %s") % t.referee.full_name,
-                settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
-            )
-            for t in self.get_testimonials()
-            if t.file and t.referee
-        )
 
         if cv := (
             self.cv
@@ -1296,6 +1310,31 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
 
+        if (
+            request.user.is_superuser
+            or request.user.is_staff
+            or self.conflict_of_interests.filter(
+                panellist__user=request.user, has_conflict=False, has_conflict__isnull=False
+            )
+        ):
+            attachments.extend(
+                (
+                    _("Nomination Submitted By %s") % n.nominator.full_name,
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(n.pdf_file),
+                )
+                for n in Nomination.where(application=self)
+                if n.file and n.nominator
+            )
+
+            attachments.extend(
+                (
+                    _("Testimonial Form Submitted By %s") % t.referee.full_name,
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
+                )
+                for t in self.get_testimonials()
+                if t.file and t.referee
+            )
+
         # ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger()
@@ -1308,12 +1347,12 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         # merger.addMetadata({"/Keywords": self.round.title})
 
         objects = []
-        if (
-            request
-            and (u := request.user)
-            and not (self.submitted_by == u or self.members.all().filter(user=u).exists())
-        ):
-            objects.extend(self.get_testimonials())
+        # if (
+        #     request
+        #     and (u := request.user)
+        #     and not (self.submitted_by == u or self.members.all().filter(user=u).exists())
+        # ):
+        #     objects.extend(self.get_testimonials())
 
         # number = vignere.encode(self.number)
         # url = reverse("application-exported-view", kwargs={"number": number})

@@ -1227,10 +1227,12 @@ class ApplicationView(LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        round = self.round
+        context["round"] = round
         latest_application = (
             models.Application.where(submitted_by=self.request.user).order_by("-id").first()
         )
-        if self.round.ethics_statement_required:
+        if round.ethics_statement_required:
             EthicsStatementForm = model_forms.modelform_factory(
                 models.EthicsStatement,
                 exclude=["application"],
@@ -1262,7 +1264,7 @@ class ApplicationView(LoginRequiredMixin):
             context["ethics_statement"] = ethics_statement_form
 
         if (
-            self.round.pid_required
+            round.pid_required
             and not self.request.user.is_identity_verified
             and (
                 not (self.object and self.object.id)
@@ -1302,7 +1304,7 @@ class ApplicationView(LoginRequiredMixin):
             )
             context["identity_verification"] = identity_verification_form
 
-        if self.round.scheme.team_can_apply:
+        if round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
             if self.request.POST:
                 context["members"] = (
@@ -3316,6 +3318,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
     exclude = []
 
     def post(self, *args, **kwargs):
+        reset_cache(self.request)
         resp = super().post(*args, **kwargs)
         return resp
 

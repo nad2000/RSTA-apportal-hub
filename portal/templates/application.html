@@ -17,7 +17,14 @@
       <div class="col-sm-12" -->
 
         <h1>
-          {{ object.number }}: {{ object.application_title|default:object.round.title|title }}
+          {% if object.number %}{{ object.number }}: {% endif %}
+          {% if object.application_title %}
+            {{ object.application_title|title }}
+          {% elif object.round %}
+            {{ object.round.title|title }}
+          {% else %}
+            {{ round.title|title }}
+          {% endif %}
         </h1>
 
         <form method="post" enctype="multipart/form-data">
