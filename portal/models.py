@@ -1660,13 +1660,13 @@ class Invitation(Model):
         if self.type == INVITATION_TYPES.T:
             subject = __("You are invited to part of a Prime Minister's Science Prize application")
             body = __(
-                "Kia ora,\n"
+                "Tēnā koe,\n\n"
                 "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
                 "To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = __(
-                "Kia ora,<br/>You have been invited to join %(inviter)s's team for their "
+                "Tēnā koe,<br><br>You have been invited to join %(inviter)s's team for their "
                 "Prime Minister's Science Prize application.<br/>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
@@ -1675,20 +1675,20 @@ class Invitation(Model):
                 "You are invited as a referee for a Prime Minister's Science Prize application"
             )
             body = __(
-                "Kia ora, "
+                "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "
                 "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = __(
-                "Kia ora,<br/>You have been invited to be a referee for %(inviter)s's application to the "
+                "Tēnā koe,<br><br>You have been invited to be a referee for %(inviter)s's application to the "
                 "Prime Minister's Science Prize application.<br/>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.A:
             subject = __("You have been nominated for %s") % self.nomination.round
             body = __(
-                "Kia ora,\n"
+                "Tēnā koe,\n\n"
                 "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, "
                 "please follow the link: %(url)s\n"
                 "Ngā mihi"
@@ -1699,7 +1699,7 @@ class Invitation(Model):
             )
             html_body = (
                 __(
-                    "Kia ora,<br/>You have been nominated for the %(round)s by %(inviter)s.<br/>"
+                    "Tēnā koe,<br><br>You have been nominated for the %(round)s by %(inviter)s.<br/>"
                     "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
                 )
             ) % dict(
@@ -1713,27 +1713,28 @@ class Invitation(Model):
             )
             body = (
                 __(
-                    "Kia ora"
+                    "Tēnā koe\n\n"
                     "You are invited to be a panellist for the Prime Minister's Science Prizes. \n"
-                    "To review this invitation, please follow the link: %s<br/>"
+                    "To review this invitation, please follow the link: %s<br/>\n"
+                    "Ngā mihi"
                 )
                 % url
             )
             html_body = __(
-                "Kia ora,<br/>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
+                "Tēnā koe,<br><br>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % {"url": url}
         else:
             subject = __("You have been given access to the Prime Minister's Science Prize portal")
             body = (
                 __(
-                    "You have been given access to the Prime Minister's Science Prize portal. "
+                    "Tēnā koe,\n\n You have been given access to the Prime Minister's Science Prize portal. "
                     "To confirm this access, please follow the link: %s "
                 )
                 % url
             )
             html_body = __(
-                "Kia ora,<br/>You have been given access to the Prime Minister's Science Prize portal.<br>"
+                "Tēnā koe,<br><br>You have been given access to the Prime Minister's Science Prize portal.<br>"
                 "To confirm this access, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
             ) % {"url": url}
 

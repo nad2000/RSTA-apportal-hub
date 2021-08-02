@@ -10,11 +10,11 @@ from .. import models
 
 __send_mail = mail.send_mail
 
-DEFAULT_HTML_FOOTER = """<br>To learn more about the Prime Minister’s Science Prizes visit:
-<a href="https://www.pmscienceprizes.org.nz/">https://www.pmscienceprizes.org.nz/</a>.<br><br>Ngā mihi,<br>
-the Prime Minister’s Science Prize Secretariat.<br><br><table border=0 cellspacing=0 cellpadding=0
+DEFAULT_HTML_FOOTER = """<br>To learn more about the Prime Minister’s Science Prizes 
+<a href="https://www.pmscienceprizes.org.nz/">click here</a>.<br><br>Ngā mihi,<br>
+Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>Prime Minister’s Science Prize Secretariat<br><br><table border=0 cellspacing=0 cellpadding=0
 style='border-collapse:collapse;mso-yfti-tbllook:1184;mso-padding-alt:0cm 0cm 0cm 0cm'>
-<tr><td><p><b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;'>Ko te Kaiwahakahaere</span>
+<tr><td><p><b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;'>Ko te Kaiwhakahaere</span>
 </b>&nbsp;<b><span style='font-size:10.0pt;font-family:"Helvetica",sans-serif;color:black'>Prime Minister’s
 Science Prizes Secretariat</span></b><p style='line-height:115%%'><b><span style='font-size:8.5pt;
 line-height:115%%;font-family:"Helvetica",sans-serif;color:black'>DDI</span></b>
@@ -22,7 +22,7 @@ line-height:115%%;font-family:"Helvetica",sans-serif;color:black'>DDI</span></b>
 +64 4 470 57</span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif'>62<span
 style='color:black'><br><b>E</b>&nbsp;</span></span><span style='font-size:10.0pt;line-height:115%%;font-family:
 "Helvetica",sans-serif;color:blue;background:white'><a href="mailto:pmscienceprizes@royalsociety.org.nz">
-<span style='text-decoration:none;text-underline:none'>pmscienceprizes@royalsociety.org.nz</span></a>"
+pmscienceprizes@royalsociety.org.nz</a>
 </span><span style='font-size:8.5pt;line-height:115%%;font-family:"Helvetica",sans-serif;color:black'></span>
 </p><p><b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'>Royal Society Te
 Apārangi</span></b><span style='font-size:8.5pt;font-family:"Helvetica",sans-serif;color:black'><br>11
@@ -31,9 +31,9 @@ Turnbull Street, Thorndon, Wellington 6011<br>PO Box 598, Wellington 6140, New Z
 </b></a></span><span style='font-family:"Helvetica",sans-serif;color:black;'>"
 </span></p><p><i><span style='font-size:8.0pt;font-family:"Helvetica",sans-serif;color:black;'>
 Please consider the environment before printing this email. The information contained in this email message is
-intended only for the addressee and may be confidential. If you are not the intended recipient,</span></i>
-</p></td><td width="25%%" valign=bottom style='width:25.0%%;padding:0cm 5.4pt 0cm 5.4pt'>
-<p align=right style='text-align:right'>
+intended only for the addressee and may be confidential. If you are not the intended recipient,
+please notify us immediately.</span></i></p></td><td width="25%%" valign=bottom style='width:25.0%%;
+padding:0cm 5.4pt 0cm 5.4pt'><p align=right style='text-align:right'>
 <span style='font-size:12.0pt;font-family:"Helvetica",sans-serif;color:black'>
 <img border=0 width=298 height=96 src="%(logo_url)s" style='height:1in; width:3.108in'
 alt="PM's Science Prizes Logo Alternative"></span></p></td></tr></table></body></html>

@@ -2003,7 +2003,7 @@ msgstr ""
 
 #: portal/templates/index.html:44 portal/templates/pages/home.html:7
 msgid "Apply for The Prime Minister’s Science Prizes"
-msgstr "Tono mai mō te Paraihe Pūtaiao a te Pirimia"
+msgstr "Tono mai mō ngā Paraihe Pūtaiao a te Pirimia"
 
 #: portal/templates/index.html:49
 msgid "Application Drafts"
@@ -3271,21 +3271,25 @@ msgstr ""
 msgid ""
 "You have to accept the Terms and Conditions before submitting the application"
 msgstr ""
+"Me whakaae koe ki ngā Ture me ngā Here i mua i te tuku i te tono"
 
 #: portal/views.py:1163
 msgid "You must add a budget spreadsheet before submitting the application"
-msgstr ""
+msgstr "Me tāpiri tētahi ripanga mahere pūtea i mua i te tuku mai i te tono"
 
 #: portal/views.py:1172
 msgid ""
 "Missing the application form. Please attach an application form and re-submit"
 msgstr ""
+"Kei te ngaro te puka tono. Tēnā tāpirihia tētahi puka tono ka tuku anō"
 
 #: portal/views.py:1185
 msgid ""
 "Your application has been successfully submitted. The Prize secretariat will "
 "be in touch if there is anything more needed. Good luck."
 msgstr ""
+"I tutuki te tuku mai i tō tono. Ka whakapā atu te tari hēkeretari Paraihe "
+"ki a koe mēnā e hiahiatia ana ētahi atu kōrero. Kia ora ki a koe."
 
 #: portal/views.py:1276
 msgid ""
@@ -3330,11 +3334,11 @@ msgstr "Kawemai i ORCiD"
 
 #: portal/views.py:1989
 msgid "Professional Membership"
-msgstr ""
+msgstr "Mematanga Ngaio"
 
 #: portal/views.py:1990
 msgid "Professional Qualification"
-msgstr ""
+msgstr "Tohu Ngaio"
 
 #: portal/views.py:2148
 #, python-format
@@ -3379,6 +3383,7 @@ msgstr ""
 msgid ""
 "Missing the nomination form. Please attach a nomination form and re-submit"
 msgstr ""
+"Kei te ngaro te puka tautapanga. Tēnā tāpirihia tētahi puka tautapanga ka tuku anō"
 
 #: portal/views.py:2401
 msgid ""
@@ -3397,7 +3402,7 @@ msgstr ""
 #: portal/views.py:2412
 #, python-format
 msgid "Invitation to submit an application resent to %s."
-msgstr "I tukuna te tono ki te tuku mai i tētahi tono ki a %s."
+msgstr "I tukuna anōtia te tono kia tuku tono mai ki a %s."
 
 #: portal/views.py:2483
 #, python-format
@@ -3430,6 +3435,9 @@ msgid ""
 "Your referee report has been submitted. The Prize secretariat will be in "
 "touch if there is anything more needed. Thank you for your participation."
 msgstr ""
+"I tutuki te tuku mai i tō pūrongo kaitautoko. Ka whakapā atu te tari "
+"hēkeretari Paraihe ki a koe mēnā e hiahiatia ana ētahi atu kōrero. "
+"E mihi ana ki a koe mōu i whai wāhi mai."
 
 #: portal/views.py:2538
 msgid "A Referee opted out of Testimonial"
