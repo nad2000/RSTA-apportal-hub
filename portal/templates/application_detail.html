@@ -16,61 +16,61 @@
 
   {% with a=object u=request.user %}
 
-  <div class="table-responsive">
-    {% include 'snippets/application_detail_table.html' %}
-  </div>
-
-  <div class="buttonHolder mb-5 mt-3 float-right">
-
-    <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
-        {% if was_submitted %}
-          disabled
-          data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
-        {% elif not is_owner %}
-          disabled
-          data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
-        {% else %}
-          data-title="{% trans 'Modify your application and continue application process' %}"
-        {% endif %}
-    >
-      <a href="{% url update_view_name pk=a.pk %}"
-          class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
-      >{% trans update_button_name %}
-      </a>
+    <div class="table-responsive">
+      {% include 'snippets/application_detail_table.html' %}
     </div>
 
-    {% if export_button_view_name %}
-      <div class="tooltip-wrapper{% if show_basic_details %} disabled{% endif %}"
-          {% if show_basic_details %}
-            disabled
-            data-title="{% trans 'Only the applicants and the panellists that submitted a statement of conflict of interest can export the application' %}"
-          {% else %}
-            data-title="{% trans 'Export the application into a consolidated PDF file' %}"
-          {% endif %}
-      >
-      <a class="btn btn-primary{% if show_basic_details %} disabled{% endif %}" href="{% url export_button_view_name pk=a.pk %}">{% trans 'Export' %}</a>
-      </div>
-    {% endif %}
+    <div class="buttonHolder mb-5 mt-3 float-right">
 
-    {% if testimonial %}
-
-      <div class="tooltip-wrapper{% if testimonial.state == "submitted" %} disabled{% endif %}"
-          {% if testimonial.state == "submitted" %}
-            disabled
-            data-title="{% trans 'The testimonial was already submitted and cannot be updated' %}"
-          {% else %}
-            data-title="{% trans 'Update and submit the testimonial' %}"
-          {% endif %}
-      >
-      <a class="btn btn-outline-primary{% if testimonial.state == "submitted" %} disabled{% endif %}"
-      href="{% url 'testimonial-update' pk=testimonial.pk %}">{% trans 'Update' %} <strong>{% trans 'Testimonial' %}</strong></a>
+      <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
+           {% if was_submitted %}
+             disabled
+           data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+         {% elif not is_owner %}
+             disabled
+           data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
+         {% else %}
+             data-title="{% trans 'Modify your application and continue application process' %}"
+           {% endif %}
+             >
+             <a href="{% url update_view_name pk=a.pk %}"
+                class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
+                >{% trans update_button_name %}
+             </a>
       </div>
 
-    {% endif %}
+        {% if export_button_view_name %}
+          <div class="tooltip-wrapper{% if show_basic_details %} disabled{% endif %}"
+               {% if show_basic_details %}
+                 disabled
+               data-title="{% trans 'Only the applicants and the panellists that submitted a statement of conflict of interest can export the application' %}"
+             {% else %}
+                 data-title="{% trans 'Export the application into a consolidated PDF file' %}"
+               {% endif %}
+                 >
+                 <a class="btn btn-primary{% if show_basic_details %} disabled{% endif %}" href="{% url export_button_view_name pk=a.pk %}">{% trans 'Export' %}</a>
+          </div>
+        {% endif %}
 
-  </div>
+        {% if testimonial %}
 
-{% endwith %}
+          <div class="tooltip-wrapper{% if testimonial.state == "submitted" %} disabled{% endif %}"
+               {% if testimonial.state == "submitted" %}
+                 disabled
+               data-title="{% trans 'The testimonial was already submitted and cannot be updated' %}"
+             {% else %}
+                 data-title="{% trans 'Update and submit the testimonial' %}"
+               {% endif %}
+                 >
+                 <a class="btn btn-outline-primary{% if testimonial.state == "submitted" %} disabled{% endif %}"
+                    href="{% url 'testimonial-update' pk=testimonial.pk %}">{% trans 'Update' %} <strong>{% trans 'Testimonial' %}</strong></a>
+          </div>
+
+        {% endif %}
+
+    </div>
+
+  {% endwith %}
 {% endblock %}
 
 {% block javascript %}
@@ -80,7 +80,7 @@
   {% endif %}
   <script>
     $(document).ready(function(){
-        $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+      $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
     });
   </script>
 {% endblock javascript %}

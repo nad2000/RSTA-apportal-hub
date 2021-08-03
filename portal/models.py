@@ -185,7 +185,9 @@ class PdfFileMixin:
 
     @property
     def pdf_filename(self):
-        if self.converted_file:
+        if self.file:
+            if self.file.name.lower().endswith(".pdf"):
+                return os.path.basename(self.file.name)
             return os.path.basename(self.pdf_file.name)
 
     @property

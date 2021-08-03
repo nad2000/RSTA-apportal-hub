@@ -933,6 +933,7 @@ class ApplicationDetail(DetailView):
             context["show_basic_details"] = not (
                 u.is_staff
                 or u.is_superuser
+                or self.object.referees.filter(user=u).exists()
                 or models.ConflictOfInterest.where(
                     Q(has_conflict=False) | Q(has_conflict__isnull=False),
                     application=self.object,
