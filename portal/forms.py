@@ -160,7 +160,6 @@ class ProfileForm(forms.ModelForm):
 
 
 class ApplicationForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -567,9 +566,7 @@ class ProfileSectionFormSetHelper(FormHelper):
             self.add_input(complete_button)
             # self.add_input(add_more_button)
             if next_step:
-                next_button = Button(
-                    "next", _("Next") + " »", css_class="btn-primary float-right"
-                )
+                next_button = Button("next", _("Next") + " »", css_class="btn-primary float-right")
                 next_button.input_type = "submit"
                 self.add_input(next_button)
             else:
