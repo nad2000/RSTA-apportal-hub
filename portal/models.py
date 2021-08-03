@@ -1177,95 +1177,52 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         return reverse("application", args=[str(self.id)])
 
     @classmethod
-    def user_applications(cls, user, state=None, round=None):
-        if (
-            user.is_staff
-            or user.is_superuser
-            or round
-            and (round and (p := Panellist.where(round=round, user=user)))
-        ):
-            q = cls.objects.all()
-            if round:
-                q = q.filter(round=round)
-            if state:
-                q = q.filter(state=state)
-            else:
-                q = q.filter(~Q(state="archived"))
-            if round and p:
-                q = q.filter(
-                    conflict_of_interests__panellist=p,
-                    conflict_of_interests__has_conflict=False,
-                    conflict_of_interests__has_conflict__isnull=False,
-                )
-            return q
-        params = [user.id, user.id, user.id, user.id]
-        sql = """
-            SELECT DISTINCT a.* FROM application AS a
-              LEFT JOIN member AS m ON m.application_id = a.id
-              LEFT JOIN referee AS r ON r.application_id = a.id
-              LEFT JOIN nomination AS n ON n.application_id = a.id
-            WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
-        if round:
-            sql += " AND a.round_id=%s "
-            params.append(round if isinstance(round, (int, str)) else round.id)
+    def user_applications(cls, user, state=None, round=None, select_related=True):
+        q = cls.objects.all()
+
         if state:
             if isinstance(state, (list, tuple)):
-                state_list = ",".join(f"'{s}'" for s in state)
-                sql += f" AND a.state IN ({state_list})"
+                q = q.filter(state__in=state)
             else:
-                sql += " AND a.state=%s"
-                params.append(state)
+                q = q.filter(state=state)
         else:
-            sql += " AND a.state != 'archived'"
+            q = q.filter(~Q(state="archived"))
 
-        q = cls.objects.raw(sql, params)
-        prefetch_related_objects(q, "round")
+        if round:
+            q = q.filter(round=round)
+
+        if user.is_staff or user.is_superuser:
+            return q
+
+        if not round:
+            q = q.filter(round__in=Scheme.objects.all().values("current_round"))
+
+        f = (
+            Q(members__user=user)
+            | Q(referees__user=user)
+            | Q(nomination__user=user)
+            | Q(submitted_by=user)
+        )
+        if Panellist.where(user=user).exists():
+            f = f | Q(
+                round__panellists__user=user,
+                conflict_of_interests__panellist__user=user,
+                conflict_of_interests__has_conflict=False,
+                conflict_of_interests__has_conflict__isnull=False,
+            )
+
+        q = q.filter(f)
+        q = q.distinct()
+
+        if select_related:
+            prefetch_related_objects(q, "round")
         return q
 
     @classmethod
     def user_application_count(cls, user, state=None, round=None):
-        if (
-            user.is_staff
-            or user.is_superuser
-            or round
-            and (round and (p := Panellist.where(round=round, user=user)))
-        ):
-            q = cls.objects.all()
-            if state:
-                q = q.filter(state=state)
-            else:
-                q = q.filter(~Q(state="archived"))
-            if round and p:
-                q = q.filter(
-                    conflict_of_interests__panellist=p,
-                    conflict_of_interests__has_conflict=False,
-                    conflict_of_interests__has_conflict__isnull=False,
-                )
-            return q.count()
-        params = [user.id, user.id, user.id, user.id]
-        sql = """
-            SELECT count(DISTINCT a.id) AS app_count
-            FROM application AS a
-              LEFT JOIN member AS m ON m.application_id = a.id
-              LEFT JOIN referee AS r ON r.application_id = a.id
-              LEFT JOIN nomination AS n ON n.application_id = a.id
-            WHERE (a.submitted_by_id=%s OR m.user_id=%s OR r.user_id=%s OR n.user_id=%s)"""
-        if round:
-            sql += " AND a.round_id=%s "
-            params.append(round if isinstance(round, (int, str)) else round.id)
-        if state:
-            if isinstance(state, (list, tuple)):
-                state_list = ",".join(f"'{s}'" for s in state)
-                sql += f" AND a.state IN ({state_list})"
-            else:
-                sql += " AND a.state=%s"
-                params.append(state)
-        else:
-            sql += " AND a.state != 'archived'"
-
-        with connection.cursor() as cursor:
-            cursor.execute(sql, params)
-            return cursor.fetchone()[0]
+        return cls.user_applications(
+            user=user, state=state, round=round, select_related=False
+        ).count()
 
     @classmethod
     def user_draft_applications(cls, user):
