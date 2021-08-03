@@ -1668,13 +1668,13 @@ class Invitation(Model):
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
-                "To review this invitation, please follow the link: %(url)s\n"
+                "\n\nTo review this invitation, please follow the link: %(url)s\n\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = __(
                 "Tēnā koe,<br><br>You have been invited to join %(inviter)s's team for their "
-                "Prime Minister's Science Prize application.<br/>"
-                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+                "Prime Minister's Science Prize application.<br><br>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.R:
             subject = __(
@@ -1683,20 +1683,20 @@ class Invitation(Model):
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. To review this invitation, please follow the link: %(url)s\n"
+                "the Prime Minister's Science Prizes. \n\nTo review this invitation, please follow the link: %(url)s\n\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = __(
                 "Tēnā koe,<br><br>You have been invited to be a referee for %(inviter)s's application to the "
-                "Prime Minister's Science Prize application.<br/>"
-                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+                "Prime Minister's Science Prize application.<br><br>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
             ) % dict(inviter=by, url=url)
         elif self.type == INVITATION_TYPES.A:
             subject = __("You have been nominated for %s") % self.nomination.round
             body = __(
                 "Tēnā koe,\n\n"
-                "You have been nominated for the %(round)s by %(inviter)s. To accept this nomination, "
-                "please follow the link: %(url)s\n"
+                "You have been nominated for the %(round)s by %(inviter)s. \n\nTo accept this nomination, "
+                "please follow the link: %(url)s\n\n"
                 "Ngā mihi"
             ) % dict(
                 round=self.nomination.round,
@@ -1705,8 +1705,8 @@ class Invitation(Model):
             )
             html_body = (
                 __(
-                    "Tēnā koe,<br><br>You have been nominated for the %(round)s by %(inviter)s.<br/>"
-                    "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+                    "Tēnā koe,<br><br>You have been nominated for the %(round)s by %(inviter)s.<br><br>"
+                    "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
                 )
             ) % dict(
                 round=self.nomination.round,
@@ -1720,28 +1720,29 @@ class Invitation(Model):
             body = (
                 __(
                     "Tēnā koe\n\n"
-                    "You are invited to be a panellist for the Prime Minister's Science Prizes. \n"
-                    "To review this invitation, please follow the link: %s<br/>\n"
+                    "You are invited to be a panellist for the Prime Minister's Science Prizes.\n\n"
+                    "To review this invitation, please follow the link: %s \n\n"
                     "Ngā mihi"
                 )
                 % url
             )
             html_body = __(
-                "Tēnā koe,<br><br>You are invited to be a panellist for the Prime Minister's Science Prizes.<br/>"
-                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+                "Tēnā koe,<br><br>You are invited to be a panellist for the Prime Minister's Science Prizes.<br><br>"
+                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
             ) % {"url": url}
         else:
             subject = __("You have been given access to the Prime Minister's Science Prize portal")
             body = (
                 __(
-                    "Tēnā koe,\n\n You have been given access to the Prime Minister's Science Prize portal. "
-                    "To confirm this access, please follow the link: %s "
+                    "Tēnā koe,\n\n You have been given access to the Prime Minister's Science Prize portal.\n\n"
+                    "To confirm this access, please follow the link: %s \n\n"
+                    "Ngā mihi"
                 )
                 % url
             )
             html_body = __(
-                "Tēnā koe,<br><br>You have been given access to the Prime Minister's Science Prize portal.<br>"
-                "To confirm this access, please follow the link: <a href='%(url)s'>%(url)s</a><br/>"
+                "Tēnā koe,<br><br>You have been given access to the Prime Minister's Science Prize portal.<br><br>"
+                "To confirm this access, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
             ) % {"url": url}
 
         resp = send_mail(
