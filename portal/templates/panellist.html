@@ -10,11 +10,11 @@
 {% load static i18n %}
 {% block sidebar %}{% include 'sidebar.html' with category="applications" %}{% endblock sidebar %}
 
-{% block content_header %}
-  {{ round|title }}
-{% endblock %}
 {% block content %}
-    {% crispy formset helper %}
+  <h2 data-toggle="tooltip" title="{% trans 'The panellist of the round' %}">
+    {{ round|title }}
+  </h2>
+  {% crispy formset helper %}
 {% endblock %}
 
 {% block javascript %}
