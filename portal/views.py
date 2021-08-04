@@ -324,10 +324,12 @@ def index(request):
         outstanding_nominations = models.Nomination.where(
             status__in=["sent", "submitted"], user=user
         )
-        draft_applications = models.Application.user_draft_applications(user)
+        draft_applications = models.Application.user_draft_applications(user).filter(
+            ~Q(round__panellists__user=user)
+        )
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
-        )
+        ).filter(~Q(round__panellists__user=user))
         if user.is_staff:
             outstanding_identity_verifications = models.IdentityVerification.where(
                 ~Q(file=""), file__isnull=False, state__in=["new", "sent"]
