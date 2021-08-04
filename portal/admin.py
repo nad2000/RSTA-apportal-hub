@@ -351,6 +351,7 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
 
 admin.site.register(models.Award)
 admin.site.register(models.ConvertedFile)
+admin.site.register(models.CurriculumVitae)
 
 
 class AwardAdmin(admin.ModelAdmin):
