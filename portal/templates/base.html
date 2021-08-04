@@ -80,6 +80,11 @@
                         <i class="fa fa-fw fa-home"></i> {% trans 'Home' %}<span class="sr-only">(current)</span>
                       </a>
                     </li>
+                    <li class="nav-item" id="about-the-prizes">
+                      <a class="nav-link" href="{% url 'about' %}">
+                        <i class="fas fa-trophy"></i> {% trans 'About' %}
+                      </a>
+                    </li>
                     {% if request.user.is_superuser or request.user.is_staff %}
                       <li class="nav-item" id="admin:index">
                         <a id="admin-link" class="nav-link" href="{% url 'admin:index' %}">

@@ -17,7 +17,7 @@ DEFAULT_HTML_FOOTER = """
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
 font-family:"Helvetica",sans-serif;color:black'><img border='0' width='298' 
 height='96' style='width:3.1041in;height:1.0in' src='%(logo_url)s' 
-alt='PM's Science Prizes Logo Alternative'></span><br>
+alt='PM’s Science Prizes Logo Alternative'></span><br>
 <br>
 Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>
 Prime Minister’s Science Prize Secretariat</p>
