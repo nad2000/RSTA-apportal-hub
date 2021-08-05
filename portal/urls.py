@@ -21,7 +21,7 @@ urlpatterns = [
     ),
     path(
         "about",
-        cache_page(3600)(TemplateView.as_view(template_name="pages/about.html")),
+        TemplateView.as_view(template_name="pages/about.html"),
         name="about",
     ),
     path("logout", views.logout, name="logout"),
