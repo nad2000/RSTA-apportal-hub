@@ -357,7 +357,7 @@ class ApplicationForm(forms.ModelForm):
             TabHolder(*tabs),
             ButtonHolder(
                 Button("previous", "« " + _("Previous"), css_class="btn-outline-primary"),
-                ButtonHolder(
+                Div(
                     Submit(
                         "save_draft",
                         _("Save"),
@@ -367,8 +367,7 @@ class ApplicationForm(forms.ModelForm):
                     ),
                     submit_button,
                     HTML(
-                        """
-                        <a href="{{ view.get_success_url }}"
+                        """<a href="{{ view.get_success_url }}"
                         type="button"
                         role="button"
                         class="btn btn-secondary"
@@ -378,7 +377,7 @@ class ApplicationForm(forms.ModelForm):
                         % _("Cancel")
                     ),
                     Button("next", _("Next") + " »", css_class="btn-primary"),
-                    css_class="buttonHolder float-right",
+                    css_class="float-right",
                 ),
                 css_class="mb-5",
             ),
