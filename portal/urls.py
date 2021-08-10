@@ -12,7 +12,7 @@ urlpatterns = [
     # path("", TemplateView.as_view(template_name="pages/comingsoon.html"), name="comingsoon"),
     path(
         "webmanifest",
-        cache_page(3600)(
+        cache_page(None)(
             TemplateView.as_view(
                 template_name="pages/webmanifest.html", content_type="application/json"
             )
@@ -28,7 +28,7 @@ urlpatterns = [
     path("status", views.status, name="status"),
     path(
         "robots.txt",
-        cache_page(3600)(
+        cache_page(None)(
             lambda *args, **kwargs: HttpResponse(
                 "User-agent: *\nDisallow: /", content_type="text/plain"
             )
