@@ -340,7 +340,7 @@ class ApplicationForm(forms.ModelForm):
         type="submit"
         name="submit"
         value="{_('Submit')}"
-        class="btn btn btn-outline-primary"
+        class="btn btn-outline-primary"
         id="submit-id-submit" disabled>
     </span>"""
             )
@@ -380,7 +380,7 @@ class ApplicationForm(forms.ModelForm):
                     Button("next", _("Next") + " »", css_class="btn-primary"),
                     css_class="buttonHolder float-right",
                 ),
-                css_class="buttonHolder mb-5",
+                css_class="mb-5",
             ),
         )
         self.helper.include_media = False
