@@ -73,6 +73,7 @@ class RapidConnectProvider(Provider):
             last_name=surname,
             email=email,
             orcid=orcid,
+            is_approved=True,
         )
         return data
 

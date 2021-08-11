@@ -1683,7 +1683,8 @@ class Invitation(Model):
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. \n\nTo review this invitation, please follow the link: %(url)s\n\n"
+                "the Prime Minister's Science Prizes. \n\n"
+                "To review this invitation, please follow the link: %(url)s\n\n"
                 "Ngā mihi"
             ) % dict(inviter=by, url=url)
             html_body = __(

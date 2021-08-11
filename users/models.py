@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.auth.models import AbstractUser
+from django.core import mail
 from django.db.models import (
     SET_NULL,
     BooleanField,
@@ -33,7 +34,7 @@ class User(HelperMixin, AbstractUser, PersonMixin):
     name = CharField(_("Name of User"), blank=True, null=True, max_length=255)
     orcid = CharField("ORCID iD", blank=True, null=True, max_length=80)
     history = HistoricalRecords()
-    is_approved = BooleanField("Is Approved", default=True)
+    is_approved = BooleanField("Is Approved", default=False)
 
     is_identity_verified = BooleanField(null=True, blank=True)
     identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
@@ -125,3 +126,7 @@ class User(HelperMixin, AbstractUser, PersonMixin):
                 queries["s"] = str(size)
             url += urlencode(queries)
         return url
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """Send an email to this user."""
+        mail.send_mail(subject, message, from_email, [self.email], **kwargs)

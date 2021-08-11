@@ -110,8 +110,11 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         user.name = data.get("name") or user.full_name
         user.orcid = data.get("orcid")
-        user.is_approved = True
-        self.handle_invitation(request, sociallogin)
+        # Invited user gets approved by default:
+        if (self.handle_invitation(request, sociallogin) and self.invitation) or data.get("is_approved"):
+            user.is_approved = True
+        else:
+            user.is_approved = False
         if not user.email and self.invitation:
             user.email = self.invitation.email
         else:

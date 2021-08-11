@@ -11,12 +11,12 @@ from .. import models
 __send_mail = mail.send_mail
 
 DEFAULT_HTML_FOOTER = """
-<br>To learn more about the Prime Minister’s Science Prizes 
+<br>To learn more about the Prime Minister’s Science Prizes
 <a href='https://www.pmscienceprizes.org.nz/'>click here</a>.<br>
 <br>Ngā mihi,</p><br>
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
-font-family:"Helvetica",sans-serif;color:black'><img border='0' width='298' 
-height='96' style='width:3.1041in;height:1.0in' src='%(logo_url)s' 
+font-family:"Helvetica",sans-serif;color:black'><img border='0' width='298'
+height='96' style='width:3.1041in;height:1.0in' src='%(logo_url)s'
 alt='PM’s Science Prizes Logo Alternative'></span><br>
 <br>
 Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>
@@ -25,10 +25,10 @@ Prime Minister’s Science Prize Secretariat</p>
 'border-collapse:collapse'>
 <tbody><tr><td style='padding:0cm 0cm 0cm 0cm'>
 <p style='line-height:115%%'><b><span style='font-size:8.5pt;
-line-height:115%%;color:black'>Waea telephone &nbsp;</span></b><span 
+line-height:115%%;color:black'>Waea telephone &nbsp;</span></b><span
 style='font-size:8.5pt;line-height:115%%;color:black'>+64 4 470 5762<br>
-<b><style='font-size:8.5pt;line-height:115%%;color:black'>Īmēra email</span></b><span 
-style='font-size:8.5pt;line-height:115%%'>&nbsp;</span><span 
+<b><style='font-size:8.5pt;line-height:115%%;color:black'>Īmēra email</span></b><span
+style='font-size:8.5pt;line-height:115%%'>&nbsp;</span><span
 style='font-size:8.5pt;line-height:115%%;color:black;background:white'>
 <a href='mailto:pmscienceprizes@royalsociety.org.nz'>
 <span style='color:black'>pmscienceprizes@royalsociety.org.nz</span></a></span></p>
@@ -38,8 +38,8 @@ style='font-size:8.5pt;line-height:115%%;color:black;background:white'>
 PO Box 598, Wellington 6140, New Zealand<br>
 <a href='http://royalsociety.org.nz/' ><b><span style='color:black'>ROYALSOCIETY.ORG.NZ</span>
 </b></a></span></p><br>
-<p><i><span style='font-size:8.0pt;color:black'>Please consider the environment before 
-printing this email. The information contained in this email message is intended only 
+<p><i><span style='font-size:8.0pt;color:black'>Please consider the environment before
+printing this email. The information contained in this email message is intended only
 for the addressee and may be confidential. If you are not the intended recipient, please
  notify us immediately.</span></i></p>
 </td><td width='25%%' valign='bottom' style='width:25.0%%;padding:0cm 5.4pt 0cm 5.4pt'></td>
@@ -49,7 +49,7 @@ for the addressee and may be confidential. If you are not the intended recipient
 
 def send_mail(
     subject,
-    message,
+    message=None,
     from_email=settings.DEFAULT_FROM_EMAIL,
     recipient_list=None,
     fail_silently=False,
@@ -67,18 +67,18 @@ def send_mail(
     domain = request and request.get_host().split(":")[0] or Site.objects.get_current().domain
     root = f"https://{domain}"
 
+    if not message and html_message:
+        message = html2text.html2text(html_message)
+    elif message and not html_message and convert_to_html:
+        html_message = message.replace("\n", "<br/>\n")
+        html_message = f"<html><body><pre>{html_message}</pre></body></html>"
+
     if html_message:
         if not html_footer:
             html_footer = DEFAULT_HTML_FOOTER % {
                 "logo_url": f"{urljoin(root, 'static/images/alt_logo.jpg')}"
             }
         html_message = f"<html><body>{html_message}\n{html_footer}"
-
-    if not message and html_message:
-        message = html2text.html2text(html_message)
-
-    if message and not html_message and convert_to_html:
-        html_message = f"<html><body><pre>{message}</pre></body></html>"
 
     if not token:
         token = models.get_unique_mail_token()
