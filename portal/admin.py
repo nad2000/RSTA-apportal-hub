@@ -259,6 +259,8 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
         view_on_site = False
 
     filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
+    search_fields = ["user__username", "user__email"]
+
     inlines = [
         ProfileCareerStageInline,
         ProfilePersonIdentifierInline,

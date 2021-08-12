@@ -28,7 +28,7 @@
             <tbody>
               <tr>
                 <td><b> {% trans 'Name' %}: </b></td>
-                <td>{{ user_data.full_name|default_if_none:"" }}</td>
+                <td>{{ user_data.full_name_with_email|default_if_none:"" }}</td>
               </tr>
               <tr>
                 <td><b> {% trans 'ORCiD iD' %}: </b></td>

@@ -2282,40 +2282,43 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
 
         context = super().get_context_data(**kwargs)
         user = self.user
-        profile = self.user.profile
+        profile = models.Profile.where(user=user).first()
 
         context["user_data"] = self.model.get(id=user.id)
-        context["profile"] = profile
         context["image_url"] = user.image_url()
+
 
         if not self.user.is_approved:
             context["approval_url"] = self.request.build_absolute_uri(
                 reverse("users:approve-user", kwargs=dict(user_id=user.id))
             )
-        try:
-            context["qualification"] = models.Affiliation.where(
-                profile=profile, type__in=["EMP"]
-            ).order_by(
-                "start_date",
-                "end_date",
-            )
-            context["professional_records"] = models.Affiliation.where(
-                profile=profile, type__in=["MEM", "SER"]
-            ).order_by(
-                "start_date",
-                "end_date",
-            )
-            context["external_id_records"] = models.ProfilePersonIdentifier.where(
-                profile=profile
-            ).order_by("code")
-            context["academic_records"] = models.AcademicRecord.where(profile=profile).order_by(
-                "-start_year"
-            )
-            context["recognitions"] = models.Recognition.where(profile=profile).order_by(
-                "-recognized_in"
-            )
-        except:
-            pass
+
+        context["profile"] = profile
+        if profile:
+            try:
+                context["qualification"] = models.Affiliation.where(
+                    profile=profile, type__in=["EMP"]
+                ).order_by(
+                    "start_date",
+                    "end_date",
+                )
+                context["professional_records"] = models.Affiliation.where(
+                    profile=profile, type__in=["MEM", "SER"]
+                ).order_by(
+                    "start_date",
+                    "end_date",
+                )
+                context["external_id_records"] = models.ProfilePersonIdentifier.where(
+                    profile=profile
+                ).order_by("code")
+                context["academic_records"] = models.AcademicRecord.where(profile=profile).order_by(
+                    "-start_year"
+                )
+                context["recognitions"] = models.Recognition.where(profile=profile).order_by(
+                    "-recognized_in"
+                )
+            except:
+                pass
 
         return context
 
@@ -2326,7 +2329,8 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
             if self.user and self.user.profile:
                 return self.user
         except:
-            raise Http404(
+            messages.warning(
+                self.request,
                 _(
                     "No Profile summary found or User haven't completed his/her Profile. "
                     "Please come back again!"
