@@ -314,13 +314,18 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.id})
 
-    def send_identity_verification_reminder(modeladmin, request, queryset):
+    actions = ["send_identity_verification_reminder", "request_resubmission"]
+
+    @admin.action(description="Remind to verify identities")
+    def send_identity_verification_reminder(self, request, queryset):
         recipients = []
         for a in queryset.filter(
             Q(submitted_by__is_identity_verified=False)
             | Q(submitted_by__is_identity_verified__isnull=True)
         ):
-            for iv in models.IdentityVerification.where(~Q(state="accepted"), application=a, file__isnull=False):
+            for iv in models.IdentityVerification.where(
+                ~Q(state="accepted"), application=a, file__isnull=False
+            ):
                 iv.send(request)
                 recipients.append(iv.user or a.submitted_by)
 
@@ -337,16 +342,14 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
                 "verification or ID has not been submitted",
             )
 
-    def request_resubmission(modeladmin, request, queryset):
+    @admin.action(description="Request resubmission")
+    def request_resubmission(self, request, queryset):
         for a in queryset.filter(
             Q(submitted_by__is_identity_verified=False)
             | Q(submitted_by__is_identity_verified__isnull=True)
         ):
             a.request_resubmission(request)
             a.save()
-
-    admin.site.add_action(request_resubmission, "Request resubmission")
-    admin.site.add_action(send_identity_verification_reminder, "Remind to verify identities")
 
 
 admin.site.register(models.Award)
