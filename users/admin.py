@@ -43,6 +43,7 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
         "is_superuser",
     ]
     search_fields = [
+        "email",
         "name",
         "username",
     ]
