@@ -3078,12 +3078,13 @@ class RoundList(LoginRequiredMixin, SingleTableView):
     template_name = "rounds.html"
 
     def get_queryset(self, *args, **kwargs):
-        panellist = models.Panellist.where(user=self.request.user).select_related("round")
-        round_ids = []
-        for p in panellist:
-            round_ids.append(p.round.id)
-        queryset = models.Round.objects.filter(id__in=round_ids)
-        return queryset
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+
+        if user.is_staff or user.is_superuser:
+            return queryset
+
+        return models.Round.where(panellists__user=user)
 
 
 class RoundApplicationList(LoginRequiredMixin, SingleTableView):
