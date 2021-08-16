@@ -2329,11 +2329,12 @@ def approve_user(request, user_id=None):
     if not u.is_approved:
         u.is_approved = True
         u.save()
-        u.email_user(
+        url = request.build_absolute_uri(reverse("my-profile"))
+        send_mail(
+            recipient_list=[u.full_email_address],
             subject=f"Confirmation of {u.email} Signup",
             message="You have been approved by schema administrators, "
-            f"now start submitting an application to the Portal: {request.build_absolute_uri(reverse('my-profile'))}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            f"now start submitting an application to the Portal: {url}",
         )
         messages.success(request, f"You have just approved self signed user {u.email}")
     else:
