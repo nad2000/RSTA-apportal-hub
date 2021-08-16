@@ -25,13 +25,7 @@ from django.db.models.functions import Coalesce
 from django.forms import widgets  # BooleanField,
 from django.forms import DateInput, Form, HiddenInput, TextInput, modelformset_factory
 from django.forms import models as model_forms
-from django.http import (
-    FileResponse,
-    Http404,
-    HttpResponse,
-    HttpResponseRedirect,
-    JsonResponse,
-)
+from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils.translation import gettext as _
@@ -42,7 +36,6 @@ from django.views.generic import DetailView as _DetailView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
-from django.views.generic.list import ListView
 from django_filters.views import FilterView
 from django_tables2 import SingleTableMixin, SingleTableView
 from django_tables2.export import ExportMixin
@@ -204,13 +197,14 @@ class CreateUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class DetailView(LoginRequiredMixin, _DetailView):
+
     template_name = "detail.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["exclude"] = ["id", "created_at", "updated_at", "org"]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
-        context["update_button_name"] = "Edit"
+        context["update_button_name"] = _("Edit")
         if self.model and self.model in (models.Application, models.Testimonial):
             context["export_button_view_name"] = f"{self.model.__name__.lower()}-export"
         return context
@@ -2270,30 +2264,33 @@ class AdminstaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.is_superuser or self.request.user.is_staff
 
 
-class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
+class ProfileSummaryView(AdminstaffRequiredMixin, DetailView):
     """Profile summary view"""
 
-    template_name = "profile_summary.html"
     model = models.User
+    slug_field = "username"
+    slug_url_kwarg = "username"
+    template_name = "profile_summary.html"
     user = None
 
     def get_context_data(self, **kwargs):
         """Get the profile summary of user"""
 
         context = super().get_context_data(**kwargs)
-        user = self.user
-        profile = models.Profile.where(user=user).first()
-
-        context["user_data"] = self.model.get(id=user.id)
-        context["image_url"] = user.image_url()
-
-
-        if not self.user.is_approved:
-            context["approval_url"] = self.request.build_absolute_uri(
-                reverse("users:approve-user", kwargs=dict(user_id=user.id))
+        user = self.object
+        if not (profile := models.Profile.where(user=user).first()):
+            messages.warning(
+                self.request,
+                _(
+                    "No Profile summary found or User haven't completed his/her Profile. "
+                    "Please come back again!"
+                ),
             )
 
+        context["user"] = user
         context["profile"] = profile
+        context["image_url"] = user.image_url()
+
         if profile:
             try:
                 context["qualification"] = models.Affiliation.where(
@@ -2311,9 +2308,9 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
                 context["external_id_records"] = models.ProfilePersonIdentifier.where(
                     profile=profile
                 ).order_by("code")
-                context["academic_records"] = models.AcademicRecord.where(profile=profile).order_by(
-                    "-start_year"
-                )
+                context["academic_records"] = models.AcademicRecord.where(
+                    profile=profile
+                ).order_by("-start_year")
                 context["recognitions"] = models.Recognition.where(profile=profile).order_by(
                     "-recognized_in"
                 )
@@ -2322,21 +2319,27 @@ class ProfileSummaryView(AdminstaffRequiredMixin, ListView):
 
         return context
 
-    def get_queryset(self):
-        """Get query set"""
-        try:
-            self.user = self.model.objects.get(id=self.kwargs.get("user_id"))
-            if self.user and self.user.profile:
-                return self.user
-        except:
-            messages.warning(
-                self.request,
-                _(
-                    "No Profile summary found or User haven't completed his/her Profile. "
-                    "Please come back again!"
-                )
-            )
-        return self.user
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def approve_user(request, user_id=None):
+    if not user_id:
+        user_id = request.POST.get("user_id")
+    u = User.where(id=user_id).first()
+    if not u.is_approved:
+        u.is_approved = True
+        u.save()
+        u.email_user(
+            subject=f"Confirmation of {u.email} Signup",
+            message="You have been approved by schema administrators, "
+            f"now start submitting an application to the Portal: {request.build_absolute_uri(reverse('my-profile'))}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+        )
+        messages.success(request, f"You have just approved self signed user {u.email}")
+    else:
+        messages.info(request, f"Self signed user {u.email} is already approved")
+
+    return redirect("profile-summary", username=u.username)
 
 
 class NominationView(CreateUpdateView):

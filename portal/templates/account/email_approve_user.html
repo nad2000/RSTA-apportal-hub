@@ -1,8 +1,77 @@
 {% load i18n account %}
+{% load static i18n compress %}<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}The Prime Minister's Science Prize Portal{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Prime Minister's Science Prizes">
+    <meta name="author" content="Royal Society Te Apārangi">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <![endif]-->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicons/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% url 'webmanifest' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  </head>
+ <body>
+
 <h3>{% trans "Hello from Prime Minister's Science Prizes!" %}</h3>
 <p>{% trans "You are receiving this email because you are Admin for Prime Minister's Science Prizes" %}</p>
+
+    <div>
+      <p style="border-radius: 5px; border-radius: 5px; height: 25px; color: white;"
+         class="progress-bar">{% trans 'User Details' %}</p>
+    </div>
+
+    <div>
+      <div class="row">
+        <div class="col-sm" style="max-width: 14rem; min-with: 10rem;">
+          <img class="mb-2" style="max-width: 10rem;" src="{{ image_url }}">
+        </div>
+        <div class="col-sm-9">
+          <table class=" table searchable no-border">
+            <tbody>
+              <tr>
+                <td><b> {% trans 'Name' %}: </b></td>
+                <td>{{ user.full_name|default_if_none:"" }}</td>
+              </tr>
+              {% if user.email %}
+                <tr>
+                  <td><b> {% trans 'Email' %}: </b></td>
+                  <td>
+                    <a href="emailto:{{ user.email }}">{{ user.email }}</a>
+                  </td>
+                </tr>
+              {% endif %}
+              {% if user.orcid %}
+                <tr>
+                  <td><b> {% trans 'ORCiD iD' %}: </b></td>
+                  <td>{{ user.orcid|default_if_none:"" }}</td>
+                </tr>
+              {% endif %}
+              <tr>
+                <td><b> {% trans 'Username' %}: </b></td>
+                <td>{{ user.username|default_if_none:"" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 <p>
 {% blocktrans %}
   Please click on the link to approve {{ username }} with email address: {{ email }}: <a href='{{ approval_url }}'> {{ approval_url }} </a>
 {% endblocktrans %}
 </p>
+
+  </body>
+</html>

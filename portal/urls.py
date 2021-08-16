@@ -164,7 +164,7 @@ urlpatterns = [
                     name="profile-professional-records",
                 ),
                 path(
-                    "summary/<user_id>",
+                    "summary/<username>",
                     views.ProfileSummaryView.as_view(),
                     name="profile-summary",
                 ),
@@ -181,6 +181,7 @@ urlpatterns = [
     path("test_task/<message>", views.test_task),
     path("onboard/<token>", views.check_profile, name="onboard-with-token"),
     path("onboard", views.check_profile, name="onboard"),
+    path("approve/<user_id>", view=views.approve_user, name="approve-user"),
     # path("profile/career-stages", views.profile_career_stages, name="profile-career-stages"),
     # path('', ProductListView.as_view(), name="product-list"),
     # path("subscription/create", views.SubscriptionCreate.as_view(), name="subscription-create"),
