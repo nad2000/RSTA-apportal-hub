@@ -155,14 +155,11 @@ def round_link(record, table, *args, **kwargs):
 
 class RoundTable(tables.Table):
 
-    # title = tables.Column(
-    #     linkify=lambda record, table, *args, **kwargs: (
-    #         reverse("round-application-list", kwargs={"round_id": record.id})
-    #         if record.has_online_scoring
-    #         else reverse("round-coi", kwargs={"round": record.id})
-    #     )
-    # )
     title = tables.Column(linkify=round_link)
+    scheme = tables.Column(verbose_name=_("Scheme"))
+    opens_on = tables.Column(verbose_name=_("Opens On"))
+    closes_on = tables.Column(verbose_name=_("Closes On"))
+    evaluation_count = tables.Column(verbose_name=_("Review Count"))
 
     class Meta:
         model = models.Round
@@ -173,6 +170,7 @@ class RoundTable(tables.Table):
             "scheme",
             "opens_on",
             "closes_on",
+            "evaluation_count",
         )
 
 

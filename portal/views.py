@@ -3081,10 +3081,17 @@ class RoundList(LoginRequiredMixin, SingleTableView):
         queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
 
-        if user.is_staff or user.is_superuser:
-            return queryset
+        if not(user.is_staff or user.is_superuser):
+            queryset = queryset.filter(panellists__user=user)
 
-        return models.Round.where(panellists__user=user)
+        if (state:=self.request.path.split('/')[-1]):
+            if state == "draft":
+                queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
+            else:
+                queryset = queryset.filter(panellists__evaluations__state=state)
+
+        queryset = queryset.annotate(evaluation_count=Count("panellists__evaluations"))
+        return queryset
 
 
 class RoundApplicationList(LoginRequiredMixin, SingleTableView):
