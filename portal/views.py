@@ -3142,7 +3142,10 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
         if not (user.is_staff or user.is_superuser):
             queryset = queryset.filter(evaluations__panellist__user=user)
         if state := self.state:
-            queryset = queryset.filter(evaluations__state=state)
+            if state == "draft":
+                queryset = queryset.filter(evaluations__state__in=["draft", "new"])
+            else:
+                queryset = queryset.filter(evaluations__state=state)
         queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
         return queryset
@@ -3157,7 +3160,7 @@ class EvaluationListView(LoginRequiredMixin, SingleTableView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         if pk := self.kwargs.get("pk"):
-            if (a := get_object_or_404(models.Application, pk=pk)):
+            if a := get_object_or_404(models.Application, pk=pk):
                 queryset = queryset.filter(application=a)
 
         return queryset
@@ -3165,7 +3168,7 @@ class EvaluationListView(LoginRequiredMixin, SingleTableView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if pk := self.kwargs.get("pk"):
-            if (a := get_object_or_404(models.Application, pk=pk)):
+            if a := get_object_or_404(models.Application, pk=pk):
                 context["application"] = a
         return context
 
