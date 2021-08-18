@@ -141,6 +141,8 @@ class ApplicationTable(tables.Table):
 
 
 def round_link(record, table, *args, **kwargs):
+    if not record.evaluation_count:
+        return
     user = table.request.user
     url = (
         reverse("round-application-list", kwargs={"round_id": record.id})
@@ -180,6 +182,8 @@ class RoundTable(tables.Table):
 
 def application_review_link(table, record, value):
 
+    if not record.evaluation_count:
+        return
     user = table.request.user
     if user.is_staff or user.is_superuser:
         url = reverse(
