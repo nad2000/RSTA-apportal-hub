@@ -329,6 +329,11 @@ urlpatterns = [
                     views.ConflictOfInterestView.as_view(),
                     name="round-application-review",
                 ),
+                path(
+                    "application/<int:pk>",
+                    views.EvaluationListView.as_view(),
+                    name="round-application-reviews-list",
+                ),
             ]
         ),
     ),

@@ -3077,14 +3077,24 @@ class RoundList(LoginRequiredMixin, SingleTableView):
     table_class = tables.RoundTable
     template_name = "rounds.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if state := self.state:
+            context["state"] = state
+        return context
+
+    @property
+    def state(self):
+        return self.request.path.split("/")[-1]
+
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
 
-        if not(user.is_staff or user.is_superuser):
+        if not (user.is_staff or user.is_superuser):
             queryset = queryset.filter(panellists__user=user)
 
-        if (state:=self.request.path.split('/')[-1]):
+        if state := self.state:
             if state == "draft":
                 queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
             else:
@@ -3100,18 +3110,64 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     table_class = tables.RoundApplicationTable
     template_name = "rounds.html"
 
+    @property
+    def state(self):
+        return self.request.GET.get("state")
+
+    @property
+    def round(self):
+        return get_object_or_404(models.Round, pk=self.kwargs.get("round_id"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if round := self.round:
+            context["round"] = round
+        return context
+
     def get(self, request, *args, **kwargs):
-        if r := get_object_or_404(models.Round, pk=self.kwargs.get("round_id")):
-            if not r.has_online_scoring:
+        user = self.request.user
+        if r := self.round:
+            if not (user.is_staff or user.is_superuser or r.has_online_scoring):
                 if not r.all_coi_statements_given_by(request.user):
-                    return redirect(reverse("round-coi", kwargs=dict(round=r.id)))
+                    return redirect("round-coi", round=r.id)
                 else:
-                    return redirect(reverse("score-sheet", kwargs=dict(round=r.id)))
+                    return redirect("score-sheet", round=r.id)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
-        queryset = self.model.where(round=self.kwargs.get("round_id"))
+        if r := self.round:
+            queryset = super().get_queryset(*args, **kwargs)
+            queryset = queryset.filter(round=r)
+        user = self.request.user
+        if not (user.is_staff or user.is_superuser):
+            queryset = queryset.filter(evaluations__panellist__user=user)
+        if state := self.state:
+            queryset = queryset.filter(evaluations__state=state)
+        queryset = queryset.annotate(evaluation_count=Count("evaluations"))
+
         return queryset
+
+
+class EvaluationListView(LoginRequiredMixin, SingleTableView):
+
+    model = models.Evaluation
+    table_class = tables.EvaluationTable
+    template_name = "rounds.html"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        if pk := self.kwargs.get("pk"):
+            if (a := get_object_or_404(models.Application, pk=pk)):
+                queryset = queryset.filter(application=a)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if pk := self.kwargs.get("pk"):
+            if (a := get_object_or_404(models.Application, pk=pk)):
+                context["application"] = a
+        return context
 
 
 class ConflictOfInterestView(CreateUpdateView):

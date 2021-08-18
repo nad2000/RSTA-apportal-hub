@@ -141,9 +141,10 @@ class ApplicationTable(tables.Table):
 
 
 def round_link(record, table, *args, **kwargs):
-    return (
+    user = table.request.user
+    url = (
         reverse("round-application-list", kwargs={"round_id": record.id})
-        if record.has_online_scoring
+        if record.has_online_scoring or user.is_staff or user.is_superuser
         else reverse(
             "score-sheet"
             if record.all_coi_statements_given_by(table.request.user)
@@ -151,11 +152,14 @@ def round_link(record, table, *args, **kwargs):
             kwargs={"round": record.id},
         )
     )
+    if state := table.context.get("state"):
+        url += f"?state={state}"
+    return url
 
 
 class RoundTable(tables.Table):
 
-    title = tables.Column(linkify=round_link)
+    title = tables.Column(linkify=round_link, verbose_name=_("Title"))
     scheme = tables.Column(verbose_name=_("Scheme"))
     opens_on = tables.Column(verbose_name=_("Opens On"))
     closes_on = tables.Column(verbose_name=_("Closes On"))
@@ -176,6 +180,16 @@ class RoundTable(tables.Table):
 
 def application_review_link(table, record, value):
 
+    user = table.request.user
+    if user.is_staff or user.is_superuser:
+        url = reverse(
+            "round-application-reviews-list",
+            kwargs={"pk": record.id},
+        )
+        if state := table.context.get("state"):
+            url += f"?state={state}"
+        return url
+
     return reverse(
         "round-application-review",
         kwargs={"round_id": record.round.id, "application_id": record.id},
@@ -184,7 +198,12 @@ def application_review_link(table, record, value):
 
 class RoundApplicationTable(tables.Table):
 
-    number = tables.Column(linkify=application_review_link)
+    number = tables.Column(linkify=application_review_link, verbose_name=_("Number"))
+    # round = tables.Column(verbose_name=_("Round"))
+    first_name = tables.Column(verbose_name=_("First Name"))
+    last_name = tables.Column(verbose_name=_("Last Name"))
+    email = tables.Column(verbose_name=_("Email"))
+    evaluation_count = tables.Column(verbose_name=_("Review Count"))
 
     class Meta:
         model = models.Application
@@ -192,10 +211,26 @@ class RoundApplicationTable(tables.Table):
         attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "number",
-            "round",
-            "email",
+            # "round",
             "first_name",
             "last_name",
+            "email",
+            "evaluation_count",
+        )
+
+
+class EvaluationTable(tables.Table):
+
+    # round = tables.Column(verbose_name=_("Round"))
+
+    class Meta:
+        model = models.Evaluation
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped table-bordered"}
+        fields = (
+            # "round",
+            "panellist__full_name",
+            "total_score",
         )
 
 
