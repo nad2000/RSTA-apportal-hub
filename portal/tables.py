@@ -165,7 +165,9 @@ class RoundTable(tables.Table):
     scheme = tables.Column(verbose_name=_("Scheme"))
     opens_on = tables.Column(verbose_name=_("Opens On"))
     closes_on = tables.Column(verbose_name=_("Closes On"))
-    evaluation_count = tables.Column(verbose_name=_("Review Count"))
+    evaluation_count = tables.Column(
+        verbose_name=_("Review Count"), attrs={"td": {"style": "text-align: right;"}}
+    )
 
     class Meta:
         model = models.Round
@@ -207,7 +209,9 @@ class RoundApplicationTable(tables.Table):
     first_name = tables.Column(verbose_name=_("First Name"))
     last_name = tables.Column(verbose_name=_("Last Name"))
     email = tables.Column(verbose_name=_("Email"))
-    evaluation_count = tables.Column(verbose_name=_("Review Count"))
+    evaluation_count = tables.Column(
+        verbose_name=_("Review Count"), attrs={"td": {"style": "text-align: right;"}}
+    )
 
     class Meta:
         model = models.Application
@@ -226,6 +230,9 @@ class RoundApplicationTable(tables.Table):
 class EvaluationTable(tables.Table):
 
     # round = tables.Column(verbose_name=_("Round"))
+    total_score = tables.Column(
+        verbose_name=_("Total Score"), attrs={"td": {"style": "text-align: right;"}}
+    )
 
     class Meta:
         model = models.Evaluation
