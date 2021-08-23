@@ -13,7 +13,7 @@ def portal_context(request):
     context = {
         "settings": settings,
         "view_name": view_name,
-        "disable_breadcrumbs": view_name in ["index", "home"],
+        "disable_breadcrumbs": not view_name or view_name in ["index", "home"],
     }
     if (u := request.user) and u.is_authenticated:
         stats = cache.get(u.username)
