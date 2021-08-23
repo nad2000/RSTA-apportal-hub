@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load static i18n %}
+{% load static i18n django_bootstrap_breadcrumbs %}
 
 {% block title %}{% if object %}{{ object }}{% else %}{{ profile }}{% endif %}{% if section_name %} - {{ section_name }}{% endif %}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="profile" %}{% endblock sidebar %}
@@ -8,6 +8,11 @@
 {% block css %}
   {{ block.super }}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" integrity="sha256-siyOpF/pBWUPgIcQi17TLBkjvNgNQArcmwJB8YvkAgg=" crossorigin="anonymous" />
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Profile" "profile" %}
 {% endblock %}
 
 {% block content %}

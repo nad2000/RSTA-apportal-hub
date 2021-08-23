@@ -327,3 +327,26 @@ table.details tr:last-child > td {
   // border-bottom: none;
   border-bottom: solid;
 }
+
+.breadcrumb {
+  font-size: smaller;
+  border: 1px solid desaturate(lighten($primary, 60%), 50%);
+  margin-top: 6px;
+  margin-left: 1px;
+  margin-right: 1px;
+  margin-bottom: 8px;
+  border-radius: 0.25rem;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 4px;
+  padding-bottom: 3px;
+
+  display: flex;
+  flex-wrap: wrap;
+  // padding: $breadcrumb-padding-y $breadcrumb-padding-x;
+  // margin-bottom: $breadcrumb-margin-bottom;
+  // @include font-size($breadcrumb-font-size);
+  list-style: none;
+  background-color: $breadcrumb-bg;
+  // @include border-radius($breadcrumb-border-radius);
+}

@@ -228,7 +228,7 @@
 
 <div class="card mb-2">
   <div class="card-header">
-    <a href="{% url 'account' %}">
+    <a href="{% url 'account' %}" id="account">
       {% trans 'Account' %}
     </a>
   </div>
@@ -238,6 +238,7 @@
         <li class="nav-item">
           <a
             class="nav-link"
+            id="socialaccount_connections"
             href="{% url 'socialaccount_connections' %}"
             title="{% trans 'Add or remove linked external system or social network accounts' %}"
             data-toggle="tooltip"
@@ -246,6 +247,7 @@
         <li class="nav-item">
           <a
             class="nav-link"
+            id="account_change_password"
             href="{% url 'account_set_password' %}"
             title="{% trans 'Set or reset your password' %}"
             data-toggle="tooltip"

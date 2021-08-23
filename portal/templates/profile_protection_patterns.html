@@ -1,11 +1,16 @@
 {% extends 'profile.html' %}
-{% load static i18n %}
+{% load static i18n django_bootstrap_breadcrumbs %}
 
 {% block title %}{% trans 'Protection Patterns' %}{% endblock %}
 
 {% block css %}
   {{block.super }}
   <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Protection Patterns" "profile-protection-patterns" %}
 {% endblock %}
 
 {% block section %}

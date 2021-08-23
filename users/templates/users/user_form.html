@@ -1,8 +1,13 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags socialaccount static %}
+{% extends "account.html" %}
+{% load crispy_forms_tags socialaccount static django_bootstrap_breadcrumbs %}
 
 {% block title %}{{ user.username }}{% endblock %}
-{% block sidebar %}{% include 'sidebar.html' with categrory="account" %}{% endblock sidebar %}
+{% block sidebar %}{% include 'sidebar.html' with category="account" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Basic User Information" "users:update" %}
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -16,7 +21,7 @@
         <div class="control-group">
           <div class="controls">
             <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ view.get_success_url }}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'account' %}" class="btn btn-secondary">Cancel</a>
           </div>
         </div>
       </form>

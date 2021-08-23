@@ -139,6 +139,8 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "bootstrap4",
     "explorer",
+    # "dynamic_breadcrumbs",
+    "django_bootstrap_breadcrumbs",
 ]
 
 # EXPLORER_CONNECTIONS = {"Default": "readonly"}
@@ -267,6 +269,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
+                # "dynamic_breadcrumbs.context_processors.breadcrumbs",
+                "django.template.context_processors.request",
                 "portal.context_processors.portal_context",
             ],
         },

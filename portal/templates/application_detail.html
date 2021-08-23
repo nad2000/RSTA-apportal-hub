@@ -1,7 +1,18 @@
 {% extends 'detail.html' %}
 
-{% load i18n crispy_forms_tags tags %}
+{% load i18n crispy_forms_tags tags django_bootstrap_breadcrumbs %}
 {% block sidebar %}{% include 'sidebar.html' with category="applications" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Applications" "applications" %}
+  {% if object.state == "draft" %}
+    {% breadcrumb "Draft" "applications-draft" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "applications-submitted" %}
+  {% endif %}
+  {% breadcrumb object.number "application" object.pk %}
+{% endblock %}
 
 {% if form %}
   {% block css %}
@@ -80,7 +91,7 @@
   {% endif %}
   <script>
     $(document).ready(function(){
-      $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
-    });
+          $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+        });
   </script>
 {% endblock javascript %}

@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% load static i18n cache tags %}
+{% load static i18n cache tags django_bootstrap_breadcrumbs %}
 
 {% if not request.user.is_superuser and not request.user.is_staff %}
-{% block title %}{% trans "The Prime Minister’s Science Prize Portal" %}{% endblock title %}
+  {% block title %}{% trans "The Prime Minister’s Science Prize Portal" %}{% endblock title %}
 {% endif %}
+
 
 {% block content %}
 

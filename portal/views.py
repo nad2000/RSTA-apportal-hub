@@ -1649,6 +1649,8 @@ class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
         ):
             context["filter_disabled"] = True
             self.table_pagination = False
+        if (state := self.request.path.split("/")[-1]) and state in ["draft", "submitted"]:
+            context["state"] = state
 
         return context
 

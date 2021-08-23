@@ -1,10 +1,16 @@
 {% extends 'profile.html' %}
-{% load static i18n %}
-{% load crispy_forms_tags %}
+{% load static i18n django_bootstrap_breadcrumbs crispy_forms_tags %}
 
 {% block css %}
   {{ formset.media.css }}
   {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% with request.resolver_match.view_name as view_name %}
+    {% breadcrumb section_name view_name %}
+  {% endwith %}
 {% endblock %}
 
 {% block section %}
@@ -13,7 +19,7 @@
       {% if view_name == "profile-employments" %}
         {% blocktrans %}
           Organisations that you have an affiliation with.
-          Note that the organsation where you are primarily employed, or study, will be published if you are awarded a prize.
+          Note that the organisation where you are primarily employed, or study, will be published if you are awarded a prize.
         {% endblocktrans %}
       {% elif view_name == "profile-career-stages" %}
         {% blocktrans %}
@@ -23,26 +29,26 @@
         {% endblocktrans %}
       {% elif view_name == "profile-external-ids" %}
         {% blocktrans %}
-          Identifiers that are yours in public systems, e.g. authenticated ORCID iD, Scopus ID, ResearcherID, and Teacher Registration Number. 
+          Identifiers that are yours in public systems, e.g. authenticated ORCID iD, Scopus ID, ResearcherID, and Teacher Registration Number.
           Please DO NOT enter personal identifiers such as IRD Number, National Student Number or National Health Number.
         {% endblocktrans %}
       {% elif view_name == "profile-cvs" %}
         {% blocktrans %}
           Curriculum Vitae are required from the following:
             <ul>
-            <li>Team leaders and sole applicants with the exception of the Future Scientist Prize. 
+            <li>Team leaders and sole applicants with the exception of the Future Scientist Prize.
               Applicants for the Future Scientist Prize DO NOT need to provide a CV.</li>
             <li>Nominators for the Science Teacher Prize</li>
             <li>Referees for all prizes with the exception of the Future Scientist and Science Teacher Prizes</li>
             </ul>
           If in doubt skip this step, and when required a CV will be requested.<br><br>
           For NZ-based researchers, a current CV in the
-           <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred. 
+           <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred.
           All others, please provide a CV in whatever is your preferred format.
         {% endblocktrans %}
       {% elif view_name == "profile-academic-records" %}
         {% blocktrans %}
-          Academic record is requested to enable analysis of the effect of qualifications on research performance, 
+          Academic record is requested to enable analysis of the effect of qualifications on research performance,
           career trajectories, and to better understand needs for succession planning and support for particular groups.
         {% endblocktrans %}
       {% elif view_name == "profile-recognitions" %}
@@ -51,11 +57,11 @@
         {% endblocktrans %}
       {% elif view_name == "profile-professional-records" %}
         {% blocktrans %}
-          Information on professional bodies, is useful for demonstating participation in the research community, 
-          including membership in organisations responsible for accrediation, as well as providing space for recognising non-academic qualifications.<br/>
+          Information on professional bodies, is useful for demonstrating participation in the research community,
+          including membership in organisations responsible for accreditation, as well as providing space for recognising non-academic qualifications.<br/>
           Example Memberships include: Members of the Royal Society Te Apārangi and New Zealand Association of Science Educators.<br/>
-          Example Qualifications include: Chartered Practicing Accountant (CPA) and Chartered Professional Engineer (CPEng), with the 
-          Organisation being the body that granted the qualification. 
+          Example Qualifications include: Chartered Practicing Accountant (CPA) and Chartered Professional Engineer (CPEng), with the
+          Organisation being the body that granted the qualification.
         {% endblocktrans %}
       {% endif %}
     </div>

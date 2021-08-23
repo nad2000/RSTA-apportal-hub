@@ -1,4 +1,4 @@
-{% load static i18n compress %}<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
+{% load static i18n compress django_bootstrap_breadcrumbs %}<!DOCTYPE html>{% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8">
@@ -161,9 +161,22 @@
           </nav>
 
         </div>
+        {% comment %}
+        {% if breadcrumbs %}
+          <div class="container">
+            {% include "dynamic_breadcrumbs/breadcrumbs.html" with breadcrumbs=breadcrumbs%}
+          </div>
+        {% endif %}
+        {% endcomment %}
+
+      {% block breadcrumbs %}
+        {% breadcrumb_raw_safe '<i class="fa fa-fw fa-home"></i>' "/" %}
+      {% endblock %}
+      {% render_breadcrumbs "breadcrumbs.html" %}
+
       {% endblock header %}
 
-      <div class="container-fluid mt-3">
+      <div class="container-fluid">
 
         {% if requery.user.needs_identity_verification %}
           <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -309,8 +322,10 @@
               {% block sidebar %}{% include 'sidebar.html' with category="applications" %}{% endblock sidebar %}
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-9 mt-2 mb-3">
               {% block content %}
+
+
               {% endblock content %}
             </div>
           </div>

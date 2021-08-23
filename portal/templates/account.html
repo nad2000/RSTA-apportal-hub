@@ -1,15 +1,20 @@
 {% extends 'base.html' %}
 
-{% load static i18n socialaccount %}
+{% load static i18n socialaccount django_bootstrap_breadcrumbs %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="account" %}{% endblock sidebar %}
 {% block title %}User: {{ user.full_name_with_email }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Your Account" "account" %}
+{% endblock %}
 
 {% block content %}
 
   <h1>
     {% if user and user == request.user %}
-      Your Account
+      {% trans 'Your Account' %}
     {% else %}
       {{ user.full_name_with_email|title }}
     {% endif %}

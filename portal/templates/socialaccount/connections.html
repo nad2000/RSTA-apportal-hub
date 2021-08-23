@@ -1,10 +1,15 @@
-{% extends "profile.html" %}
-{% load static i18n %}
+{% extends "account.html" %}
+{% load static i18n django_bootstrap_breadcrumbs %}
 
 {% block head_title %}{% trans 'Account Connections' %}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="account" %}{% endblock sidebar %}
 
-{% block section %}
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Account Connections" "socialaccount_connections" %}
+{% endblock %}
+
+{% block content %}
   <div class="container">
     <div class="row">
       <div class="col-sm-6">
