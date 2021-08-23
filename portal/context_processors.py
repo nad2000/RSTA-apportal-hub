@@ -9,8 +9,12 @@ from . import models
 
 
 def portal_context(request):
-    context = {"settings": settings, "view_name": request.resolver_match.view_name}
-    # request.resolver_match.view_name not in ['index', 'home']
+    view_name = (rm := request.resolver_match) and rm.view_name
+    context = {
+        "settings": settings,
+        "view_name": view_name,
+        "disable_breadcrumbs": view_name in ["index", "home"],
+    }
     if (u := request.user) and u.is_authenticated:
         stats = cache.get(u.username)
         if not stats:
