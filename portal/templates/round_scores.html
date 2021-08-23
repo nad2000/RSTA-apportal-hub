@@ -7,40 +7,38 @@
 {% block content %}
 
   {% if rounds %}
-    {% with request.resolver_match.view_name as view_name %}
-      <div style="display: inline-flex;">
-        <div class="dropdown show" style="margin: 1px;">
+    <div style="display: inline-flex;">
+      <div class="dropdown show" style="margin: 1px;">
 
-          <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ round|title }}
-          </a>
+        <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ round|title }}
+        </a>
 
-          <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
-            {% for r in rounds %}
-              {% if r.id != round.id %}
-                <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
-
+        <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
+          {% for r in rounds %}
+            {% if r.id != round.id %}
+              <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
+            {% endif %}
+          {% endfor %}
         </div>
 
-        <a class="btn btn-outline-primary" href="{% url 'round-summary' round=round.id %}" role="button" style="margin: 1px;">
-          {% trans "Show Detailed Report" %}</a>
+      </div>
 
-        <!-- a class="btn btn-outline-primary" href="{% url 'scores-list' round=round.id %}" role="button" style="margin: 1px;">
-          {% trans "Show Scores" %}</a -->
+      <a class="btn btn-outline-primary" href="{% url 'round-summary' round=round.id %}" role="button" style="margin: 1px;">
+        {% trans "Show Detailed Report" %}</a>
 
-        <a
+      <!-- a class="btn btn-outline-primary" href="{% url 'scores-list' round=round.id %}" role="button" style="margin: 1px;">
+        {% trans "Show Scores" %}</a -->
+
+      <a
           class="btn btn-outline-primary"
           href="{% url 'round-application-export' pk=round.id %}"
           data-toggle="tooltip" title="{% trans 'Export all the applications of the round' %}"
-          role="button"
-          style="margin: 1px;">
-            {% trans "Export PDF" %}
-        </a>
-      </div>
-    {% endwith %}
+                                role="button"
+                                style="margin: 1px;">
+        {% trans "Export PDF" %}
+      </a>
+    </div>
   {% endif %}
 
   <h1>{{ round|title }}</h1>
@@ -49,48 +47,107 @@
     {% for panellist in round.scores %}
       <li class="nav-item">
         <a
-          id="panellist-{{ panellist.id }}-tab"
-          data-toggle="tab"
-          href="#panellist-{{ panellist.id }}"
-          role="tab"
-          aria-controls="{{ panellist.full_name }}"
-          {% if not selected_panellist_id %}
+            id="panellist-{{ panellist.id }}-tab"
+            data-toggle="tab"
+            href="#panellist-{{ panellist.id }}"
+            role="tab"
+            aria-controls="{{ panellist.full_name }}"
+            {% if not selected_panellist_id %}
             aria-selected="{% if forloop.first %}true{% else %}flase{% endif %}"
             class="nav-link{% if forloop.first %} active{% endif %}"
           {% else %}
             aria-selected="{% if selected_panellist_id == panellis.id %}true{% else %}flase{% endif %}"
             class="nav-link{% if selected_panellist_id == panellis.id %} active{% endif %}"
           {% endif %}
-        >
-          {{ panellist|person_name }}
+            >
+            {{ panellist|person_name }}
         </a>
       </li>
     {% endfor %}
-      <li class="nav-item">
-        <a
+    <li class="nav-item">
+      <a
           id="panellist-total-tab"
           data-toggle="tab"
           href="#panellist-total"
           role="tab"
           aria-controls="{% trans 'Total' %}"
-          aria-selected="{% if selected_panellist_id == 'total' %}true{% else %}flase{% endif %}"
-          class="nav-link{% if selected_panellist_id == 'total' %} active{% endif %}"
+        aria-selected="{% if selected_panellist_id == 'total' %}true{% else %}flase{% endif %}"
+        class="nav-link{% if selected_panellist_id == 'total' %} active{% endif %}"
         >
-          {% trans 'Total' %}
-        </a>
-      </li>
+        {% trans 'Total' %}
+      </a>
+    </li>
   </ul>
 
-<div class="tab-content" id="panellist-tab-content">
-  {% for panellist in round.scores %}
+  <div class="tab-content" id="panellist-tab-content">
+    {% for panellist in round.scores %}
+      <div
+          {% if not selected_panellist_id %}
+            class="tab-pane fade{% if forloop.first %} show active{% endif %}"
+          {% else %}
+              class="tab-pane fade{% if selected_panellist_id == panellis.id %} show active{% endif %}"
+            {% endif %}
+              id="panellist-{{ panellist.id }}" role="tabpanel"
+                                                aria-labelledby="panellist-{{ panellist.id }}-tab">
+
+        <table class="table table-striped table-bordered">
+
+          <thead>
+            <tr>
+              <th>{% trans 'Application' %}</th>
+              <th>{% trans 'Lead' %}</th>
+              <th>{% trans 'Overall Comment' %}</th>
+              <th>{% trans 'Total' %}</th>
+
+              {% for c in criteria %}
+                <th>{{ c.definition }}</th>
+                <th>{{ c.definition }} {% trans 'Comment' %}</th>
+              {% endfor %}
+
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for evaluation in panellist.evaluations.all %}
+              <tr>
+
+                <td>
+                  {{ evaluation.application.number }}
+                </td>
+
+                <td>
+                  {{ evaluation.application|person_name }}
+                </td>
+
+                <td>
+                  {{ evaluation.comment }}
+                </td>
+
+                <td class="text-right">
+                  {{ evaluation.total }}
+                </td>
+
+                {% for score in evaluation|all_scores:criteria %}
+                  <td class="text-right">
+                    {{ score.value }}
+                  </td>
+                  <td>
+                    {{ score.comment|safe }}
+                  </td>
+                {% endfor %}
+
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    {% endfor %}
+
     <div
-      {% if not selected_panellist_id %}
-        class="tab-pane fade{% if forloop.first %} show active{% endif %}"
-      {% else %}
-        class="tab-pane fade{% if selected_panellist_id == panellis.id %} show active{% endif %}"
-      {% endif %}
-      id="panellist-{{ panellist.id }}" role="tabpanel"
-      aria-labelledby="panellist-{{ panellist.id }}-tab">
+        class="tab-pane fade{% if selected_panellist_id == 'total' %} show active{% endif %}"
+        id="panellist-total" role="tabpanel"
+                             aria-labelledby="panellist-total-tab">
 
       <table class="table table-striped table-bordered">
 
@@ -98,110 +155,51 @@
           <tr>
             <th>{% trans 'Application' %}</th>
             <th>{% trans 'Lead' %}</th>
-            <th>{% trans 'Overall Comment' %}</th>
-            <th>{% trans 'Total' %}</th>
-
-            {% for c in criteria %}
-              <th>{{ c.definition }}</th>
-              <th>{{ c.definition }} {% trans 'Comment' %}</th>
-            {% endfor %}
-
+            <th>{% trans 'Total Score' %}</th>
           </tr>
         </thead>
 
         <tbody>
-          {% for evaluation in panellist.evaluations.all %}
+          {% for t in round.avg_scores %}
             <tr>
-
-              <td>
-                {{ evaluation.application.number }}
-              </td>
-
-              <td>
-                {{ evaluation.application|person_name }}
-              </td>
-
-              <td>
-                {{ evaluation.comment }}
-              </td>
-
-              <td class="text-right">
-                {{ evaluation.total }}
-              </td>
-
-              {% for score in evaluation|all_scores:criteria %}
-                <td class="text-right">
-                  {{ score.value }}
-                </td>
-                <td>
-                  {{ score.comment|safe }}
-                </td>
-              {% endfor %}
-
+              <td> {{ t.number }} </td>
+              <td> {{ t|person_name }} </td>
+              <td class="text-right"> {{ t.total|floatformat }} </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
 
     </div>
-  {% endfor %}
-
-  <div
-    class="tab-pane fade{% if selected_panellist_id == 'total' %} show active{% endif %}"
-    id="panellist-total" role="tabpanel"
-    aria-labelledby="panellist-total-tab">
-
-    <table class="table table-striped table-bordered">
-
-      <thead>
-        <tr>
-          <th>{% trans 'Application' %}</th>
-          <th>{% trans 'Lead' %}</th>
-          <th>{% trans 'Total Score' %}</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for t in round.avg_scores %}
-          <tr>
-            <td> {{ t.number }} </td>
-            <td> {{ t|person_name }} </td>
-            <td class="text-right"> {{ t.total|floatformat }} </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
 
   </div>
 
-</div>
+  <a class="btn btn-primary"
+     href="{% url 'scores-export' round=round.id %}?type=xls"
+     role="button"
+     data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2003 format' %}">
+    {% trans 'Export' %} <strong>XLS</strong>
+  </a>
+  <a class="btn btn-primary"
+     href="{% url 'scores-export' round=round.id %}?type=xlsx"
+     role="button"
+     data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2007+ format' %}">
+    {% trans 'Export' %} <strong>XLSX</strong>
+  </a>
+  <a class="btn btn-primary"
+     href="{% url 'scores-export' round=round.id %}?type=ods"
+     role="button"
+     data-toggle="tooltip" title="{% trans 'Export in ODF Spreadsheet format' %}">
+    {% trans 'Export' %} <strong>ODS</strong>
+  </a>
 
-<a class="btn btn-primary"
-  href="{% url 'scores-export' round=round.id %}?type=xls"
-  role="button"
-  data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2003 format' %}">
-  {% trans 'Export' %} <strong>XLS</strong>
-</a>
-<a class="btn btn-primary"
-   href="{% url 'scores-export' round=round.id %}?type=xlsx"
-   role="button"
-   data-toggle="tooltip" title="{% trans 'Export in Microsoft Excel 2007+ format' %}">
-  {% trans 'Export' %} <strong>XLSX</strong>
-</a>
-<a class="btn btn-primary"
-   href="{% url 'scores-export' round=round.id %}?type=ods"
-   role="button"
-   data-toggle="tooltip" title="{% trans 'Export in ODF Spreadsheet format' %}">
-  {% trans 'Export' %} <strong>ODS</strong>
-</a>
-
-<script>
-  $(document).ready(function(){
-    $('#panellist-tab a').on('click', function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    });
-  });
-</script>
+  <script>
+    $(document).ready(function(){
+          $('#panellist-tab a').on('click', function (e) {
+                e.preventDefault()
+                $(this).tab('show')
+              });
+        });
+  </script>
 
 {% endblock %}

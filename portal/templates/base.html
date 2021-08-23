@@ -172,7 +172,11 @@
       {% block breadcrumbs %}
         {% breadcrumb_raw_safe '<i class="fa fa-fw fa-home"></i>' "/" %}
       {% endblock %}
-      {% render_breadcrumbs "breadcrumbs.html" %}
+      {% if view_name != 'index' and view_name != 'home' %}
+        {% render_breadcrumbs "breadcrumbs.html" %}
+      {% else %}
+        <div class="mt-3"></div>
+      {% endif %}
 
       {% endblock header %}
 
@@ -427,7 +431,7 @@
             el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
           });
           $('[data-toggle="tooltip"]').tooltip();
-          $("#{{request.resolver_match.view_name}}").addClass("active");
+          $("#{{view_name}}").addClass("active");
         });
       </script>
       {% endcompress %}

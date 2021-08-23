@@ -12,7 +12,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   {% breadcrumb_for applications %}
-      {% trans "Applications" %}
+  {% trans "Applications" %}
   {% endbreadcrumb_for %}
   {% if state == "draft" %}
     {% breadcrumb "Draft" "applications-draft" %}
@@ -32,42 +32,40 @@
 {% block content %}
 
   {% if rounds %}
-    {% with request.resolver_match.view_name as view_name %}
 
-      <div style="display: inline-flex;">
-        <div class="dropdown show" style="margin: 1px;">
+    <div style="display: inline-flex;">
+      <div class="dropdown show" style="margin: 1px;">
 
-          <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ round|title }}
-          </a>
+        <a class="btn btn-outline-primary dropdown-toggle" href="#" role="button" id="active-round-menu-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ round|title }}
+        </a>
 
-          <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
-            {% for r in rounds %}
-              {% if r.id != round.id %}
-                <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
-
+        <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
+          {% for r in rounds %}
+            {% if r.id != round.id %}
+              <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
+            {% endif %}
+          {% endfor %}
         </div>
 
-        <!-- a class="btn btn-outline-primary" href="{% url 'round-summary' round=round.id %}" role="button">
-          {% trans "Show Detailed Report" %}</a -->
+      </div>
 
-        <a class="btn btn-outline-primary" href="{% url 'scores-list' round=round.id %}" role="button" style="margin: 1px;">
-          {% trans "Show Scores" %}</a>
+      <!-- a class="btn btn-outline-primary" href="{% url 'round-summary' round=round.id %}" role="button">
+        {% trans "Show Detailed Report" %}</a -->
 
-        <a
+      <a class="btn btn-outline-primary" href="{% url 'scores-list' round=round.id %}" role="button" style="margin: 1px;">
+        {% trans "Show Scores" %}</a>
+
+      <a
           class="btn btn-outline-primary"
           href="{% url 'round-application-export' pk=round.id %}"
           data-toggle="tooltip" title="{% trans 'Export all the applications of the round' %}"
-          role="button"
-          style="margin: 1px;">
-            {% trans "Export PDF" %}
-        </a>
-      </div>
+                                role="button"
+                                style="margin: 1px;">
+        {% trans "Export PDF" %}
+      </a>
+    </div>
 
-    {% endwith %}
   {% endif %}
 
   {% if view.title %}
@@ -78,23 +76,23 @@
     <form method="GET">
       <div class="form-group form-check">
         <input
-          {% if show_only_conflicts %}checked{% endif %}
-          type="checkbox"
-          class="form-check-input"
-          id="show-only-conflicts"
-          name="show_only_conflicts">
+            {% if show_only_conflicts %}checked{% endif %}
+            type="checkbox"
+            class="form-check-input"
+            id="show-only-conflicts"
+            name="show_only_conflicts">
         <label class="form-check-label" for="show-only-conflicts">{% trans 'Show Only Conflicts' %}</label>
       </div>
     </form>
-      <script>
-        $(document).ready(function() {
-          $('#show-only-conflicts').change(function()
-          {
-              $(location).attr("href",
-                $(location).attr("pathname") + "?show_only_conflicts=" + (this.checked ? '1':'0'));
-          });
-        });
-      </script>
+    <script>
+      $(document).ready(function() {
+              $('#show-only-conflicts').change(function()
+                      {
+                              $(location).attr("href",
+                                      $(location).attr("pathname") + "?show_only_conflicts=" + (this.checked ? '1':'0'));
+                            });
+            });
+    </script>
   {% endif %}
 
   {% if filter and not filter_disabled %}

@@ -8,98 +8,94 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% with request.resolver_match.view_name as view_name %}
-    {% breadcrumb section_name view_name %}
-  {% endwith %}
+  {% breadcrumb section_name view_name %}
 {% endblock %}
 
 {% block section %}
-  {% with request.resolver_match.view_name as view_name %}
-    <div class="jumbotron">
-      {% if view_name == "profile-employments" %}
-        {% blocktrans %}
-          Organisations that you have an affiliation with.
-          Note that the organisation where you are primarily employed, or study, will be published if you are awarded a prize.
-        {% endblocktrans %}
-      {% elif view_name == "profile-career-stages" %}
-        {% blocktrans %}
-          Career stage is requested to be able to understand the proportion of researchers at different stages of their career.
-          The expectation is that this will assist in the development of funding mechanisms and support tools.
-          Only used at aggregated levels for statistical and reporting purposes.
-        {% endblocktrans %}
-      {% elif view_name == "profile-external-ids" %}
-        {% blocktrans %}
-          Identifiers that are yours in public systems, e.g. authenticated ORCID iD, Scopus ID, ResearcherID, and Teacher Registration Number.
-          Please DO NOT enter personal identifiers such as IRD Number, National Student Number or National Health Number.
-        {% endblocktrans %}
-      {% elif view_name == "profile-cvs" %}
-        {% blocktrans %}
-          Curriculum Vitae are required from the following:
-            <ul>
-            <li>Team leaders and sole applicants with the exception of the Future Scientist Prize.
-              Applicants for the Future Scientist Prize DO NOT need to provide a CV.</li>
-            <li>Nominators for the Science Teacher Prize</li>
-            <li>Referees for all prizes with the exception of the Future Scientist and Science Teacher Prizes</li>
-            </ul>
-          If in doubt skip this step, and when required a CV will be requested.<br><br>
-          For NZ-based researchers, a current CV in the
-           <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred.
-          All others, please provide a CV in whatever is your preferred format.
-        {% endblocktrans %}
-      {% elif view_name == "profile-academic-records" %}
-        {% blocktrans %}
-          Academic record is requested to enable analysis of the effect of qualifications on research performance,
-          career trajectories, and to better understand needs for succession planning and support for particular groups.
-        {% endblocktrans %}
-      {% elif view_name == "profile-recognitions" %}
-        {% blocktrans %}
-          Prizes and/or medals are requested in order to enable analysis over time of the causes and effects of recognition.
-        {% endblocktrans %}
-      {% elif view_name == "profile-professional-records" %}
-        {% blocktrans %}
-          Information on professional bodies, is useful for demonstrating participation in the research community,
-          including membership in organisations responsible for accreditation, as well as providing space for recognising non-academic qualifications.<br/>
-          Example Memberships include: Members of the Royal Society Te Apārangi and New Zealand Association of Science Educators.<br/>
-          Example Qualifications include: Chartered Practicing Accountant (CPA) and Chartered Professional Engineer (CPEng), with the
-          Organisation being the body that granted the qualification.
-        {% endblocktrans %}
-      {% endif %}
-    </div>
-    {% crispy formset helper %}
-    {% if view_name == "profile-career-stages" %}
-      <table role="table" class="table table-striped">
-      <!-- table role="table" class="table table-striped table-bordered" -->
-        <thead>
-          <tr>
-            <th scope="col">{% trans 'Description' %}</th>
-            <th scope="col">{% trans 'Definition' %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">{% trans 'First Stage Researcher' %}</th>
-            <td>{% trans 'A First Stage Researcher conducts research under supervision. This may include PhD and research masters students.' %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans 'Emerging Researcher' %}</th>
-            <td>{% trans 'An Emerging Researcher has made a contribution through original research by developing a substantial body of work, innovation or application which may merit national or internationally refereed publications, patents, and papers at conferences and congresses.' %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans 'Established Researcher' %}</th>
-            <td>{% trans 'An Established Researcher identifies research problems and opportunities within their area of expertise, conducts research independently which advances a research agenda, can form research consortia, and secure research funding/budgets from funding agencies or industry, publishes papers as lead author, acts as a mentor for other researchers.' %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans 'Leading Researcher' %}</th>
-            <td>{% trans 'A Leading Researcher has an international reputation based on research excellence in their field and a proven record of securing significant research funding.  This researcher is a professional development role model for others. They focus on long term team planning and career paths for researchers, securing funding for team positions.' %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans 'Not Applicable' %}</th>
-            <td>{% trans 'Non-Researchers. For example, most teachers, students, and communicators will select this.' %}</td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="jumbotron">
+    {% if view_name == "profile-employments" %}
+      {% blocktrans %}
+        Organisations that you have an affiliation with.
+        Note that the organisation where you are primarily employed, or study, will be published if you are awarded a prize.
+      {% endblocktrans %}
+    {% elif view_name == "profile-career-stages" %}
+      {% blocktrans %}
+        Career stage is requested to be able to understand the proportion of researchers at different stages of their career.
+        The expectation is that this will assist in the development of funding mechanisms and support tools.
+        Only used at aggregated levels for statistical and reporting purposes.
+      {% endblocktrans %}
+    {% elif view_name == "profile-external-ids" %}
+      {% blocktrans %}
+        Identifiers that are yours in public systems, e.g. authenticated ORCID iD, Scopus ID, ResearcherID, and Teacher Registration Number.
+        Please DO NOT enter personal identifiers such as IRD Number, National Student Number or National Health Number.
+      {% endblocktrans %}
+    {% elif view_name == "profile-cvs" %}
+      {% blocktrans %}
+        Curriculum Vitae are required from the following:
+        <ul>
+          <li>Team leaders and sole applicants with the exception of the Future Scientist Prize.
+            Applicants for the Future Scientist Prize DO NOT need to provide a CV.</li>
+          <li>Nominators for the Science Teacher Prize</li>
+          <li>Referees for all prizes with the exception of the Future Scientist and Science Teacher Prizes</li>
+        </ul>
+        If in doubt skip this step, and when required a CV will be requested.<br><br>
+        For NZ-based researchers, a current CV in the
+        <a href="https://www.royalsociety.org.nz/assets/documents/NZ-RST-CV-Template.doc">NZ RST CV Template</a> is preferred.
+        All others, please provide a CV in whatever is your preferred format.
+      {% endblocktrans %}
+    {% elif view_name == "profile-academic-records" %}
+      {% blocktrans %}
+        Academic record is requested to enable analysis of the effect of qualifications on research performance,
+        career trajectories, and to better understand needs for succession planning and support for particular groups.
+      {% endblocktrans %}
+    {% elif view_name == "profile-recognitions" %}
+      {% blocktrans %}
+        Prizes and/or medals are requested in order to enable analysis over time of the causes and effects of recognition.
+      {% endblocktrans %}
+    {% elif view_name == "profile-professional-records" %}
+      {% blocktrans %}
+        Information on professional bodies, is useful for demonstrating participation in the research community,
+        including membership in organisations responsible for accreditation, as well as providing space for recognising non-academic qualifications.<br/>
+        Example Memberships include: Members of the Royal Society Te Apārangi and New Zealand Association of Science Educators.<br/>
+        Example Qualifications include: Chartered Practicing Accountant (CPA) and Chartered Professional Engineer (CPEng), with the
+        Organisation being the body that granted the qualification.
+      {% endblocktrans %}
     {% endif %}
-  {% endwith %}
+  </div>
+  {% crispy formset helper %}
+  {% if view_name == "profile-career-stages" %}
+    <table role="table" class="table table-striped">
+      <!-- table role="table" class="table table-striped table-bordered" -->
+      <thead>
+        <tr>
+          <th scope="col">{% trans 'Description' %}</th>
+          <th scope="col">{% trans 'Definition' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">{% trans 'First Stage Researcher' %}</th>
+          <td>{% trans 'A First Stage Researcher conducts research under supervision. This may include PhD and research masters students.' %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans 'Emerging Researcher' %}</th>
+          <td>{% trans 'An Emerging Researcher has made a contribution through original research by developing a substantial body of work, innovation or application which may merit national or internationally refereed publications, patents, and papers at conferences and congresses.' %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans 'Established Researcher' %}</th>
+          <td>{% trans 'An Established Researcher identifies research problems and opportunities within their area of expertise, conducts research independently which advances a research agenda, can form research consortia, and secure research funding/budgets from funding agencies or industry, publishes papers as lead author, acts as a mentor for other researchers.' %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans 'Leading Researcher' %}</th>
+          <td>{% trans 'A Leading Researcher has an international reputation based on research excellence in their field and a proven record of securing significant research funding.  This researcher is a professional development role model for others. They focus on long term team planning and career paths for researchers, securing funding for team positions.' %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans 'Not Applicable' %}</th>
+          <td>{% trans 'Non-Researchers. For example, most teachers, students, and communicators will select this.' %}</td>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
 {% endblock %}
 
 {% block javascript %}
@@ -117,4 +113,4 @@
     /*   width: null // remove calculated with of the select2 span elements */
     /* }); */
     </script -->
-{% endblock %}
+  {% endblock %}

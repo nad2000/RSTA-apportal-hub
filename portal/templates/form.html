@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags static i18n %}
+{% load crispy_forms_tags static i18n django_bootstrap_breadcrumbs %}
 
 {% block head_title %}{{ object }}{% endblock %}
 
@@ -9,6 +9,13 @@
   <!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" -->
   {{ form.media.css }}
   {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if view_name == "invitation-create" %}
+    {% breadcrumb "Innovation to Join" view_name %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}

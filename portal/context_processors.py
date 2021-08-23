@@ -9,7 +9,8 @@ from . import models
 
 
 def portal_context(request):
-    context = {"settings": settings}
+    context = {"settings": settings, "view_name": request.resolver_match.view_name}
+    # request.resolver_match.view_name not in ['index', 'home']
     if (u := request.user) and u.is_authenticated:
         stats = cache.get(u.username)
         if not stats:
@@ -27,7 +28,9 @@ def portal_context(request):
                 ),
                 "testimonial_count": models.Testimonial.user_testimonial_count(u),
                 "testimonial_draft_count": models.Testimonial.user_testimonial_count(u, "draft"),
-                "testimonial_submitted_count": models.Testimonial.user_testimonial_count(u, "submitted"),
+                "testimonial_submitted_count": models.Testimonial.user_testimonial_count(
+                    u, "submitted"
+                ),
                 "review_count": models.Evaluation.user_evaluation_count(u),
                 "review_draft_count": models.Evaluation.user_evaluation_count(u, "draft"),
                 "review_submitted_count": models.Evaluation.user_evaluation_count(u, "submitted"),
