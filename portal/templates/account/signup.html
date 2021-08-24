@@ -5,6 +5,7 @@
   {{ block.super }}
   <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
 {% endblock %}
+{% block breadcrumbs_content %}<div class="mt-2"></div>{% endblock %}
 
 {% block sidebar %}{% endblock sidebar %}
 {% block title %}{% block head_title %}{% endblock head_title %}{% endblock title %}

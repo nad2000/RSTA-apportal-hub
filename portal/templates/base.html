@@ -165,11 +165,13 @@
       {% block breadcrumbs %}
         {% breadcrumb_raw_safe '<i class="fa fa-fw fa-home"></i>' "/" %}
       {% endblock %}
-      {% if not disable_breadcrumbs %}
-        {% render_breadcrumbs "breadcrumbs.html" %}
-      {% else %}
+      {% block breadcrumbs_content %}
+        {% if not disable_breadcrumbs %}
+          {% render_breadcrumbs "breadcrumbs.html" %}
+        {% else %}
         <div class="mt-3"></div>
       {% endif %}
+      {% endblock %}
 
       {% endblock header %}
 

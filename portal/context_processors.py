@@ -14,7 +14,7 @@ def portal_context(request):
         "settings": settings,
         "view_name": view_name,
         "disable_breadcrumbs": not view_name
-        or view_name in ["index", "home", "account_login", "account_signup"],
+        or view_name in ["index", "home"],  # , "account_login", "account_signup"],
     }
     if (u := request.user) and u.is_authenticated:
         stats = cache.get(u.username)
