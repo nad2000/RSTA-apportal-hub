@@ -11,9 +11,7 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% breadcrumb_for applications %}
-  {% trans "Applications" %}
-  {% endbreadcrumb_for %}
+  {% breadcrumb "Applications" "applications" %}
   {% if state == "draft" %}
     {% breadcrumb "Draft" "applications-draft" %}
   {% elif state == "submitted" %}

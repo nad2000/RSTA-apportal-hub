@@ -161,6 +161,36 @@ def should_be_approved(function):
     return wrap
 
 
+class StateInPathMixin:
+    @property
+    def state(self):
+        if (
+            state := self.request.path.split("/")[-1] or self.request.GET.get("state")
+        ) and state in ["new", "draft", "submitted", "archived"]:
+            return state
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if state := self.state:
+            context["state"] = state
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        if state := self.state:
+            if isinstance(self, models.Testimonial):
+                if state == "draft":
+                    queryset = queryset.filter(evaluations__state__in=["draft", "new"])
+                else:
+                    queryset = queryset.filter(evaluations__state=state)
+            else:
+                if state == "draft":
+                    queryset = queryset.filter(state__in=["draft", "new"])
+                else:
+                    queryset = queryset.filter(state=state)
+        return queryset
+
+
 class AccountView(LoginRequiredMixin, TemplateView):
 
     template_name = "account.html"
@@ -1601,7 +1631,7 @@ class ApplicationFilter(django_filters.FilterSet):
         )
 
 
-class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
+class ApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableMixin, FilterView):
 
     model = models.Application
     table_class = tables.ApplicationTable
@@ -1627,11 +1657,6 @@ class ApplicationList(LoginRequiredMixin, SingleTableMixin, FilterView):
             )
         if "round" in self.request.GET:
             queryset = queryset.filter(round=self.request.GET["round"])
-        state = self.request.path.split("/")[-1]
-        if state == "draft":
-            queryset = queryset.filter(state__in=[state, "new"])
-        elif state == "submitted":
-            queryset = queryset.filter(state=state)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -2656,7 +2681,7 @@ class TestimonialView(CreateUpdateView):
         return context
 
 
-class NominationList(LoginRequiredMixin, SingleTableView):
+class NominationList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.Nomination
     table_class = tables.NominationTable
@@ -3106,15 +3131,11 @@ class RoundList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
-class RoundApplicationList(LoginRequiredMixin, SingleTableView):
+class RoundApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.Application
     table_class = tables.RoundApplicationTable
     template_name = "rounds.html"
-
-    @property
-    def state(self):
-        return self.request.GET.get("state")
 
     @property
     def round(self):
@@ -3137,17 +3158,13 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+
         if r := self.round:
-            queryset = super().get_queryset(*args, **kwargs)
             queryset = queryset.filter(round=r)
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
             queryset = queryset.filter(evaluations__panellist__user=user)
-        if state := self.state:
-            if state == "draft":
-                queryset = queryset.filter(evaluations__state__in=["draft", "new"])
-            else:
-                queryset = queryset.filter(evaluations__state=state)
         queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
         return queryset
