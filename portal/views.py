@@ -2766,7 +2766,7 @@ class NominationDetail(DetailView):
         return context
 
 
-class TestimonialList(LoginRequiredMixin, SingleTableView):
+class TestimonialList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.Testimonial
     table_class = tables.TestimonialTable

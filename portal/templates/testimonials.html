@@ -5,11 +5,11 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% breadcrumb "Testimonials" view_name %}
+  {% breadcrumb "Testimonials" "testimonials" %}
   {% if state == "draft" %}
-    {% breadcrumb "Draft" "applications-draft" %}
+    {% breadcrumb "Draft" "testimonials-draft" %}
   {% elif state == "submitted" %}
-    {% breadcrumb "Submitted" "applications-submitted" %}
+    {% breadcrumb "Submitted" "testimonials-submitted" %}
   {% endif %}
 {% endblock %}
 

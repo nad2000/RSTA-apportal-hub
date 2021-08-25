@@ -93,7 +93,7 @@ class TestimonialTable(tables.Table):
         fields = (
             "round",
             "referee.application.application_title",
-            "referee.application.submitted_by",
+            "referee.full_name_with_email",
         )
 
 
