@@ -325,6 +325,11 @@ urlpatterns = [
                     name="round-application-list",
                 ),
                 path(
+                    "round/<int:round_id>/~applications/<state>",
+                    views.RoundApplicationList.as_view(),
+                    name="round-application-list-with-state",
+                ),
+                path(
                     "round/<int:round_id>/applications/<int:application_id>",
                     views.ConflictOfInterestView.as_view(),
                     name="round-application-review",
@@ -333,6 +338,11 @@ urlpatterns = [
                     "application/<int:pk>",
                     views.EvaluationListView.as_view(),
                     name="round-application-reviews-list",
+                ),
+                path(
+                    "application/<int:pk>/<state>",
+                    views.EvaluationListView.as_view(),
+                    name="round-application-reviews-list-with-state",
                 ),
             ]
         ),

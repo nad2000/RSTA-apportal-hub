@@ -165,7 +165,7 @@ class StateInPathMixin:
     @property
     def state(self):
         if (
-            state := self.request.path.split("/")[-1] or self.request.GET.get("state")
+            state := self.request.GET.get("state") or self.request.path.split("/")[-1]
         ) and state in ["new", "draft", "submitted", "archived"]:
             return state
 
@@ -178,11 +178,16 @@ class StateInPathMixin:
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         if state := self.state:
-            if isinstance(self, models.Testimonial):
+            if self.model is models.Testimonial:
                 if state == "draft":
                     queryset = queryset.filter(evaluations__state__in=["draft", "new"])
                 else:
                     queryset = queryset.filter(evaluations__state=state)
+            elif self.model is models.Round:
+                if state == "draft":
+                    queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
+                else:
+                    queryset = queryset.filter(panellists__evaluations__state=state)
             else:
                 if state == "draft":
                     queryset = queryset.filter(state__in=["draft", "new"])
@@ -3098,21 +3103,11 @@ class PanellistView(LoginRequiredMixin, ModelFormSetView):
         return Klass
 
 
-class RoundList(LoginRequiredMixin, SingleTableView):
+class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.Round
     table_class = tables.RoundTable
     template_name = "rounds.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if state := self.state:
-            context["state"] = state
-        return context
-
-    @property
-    def state(self):
-        return self.request.path.split("/")[-1]
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
@@ -3121,17 +3116,11 @@ class RoundList(LoginRequiredMixin, SingleTableView):
         if not (user.is_staff or user.is_superuser):
             queryset = queryset.filter(panellists__user=user)
 
-        if state := self.state:
-            if state == "draft":
-                queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
-            else:
-                queryset = queryset.filter(panellists__evaluations__state=state)
-
         queryset = queryset.annotate(evaluation_count=Count("panellists__evaluations"))
         return queryset
 
 
-class RoundApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
+class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
     model = models.Application
     table_class = tables.RoundApplicationTable
@@ -3141,10 +3130,21 @@ class RoundApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableView
     def round(self):
         return get_object_or_404(models.Round, pk=self.kwargs.get("round_id"))
 
+    @property
+    def state(self):
+        if (
+            state := self.kwargs.get("state")
+            or self.request.GET.get("state")
+            or self.request.path.split("/")[-1]
+        ) and state in ["new", "draft", "submitted", "archived"]:
+            return state
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if round := self.round:
             context["round"] = round
+        if state := self.state:
+            context["state"] = state
         return context
 
     def get(self, request, *args, **kwargs):
@@ -3165,12 +3165,19 @@ class RoundApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableView
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
             queryset = queryset.filter(evaluations__panellist__user=user)
+
+        if state := self.state:
+            if state == "draft":
+                queryset = queryset.filter(evaluations__state__in=["new", "draft"])
+            else:
+                queryset = queryset.filter(evaluations__state=state)
+
         queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
         return queryset
 
 
-class EvaluationListView(LoginRequiredMixin, SingleTableView):
+class EvaluationListView(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.Evaluation
     table_class = tables.EvaluationTable
@@ -3189,6 +3196,7 @@ class EvaluationListView(LoginRequiredMixin, SingleTableView):
         if pk := self.kwargs.get("pk"):
             if a := get_object_or_404(models.Application, pk=pk):
                 context["application"] = a
+                context["round"] = a.round
         return context
 
 
