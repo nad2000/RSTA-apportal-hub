@@ -3566,6 +3566,9 @@ msgstr "Ingoa o te Kaiwhakamahi"
 msgid "Infos successfully updated"
 msgstr "I tutuki te whakahou i ngā mōhiohio"
 
+msgid "Your Account"
+msgstr "Tō Pūkete"
+
 msgid "previous"
 msgstr "ki mua"
 
