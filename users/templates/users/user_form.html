@@ -1,47 +1,47 @@
 {% extends "account.html" %}
-{% load crispy_forms_tags socialaccount static django_bootstrap_breadcrumbs %}
+{% load i18n crispy_forms_tags socialaccount static django_bootstrap_breadcrumbs %}
 
 {% block title %}{{ user.username }}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="account" %}{% endblock sidebar %}
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% breadcrumb "Basic User Information" "users:update" %}
+  {% breadcrumb "My Info" "users:update" %}
 {% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
 
-      <h1>{{ user.username|title }}</h1>
-      <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <div class="control-group">
-          <div class="controls">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{% url 'account' %}" class="btn btn-secondary">Cancel</a>
+        <h1>{{ user.username|title }}</h1>
+        <form class="form-horizontal" method="post" action="{% url 'users:update' %}">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn btn-primary">{% trans 'Update' %}</button>
+              <a href="{% url 'account' %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
 
-      <!-- a title="Google"
+        <!-- a title="Google"
           class="btn btn-lg btn-google btn-block"
           href="{% provider_login_url 'google' process="connect" %}">
-        <i class="fab fa-google mr-2"></i>
-        Link another <strong>Google</strong> account
-      </a>
+          <i class="fab fa-google mr-2"></i>
+          Link another <strong>Google</strong> account
+          </a>
 
-      <a title="ORCID"
+          <a title="ORCID"
           class="btn btn-lg btn-orcid btn-block btn-orcid"
           href="{% provider_login_url 'orcid' process="connect" %}">
-        <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
-        Link another <strong>ORCID</strong> account
-      </a -->
+          <img src="{% static 'images/orcid-logo-white.png' %}" alt="">
+          Link another <strong>ORCID</strong> account
+          </a -->
 
 
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}
