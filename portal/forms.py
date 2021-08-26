@@ -331,7 +331,11 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
 
-        submission_disabled = not instance.is_tac_accepted and instance.submitted_by != user
+        submission_disabled = (
+            not instance.is_tac_accepted
+            and instance.submitted_by
+            and instance.submitted_by != user
+        )
         submit_button = Submit(
             "submit",
             _("Submit"),
