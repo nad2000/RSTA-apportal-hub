@@ -95,8 +95,6 @@ class OrcidHelper:
             access_token = self.user.orcid_access_token
             url = urljoin(settings.ORCID_API_BASE, orcid)
 
-            breakpoint()
-
             if not orcid.startswith(settings.ORCID_API_BASE):
                 access_token = None
 
