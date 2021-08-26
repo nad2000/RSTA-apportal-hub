@@ -2774,8 +2774,10 @@ class TestimonialList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     def get_queryset(self, *args, **kwargs):
 
-        state = self.request.path.split("/")[-1]
-        return self.model.user_testimonials(user=self.request.user, state=state)
+        state = self.state
+        return self.model.user_testimonials(user=self.request.user, state=state).order_by(
+            "referee__application__number"
+        )
 
 
 class TestimonialDetail(DetailView):

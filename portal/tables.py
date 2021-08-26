@@ -81,20 +81,18 @@ class NominationTable(tables.Table):
 
 class TestimonialTable(tables.Table):
 
-    round = tables.Column(
-        accessor="referee.application.round",
+    number = tables.Column(
+        accessor="referee.application.number",
         linkify=lambda record: reverse("testimonial-detail", kwargs=dict(pk=record.id)),
     )
+    application_title = tables.Column(accessor="referee.application.application_title")
+    referee = tables.Column(accessor="referee.full_name_with_email")
 
     class Meta:
         model = models.Testimonial
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
-        fields = (
-            "round",
-            "referee.application.application_title",
-            "referee.full_name_with_email",
-        )
+        fields = ()
 
 
 def application_link(table, record, value):
