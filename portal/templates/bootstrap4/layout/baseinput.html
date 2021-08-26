@@ -1,16 +1,17 @@
 {% load tags %}
-{% if "disabled" in input.attrs and input.attrs.title %}
-  <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="{{ input.attrs.title|safe }}">
-{% endif %}
-<input type="{{ input.input_type }}"
-    name="{% if input.name|wordcount > 1 %}{{ input.name|slugify }}{% else %}{{ input.name }}{% endif %}"
-    value="{{ input.value }}"
-    {% if input.input_type != "hidden" %}
-        class="{{ input.field_classes }}"
-        id="{% if input.id %}{{ input.id }}{% else %}{{ input.input_type }}-id-{{ input.name|slugify }}{% endif %}"
-    {% endif %}
-    {{ input.flat_attrs|safe }}
-/>
-{% if "disabled" in input.attrs and input.attrs.title %}
+{% if input.attrs.disabled and input.attrs.title %}
+  <span tabindex="0" class="d-inline-block" data-toggle="tooltip" title="{{ input.attrs.title|safe }}">
+  {% endif %}
+  <input type="{{ input.input_type }}"
+       name="{% if input.name|wordcount > 1 %}{{ input.name|slugify }}{% else %}{{ input.name }}{% endif %}"
+       value="{{ input.value }}"
+       {% if input.input_type != "hidden" %}
+         class="{{ input.field_classes }}"
+         {% if input.attrs.disabled %}style="pointer-events: none;"{% endif %}
+       id="{% if input.id %}{{ input.id }}{% else %}{{ input.input_type }}-id-{{ input.name|slugify }}{% endif %}"
+     {% endif %}
+       {{ input.flat_attrs|safe }}
+       />
+  {% if "disabled" in input.attrs and input.attrs.title %}
     </span>
-{% endif %}
+  {% endif %}

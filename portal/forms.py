@@ -331,28 +331,20 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
 
-        if not instance.is_tac_accepted and instance.submitted_by != user:
-            submit_button = HTML(
-                f"""<span class="d-inline-block" tabindex="0"
-    data-toggle="tooltip"
-    title="{_('Your team leader must accept the Terms and Conditions before the submission can happen')}">
-    <input
-        type="submit"
-        name="submit"
-        value="{_('Submit')}"
-        class="btn btn-outline-primary"
-        id="submit-id-submit" disabled>
-    </span>"""
+        submission_disabled = not instance.is_tac_accepted and instance.submitted_by != user
+        submit_button = Submit(
+            "submit",
+            _("Submit"),
+            # disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
+            data_toggle="tooltip",
+            title=_(
+                "Your team leader must accept the Terms and Conditions before the submission can happen"
             )
-        else:
-            submit_button = Submit(
-                "submit",
-                _("Submit"),
-                # disabled=not instance.is_tac_accepted,  # and instance.submitted_by != user,
-                data_toggle="tooltip",
-                title=_("Submit the application"),
-                css_class="btn-outline-primary",
-            )
+            if submission_disabled
+            else _("Submit the application"),
+            css_class="btn-outline-primary",
+            disabled=submission_disabled,
+        )
         self.helper.layout = Layout(
             TabHolder(*tabs),
             ButtonHolder(

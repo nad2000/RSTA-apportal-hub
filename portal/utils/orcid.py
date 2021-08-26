@@ -83,10 +83,10 @@ class OrcidHelper:
             orcid = sa.uid
 
         if orcid:
-            if orcid.startswith("https://"):
-                url = orcid
-            else:
-                url = urljoin(settings.ORCID_API_BASE, orcid)
+            if orcid.startswith("https://") or orcid.startswith("http://"):
+                orcid = orcid.split("/")[-1]
+
+            url = urljoin(settings.ORCID_API_BASE, orcid)
 
             if not self.user.orcid:
                 self.user.orcid = orcid
@@ -94,6 +94,8 @@ class OrcidHelper:
 
             access_token = self.user.orcid_access_token
             url = urljoin(settings.ORCID_API_BASE, orcid)
+
+            breakpoint()
 
             if not orcid.startswith(settings.ORCID_API_BASE):
                 access_token = None
