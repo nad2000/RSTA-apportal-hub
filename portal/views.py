@@ -2683,6 +2683,7 @@ class TestimonialView(CreateUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["application"] = self.application
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,

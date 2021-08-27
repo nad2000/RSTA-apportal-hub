@@ -6,7 +6,7 @@
 {% block breadcrumbs %}
   {{ block.super }}
   {% breadcrumb "Applications" "applications" %}
-  {% if object.state == "draft" %}
+  {% if object.state == "draft" or object.state == "new" %}
     {% breadcrumb "Draft" "applications-draft" %}
   {% elif object.state == "submitted" %}
     {% breadcrumb "Submitted" "applications-submitted" %}

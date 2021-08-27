@@ -87,8 +87,9 @@
   <div class="card mb-2">
     <div class="card-header">
       {% if testimonial_count or request.user.is_superuser or request.user.is_staff %}
-        <a href="{% url 'testimonials' %}"> {% trans 'Testimonials' %} </a>
-        <span class="badge badge-primary">{{ testimonial_count }}</span>
+        <a href="{% url 'testimonials' %}" id="testimonials" > {% trans 'Testimonials' %}
+          <span class="badge badge-primary">{{ testimonial_count }}</span>
+        </a>
       {% else %}
         <span data-toggle="tooltip" title="{% trans 'No testimonials saved or submitted' %}">
           {% trans 'Testimonials' %}
@@ -99,10 +100,11 @@
     {% if category == "testimonials" %}
       <div class="card-body">
         <ul class="nav nav-pills flex-column">
-          <li class="nav-item" id="testimonials-draft">
+          <li class="nav-item">
             <a
                 class="nav-link"
                 href="{% url 'testimonials-draft' %}"
+                id="testimonials-draft"
                 title="{% trans 'Saved testimonial drafts' %}"
                 data-toggle="tooltip"
                 >{% trans 'Drafts' %}
@@ -113,6 +115,7 @@
             <a
                 class="nav-link"
                 href="{% url 'testimonials-submitted' %}"
+                id="testimonials-submitted"
                 title="{% trans 'Submitted and previous testimonials' %}"
                 data-toggle="tooltip"
                 >{% trans 'Submitted' %}

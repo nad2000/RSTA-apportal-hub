@@ -1,11 +1,23 @@
 {% extends "form.html" %}
-{% load i18n %}
+{% load i18n django_bootstrap_breadcrumbs %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="testimonials" %}{% endblock sidebar %}
 
 {% block content_header %}
   {{ round|title }}
 {% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Testimonials" "testimonials" %}
+  {% if object.state == "draft" or object.state == "new" %}
+    {% breadcrumb "Draft" "testimonials-draft" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "testimonials-submitted" %}
+  {% endif %}
+  {% breadcrumb object "testimonial-update" object.pk %}
+{% endblock %}
+
 
 {% block content %}
   {{ block.super }}
