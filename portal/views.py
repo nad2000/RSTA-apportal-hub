@@ -1168,7 +1168,12 @@ class ApplicationView(LoginRequiredMixin):
                                     ),
                                 )
                                 return redirect(self.request.get_full_path())
-                            next_url = self.request.get_full_path()
+
+                            next_url = (
+                                reverse("application-update", kwargs={"pk": a.id})
+                                if a and a.id
+                                else self.request.get_full_path()
+                            )
                             messages.error(
                                 self.request,
                                 _(

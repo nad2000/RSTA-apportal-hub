@@ -1,8 +1,23 @@
 {% extends "form.html" %}
-{% load crispy_forms_tags static i18n %}
+{% load crispy_forms_tags static i18n django_bootstrap_breadcrumbs %}
 
 {% block head_title %}{{ object }}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="applications" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Applications" "applications" %}
+  {% if object.state == "draft" or object.state == "new" %}
+    {% breadcrumb "Draft" "applications-draft" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "applications-submitted" %}
+  {% endif %}
+  {% if object %}
+    {% breadcrumb object "application-update" object.pk %}
+  {% elif round %}
+    {% breadcrumb round "applications-submitted" %}
+  {% endif %}
+{% endblock %}
 
 {% block css %}
   {#{ form.media.css }#}
