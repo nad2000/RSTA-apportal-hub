@@ -183,6 +183,11 @@ class StateInPathMixin:
                     queryset = queryset.filter(evaluations__state__in=["draft", "new"])
                 else:
                     queryset = queryset.filter(evaluations__state=state)
+            if self.model is models.Nomination:
+                if state == "draft":
+                    queryset = queryset.filter(status__in=["draft", "new"])
+                else:
+                    queryset = queryset.filter(status=state)
             elif self.model is models.Round:
                 if state == "draft":
                     queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
@@ -2209,12 +2214,16 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
                 )
 
             if "next" in self.request.GET:
-                cv = models.CurriculumVitae.where(owner=self.request.user).order_by("-id").first()
-                messages.info(
-                    self.request,
-                    _('A CV successfully uploaded: <a href="%s">%s</a>')
-                    % (cv.file.url, cv.filename),
-                )
+                if (
+                    cv := models.CurriculumVitae.where(owner=self.request.user)
+                    .order_by("-id")
+                    .first()
+                ):
+                    messages.info(
+                        self.request,
+                        _('A CV successfully uploaded: <a href="%s">%s</a>')
+                        % (cv.file.url, cv.filename),
+                    )
                 return redirect(self.request.GET["next"])
 
         return resp
