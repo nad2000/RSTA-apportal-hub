@@ -1,10 +1,25 @@
 {% extends "form.html" %}
-{% load i18n %}
+{% load i18n django_bootstrap_breadcrumbs %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="nominations" %}{% endblock sidebar %}
 
 {% block content_header %}
   {{ round|title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Nominations" "nominations" %}
+  {% if object.status == "submitted" %}
+    {% breadcrumb "Submitted" "nominations-submitted" %}
+  {% elif not object or object.status == "draft" or object.status == "new" %}
+    {% breadcrumb "Draft" "nominations-draft" %}
+  {% endif %}
+  {% if object %}
+    {% breadcrumb object "nomination-update" pk=object.pk %}
+  {% elif round %}
+    {% breadcrumb round "nomination-create" round=round.pk %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}

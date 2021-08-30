@@ -19,44 +19,39 @@ class SubscriptionTable(tables.Table):
 
 class StatusColumn(tables.Column):
 
-    attrs = {
-        "td": {
-            "data-toggle": "tooltip",
-            "title": lambda record: {
-                "accepted": _("The invitation was accepted"),
-                "bounced": _("The invitation failed. Please check the email address"),
-                "new": _("The invitation was created"),
-                "opted_out": _("The invitee has turned down the nomination"),
-                "sent": _("The invitation was sent"),
-                "submitted": _("The invitation was submitted"),
-                "testified": _("The application was submitted"),
-            }.get(
-                record.status,
-                _("The invitation has not been processed yet or it is in draft version"),
-            ),
-            "class": "align-middle text-center",
-        }
-    }
+    attrs = {"td": {"class": "align-middle text-center"}}
 
     def render(self, value):
         if not value or value in ["new", "draft"]:
             css_classes = "far fa-plus-square text-success text-center"
+            if value == "draft":
+                title = _("The invitation has not been processed yet or it is in draft version")
+            else:
+                title = _("The invitation was created")
         elif value == "sent":
             css_classes = "far fa-envelope text-success text-center"
+            title = _("The invitation was sent")
         elif value == "accepted":
             css_classes = "far fa-envelope-open text-success text-center"
+            title = _("The invitation was accepted")
         elif value == "testified":
             css_classes = "fa fa-check-circle text-success text-center"
+            title = _("The testimonial was submitted")
         elif value == "opted_out":
             css_classes = "fa fa-ban text-danger text-center"
+            title = _("The invitee has turned down the nomination")
         elif value == "bounced":
             css_classes = "fa fa-exclamation-triangle text-danger text-center"
+            title = _("The invitation failed. Please check the email address")
         elif value == "submitted":
             css_classes = "fa fa-check text-success text-center"
+            title = _("The invitation was submitted")
         else:
             css_classes = "fas fa-plus text-success text-center"
 
-        return mark_safe(f'<i class="{css_classes}" aria-hidden="true"></i>')
+        return mark_safe(
+            f'<i class="{css_classes}" aria-hidden="true" data-toggle="tooltip" title="{title}"></i>'
+        )
 
 
 class NominationTable(tables.Table):
