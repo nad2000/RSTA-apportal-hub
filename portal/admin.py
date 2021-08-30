@@ -260,6 +260,8 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
 
     filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
     search_fields = ["user__username", "user__email"]
+    list_display = ["full_name_with_email", "created_at"]
+    list_filter = ["created_at", "updated_at"]
 
     inlines = [
         ProfileCareerStageInline,

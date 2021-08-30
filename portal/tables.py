@@ -48,6 +48,7 @@ class StatusColumn(tables.Column):
             title = _("The invitation was submitted")
         else:
             css_classes = "fas fa-plus text-success text-center"
+            title = _("The invitation was created")
 
         return mark_safe(
             f'<i class="{css_classes}" aria-hidden="true" data-toggle="tooltip" title="{title}"></i>'

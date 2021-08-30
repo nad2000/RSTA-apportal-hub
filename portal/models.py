@@ -599,7 +599,7 @@ def validate_bod(value):
         )
 
 
-class Profile(Model):
+class Profile(Model, PersonMixin):
 
     user = OneToOneField(User, on_delete=CASCADE, verbose_name=_("user"))
     gender = PositiveSmallIntegerField(
