@@ -1,6 +1,17 @@
-{% extends 'profile.html' %}
+{% extends 'base.html' %}
 
-{% load static i18n %}
+{% load static i18n django_bootstrap_breadcrumbs %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if request.user.is_admin or request.user.is_staff %}
+    {% breadcrumb "Profiles" "admin:portal_profile_changelist" %}
+  {% else %}
+    {% breadcrumb "Profile" "profile" %}
+  {% endif %}
+  {% breadcrumb user.full_name_with_email "profile-summary" username=user.username %}
+{% endblock %}
+
 {% block sidebar %}{% include 'sidebar.html' with category="profile" %}{% endblock sidebar %}
 
 {% block title %}User: {{ user.username }}{% endblock %}
