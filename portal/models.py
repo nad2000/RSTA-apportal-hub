@@ -2700,7 +2700,7 @@ class NominationMixin:
     STATUS = NOMINATION_STATUS
 
 
-class Nomination(NominationMixin, PdfFileMixin, Model):
+class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
 
     round = ForeignKey(
         Round, on_delete=CASCADE, related_name="nominations", verbose_name=_("round")
@@ -2786,17 +2786,7 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
     def save_draft(self, *args, **kwargs):
         pass
 
-    @transition(
-        field=status,
-        source=[
-            NOMINATION_STATUS.new,
-            NOMINATION_STATUS.draft,
-            NOMINATION_STATUS.submitted,
-            NOMINATION_STATUS.bounced,
-        ],
-        target=NOMINATION_STATUS.submitted,
-    )
-    def submit(self, *args, **kwargs):
+    def send_invitation(self, *args, **kwargs):
         i, created = Invitation.get_or_create(
             type=INVITATION_TYPES.A,
             nomination=self,
@@ -2815,6 +2805,19 @@ class Nomination(NominationMixin, PdfFileMixin, Model):
         if not created:
             return (i, False)
         return (i, True)
+
+    @transition(
+        field=status,
+        source=[
+            NOMINATION_STATUS.new,
+            NOMINATION_STATUS.draft,
+            NOMINATION_STATUS.submitted,
+            NOMINATION_STATUS.bounced,
+        ],
+        target=NOMINATION_STATUS.submitted,
+    )
+    def submit(self, *args, **kwargs):
+        return seld.send_invitation(*args, **kwargs)
 
     @transition(
         field=status,

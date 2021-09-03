@@ -2475,7 +2475,7 @@ class NominationView(CreateUpdateView):
                 ):
                     n.cv = cv
                 else:
-                    next_url = self.request.get_full_path()
+                    next_url = reverse("nomination-update", kwargs={"pk": n.id})
                     messages.error(
                         self.request,
                         _(

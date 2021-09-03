@@ -470,6 +470,26 @@ class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
     # summernote_fields = ["summary"]
     exclude = ["summary"]
 
+    actions = ["resend_invitations"]
+
+    @admin.action(description="Resend the invitations")
+    def resend_invitations(self, request, queryset):
+        recipients = []
+        for o in queryset.filter(
+            status__in=[
+                models.NOMINATION_STATUS.submitted,
+                models.NOMINATION_STATUS.bounced,
+            ]
+        ):
+            o.send_invitation(request)
+            recipients.append(o)
+
+        messages.success(
+            request,
+            "Successfully sent invitation(-s) to apply to %d nominees: %s"
+            % (len(recipients), ", ".join(r.full_name_with_email for r in recipients)),
+        )
+
     def view_on_site(self, obj):
         return reverse("nomination-detail", kwargs={"pk": obj.id})
 
