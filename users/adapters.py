@@ -24,6 +24,14 @@ class AccountAdapter(DefaultAccountAdapter):
             return resolve_url("profile-create")
         return url
 
+    def is_email_verified(self, request, email):
+        ret = super().is_email_verified(request, email)
+        if (token := request.session.get("invitation_token")) and (
+            i := Invitation.where(token=token).first()
+        ):
+            ret = i.email.lower() == email.lower()
+        return ret
+
     def pre_authenticate(self, request, **credentials):
         if "logout_from_orcid" in request.session:
             del request.session["logout_from_orcid"]
@@ -111,7 +119,9 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         user.name = data.get("name") or user.full_name
         user.orcid = data.get("orcid")
         # Invited user gets approved by default:
-        if (self.handle_invitation(request, sociallogin) and self.invitation) or data.get("is_approved"):
+        if (self.handle_invitation(request, sociallogin) and self.invitation) or data.get(
+            "is_approved"
+        ):
             user.is_approved = True
         else:
             user.is_approved = False
