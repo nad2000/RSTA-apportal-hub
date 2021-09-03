@@ -2817,7 +2817,7 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
         target=NOMINATION_STATUS.submitted,
     )
     def submit(self, *args, **kwargs):
-        return seld.send_invitation(*args, **kwargs)
+        return self.send_invitation(*args, **kwargs)
 
     @transition(
         field=status,
