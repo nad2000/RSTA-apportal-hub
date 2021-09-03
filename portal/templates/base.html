@@ -228,7 +228,7 @@
               {% if oiv.created_at >= three_days_ago %}
                 <span class="badge badge-primary">{% trans 'New' %}</span>
               {% endif %}
-              {% trans "A user has submited a photo for identity verification." %}
+              {% trans "A user has submitted a photo for identity verification." %}
               <a href="{% url 'identity-verification' pk=oiv.id %}" class="alert-link">{% trans 'Please click here to review it' %}!</a>
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
