@@ -589,6 +589,19 @@ class NominationForm(forms.ModelForm):
         fields = [
             "round",
             "nominator",
+            HTML(
+                """
+            <div id="div_id_nominator" class="form-group">
+            <label for="id_nominator" class=" requiredField">%s</label>
+                <div class="">
+                    <input
+                        value="{{ nominator.full_name }}"
+                        disabled="" class="input form-control">
+                </div>
+            </div>
+            """
+                % _("Nominator")
+            ),
             Fieldset(
                 _("Nominee"),
                 Row(

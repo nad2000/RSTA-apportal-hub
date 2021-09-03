@@ -463,10 +463,10 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 @admin.register(models.Nomination)
 class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
     def nominator_name(self, obj):
-        return obj.nominator.full_name or obj.nominator
+        return obj.nominator.full_name_with_email or obj.nominator
 
     def nominee_name(self, obj):
-        return obj.nominator.full_name or obj.nominator
+        return obj.nominator.full_name_with_email or obj.nominator
 
     nominee_name.short_description = "nominee"
     nominator_name.short_description = "nominator"
