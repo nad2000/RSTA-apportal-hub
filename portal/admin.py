@@ -462,14 +462,18 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 @admin.register(models.Nomination)
 class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
+
     def nominator_name(self, obj):
         return obj.nominator.full_name_with_email or obj.nominator
 
     def nominee_name(self, obj):
-        return obj.nominator.full_name_with_email or obj.nominator
+        return obj.full_name_with_email
 
     nominee_name.short_description = "nominee"
+    nominee_name.admin_order_field = "first_name"
+
     nominator_name.short_description = "nominator"
+    nominator_name.admin_order_field = "nominator__first_name"
 
     list_display = ["round", "nominee_name", "nominator_name"]
     date_hierarchy = "created_at"
