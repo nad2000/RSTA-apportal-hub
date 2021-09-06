@@ -403,7 +403,7 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
 @admin.register(models.Panellist)
 class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
-    list_display = ["full_name", "round", "status"]
+    list_display = ["full_name_with_email", "round", "status"]
     fsm_field = ["status"]
     search_fields = ["first_name", "last_name"]
     list_filter = ["round", "created_at", "updated_at", "status"]

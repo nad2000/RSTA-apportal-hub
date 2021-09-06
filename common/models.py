@@ -94,9 +94,9 @@ class PersonMixin:
     def full_name(self):
         user = self.get_user()
         first_name = getattr(self, "first_name", None) or user and user.first_name
-        middle_names = getattr(self, 'middle_names', None) or user and user.middle_names
-        last_name = getattr(self, 'last_name', None) or user and user.last_name
-        full_name = ' '.join(s for s in [first_name, middle_names, last_name] if s)
+        middle_names = getattr(self, "middle_names", None) or user and user.middle_names
+        last_name = getattr(self, "last_name", None) or user and user.last_name
+        full_name = " ".join(s for s in [first_name, middle_names, last_name] if s)
         if hasattr(self, "title") and self.title:
             full_name = f"{self.title} {full_name}"
         return full_name
@@ -111,7 +111,7 @@ class PersonMixin:
     def full_email_address(self):
         user = self.get_user()
         email = getattr(self, "email", None) or user.email
-        if (full_name := self.full_name):
+        if full_name := self.full_name:
             return f'"{full_name}" <{email}>'
         return email
 
