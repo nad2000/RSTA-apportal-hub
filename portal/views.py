@@ -3344,11 +3344,13 @@ class EvaluationMixin:
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        data["application"] = (
-            models.Application.get(self.kwargs.get("application"))
+        if (
+            application := models.Application.get(self.kwargs.get("application"))
             if "application" in kwargs
             else self.object.application
-        )
+        ):
+            data["application"] = application
+            data["round"] = application.round
         return data
 
 

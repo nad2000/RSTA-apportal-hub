@@ -135,19 +135,14 @@ class ApplicationTable(tables.Table):
 
 
 def round_link(record, table, *args, **kwargs):
-    if not record.evaluation_count:
-        return
     user = table.request.user
-    url = (
-        reverse("round-application-list", kwargs={"round_id": record.id})
-        if record.has_online_scoring or user.is_staff or user.is_superuser
-        else reverse(
-            "score-sheet"
-            if record.all_coi_statements_given_by(table.request.user)
-            else "round-coi",
-            kwargs={"round": record.id},
-        )
-    )
+    if record.has_online_scoring or user.is_staff or user.is_superuser:
+        url = reverse("round-application-list", kwargs={"round_id": record.id})
+    elif record.all_coi_statements_given_by(table.request.user):
+        url = reverse("score-sheet", kwargs={"round": record.id})
+    else:
+        return reverse("round-coi", kwargs={"round": record.id})
+
     if state := table.context.get("state"):
         url += f"?state={state}"
     return url
@@ -178,9 +173,14 @@ class RoundTable(tables.Table):
 
 def application_review_link(table, record, value):
 
-    if not record.evaluation_count:
-        return
     user = table.request.user
+    if (
+        not record.evaluation_count
+        and not record.conflict_of_interests.filter(
+            panellist__user=user, has_conflict=False
+        ).exists()
+    ):
+        return
     if user.is_staff or user.is_superuser:
         url = reverse(
             "round-application-reviews-list",

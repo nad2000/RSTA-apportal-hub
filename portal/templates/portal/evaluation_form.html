@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags static i18n crispy_forms_field %}
+{% load crispy_forms_tags static i18n crispy_forms_field django_bootstrap_breadcrumbs %}
 {% block localcss %}
   {{ block.super }}
 <style>
@@ -8,6 +8,31 @@ option {direction: rtl;}
 </style>
 {% endblock %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Reviews" "reviews" %}
+  {% if state == "draft" %}
+    {% breadcrumb "Draft" "reviews-draft" %}
+  {% elif state == "submitted" %}
+    {% breadcrumb "Submitted" "reviews-submitted" %}
+  {% endif %}
+  {% if round %}
+    {% if state %}
+      {% breadcrumb round.title "round-application-list-with-state" round_id=round.pk state=state %}
+    {% else %}
+      {% breadcrumb round.title "round-application-list" round_id=round.pk %}
+    {% endif %}
+  {% endif %}
+  {% if application %}
+    {% if state %}
+      {% breadcrumb application "round-application-reviews-list" round_id=round.pk application_id=application.pk %}
+    {% else %}
+      {% breadcrumb application "round-application-reviews-list-with-state" round_id=round.pk state=state application_id=application.pk %}
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
 
 {% block title %}{{ application }}{% endblock %}
 
