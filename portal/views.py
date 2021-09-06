@@ -3172,6 +3172,8 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
                     return redirect("round-coi", round=r.id)
                 else:
                     return redirect("score-sheet", round=r.id)
+            elif not r.all_coi_statements_given_by(request.user):
+                return redirect("round-coi", round=r.id)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
@@ -3181,7 +3183,7 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
             queryset = queryset.filter(round=r)
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
-            queryset = queryset.filter(evaluations__panellist__user=user)
+            queryset = queryset.filter(round__panellists__user=user)
 
         if state := self.state:
             if state == "draft":

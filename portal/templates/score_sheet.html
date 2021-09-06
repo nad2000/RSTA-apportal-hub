@@ -1,8 +1,13 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags static i18n crispy_forms_field %}
+{% load crispy_forms_tags static i18n crispy_forms_field django_bootstrap_breadcrumbs %}
 
 {% block title %}{{ panellist }}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb round "score-sheet" round=round %}
+{% endblock %}
 
 {% block content %}
 
