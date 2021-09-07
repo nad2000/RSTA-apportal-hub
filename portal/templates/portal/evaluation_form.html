@@ -2,10 +2,10 @@
 {% load crispy_forms_tags static i18n crispy_forms_field django_bootstrap_breadcrumbs %}
 {% block localcss %}
   {{ block.super }}
-<style>
+  <style>
 select {padding-right: 1px;}
 option {direction: rtl;}
-</style>
+  </style>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -17,7 +17,11 @@ option {direction: rtl;}
     {% breadcrumb "Submitted" "reviews-submitted" %}
   {% endif %}
   {% breadcrumb application.round.title "round-application-list-with-state" round_id=application.round_id state=evaluation.state %}
-  {% breadcrumb application "evaluation-update" pk=pk %}
+  {% if pk %}
+    {% breadcrumb application "evaluation-update" pk=pk %}
+  {% else %}
+    {% breadcrumb application "eview-create" pk=application.pk %}
+  {% endif %}
 {% endblock %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
@@ -26,52 +30,58 @@ option {direction: rtl;}
 
 {% block content %}
 
-<form method="post">
+  <form method="post">
 
-  {% csrf_token %}
-  {{ form.comment | as_crispy_field }}
+    {% csrf_token %}
+    {{ form.comment | as_crispy_field }}
 
-  {% for formset in inlines %}
-    {{ formset.management_form }}
-    <table class="table" style="width: 100%;">
-      <thead>
-        <tr>
-          <th>{% trans 'Criterion' %}</th>
-          <th>{% trans 'Score' %}<span class="asteriskField">*</span></th>
-          <th>{% trans 'Comment' %}</th>
-        </tr>
-      </thead>
-      <tbody>
-
-        {% for form in formset %}
-          {% crispy_field form.id %}
+    {% for formset in inlines %}
+      {{ formset.management_form }}
+      <table class="table" style="width: 100%;">
+        <thead>
           <tr>
-            <td class="form-group" style="width: 30%; max-width: 20pc;">
-              {% crispy_field form.criterion %}
-            </td>
-            <td class="form-group" style="width: 6pc;">
-              {% crispy_field form.value %}
-            </td>
-            <td class="form-group" style="max-width: 60%;">
-              {% crispy_field form.comment %}
-              {% if form.comment_required %}<span class="asteriskField">* {% trans 'Commenting is mandatory' %}</span>{% endif %}
-            </td>
+            <th>{% trans 'Criterion' %}</th>
+            <th>{% trans 'Score' %}<span class="asteriskField">*</span></th>
+            <th>{% trans 'Comment' %}</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endfor %}
+        </thead>
+        <tbody>
 
-  <div class="buttonHolder mb-3 float-right">
-    <input type="submit" name="save_draft"
-      value="{% trans 'Save Draft' %}" class="btn btn btn-primary" id="submit-id-save_draft">
-    <input type="submit" name="submit" value="{% trans 'Submit' %}"
-      class="btn btn btn-outline-primary" id="submit-id-submit">
-    <a href="{% url "evaluation" pk=pk %}" type="button" role="button" class="btn btn-secondary" id="cancel">
-      {% trans 'Cancel' %}
-    </a>
-  </div>
+          {% for form in formset %}
+            {% crispy_field form.id %}
+            <tr>
+              <td class="form-group" style="width: 30%; max-width: 20pc;">
+                {% crispy_field form.criterion %}
+              </td>
+              <td class="form-group" style="width: 6pc;">
+                {% crispy_field form.value %}
+              </td>
+              <td class="form-group" style="max-width: 60%;">
+                {% crispy_field form.comment %}
+                {% if form.comment_required %}<span class="asteriskField">* {% trans 'Commenting is mandatory' %}</span>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endfor %}
 
-</form>
+    <div class="buttonHolder mb-3 float-right">
+      <input type="submit" name="save_draft"
+                           value="{% trans 'Save Draft' %}" class="btn btn btn-primary" id="submit-id-save_draft">
+      <input type="submit" name="submit" value="{% trans 'Submit' %}"
+                                         class="btn btn btn-outline-primary" id="submit-id-submit">
+      {% if pk %}
+        <a href="{% url "evaluation" pk=pk %}" type="button" role="button" class="btn btn-secondary" id="cancel">
+          {% trans 'Cancel' %}
+        </a>
+      {% else %}
+        <a href="{% url "round-application-list" round_id=application.round_id %}" type="button" role="button" class="btn btn-secondary" id="cancel">
+          {% trans 'Cancel' %}
+        </a>
+      {% endif %}
+    </div>
+
+  </form>
 
 {% endblock %}
