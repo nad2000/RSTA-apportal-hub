@@ -136,8 +136,9 @@ class ApplicationTable(tables.Table):
 
 def round_link(record, table, *args, **kwargs):
     user = table.request.user
-    if not (
-        user.is_staff or user.is_superuser or record.all_coi_statements_given_by(table.request.user)
+    if not (user.is_staff or user.is_superuser) and (
+        not record.has_online_scoring
+        and not record.all_coi_statements_given_by(table.request.user)
     ):
         return reverse("round-coi", kwargs={"round": record.id})
 
@@ -177,12 +178,6 @@ class RoundTable(tables.Table):
 def application_review_link(table, record, value):
 
     user = table.request.user
-    if (
-        not record.conflict_of_interests.filter(panellist__user=user, has_conflict=False).exists()
-        or record.state != "submitted"
-    ):
-        return
-
     if user.is_staff or user.is_superuser:
         url = reverse(
             "round-application-reviews-list",
@@ -192,10 +187,15 @@ def application_review_link(table, record, value):
             url += f"?state={state}"
         return url
 
-    return reverse(
-        "round-application-review",
-        kwargs={"round_id": record.round.id, "application_id": record.id},
-    )
+    coi = record.conflict_of_interests.filter(panellist__user=user).first()
+    if not coi or (coi.has_conflict or coi.has_conflict is None):
+        return reverse(
+            "round-application-review",
+            kwargs={"round_id": record.round.id, "application_id": record.id},
+        )
+
+    elif record.state != "submitted":
+        return
 
 
 class RoundApplicationTable(tables.Table):
@@ -209,10 +209,22 @@ class RoundApplicationTable(tables.Table):
     )
 
     def render_number(self, record, value):
+        user = self.request.user
+        coi = record.conflict_of_interests.filter(panellist__user=user).first()
+
+        if not coi or (coi.has_conflict or coi.has_conflict is None):
+            return format_html(
+                "<span data-toggle='tooltip' title='%s'>%s</span>"
+                % (_("You have not submitted the statement of the conflict of interest"), value)
+            )
+
         if record.state != "submitted":
             return format_html(
                 "<span data-toggle='tooltip' title='%s'>%s</span>"
-                % (_("The application has not been submitted yet"), value)
+                % (
+                    _("The application has not been submitted yet"),
+                    value,
+                )
             )
         return value
 

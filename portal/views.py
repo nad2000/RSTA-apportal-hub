@@ -3172,8 +3172,8 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
                     return redirect("round-coi", round=r.id)
                 else:
                     return redirect("score-sheet", round=r.id)
-            elif not r.all_coi_statements_given_by(request.user):
-                return redirect("round-coi", round=r.id)
+            # elif not r.all_coi_statements_given_by(request.user):
+            #     return redirect("round-coi", round=r.id)
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self, *args, **kwargs):
