@@ -79,7 +79,7 @@ option {direction: rtl;}
       value="{% trans 'Save Draft' %}" class="btn btn btn-primary" id="submit-id-save_draft">
     <input type="submit" name="submit" value="{% trans 'Submit' %}"
       class="btn btn btn-outline-primary" id="submit-id-submit">
-    <a href="/applications/23" type="button" role="button" class="btn btn-secondary" id="cancel">
+    <a href="{% url "round-application-list" round_id=application.round_id %}" type="button" role="button" class="btn btn-secondary" id="cancel">
       {% trans 'Cancel' %}
     </a>
   </div>

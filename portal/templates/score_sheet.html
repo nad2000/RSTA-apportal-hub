@@ -6,6 +6,7 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
+  {% breadcrumb "Reviews" "reviews" %}
   {% breadcrumb round "score-sheet" round=round %}
 {% endblock %}
 

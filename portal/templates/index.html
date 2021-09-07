@@ -147,7 +147,7 @@
                              </a>
                         </div>
                       {% else %}
-                        <div class="tooltip-wrapper{% if not round.is_open %} disabled{% endif %}"
+                        <div class="tooltip-wrapper{% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %} disabled{% endif %}"
                              {% if is_panellist %}
                                disabled
                              data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"

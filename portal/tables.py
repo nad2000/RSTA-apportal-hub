@@ -1,6 +1,6 @@
 import django_tables2 as tables
 from django.shortcuts import reverse
-from django.utils.html import mark_safe
+from django.utils.html import format_html, mark_safe
 from django.utils.translation import gettext as _
 
 from . import models
@@ -136,12 +136,15 @@ class ApplicationTable(tables.Table):
 
 def round_link(record, table, *args, **kwargs):
     user = table.request.user
+    if not (
+        user.is_staff or user.is_superuse or record.all_coi_statements_given_by(table.request.user)
+    ):
+        return reverse("round-coi", kwargs={"round": record.id})
+
     if record.has_online_scoring or user.is_staff or user.is_superuser:
         url = reverse("round-application-list", kwargs={"round_id": record.id})
-    elif record.all_coi_statements_given_by(table.request.user):
-        url = reverse("score-sheet", kwargs={"round": record.id})
     else:
-        return reverse("round-coi", kwargs={"round": record.id})
+        url = reverse("score-sheet", kwargs={"round": record.id})
 
     if state := table.context.get("state"):
         url += f"?state={state}"
@@ -175,12 +178,11 @@ def application_review_link(table, record, value):
 
     user = table.request.user
     if (
-        not record.evaluation_count
-        and not record.conflict_of_interests.filter(
-            panellist__user=user, has_conflict=False
-        ).exists()
+        not record.conflict_of_interests.filter(panellist__user=user, has_conflict=False).exists()
+        or record.state != "submitted"
     ):
         return
+
     if user.is_staff or user.is_superuser:
         url = reverse(
             "round-application-reviews-list",
@@ -199,7 +201,6 @@ def application_review_link(table, record, value):
 class RoundApplicationTable(tables.Table):
 
     number = tables.Column(linkify=application_review_link, verbose_name=_("Number"))
-    # round = tables.Column(verbose_name=_("Round"))
     first_name = tables.Column(verbose_name=_("First Name"))
     last_name = tables.Column(verbose_name=_("Last Name"))
     email = tables.Column(verbose_name=_("Email"))
@@ -207,13 +208,20 @@ class RoundApplicationTable(tables.Table):
         verbose_name=_("Review Count"), attrs={"td": {"style": "text-align: right;"}}
     )
 
+    def render_number(self, record, value):
+        if record.state != "submitted":
+            return format_html(
+                "<span data-toggle='tooltip' title='%s'>%s</span>"
+                % (_("The application has not been submitted yet"), value)
+            )
+        return value
+
     class Meta:
         model = models.Application
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
         fields = (
             "number",
-            # "round",
             "first_name",
             "last_name",
             "email",
