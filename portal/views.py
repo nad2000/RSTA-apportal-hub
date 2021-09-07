@@ -3403,7 +3403,7 @@ class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesVie
 class EvaluationDetail(DetailView):
 
     model = models.Evaluation
-    # template_name = "application_detail.html"
+    template_name = "evaluation.html"
 
     # def post(self, request, *args, **kwargs):
 

@@ -1,0 +1,17 @@
+{% extends 'detail.html' %}
+
+{% load i18n tags django_bootstrap_breadcrumbs %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Reviews" "reviews" %}
+  {% if object.state == "draft" %}
+    {% breadcrumb "Draft" "reviews-working" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "reviews-submitted" %}
+  {% endif %}
+  {% breadcrumb object.application.round.title "round-application-list-with-state" round_id=object.application.round_id state=object.state %}
+  {% breadcrumb object "evaluation" pk=object.pk %}
+{% endblock %}
+
+{% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}

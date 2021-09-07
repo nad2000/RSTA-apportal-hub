@@ -11,25 +11,13 @@ option {direction: rtl;}
 {% block breadcrumbs %}
   {{ block.super }}
   {% breadcrumb "Reviews" "reviews" %}
-  {% if state == "draft" %}
-    {% breadcrumb "Draft" "reviews-draft" %}
-  {% elif state == "submitted" %}
+  {% if evaluation.state == "draft" %}
+    {% breadcrumb "Draft" "reviews-working" %}
+  {% elif evaluation.state == "submitted" %}
     {% breadcrumb "Submitted" "reviews-submitted" %}
   {% endif %}
-  {% if round %}
-    {% if state %}
-      {% breadcrumb round.title "round-application-list-with-state" round_id=round.pk state=state %}
-    {% else %}
-      {% breadcrumb round.title "round-application-list" round_id=round.pk %}
-    {% endif %}
-  {% endif %}
-  {% if application %}
-    {% if state %}
-      {% breadcrumb application "round-application-reviews-list" round_id=round.pk application_id=application.pk %}
-    {% else %}
-      {% breadcrumb application "round-application-reviews-list-with-state" round_id=round.pk state=state application_id=application.pk %}
-    {% endif %}
-  {% endif %}
+  {% breadcrumb application.round.title "round-application-list-with-state" round_id=application.round_id state=evaluation.state %}
+  {% breadcrumb application "evaluation-update" pk=pk %}
 {% endblock %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
@@ -79,7 +67,7 @@ option {direction: rtl;}
       value="{% trans 'Save Draft' %}" class="btn btn btn-primary" id="submit-id-save_draft">
     <input type="submit" name="submit" value="{% trans 'Submit' %}"
       class="btn btn btn-outline-primary" id="submit-id-submit">
-    <a href="{% url "round-application-list" round_id=application.round_id %}" type="button" role="button" class="btn btn-secondary" id="cancel">
+    <a href="{% url "evaluation" pk=pk %}" type="button" role="button" class="btn btn-secondary" id="cancel">
       {% trans 'Cancel' %}
     </a>
   </div>

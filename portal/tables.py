@@ -137,7 +137,7 @@ class ApplicationTable(tables.Table):
 def round_link(record, table, *args, **kwargs):
     user = table.request.user
     if not (
-        user.is_staff or user.is_superuse or record.all_coi_statements_given_by(table.request.user)
+        user.is_staff or user.is_superuser or record.all_coi_statements_given_by(table.request.user)
     ):
         return reverse("round-coi", kwargs={"round": record.id})
 
