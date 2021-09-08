@@ -190,9 +190,15 @@ class StateInPathMixin:
                     queryset = queryset.filter(status=state)
             elif self.model is models.Round:
                 if state == "draft":
-                    queryset = queryset.filter(panellists__evaluations__state__in=["new", "draft"])
+                    queryset = queryset.filter(
+                        Q(panellists__evaluations__state__in=["new", "draft"])
+                        | Q(panellists__evaluations__state__isnull=True)
+                    )
                 else:
-                    queryset = queryset.filter(panellists__evaluations__state=state)
+                    queryset = queryset.filter(
+                        Q(panellists__evaluations__state=state)
+                        | Q(panellists__evaluations__state__isnull=True)
+                    )
             else:
                 if state == "draft":
                     queryset = queryset.filter(state__in=["draft", "new"])
@@ -3126,14 +3132,21 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
     table_class = tables.RoundTable
     template_name = "rounds.html"
 
+    def get_table_kwargs(self):
+        kwargs = super().get_table_kwargs()
+        if (u := self.request.user) and (u.is_staff or u.is_superuser):
+            return kwargs
+        kwargs.update({"exclude": ("evaluation_count",)})
+        return kwargs
+
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
+
         user = self.request.user
-
         if not (user.is_staff or user.is_superuser):
-            queryset = queryset.filter(panellists__user=user)
-
-        queryset = queryset.annotate(evaluation_count=Count("panellists__evaluations"))
+            queryset = queryset.filter(panellists__user=user).distinct()
+        else:
+            queryset = queryset.annotate(evaluation_count=Count("panellists__evaluations"))
         return queryset
 
 
@@ -3142,6 +3155,13 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
     model = models.Application
     table_class = tables.RoundApplicationTable
     template_name = "rounds.html"
+
+    def get_table_kwargs(self):
+        kwargs = super().get_table_kwargs()
+        if (u := self.request.user) and (u.is_staff or u.is_superuser):
+            return kwargs
+        kwargs.update({"exclude": ("evaluation_count",)})
+        return kwargs
 
     @property
     def round(self):
@@ -3181,9 +3201,6 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
         if r := self.round:
             queryset = queryset.filter(round=r)
-        user = self.request.user
-        if not (user.is_staff or user.is_superuser):
-            queryset = queryset.filter(round__panellists__user=user)
 
         if state := self.state:
             if state == "draft":
@@ -3191,7 +3208,11 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
             else:
                 queryset = queryset.filter(evaluations__state=state)
 
-        queryset = queryset.annotate(evaluation_count=Count("evaluations"))
+        user = self.request.user
+        if not (user.is_staff or user.is_superuser):
+            queryset = queryset.filter(round__panellists__user=user)
+        else:
+            queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
         return queryset
 

@@ -154,7 +154,7 @@ def round_link(record, table, *args, **kwargs):
 
 class RoundTable(tables.Table):
 
-    title = tables.Column(linkify=round_link, verbose_name=_("Title"))
+    title = tables.Column(linkify=round_link, verbose_name=_("Round"))
     scheme = tables.Column(verbose_name=_("Scheme"))
     opens_on = tables.Column(verbose_name=_("Opens On"))
     closes_on = tables.Column(verbose_name=_("Closes On"))
