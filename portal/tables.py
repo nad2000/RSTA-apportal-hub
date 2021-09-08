@@ -159,7 +159,12 @@ class RoundTable(tables.Table):
     opens_on = tables.Column(verbose_name=_("Opens On"))
     closes_on = tables.Column(verbose_name=_("Closes On"))
     evaluation_count = tables.Column(
-        verbose_name=_("Review Count"), attrs={"td": {"style": "text-align: right;"}}
+        verbose_name=_("Review Count"),
+        attrs={
+            "td": {"style": "text-align: right;"},
+            "tf": {"style": "text-align: right; font-weight: bold;"},
+            },
+        footer=lambda table: sum(row.evaluation_count for row in table.data),
     )
 
     class Meta:
