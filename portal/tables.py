@@ -163,7 +163,7 @@ class RoundTable(tables.Table):
         attrs={
             "td": {"style": "text-align: right;"},
             "tf": {"style": "text-align: right; font-weight: bold;"},
-            },
+        },
         footer=lambda table: sum(row.evaluation_count for row in table.data),
     )
 
@@ -210,7 +210,12 @@ class RoundApplicationTable(tables.Table):
     last_name = tables.Column(verbose_name=_("Last Name"))
     email = tables.Column(verbose_name=_("Email"))
     evaluation_count = tables.Column(
-        verbose_name=_("Review Count"), attrs={"td": {"style": "text-align: right;"}}
+        verbose_name=_("Review Count"),
+        attrs={
+            "td": {"style": "text-align: right;"},
+            "tf": {"style": "text-align: right; font-weight: bold;"},
+        },
+        footer=lambda table: sum(row.evaluation_count for row in table.data),
     )
 
     def render_number(self, record, value):
