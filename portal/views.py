@@ -974,7 +974,7 @@ class ApplicationDetail(DetailView):
             context["is_panellist"] = True
             coi = p.conflict_of_interests.filter(Q(application=a)).first()
             context["has_coi"] = not coi or coi.has_conflict is True or coi.has_conflict is None
-            context["evaluation"] = models.Evaluation.where(panellist=p, application=a)
+            context["evaluation"] = models.Evaluation.where(panellist=p, application=a).first()
 
         context["is_owner"] = is_owner
         context["was_submitted"] = a.state == "submitted"
@@ -3298,10 +3298,15 @@ class ConflictOfInterestView(CreateUpdateView):
 
     def form_valid(self, form):
         n = form.instance
-        application = n.application
+        try:
+            application = n.application
+        except:
+            application = models.Application.where(id=self.kwargs["application_id"]).first()
         round = application.round
         if "submit" in self.request.POST:
             n.panellist = models.Panellist.where(round=round, user=self.request.user).first()
+            n.application = application
+            form.save()
         elif "close" in self.request.POST:
             return redirect("round-application-list", round_id=round.pk)
         if n.has_conflict:
@@ -3310,7 +3315,7 @@ class ConflictOfInterestView(CreateUpdateView):
             )
             return redirect("round-application-list", round_id=round.pk)
         else:
-            return redirect("application", pk=n.application_id)
+            return redirect("application", pk=application.pk)
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
