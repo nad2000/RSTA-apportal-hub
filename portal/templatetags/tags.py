@@ -72,7 +72,7 @@ def field_file_url(value, name="file"):
 
 @register.filter()
 def fields(value):
-    return value._meta.fields
+    return value and value._meta.fields or []
 
 
 @register.filter()

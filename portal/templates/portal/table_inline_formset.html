@@ -46,9 +46,11 @@
       </tr>
 
       {% for form in formset %}
-        {% if form_show_errors and not form.is_extra %}
-          {% include "bootstrap4/errors.html" %}
-        {% endif %}
+        {% autoescape off %}
+          {% if form_show_errors and not form.is_extra %}
+            {% include "bootstrap4/errors.html" %}
+          {% endif %}
+        {% endautoescape %}
 
         <tr>
           {% for field in form %}

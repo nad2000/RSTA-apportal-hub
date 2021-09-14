@@ -23,6 +23,7 @@ from django import forms
 from django.forms import HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
+from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -485,16 +486,17 @@ class ProfilePersonIdentifierForm(forms.ModelForm):
             u = p.user
             orcid = data["value"]
             if (
-                not u.orcid.endswith(orcid)
+                not (u.orcid and u.orcid.endswith(orcid))
                 or not u.socialaccount_set.all().filter(provider="orcid", uid=orcid).exists()
             ):
                 raise forms.ValidationError(
                     _(
                         "Invalid ORCID iD value: %(value)s. "
-                        "The ID should be authenticated either by linking your account to ORCID or TUAKIRI"
+                        "The ID should be authenticated either by linking your account to ORCID or TUAKIRI. "
+                        "Click <a href='%(url)s'>here to link your account with ORCID or TUAKIRI</a>."
                     ),
                     code="invalid",
-                    params={"value": orcid},
+                    params={"value": orcid, "url": reverse("socialaccount_connections")},
                 )
 
         return data

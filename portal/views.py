@@ -961,29 +961,36 @@ class ApplicationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        a = self.object
         u = self.request.user
-        if self.object.members.filter(user=u, has_authorized__isnull=True).exists():
+        if a.members.filter(user=u, has_authorized__isnull=True).exists():
             messages.info(
                 self.request,
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        is_owner = self.object.submitted_by == u or self.object.members.filter(user=u).exists()
+        is_owner = a.submitted_by == u or a.members.filter(user=u).exists()
+        if p := a.round.panellists.filter(user=u).first():
+            context["is_panellist"] = True
+            coi = p.conflict_of_interests.filter(Q(application=a)).first()
+            context["has_coi"] = not coi or coi.has_conflict is True or coi.has_conflict is None
+            context["evaluation"] = models.Evaluation.where(panellist=p, application=a)
+
         context["is_owner"] = is_owner
-        context["was_submitted"] = self.object.state == "submitted"
+        context["was_submitted"] = a.state == "submitted"
         if not is_owner:
             context["show_basic_details"] = not (
                 u.is_staff
                 or u.is_superuser
-                or self.object.referees.filter(user=u).exists()
+                or a.referees.filter(user=u).exists()
                 or models.ConflictOfInterest.where(
                     Q(has_conflict=False) | Q(has_conflict__isnull=False),
-                    application=self.object,
+                    application=a,
                     panellist__user=u,
                 ).exists()
             )
             if (
-                t := models.Testimonial.where(referee__user=u, referee__application=self.object)
+                t := models.Testimonial.where(referee__user=u, referee__application=a)
                 .order_by("-id")
                 .first()
             ):
@@ -1958,6 +1965,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
     def get_context_data(self, **kwargs):
         """Get the context data"""
         context = super().get_context_data(**kwargs)
+        context["form_show_errors"] = False
         context.get("helper").add_input(
             Submit(
                 "load_from_orcid",
@@ -3141,6 +3149,7 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id__in=models.Scheme.objects.values("current_round"))
 
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
@@ -3210,7 +3219,7 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
-            queryset = queryset.filter(round__panellists__user=user)
+            queryset = queryset.filter(round__panellists__user=user, state="submitted")
         else:
             queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
@@ -3246,52 +3255,73 @@ class ConflictOfInterestView(CreateUpdateView):
     form_class = forms.ConflictOfInterestForm
     template_name = "conflict_of_interest.html"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if coi := self.get_object():
+            initial["application"] = coi.application
+        elif "application_id" in self.kwargs and (
+            a := models.Application.where(id=self.kwargs["application_id"]).first()
+        ):
+            initial["application"] = a
+        return initial
+
     def get(self, request, *args, **kwargs):
-        round_id = kwargs.get("round_id")
-        application_id = kwargs.get("application_id")
-        panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
-        if coi := self.model.where(application_id=application_id, panellist=panellist).first():
-            if coi.has_conflict:
+
+        if "pk" in kwargs and (coi := models.ConflictOfInterest.where(pk=kwargs["pk"]).first()):
+            if (
+                coi.has_conflict is False
+                and models.Evaluation.where(
+                    panellist__user=self.request.user, application=coi.application
+                ).exists()
+            ):
                 messages.warning(
-                    self.request, _("You have conflict of interest for this application.")
+                    self.request,
+                    _(
+                        "You have already submitted a evaluation of the application "
+                        "and cannot change the submitted statement of conflict of interst."
+                    ),
                 )
-                return HttpResponseRedirect(
-                    reverse("round-application-list", kwargs=dict(round_id=round_id))
-                )
-            elif coi.has_conflict is not None:
-                return HttpResponseRedirect(
-                    reverse("application-evaluation", kwargs=dict(pk=application_id))
-                )
+                return redirect("application", pk=coi.application_id)
+
+        if "application_id" in kwargs and (
+            a := models.Application.where(id=kwargs["application_id"]).first()
+        ):
+            if a.state != "submitted":
+                messages.warning(self.request, _("The application has not been yet submitted."))
+                return redirect("application", pk=a.pk)
+            if coi := models.ConflictOfInterest.where(
+                application=a, panellist__user=self.request.user
+            ).first():
+                return redirect("coi-update", pk=coi.pk)
+
         return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
         n = form.instance
-        round_id = self.kwargs.get("round_id")
+        application = n.application
+        round = application.round
         if "submit" in self.request.POST:
-            n.application_id = self.kwargs.get("application_id")
-            n.panellist = models.Panellist.where(round_id=round_id, user=self.request.user).first()
-            n.save()
+            n.panellist = models.Panellist.where(round=round, user=self.request.user).first()
         elif "close" in self.request.POST:
-            return HttpResponseRedirect(
-                reverse("round-application-list", kwargs=dict(round_id=round_id))
-            )
+            return redirect("round-application-list", round_id=round.pk)
         if n.has_conflict:
             messages.warning(
                 self.request, _("You have conflict of interest for this application.")
             )
-            return HttpResponseRedirect(
-                reverse("round-application-list", kwargs=dict(round_id=round_id))
-            )
+            return redirect("round-application-list", round_id=round.pk)
         else:
-            return HttpResponseRedirect(reverse("application", kwargs=dict(pk=n.application_id)))
+            return redirect("application", pk=n.application_id)
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        application_id = self.kwargs.get("application_id")
-        application = models.Application.where(id=application_id).first()
-        members = models.Member.where(application_id=application_id)
-        context["object"] = application
-        context["members"] = members
+        if application_id := self.kwargs.get("application_id"):
+            application = models.Application.where(id=application_id).first()
+        else:
+            application = self.object.application
+        # context["object"] = application
+        context["application"] = application
+        context["members"] = application.members.all()
         context["include"] = [
             "number",
             "application_title",

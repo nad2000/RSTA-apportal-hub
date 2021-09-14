@@ -1,6 +1,6 @@
 {% extends "form.html" %}
 
-{% load i18n tags %}
+{% load i18n tags django_bootstrap_breadcrumbs %}
 
 {% block css %}
   {{ block.super }}
@@ -12,21 +12,39 @@
   {% trans 'Statement of Conflict of Interest' %}
 {% endblock %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Reviews" "reviews" %}
+  {% if object.state == "draft" or object.state == "new" %}
+    {% breadcrumb "Draft" "reviews-draft" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "reviews-submitted" %}
+  {% endif %}
+  {% breadcrumb application.number "application" application.pk %}
+  {% if object.pk %}
+    {% breadcrumb object "coi-update" object.pk %}
+  {% else %}
+    {% breadcrumb object "coi-create" application_id=application.pk %}
+  {% endif %}
+{% endblock %}
+
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
 
 {% block more_info %}
   <table class="table table-bordered searchable">
     <tbody>
-      {% for field in object|fields %}
+      {% for field in application|fields %}
 
         {% if field.name in include %}
-          {% if object|field_value:field.name %}
-            <tr>
-              <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ field.verbose_name|title }}</th>
-              <td>
-                {{ object|field_value:field.name|safe }}
-              </td>
-            </tr>
+          {% if field.name != "team_name" or application.is_team_application  %}
+            {% if application|field_value:field.name %}
+              <tr>
+                <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ field.verbose_name|title }}</th>
+                <td>
+                  {{ application|field_value:field.name|safe }}
+                </td>
+              </tr>
+            {% endif %}
           {% endif %}
         {% endif %}
 
@@ -34,7 +52,7 @@
 
     </tbody>
   </table>
-  {% if object.is_team_application %}
+  {% if application.is_team_application %}
     <h2>{% trans 'Team Members' %}</h2>
     <table class="table table-bordered searchable">
       <tbody>

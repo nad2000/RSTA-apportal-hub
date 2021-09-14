@@ -71,6 +71,10 @@ body {
 //   @extend .alert-danger !optional
 // }
 
+.alert a {
+  color: indianred;
+  font-weight: bold;
+}
 
 .alert-error {
   color: #531408;
@@ -80,6 +84,11 @@ body {
     border-top-color: #ddb3aa; }
   .alert-error .alert-link {
     color: #240904; }
+
+.jumbotron {
+  border: $alert-border-width solid transparent;
+  border-color: darken($jumbotron-bg, 20);
+}
 
 #logo {
   max-height: 72px;

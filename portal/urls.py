@@ -310,6 +310,23 @@ urlpatterns = [
         ),
     ),
     path(
+        "coi/",
+        include(
+            [
+                path(
+                    "<int:pk>/~update",
+                    views.ConflictOfInterestView.as_view(),
+                    name="coi-update",
+                ),
+                path(
+                    "<int:application_id>/~create",
+                    views.ConflictOfInterestView.as_view(),
+                    name="coi-create",
+                ),
+            ]
+        ),
+    ),
+    path(
         "reviews/",
         include(
             [

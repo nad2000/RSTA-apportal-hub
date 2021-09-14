@@ -33,7 +33,7 @@
 
     <div class="buttonHolder mb-5 mt-3 float-right">
 
-      <div class="tooltip-wrapper{% if scheme.application.state == 'submitted'%} disabled{% endif %}"
+      <div class="tooltip-wrapper{% if a.state == 'submitted'%} disabled{% endif %}"
            {% if was_submitted %}
              disabled
            data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
@@ -78,6 +78,51 @@
           </div>
 
         {% endif %}
+
+        {% if is_panellist %}
+
+          <div class="tooltip-wrapper{% if has_coi or evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+               {% if has_coi %}
+                 disabled
+               data-title="{% trans 'You have not submitted the statement of conflict of interest.' %}"
+             {% elif evaluation.state == 'submitted' %}
+                 disabled
+               data-title="{% trans 'The evaluation has been already submitted and cannot be updated' %}"
+             {% elif not was_submitted %}
+                 disabled
+               data-title="{% trans 'The application has not been submitted yet' %}"
+             {% else %}
+                 data-title="{% trans 'Modify your evaluation of the application' %}"
+               {% endif %}
+                 >
+                 <a
+                     {% if evaluation %}
+                       href="{% url 'application-evaluation' pk=evaluation.pk %}"
+                     {% else %}
+                         href="{% url 'coi-create' application_id=a.pk %}"
+                       {% endif %}
+                         class="btn btn-primary{% if has_coi or evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+                         > {% trans "Evaluate Application" %} </a>
+          </div>
+
+            <div class="tooltip-wrapper{% if evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+                 {% if evaluation.state == 'submitted' %}
+                   disabled
+                 data-title="{% trans 'The evaluation has been already submitted and the statement of the conflict of interst cannot be changed' %}"
+               {% elif not was_submitted %}
+                   disabled
+                 data-title="{% trans 'The application has not been submitted yet' %}"
+               {% else %}
+                   data-title="{% trans 'Submit the statement of the conflict of interest' %}"
+                 {% endif %}
+                   >
+                   <a
+                       href="{% url 'round-application-review' round_id=a.round_id application_id=a.pk %}"
+                       class="btn btn-primary{% if evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+                       > {% trans "Conflict of Interst" %} </a>
+            </div>
+
+            {% endif %}
 
     </div>
 

@@ -1531,7 +1531,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
         return not q.exists()
 
     def __str__(self):
-        return str(self.user)
+        return str(self.user or self.email)
 
     @classmethod
     def outstanding_requests(cls, user):
@@ -2516,12 +2516,14 @@ class Evaluation(EvaluationMixin, Model):
     @classmethod
     def user_evaluations(cls, user, state=None, round=None):
         q = cls.objects.all()
+        q = q.filter(application__round__in=Scheme.objects.values("current_round"))
         if not (user.is_staff and user.is_superuser):
-            q = q.filter(panellist__user=user)
+            q = q.filter(panellist__user=user, application__state="submitted")
         if state:
             q = q.filter(state=state)
         else:
             q = q.filter(~Q(state="archived"))
+
         return q
 
     @classmethod

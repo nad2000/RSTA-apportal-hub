@@ -11985,6 +11985,11 @@ body {
   color: #000;
 }
 
+.alert a {
+  color: indianred;
+  font-weight: bold;
+}
+
 .alert-error {
   color: #531408;
   background-color: #ecd4cf;
@@ -11997,6 +12002,11 @@ body {
 
 .alert-error .alert-link {
   color: #240904;
+}
+
+.jumbotron {
+  border: medium solid transparent;
+  border-color: #d8c7aa;
 }
 
 #logo {
