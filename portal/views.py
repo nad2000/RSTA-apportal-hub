@@ -551,8 +551,12 @@ def profile_protection_patterns(request):
         if "wizard" in request.session:
             del request.session["wizard"]
             request.session.modified = True
+            url = "index"
+        else:
+            url = "profile"
+
         reset_cache(request)
-        return redirect("index")
+        return redirect(url)
 
     protection_patterns = profile.protection_patterns
     return render(request, "profile_protection_patterns.html", locals())

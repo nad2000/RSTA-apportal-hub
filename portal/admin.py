@@ -258,6 +258,21 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
         model = models.CurriculumVitae
         view_on_site = False
 
+    class ProtectionPatternInline(admin.TabularInline):
+        extra = 0
+        model = models.ProfileProtectionPattern
+        verbose_name = _("Protection Pattern")
+        verbose_name_plural = _("Protection Patterns")
+
+        def has_add_permission(self, request, obj=None):
+            return False
+
+        def has_delete_permission(self, request, obj=None):
+            return False
+
+        def has_change_permission(self, request, obj=None):
+            return False
+
     filter_horizontal = ["ethnicities", "languages_spoken", "iwi_groups"]
     search_fields = ["user__username", "user__email"]
     list_display = ["full_name_with_email", "created_at"]
@@ -268,6 +283,7 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
         ProfilePersonIdentifierInline,
         AffiliationInline,
         CurriculumVitaeInline,
+        ProtectionPatternInline,
     ]
 
     def view_on_site(self, obj):
@@ -462,7 +478,6 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 @admin.register(models.Nomination)
 class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
-
     def nominator_name(self, obj):
         return obj.nominator.full_name_with_email or obj.nominator
 

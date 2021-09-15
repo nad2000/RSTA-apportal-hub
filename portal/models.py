@@ -354,7 +354,7 @@ class ProtectionPattern(Model):
     comment = TextField(_("comment"), max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return self.description
+        return f"{self.code}: {self.description}"
 
     class Meta:
         db_table = "protection_pattern"
@@ -695,7 +695,7 @@ class Profile(Model, PersonMixin):
             ProfileProtectionPattern.objects.bulk_create(
                 [
                     ProfileProtectionPattern(profile=self, protection_pattern_id=code)
-                    for code in [5, 6, 7]
+                    for code in [5, 6]
                 ]
             )
 
@@ -742,6 +742,9 @@ class ProfileProtectionPattern(Model):
         verbose_name=_("protection pattern"),
     )
     expires_on = DateField(_("expires on"), null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.protection_pattern} of {self.profile}"
 
     class Meta:
         db_table = "profile_protection_pattern"

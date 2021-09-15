@@ -58,7 +58,7 @@
                          {% if pp.comment %}data-toggle="tooltip" title="{{ pp.comment }}"{% endif %}
                   >
                   <label class="form-check-label"
-                         for="exampleCheck1"
+                         for="ppEnabled-{{ pp.code }}"
                          {% if pp.comment %}data-toggle="tooltip" title="{{ pp.comment }}"{% endif %}
                   >{{ pp.description }}</label>
                 </div>
