@@ -551,7 +551,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
     fsm_field = ["status"]
     list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
     list_filter = ["type", "status", "created_at", "updated_at"]
-    search_fields = ["first_name", "last_name", "email"]
+    search_fields = ["first_name", "last_name", "email", "token"]
     date_hierarchy = "created_at"
     readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
     inlines = [StateLogInline]
