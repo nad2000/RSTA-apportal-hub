@@ -409,7 +409,6 @@ def check_profile(request, token=None):
     # TODO: refactor and move to the model the invitation handling:
     if token:
         u = request.user
-        breakpoint()
         if i := models.Invitation.where(token=token).first():
             if (
                 i.email != u.email
