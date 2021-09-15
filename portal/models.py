@@ -1092,9 +1092,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "and/or uploaded application form"
                 )
             )
-        if self.submitted_by.needs_identity_verification and not (
-            self.photo_identity or IdentityVerification.where(application=self).exists()
+        if (
+            self.round
+            and self.round.pid_required
+            and self.submitted_by.needs_identity_verification
+            and not (self.photo_identity or IdentityVerification.where(application=self).exists())
         ):
+            if self.photo_identity or IdentityVerification.where(application=self).exists():
+                raise Exception(
+                    _(
+                        "Your identity has not been verified yet by the administration. "
+                        "We will notify you when it is verified and you can complete your application."
+                    )
+                )
             raise Exception(
                 _(
                     "Your identity has not been verified. "

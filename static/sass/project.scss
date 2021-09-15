@@ -72,7 +72,7 @@ body {
 // }
 
 .alert a {
-  color: indianred;
+  color: inherit;
   font-weight: bold;
 }
 
@@ -87,7 +87,7 @@ body {
 
 .jumbotron {
   border: $alert-border-width solid transparent;
-  border-color: darken($jumbotron-bg, 20);
+  border-color: darken($jumbotron-bg, 16);
 }
 
 #logo {

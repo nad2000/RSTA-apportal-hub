@@ -11986,7 +11986,7 @@ body {
 }
 
 .alert a {
-  color: indianred;
+  color: inherit;
   font-weight: bold;
 }
 
@@ -12006,7 +12006,7 @@ body {
 
 .jumbotron {
   border: medium solid transparent;
-  border-color: #d8c7aa;
+  border-color: #ded0b8;
 }
 
 #logo {

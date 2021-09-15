@@ -49,7 +49,7 @@ class User(HelperMixin, AbstractUser, PersonMixin):
     def needs_identity_verification(self):
         return not (
             self.is_identity_verified
-            and self.identity_verifications.filter(state="accepted").exists()
+            or self.identity_verifications.filter(state="accepted").exists()
         )
 
     def get_absolute_url(self):
