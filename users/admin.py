@@ -1,6 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import get_user_model
+from django.shortcuts import render
 from django.utils.translation import gettext as _
 from simple_history.admin import SimpleHistoryAdmin
 
@@ -47,3 +48,45 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
         "name",
         "username",
     ]
+
+    actions = ["merge_users"]
+
+    @admin.action(description="Merge Users")
+    def merge_users(self, request, queryset):
+        if "do_action" in request.POST:
+            if target_id := request.POST.get("target"):
+                pass
+            breakpoint()
+            # form = GenreForm(request.POST)
+            # if form.is_valid():
+            #     genre = form.cleaned_data['genre']
+            #     updated = queryset.update(genre=genre)
+            #     messages.success(request, '{0} movies were updated'.format(updated))
+            #     return
+            return
+
+        return render(
+            request,
+            "action_merge_users.html",
+            {
+                "title": "Choose target user account",
+                "objects": queryset,
+                "users": queryset,
+            },
+        )
+
+        recipients = []
+        for o in queryset.filter(
+            status__in=[
+                models.NOMINATION_STATUS.submitted,
+                models.NOMINATION_STATUS.bounced,
+            ]
+        ):
+            o.send_invitation(request)
+            recipients.append(o)
+
+        messages.success(
+            request,
+            "Successfully sent invitation(-s) to apply to %d nominees: %s"
+            % (len(recipients), ", ".join(r.full_name_with_email for r in recipients)),
+        )

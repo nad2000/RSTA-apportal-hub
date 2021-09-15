@@ -481,10 +481,9 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
 class ProfilePersonIdentifierForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
-        if getattr(data.get("code"), "code") == "02":
+        if getattr(data.get("code"), "code") == "02" and (orcid := data.get("value")):
             p = data.get("profile")
             u = p.user
-            orcid = data["value"]
             if (
                 not (u.orcid and u.orcid.endswith(orcid))
                 or not u.socialaccount_set.all().filter(provider="orcid", uid=orcid).exists()
