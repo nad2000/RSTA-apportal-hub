@@ -408,25 +408,26 @@ def check_profile(request, token=None):
     next_url = request.GET.get("next")
     # TODO: refactor and move to the model the invitation handling:
     if token:
-        try:
-            u = request.user
-            i = models.Invitation.objects.raw(
-                "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
-                "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') AND i.token=%s "
-                "UNION SELECT * FROM invitation WHERE email=%s AND token=%s",
-                [u.id, token, u.email, token],
-            )[0]
-        except Exception as ex:
-            messages.warning(
-                request,
-                _(
-                    f"Unable to identify your invitation token: {ex} "
-                    f"So your portal access has not been approved by default, "
-                    f"Admin is looking into your request. "
-                    f"Access will be influenced by the information provided in your profile"
-                ),
-            )
+        u = request.user
+        breakpoint()
+        if i := models.Invitation.where(token=token).first():
+            if (
+                i.email != u.email
+                or not EmailAddress.objects.filter(email=u.email, user=u).exists()
+            ):
+                messages.warning(
+                    request,
+                    _(
+                        "The invitation was not sent to any of your email addresses. "
+                        "Please use and log in with the account to which email address the invitation was sent."
+                    ),
+                )
             return redirect(next_url or "home")
+
+        else:
+            messages.warning(request, _("There is no invitation with the given token."))
+            return redirect(next_url or "home")
+
         u = User.get(request.user.id)
         if i.first_name and not u.first_name:
             u.first_name = i.first_name
