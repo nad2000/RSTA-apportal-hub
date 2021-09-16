@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+  <form action="" method="post">
+
+    {% csrf_token %}
+    <input type="hidden" name="action" value="merge_users">
+    <input type="hidden" name="select_across" value="0">
+    <input type="hidden" name="index" value="0">
+    {% for u in users %}
+      <input type="hidden" name="_selected_action" value="{{ u.id }}">
+    {% endfor %}
+
+    <input type="hidden" name="do_action" value="yes">
+
+    <label for="target">User</label>
+    <select id="target" name="target">
+
+      {% for u in users %}
+        <option value="{{ u.id }}"{% if forloop.first %} selected{% endif %}>{{ u.username }} - {{ u.full_name_with_email }}</option>
+      {% endfor %}
+    </select>
+
+    <div>
+      <input type="submit" class="default" style="float: none" value="Merge">
+    </div>
+
+  </form>
+{% endblock %}

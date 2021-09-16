@@ -1,9 +1,22 @@
+from allauth.account.models import EmailAddress
 from django.contrib import admin, messages
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 from simple_history.admin import SimpleHistoryAdmin
+
+from portal.models import (
+    Application,
+    CurriculumVitae,
+    Member,
+    Nomination,
+    Panellist,
+    Profile,
+    Referee,
+)
 
 from .forms import UserChangeForm, UserCreationForm
 
@@ -54,15 +67,48 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
     @admin.action(description="Merge Users")
     def merge_users(self, request, queryset):
         if "do_action" in request.POST:
+            deleted = []
+            errors = []
             if target_id := request.POST.get("target"):
-                pass
-            breakpoint()
-            # form = GenreForm(request.POST)
-            # if form.is_valid():
-            #     genre = form.cleaned_data['genre']
-            #     updated = queryset.update(genre=genre)
-            #     messages.success(request, '{0} movies were updated'.format(updated))
-            #     return
+                target = User.get(target_id)
+                profile = Profile.where(user=target).first()
+
+                for u in list(queryset.filter(~Q(id=target_id))):
+                    try:
+                        with transaction.atomic():
+                            EmailAddress.objects.filter(user=u).update(user=target)
+                            u.socialaccount_set.update(user=target)
+
+                            Application.where(submitted_by=u).update(submitted_by=target)
+                            Member.where(user=u).update(user=target)
+                            Nomination.where(nominator=u).update(nominator=target)
+                            Nomination.where(user=u).update(user=target)
+                            Referee.where(user=u).update(user=target)
+                            Panellist.where(user=u).update(user=target)
+                            CurriculumVitae.where(owner=u).update(owner=target)
+
+                            if p := Profile.where(user=u).first():
+                                if profile:
+                                    CurriculumVitae.where(profile=p).update(profile=profile)
+                                else:
+                                    CurriculumVitae.where(profile=p).delete()
+                            Profile.where(user=u).delete()
+                            u.delete()
+                            deleted.append(u.username)
+                    except Exception as ex:
+                        errors.append(ex)
+
+            if deleted:
+                messages.success(
+                    request, f'{len(deleted)} users merged and deleted: {", ".join(deleted)}'
+                )
+            if errors:
+                messages.error(
+                    request,
+                    "Failed to merge all users:<ul>%s</ul>"
+                    % "".join("<li>{e}</li>" for e in errors),
+                )
+
             return
 
         return render(
@@ -73,20 +119,4 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
                 "objects": queryset,
                 "users": queryset,
             },
-        )
-
-        recipients = []
-        for o in queryset.filter(
-            status__in=[
-                models.NOMINATION_STATUS.submitted,
-                models.NOMINATION_STATUS.bounced,
-            ]
-        ):
-            o.send_invitation(request)
-            recipients.append(o)
-
-        messages.success(
-            request,
-            "Successfully sent invitation(-s) to apply to %d nominees: %s"
-            % (len(recipients), ", ".join(r.full_name_with_email for r in recipients)),
         )
