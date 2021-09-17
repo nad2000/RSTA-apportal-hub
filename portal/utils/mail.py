@@ -99,7 +99,7 @@ def send_mail(
         headers=headers,
     )
     if not reply_to and invitation and (inviter := invitation.inviter):
-        reply_to = inviter.email
+        reply_to = inviter.full_email_address
     if reply_to:
         msg.reply_to = [reply_to]
 
