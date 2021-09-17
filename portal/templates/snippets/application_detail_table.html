@@ -8,10 +8,10 @@
       <td colspan="3">
         {% if u.is_superuser and not export %}
           <a href="{% url 'admin:portal_application_change' object_id=a.id %}">
-            {{ a.number }}{% if a.application_title %}: {{ a.application_title }}{% endif %}
+            <strong>{{ a.number }}</strong>{% if a.application_title %}: {{ a.application_title }}{% endif %}
           </a>
         {% else %}
-          {{ a.number }}{% if a.application_title %}: {{ a.application_title }}{% endif %}
+          <strong><a href="{% url 'application' pk=a.id %}">{{ a.number }}</a></strong>{% if a.application_title %}: {{ a.application_title }}{% endif %}
         {% endif %}
       </td>
     </tr>
@@ -23,23 +23,23 @@
           {% if "youtube" in a.presentation_url or "vimeo" in a.presentation_url %}
 
             <iframe
-            src="{% if "vimeo" in a.presentation_url %}https://player.vimeo.com/video/{% else %}https://www.youtube.com/embed/{% endif %}{{ a.presentation_url|video_id }}"
-            title="{% trans 'Vimeo video player' %}"
-            width="640"
-            height="360"
-            frameborder="0"
-            allow="fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            ></iframe>
+              src="{% if "vimeo" in a.presentation_url %}https://player.vimeo.com/video/{% else %}https://www.youtube.com/embed/{% endif %}{{ a.presentation_url|video_id }}"
+              title="{% trans 'Vimeo video player' %}"
+              width="640"
+              height="360"
+              frameborder="0"
+              allow="fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              ></iframe>
 
           {% else %}
             <video
-              width="640"
-              height="360"
-              controls
-              >
-              <source src="{{ a.presentation_url }}">
-              {% trans 'Your browser does not support the video tag.' %}
+                width="640"
+                height="360"
+                controls
+                >
+                <source src="{{ a.presentation_url }}">
+                {% trans 'Your browser does not support the video tag.' %}
             </video>
 
             {% endif %}

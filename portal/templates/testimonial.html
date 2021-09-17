@@ -20,6 +20,11 @@
 
 
 {% block content %}
+
+  <div class="table-responsive">
+    {% include 'snippets/application_detail_table.html' with a=application u=request.user %}
+  </div>
+
   {{ block.super }}
   <!-- Privacy Statement Modal -->
   <div class="modal fade" id="confirm-submit" tabindex="-1" role="dialog"

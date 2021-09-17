@@ -495,6 +495,9 @@ class ProfilePersonIdentifier(Model):
                         params={"value": v},
                     )
 
+    def __str__(self):
+        return f"{self.code} / {self.value}"
+
 
 class OrgIdentifierType(Model):
     code = CharField(max_length=2, primary_key=True)
@@ -1850,7 +1853,7 @@ class Invitation(Model):
                 reverse("application-update", kwargs={"pk": self.application.id}) + "?referees=1",
             )
         elif self.type == INVITATION_TYPES.T and self.member:
-            self.member = MEMBER_STATUS.bounced
+            self.member.status = MEMBER_STATUS.bounced
             self.member.save()
             url = get_absolute_uri(
                 request, reverse("application-update", kwargs={"pk": self.application.id})

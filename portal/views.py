@@ -422,7 +422,7 @@ def check_profile(request, token=None):
                         "address that received the invitation."
                     ),
                 )
-            return redirect(next_url or "home")
+                return redirect(next_url or "home")
 
         else:
             messages.warning(request, _("There is no invitation with the given token."))
@@ -439,6 +439,7 @@ def check_profile(request, token=None):
             u.name = u.full_name
         u.is_approved = True
         u.save()
+
         if i.email and u.email != i.email:
             ea, created = EmailAddress.objects.get_or_create(
                 email=i.email, defaults=dict(user=request.user, verified=True)
@@ -449,10 +450,21 @@ def check_profile(request, token=None):
                 )
         i.accept(by=request.user)
         i.save()
+
         if i.type == models.INVITATION_TYPES.A:
             next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
-        if i.type == models.INVITATION_TYPES.T:
-            return redirect(reverse("application", kwargs=dict(pk=i.member.application.id)))
+        elif i.type == models.INVITATION_TYPES.T:
+            return redirect("application", pk=i.member.application.id)
+        elif i.type == models.INVITATION_TYPES.R:
+            r = i.referee
+            if t := models.Testimonial.where(referee=r).first():
+                return redirect("review-update", pk=t.id)
+            a = r.application
+            return redirect("application", pk=a.id)
+        elif i.type == models.INVITATION_TYPES.P:
+            p = i.panellist
+            if p.round_id:
+                return redirect("round-application-list", round_id=p.round.id)
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
