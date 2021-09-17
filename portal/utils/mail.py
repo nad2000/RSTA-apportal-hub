@@ -59,7 +59,7 @@ def send_mail(
     html_message=None,
     html_footer=None,
     request=None,
-    reply_to=settings.DEFAULT_FROM_EMAIL,
+    reply_to=None,
     invitation=None,
     token=None,
     convert_to_html=False,
@@ -97,8 +97,11 @@ def send_mail(
         from_email,
         recipient_list,
         headers=headers,
-        reply_to=[reply_to or from_email],
     )
+    if not reply_to and invitation and (inviter := invitation.inviter):
+        reply_to = inviter.email
+    if reply_to:
+        msg.reply_to = [reply_to]
 
     if html_message:
         msg.attach_alternative(html_message, "text/html")
