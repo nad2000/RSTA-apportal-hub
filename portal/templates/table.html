@@ -11,11 +11,15 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
-  {% breadcrumb "Applications" "applications" %}
-  {% if state == "draft" %}
-    {% breadcrumb "Draft" "applications-draft" %}
-  {% elif state == "submitted" %}
-    {% breadcrumb "Submitted" "applications-submitted" %}
+  {% if view_name == "invitation-list" %}
+    {% breadcrumb "Innovations" "invitation-list" %}
+  {% else %}
+    {% breadcrumb "Applications" "applications" %}
+    {% if state == "draft" %}
+      {% breadcrumb "Draft" "applications-draft" %}
+    {% elif state == "submitted" %}
+      {% breadcrumb "Submitted" "applications-submitted" %}
+    {% endif %}
   {% endif %}
 {% endblock %}
 

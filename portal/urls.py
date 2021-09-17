@@ -234,10 +234,11 @@ urlpatterns = [
         ),
     ),
     path(
-        "invitation/",
+        "invitations/",
         include(
             [
                 path("~create", views.InvitationCreate.as_view(), name="invitation-create"),
+                path("", views.InvitationList.as_view(), name="invitation-list"),
             ]
         ),
     ),

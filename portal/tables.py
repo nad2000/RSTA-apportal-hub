@@ -320,3 +320,48 @@ class RoundSummaryTable(tables.Table):
         attrs = {"class": "table table-striped table-bordered"}
         model = models.Application
         fields = ["number"]
+
+
+class InvitationTable(tables.Table):
+
+    url = tables.Column(linkify=lambda value: value)
+    token = tables.Column(linkify=lambda value, record: record.url)
+    # number = tables.Column(linkify=application_link)
+    # round = tables.Column(linkify=application_round_link)
+    # email = tables.Column(
+    #     linkify=lambda table, record, value: reverse(
+    #         "admin:users_user_change", kwargs={"object_id": record.submitted_by_id}
+    #     )
+    #     if (table.request.user.is_staff or table.request.user.is_superuser)
+    #     and record.submitted_by_id
+    #     else None
+    # )
+
+    class Meta:
+        model = models.Invitation
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped table-bordered"}
+        fields = [
+            "token",
+            "url",
+            "inviter",
+            "type",
+            "email",
+            "first_name",
+            "middle_names",
+            "last_name",
+            "organisation",
+            "org",
+            "application",
+            "nomination",
+            "member",
+            "referee",
+            "panellist",
+            "round",
+            "status",
+            "submitted_at",
+            "sent_at",
+            "accepted_at",
+            "expired_at",
+            "bounced_at",
+        ]

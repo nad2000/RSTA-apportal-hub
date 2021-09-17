@@ -1676,6 +1676,23 @@ class ApplicationFilter(django_filters.FilterSet):
         )
 
 
+class InvitationList(LoginRequiredMixin, SingleTableView):
+
+    table_class = tables.InvitationTable
+    model = models.Invitation
+    template_name = "table.html"
+    extra_context = {"category": "applications"}
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        u = self.request.user
+        if not (u.is_superuser or u.is_staff):
+            queryset = queryset.filter(
+                Q(inviter=u) | Q(email__in=[r[0] for r in u.emailaddress_set.values_list("email")])
+            )
+        return queryset
+
+
 class ApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableMixin, FilterView):
 
     model = models.Application
