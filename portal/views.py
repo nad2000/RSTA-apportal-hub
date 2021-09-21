@@ -451,6 +451,7 @@ def check_profile(request, token=None):
         i.accept(by=request.user)
         i.save()
         next_url = i.handler_url
+        reset_cache(request)
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
@@ -3559,6 +3560,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             super()
             .get_queryset()
             .filter(application__round=round_id, panellist__user=self.request.user)
+            .filter(~Q(application__state__in=["new", "draft", "archived"]))
             .prefetch_related("application")
             .order_by("application__number")
         )
@@ -3770,7 +3772,9 @@ def score_sheet(request, round):
             form.instance.round = round
             form.instance.panellist = panellist
             score_sheet = form.save()
+
             if score_sheet:
+                reset_cache(request)
                 return redirect(request.get_full_path())
 
         return render(request, "score_sheet.html", locals())
