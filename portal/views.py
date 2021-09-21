@@ -450,21 +450,7 @@ def check_profile(request, token=None):
                 )
         i.accept(by=request.user)
         i.save()
-
-        if i.type == models.INVITATION_TYPES.A:
-            next_url = reverse("nomination-detail", kwargs=dict(pk=i.nomination.id))
-        elif i.type == models.INVITATION_TYPES.T:
-            return redirect("application", pk=i.member.application.id)
-        elif i.type == models.INVITATION_TYPES.R:
-            r = i.referee
-            if t := models.Testimonial.where(referee=r).first():
-                return redirect("review-update", pk=t.id)
-            a = r.application
-            return redirect("application", pk=a.id)
-        elif i.type == models.INVITATION_TYPES.P:
-            p = i.panellist
-            if p.round_id:
-                return redirect("round-application-list", round_id=p.round.id)
+        next_url = i.handler_url
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
@@ -564,7 +550,8 @@ def profile_protection_patterns(request):
         if "wizard" in request.session:
             del request.session["wizard"]
             request.session.modified = True
-            url = "index"
+            i = models.Invitation.user_inviations(request.user).last()
+            url = (i and i.handler_url) or "index"
         else:
             url = "profile"
 
@@ -2861,7 +2848,7 @@ class TestimonialDetail(DetailView):
         if not self.object.referee.has_testifed:
             messages.info(
                 self.request,
-                _("Please Check the application details and submit testimonial."),
+                _("Please review the application details and submit testimonial."),
             )
         return context
 

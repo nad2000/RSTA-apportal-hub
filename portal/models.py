@@ -1665,6 +1665,37 @@ class Invitation(Model):
     # TODO: need to figure out how to propagate STATUS to the historical rec model:
     # history = HistoricalRecords(table_name="invitation_history")
 
+    @property
+    def handler_url(self):
+
+        if self.type == INVITATION_TYPES.A:
+            return reverse("nomination-detail", kwargs=dict(pk=self.nomination.id))
+        elif self.type == INVITATION_TYPES.T:
+            return reverse("application", kwargs=dict(pk=self.member.application.id))
+        elif self.type == INVITATION_TYPES.R:
+            r = self.referee
+            if t := Testimonial.where(referee=r).first():
+                return reverse("review-update", kwargs=dict(pk=t.id))
+            a = r.application
+            return reverse("application", kwargs=dict(pk=a.id))
+        elif self.type == INVITATION_TYPES.P:
+            p = self.panellist
+            if p.round_id:
+                return reverse("round-application-list", kwargs=dict(round_id=p.round.id))
+        return self.token and reverse("onboard-with-token", kwargs=dict(token=self.token))
+
+    @classmethod
+    def user_inviations(cls, user):
+        """All invitations sent to the user"""
+        return cls.where(
+            Q(email=user.email)
+            | Q(nomination__user=user)
+            | Q(member__user=user)
+            | Q(referee__user=user)
+            | Q(panellist__user=user)
+            | Q(email__in=user.emailaddress_set.values("email"))
+        ).distinct()
+
     @transition(
         field=status, source=[STATUS.draft, STATUS.sent, STATUS.submitted], target=STATUS.sent
     )
