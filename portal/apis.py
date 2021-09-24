@@ -26,11 +26,12 @@ class AffiliationViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, G
         return models.Affiliation.objects.none()
 
 
-# class OrganisationViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
-#     queryset = models.Organisation.objects.all()
-#     lookup_field = "name"
+class OrganisationViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+    serializer_class = serializers.OrganisationSerializer
+    queryset = models.Organisation.objects.all()
+    lookup_field = "name"
 
 
 router = routers.DefaultRouter()
 router.register("affiliations", AffiliationViewSet)
-# router.register("organisations", OrganisationViewSet)
+router.register("organisations", OrganisationViewSet)

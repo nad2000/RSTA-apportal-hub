@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
+from rest_framework.schemas import get_schema_view
 
 from . import apis, models, views
 
@@ -381,7 +382,23 @@ urlpatterns = [
     #     name="subscription-delete",
     # ),
     # path("subscriptions", views.SubscriptionList.as_view(), name="subscription-list"),
-    path("api/", include(apis.router.urls)),
+    path(
+        "api/",
+        include(
+            [
+                path(
+                    "schema",
+                    get_schema_view(
+                        title="Prime Minister Science Prise Portal",
+                        description="API for all things …",
+                        version="1.0.0",
+                    ),
+                    name="openapi-schema",
+                ),
+                path("", include(apis.router.urls)),
+            ]
+        ),
+    ),
     path("pyinfo/", views.pyinfo),
     path("pyinfo/<message>", views.pyinfo),
 ]
