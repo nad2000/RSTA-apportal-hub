@@ -3049,6 +3049,16 @@ class ScoreSheet(Model):
         help_text=_("Upload filled-in for all the applications in bulk"),
     )
 
+    @classmethod
+    def user_score_sheets(cls, user):
+        return cls.where(panellist__user=user).filter(
+            round__in=Scheme.objects.values("current_round")
+        )
+
+    @classmethod
+    def user_score_sheet_count(cls, user):
+        return cls.user_score_sheets(user).count()
+
     def __str__(self):
         return self.file.name
 

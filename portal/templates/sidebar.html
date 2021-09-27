@@ -129,7 +129,7 @@
     {% endif %}
   </div>
 
-  {% if request.user.is_superuser or request.user.is_staff or review_count > 0 %}
+  {% if request.user.is_superuser or request.user.is_staff or review_count > 0 or score_sheet_count > 0 %}
     <div class="card mb-2">
       <div class="card-header">
         {% if review_count %}
@@ -169,6 +169,19 @@
                   <span class="badge badge-primary">{{ review_submitted_count }}</span>
               </a>
             </li>
+            {% if score_sheet_count > 0 %}
+              <li class="nav-item">
+                <a
+                    class="nav-link"
+                    id="reviews-submitted"
+                    href="{% url 'reviews-submitted' %}"
+                    title="{% trans 'Uploaded score sheets' %}"
+                    data-toggle="tooltip"
+                    >{% trans 'Score Sheets' %}
+                    <span class="badge badge-primary">{{ score_sheet_count }}</span>
+                </a>
+              </li>
+            {% endif %}
           </ul>
         </div>
       {% endif %}

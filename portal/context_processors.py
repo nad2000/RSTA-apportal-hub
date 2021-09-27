@@ -19,6 +19,7 @@ def portal_context(request):
     if (u := request.user) and u.is_authenticated:
         stats = cache.get(u.username)
         if not stats:
+            score_sheet_count = models.ScoreSheet.user_score_sheet_count(u)
             stats = {
                 "three_days_ago": timezone.now() - timedelta(days=3),
                 "application_count": models.Application.user_application_count(u),
@@ -36,9 +37,10 @@ def portal_context(request):
                 "testimonial_submitted_count": models.Testimonial.user_testimonial_count(
                     u, "submitted"
                 ),
-                "review_count": models.Evaluation.user_evaluation_count(u),
+                "review_count": models.Evaluation.user_evaluation_count(u) + score_sheet_count,
                 "review_draft_count": models.Evaluation.user_evaluation_count(u, "draft"),
                 "review_submitted_count": models.Evaluation.user_evaluation_count(u, "submitted"),
+                "score_sheet_count": score_sheet_count,
             }
             if not (u.is_superuser or u.is_staff):
                 with connection.cursor() as cursor:
