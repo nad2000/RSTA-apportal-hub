@@ -977,9 +977,9 @@ class ApplicationDetail(DetailView):
         is_owner = a.submitted_by == u or a.members.filter(user=u).exists()
         if p := a.round.panellists.filter(user=u).first():
             context["is_panellist"] = True
-            coi = p.conflict_of_interests.filter(Q(application=a)).first()
+            coi = p.conflict_of_interests.filter(Q(application=a)).last()
             context["has_coi"] = not coi or coi.has_conflict is True or coi.has_conflict is None
-            context["evaluation"] = models.Evaluation.where(panellist=p, application=a).first()
+            context["evaluation"] = models.Evaluation.where(panellist=p, application=a).last()
 
         context["is_owner"] = is_owner
         context["was_submitted"] = a.state == "submitted"

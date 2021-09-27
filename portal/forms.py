@@ -1040,3 +1040,8 @@ class ScoreSheetForm(forms.ModelForm):
     class Meta:
         model = models.ScoreSheet
         fields = ["file"]
+        widgets = dict(
+            file=forms.ClearableFileInput(
+                attrs={"accept": ".xls,.xlw,.xlt,.xml,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.csv,.ctv"}
+            )
+        )
