@@ -3582,6 +3582,7 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
             return (
                 models.Application.objects.select_related("round")
                 .filter(round=self.kwargs["round"], round__panellists=panellist)
+                .filter(~Q(state__in=["new", "draft", "archived"]))
                 .filter(
                     ~Q(
                         Exists(
@@ -3756,7 +3757,7 @@ def score_sheet(request, round):
     if (
         (round := models.Round.where(pk=round).first())
         and (panellist := models.Panellist.where(user=request.user, round_id=round).first())
-        and panellist.has_all_coi_statements_submitted_for(round)
+        and panellist.has_all_coi_statements_submitted_for(round.id)
     ):
         score_sheet = models.ScoreSheet.where(panellist=panellist, round=round).first()
         form = forms.ScoreSheetForm(

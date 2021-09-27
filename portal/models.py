@@ -1535,16 +1535,29 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     last_name = CharField(max_length=150, null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
-    def has_all_coi_statements_submitted_for(self, round_id):
-        q = Application.where(
-            Q(round_id=round_id),
-            Q(conflict_of_interests__isnull=True)
-            | Q(
-                conflict_of_interests__has_conflict__isnull=True,
-                conflict_of_interests__panellist=self,
+    def has_all_coi_statements_submitted_for(self, round_id=None):
+        if round_id and (r := Round.get(round_id)):
+            return not r.applications.filter(
+                ~Q(state__in=["new", "draft", "archived"]),
+                ~Q(
+                    id__in=self.conflict_of_interests.filter(has_conflict__isnull=False).values(
+                        "application_id"
+                    )
+                ),
+            ).exists()
+
+        return not self.round.applications.filter(
+            ~Q(state__in=["new", "draft", "archived"]),
+            ~Q(
+                id__in=self.conflict_of_interests.filter(has_conflict__isnull=False).values(
+                    "application_id"
+                )
             ),
-        )
-        return not q.exists()
+        ).exists()
+
+    @property
+    def has_all_coi_statements_submitted(self):
+        return self.has_all_coi_statements_submitted_for()
 
     def __str__(self):
         return str(self.user or self.email)
@@ -1681,7 +1694,9 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
             if p.round_id:
-                return reverse("round-application-list", kwargs=dict(round_id=p.round.id))
+                if p.has_all_coi_statements_submitted or p.round.has_online_scoring:
+                    return reverse("round-application-list", kwargs=dict(round_id=p.round.id))
+                return reverse("round-coi", kwargs=dict(round=p.round.id))
         return self.token and reverse("onboard-with-token", kwargs=dict(token=self.token))
 
     @classmethod
