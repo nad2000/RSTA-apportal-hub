@@ -332,6 +332,7 @@ urlpatterns = [
         "reviews/",
         include(
             [
+                path("score-sheets", views.ScoreSheetList.as_view(), name="score-sheet-list"),
                 path("<int:pk>/~create", views.TestimonialView.as_view(), name="review-create"),
                 path("<int:pk>/~update", views.TestimonialView.as_view(), name="review-update"),
                 path("<int:pk>", views.TestimonialDetail.as_view(), name="review-detail"),

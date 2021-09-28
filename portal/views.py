@@ -3181,6 +3181,24 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
         return queryset
 
 
+class ScoreSheetList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
+
+    model = models.ScoreSheet
+    table_class = tables.ScoreSheetTable
+    template_name = "score_sheets.html"
+
+    def get_table_kwargs(self):
+        kwargs = super().get_table_kwargs()
+        if (u := self.request.user) and (u.is_staff or u.is_superuser):
+            return kwargs
+        kwargs.update({"exclude": ("evaluation_count",)})
+        return kwargs
+
+    def get_queryset(self, *args, **kwargs):
+        # queryset = super().get_queryset(*args, **kwargs)
+        return models.ScoreSheet.user_score_sheets(self.request.user)
+
+
 class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
     model = models.Application

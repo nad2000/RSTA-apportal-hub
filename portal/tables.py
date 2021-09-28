@@ -180,6 +180,22 @@ class RoundTable(tables.Table):
         )
 
 
+class ScoreSheetTable(tables.Table):
+
+    round = tables.Column(
+        linkify=lambda record: reverse("score-sheet", kwargs=dict(round=record.round_id))
+    )
+
+    class Meta:
+        model = models.ScoreSheet
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped table-bordered"}
+        fields = (
+            "round",
+            "file",
+        )
+
+
 def application_review_link(table, record, value):
 
     user = table.request.user
