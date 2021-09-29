@@ -367,7 +367,9 @@ def test_subscription(client):
     assert b"Sign up for our newsletter" in resp.content
 
     assert not Subscription.objects.filter(email="test@test.com", name="Tester Testeron").exists()
-    resp = client.post("/subscribe/", dict(email="test@test.com", name="Tester Testeron"), follow=True)
+    resp = client.post(
+        "/subscribe/", dict(email="test@test.com", name="Tester Testeron"), follow=True
+    )
     assert b"Verify Your E-mail Address" in resp.content
     assert Subscription.objects.filter(email="test@test.com", name="Tester Testeron").exists()
 
@@ -380,6 +382,7 @@ def test_subscription(client):
 
 def test_application(client, django_user_model):
 
+    r = models.Round.get(title="Science Communication Prize 2021")
     u = django_user_model.objects.create(
         first_name="FN123",
         last_name="LN123",
@@ -391,16 +394,16 @@ def test_application(client, django_user_model):
     Profile.create(user=u)
     org = models.Organisation.create(name="ORG")
 
-    resp = client.get("/application/~create")
+    resp = client.get(f"/applications/{r.pk}/~create")
     assert resp.status_code == 200
     assert b"FN123" in resp.content
     assert b"LN123" in resp.content
     assert b"test123@test.com" in resp.content
 
     resp = client.post(
-        "/application/~create",
+        f"/applications/{r.pk}/~create",
         dict(
-            title="TEST TITLE",
+            title="MR",
             first_name=u.first_name,
             last_name=u.last_name,
             org=org.id,
@@ -421,15 +424,15 @@ def test_application(client, django_user_model):
 def test_org_autocompleting(client, user):
 
     models.Organisation.create(name="ORG")
-    resp = client.get("/org-autocomplete/?q=OR", follow=True)
+    resp = client.get("/autocomplete/org/?q=OR", follow=True)
     assert b"Sign in" in resp.content
 
     client.force_login(user)
-    resp = client.get("/org-autocomplete/")
+    resp = client.get("/autocomplete/org/")
     assert resp.status_code == 200
     assert b"ORG" in resp.content
 
-    resp = client.get("/org-autocomplete/?q=OR")
+    resp = client.get("/autocomplete/org/?q=OR")
     assert resp.status_code == 200
     assert b"ORG" in resp.content
 
@@ -437,7 +440,7 @@ def test_org_autocompleting(client, user):
     for i in range(1, 20):
         models.Organisation.create(name=f"ABC #{i}")
 
-    resp = client.get("/org-autocomplete/")
+    resp = client.get("/autocomplete/org/")
     assert resp.status_code == 200
     assert b"ORG" not in resp.content
 
@@ -445,15 +448,15 @@ def test_org_autocompleting(client, user):
 def test_award_autocompleting(client, user):
 
     models.Award.create(name="AWARD")
-    resp = client.get("/award-autocomplete/?q=AW", follow=True)
+    resp = client.get("/autocomplete/award/?q=AW", follow=True)
     assert b"Sign in" in resp.content
 
     client.force_login(user)
-    resp = client.get("/award-autocomplete/")
+    resp = client.get("/autocomplete/award/")
     assert resp.status_code == 200
     assert b"AWARD" in resp.content
 
-    resp = client.get("/award-autocomplete/?q=AW", follow=True)
+    resp = client.get("/autocomplete/award/?q=AW", follow=True)
     assert resp.status_code == 200
     assert b"AWARD" in resp.content
 
@@ -461,7 +464,7 @@ def test_award_autocompleting(client, user):
     for i in range(1, 20):
         models.Award.create(name=f"ABC #{i}")
 
-    resp = client.get("/award-autocomplete/")
+    resp = client.get("/autocomplete/award/")
     assert resp.status_code == 200
     assert b"AWARD" not in resp.content
 
@@ -471,12 +474,12 @@ def test_invitation(client, admin_user):
     client.force_login(admin_user)
     org = models.Organisation.create(name="ORG")
 
-    resp = client.get("/invitation/~create")
+    resp = client.get("/invitations/~create")
     assert resp.status_code == 200
     email = "test@test.net"
 
     resp = client.post(
-        "/invitation/~create",
+        "/invitations/~create",
         dict(email=email, first_name="FN", last_name="LN"),
         follow=True,
     )
@@ -486,7 +489,7 @@ def test_invitation(client, admin_user):
     assert models.Invitation.where(email=email).exists()
 
     resp = client.post(
-        "/invitation/~create",
+        "/invitations/~create",
         dict(email=email, first_name="FN", last_name="LN", org=org.id),
         follow=True,
     )
