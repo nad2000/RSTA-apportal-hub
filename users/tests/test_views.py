@@ -54,9 +54,14 @@ def test_adapter(client):
         username=username, password=password, email="test@test.com", is_active=True
     )
     resp = client.post("/accounts/login/", dict(login=username, password=password), follow=True)
-    # assert b"Please complete your profile." in resp.content
+    resp = client.get("/", follow=True)
+    # assert b"Your profile is not completed yet. Please complete your profile." in resp.content
+    assert b"Please complete your profile" in resp.content
 
-    Profile.objects.create(user=user)
+    p = Profile.objects.create(user=user, is_accepted=True)
+    p.is_completed = True
+    p.save()
+
     client.post("/accounts/logout/", follow=True)
     resp = client.post("/accounts/login/", dict(login=username, password=password), follow=True)
-    assert b"Please complete your profile." not in resp.content
+    assert b"Please complete your profile" not in resp.content

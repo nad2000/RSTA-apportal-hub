@@ -1,19 +1,19 @@
 import time
 from hashlib import md5
 
+import jwt
+from allauth.socialaccount import providers
+from allauth.socialaccount.models import SocialApp, SocialToken
+from allauth.tests import Mock, TestCase, patch
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.utils.http import urlencode
 
-import jwt
-
-from allauth.socialaccount import providers
-from allauth.socialaccount.models import SocialApp, SocialToken
-from allauth.tests import Mock, TestCase, patch
-
 from . import provider, views
+
+User = get_user_model()
 
 
 class RapidConnectTests(TestCase):
@@ -81,7 +81,7 @@ class RapidConnectTests(TestCase):
         response_jwt = self.get_rapidconnect_login_response()
 
         response = self.client.post(reverse(views.callback), {"assertion": response_jwt})
-        self.assertRedirects(response, "/accounts/profile/", fetch_redirect_response=False)
+        self.assertRedirects(response, "/home", fetch_redirect_response=False)
 
     def test_connect(self):
         self.client.get(reverse(views.login) + "?process=connect")
@@ -89,4 +89,4 @@ class RapidConnectTests(TestCase):
         response_jwt = self.get_rapidconnect_login_response()
 
         response = self.client.post(reverse(views.callback), {"assertion": response_jwt})
-        self.assertRedirects(response, "/social/connections/", fetch_redirect_response=False)
+        self.assertRedirects(response, "/accounts/social/connections/", fetch_redirect_response=False)
