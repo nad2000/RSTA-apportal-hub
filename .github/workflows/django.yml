@@ -19,6 +19,9 @@ jobs:
         python-version: '3.8'
     - name: Install Dependencies
       run: |
+        add-apt-repository ppa:libreoffice/ppa
+        apt update
+        apt install libreoffice -y
         python -m pip install --upgrade pip
         pip install -r requirements/testing.txt
     - name: Run Code Quality and Unit Tests
