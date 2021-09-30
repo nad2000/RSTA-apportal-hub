@@ -3,7 +3,6 @@ from io import BytesIO
 import pytest
 from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
-from django.db.utils import IntegrityError
 
 from portal import models
 from portal.models import Ethnicity, Profile, Subscription
@@ -92,7 +91,7 @@ def test_profile(client, admin_user):
         definition="TEST",
     )
     resp = client.post(
-        f"/profile/~update",
+        "/profile/~update",
         dict(
             gender=1,
             date_of_birth="1969-01-01",
