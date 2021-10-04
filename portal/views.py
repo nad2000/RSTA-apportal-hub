@@ -3263,7 +3263,7 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
         else:
             queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
-        return queryset
+        return queryset.distinct()
 
 
 class EvaluationListView(LoginRequiredMixin, StateInPathMixin, SingleTableView):
@@ -3398,8 +3398,12 @@ class ScoreInline(InlineFormSetFactory):
     ]
 
     def get_entries(self):
-        a = models.Application.get(self.kwargs.get("application"))
-        return a.get_score_entries(user=self.request.user).distinct()
+        if "application" in self.kwargs:
+            a = models.Application.get(self.kwargs.get("application"))
+            # return a.get_score_entries(user=self.request.user).distinct()
+            return a.round.criteria.all()
+        else:
+            pass
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

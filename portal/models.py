@@ -2567,13 +2567,8 @@ class Evaluation(EvaluationMixin, Model):
     @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
-        if not self.file and not self.summary:
-            raise Exception(
-                _(
-                    "The application is not completed. Missing summary "
-                    "and/or uploaded application form"
-                )
-            )
+        if not self.comment:
+            raise Exception(_("The review is not completed. Missing an overall comment."))
 
     @classmethod
     def user_evaluations(cls, user, state=None, round=None):

@@ -214,7 +214,12 @@ def application_review_link(table, record, value):
             "round-application-review",
             kwargs={"round_id": record.round.id, "application_id": record.id},
         )
-
+    elif coi and not coi.has_conflict:
+        e = record.evaluations.filter(panellist__user=user).order_by("-id").first()
+        if e and e.state in ["new", "draft"]:
+            return reverse("evaluation-update", kwargs=dict(pk=e.id))
+        else:
+            return reverse("application-evaluation-create", kwargs=dict(application=record.id))
     elif record.state != "submitted":
         return
 
