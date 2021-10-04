@@ -60,7 +60,7 @@
             class="nav-link{% if selected_panellist_id == panellis.id %} active{% endif %}"
           {% endif %}
             >
-            {{ panellist|person_name }}
+            {{ panellist.full_name }}
         </a>
       </li>
     {% endfor %}
@@ -100,8 +100,8 @@
               <th>{% trans 'Total' %}</th>
 
               {% for c in criteria %}
-                <th>{{ c.definition }}</th>
-                <th>{{ c.definition }} {% trans 'Comment' %}</th>
+                <th colspan="2">{{ c.definition }}</th>
+                <!-- th>{{ c.definition }} {% trans 'Comment' %}</th -->
               {% endfor %}
 
             </tr>

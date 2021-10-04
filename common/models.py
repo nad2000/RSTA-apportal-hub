@@ -99,7 +99,7 @@ class PersonMixin:
         full_name = " ".join(s for s in [first_name, middle_names, last_name] if s)
         if hasattr(self, "title") and self.title:
             full_name = f"{self.title} {full_name}"
-        return full_name
+        return full_name or user.username
 
     @property
     def full_name_with_email(self):
