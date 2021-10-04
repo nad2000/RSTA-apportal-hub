@@ -1,8 +1,15 @@
 {% extends "base.html" %}
-{% load tags i18n %}
+{% load tags i18n django_bootstrap_breadcrumbs %}
 
 {% block head_title %}{{ round|title }}{% endblock %}
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Applications" "applications" %}
+  {% breadcrumb "Scores" request.path %}
+  {% breadcrumb round request.path %}
+{% endblock %}
 
 {% block content %}
 
