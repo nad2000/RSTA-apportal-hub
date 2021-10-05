@@ -1407,7 +1407,7 @@ class ApplicationView(LoginRequiredMixin):
                     "title": user.title,
                 }
             )
-            if "nomination" in self.kwargs:
+            if "nomination" in self.kwargs and self.nomination and self.nomination.org:
                 kwargs["initial"]["org"] = self.nomination.org.id
 
         return kwargs
