@@ -426,6 +426,41 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
 
+    actions = ["resend_invitations"]
+
+    @admin.action(description="Resend the invitations")
+    def resend_invitations(self, request, queryset):
+        for p in queryset:
+            i, created = p.get_or_create_invitation()
+            if not created:
+                i.sent_at = None
+                i.save()
+
+        recipients = []
+        invitations = list(
+            models.Invitation.where(~Q(status="accepted"), panellist__in=queryset, type="P")
+        )
+        for i in invitations:
+            i.send(request)
+            i.save()
+            recipients.append(i.panellist)
+
+        messages.success(
+            request,
+            "Successfully sent invitation(-s) to %d panellist(-s): %s"
+            % (len(recipients), ", ".join(r.full_name_with_email for r in recipients)),
+        )
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        i, _ = obj.get_or_create_invitation()
+        i.send(request)
+        i.save()
+
+        messages.success(
+            request, "Successfully sent invitation to %s" % i.panellist.full_email_address
+        )
+
     def view_on_site(self, obj):
         return reverse("panellist-invite", kwargs={"round": obj.round_id})
 

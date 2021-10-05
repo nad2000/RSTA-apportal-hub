@@ -1535,6 +1535,40 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     last_name = CharField(max_length=150, null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
+    def get_or_create_invitation(self):
+
+        u = self.user or User.objects.filter(email=self.email).first()
+        if not u and (ea := EmailAddress.objects.filter(email=self.email).first()):
+            u = ea.user
+        first_name = self.first_name or u and u.first_name or ""
+        last_name = self.last_name or u and u.last_name or ""
+        middle_names = self.middle_names or u and u.middle_names or ""
+
+        if hasattr(self, "invitation"):
+            i = self.invitation
+            if self.email != i.email:
+                i.email = self.email
+                i.first_name = first_name
+                i.middle_names = middle_names
+                i.last_name = last_name
+                i.sent_at = None
+                i.status = Invitation.STATUS.submitted
+                i.save()
+            return (i, False)
+        else:
+            return Invitation.get_or_create(
+                type=INVITATION_TYPES.P,
+                panellist=self,
+                email=self.email,
+                defaults=dict(
+                    panellist=self,
+                    round=self.round,
+                    first_name=first_name,
+                    middle_names=middle_names,
+                    last_name=last_name,
+                ),
+            )
+
     def has_all_coi_statements_submitted_for(self, round_id=None):
         if round_id and (r := Round.get(round_id)):
             return not r.applications.filter(
@@ -1712,7 +1746,9 @@ class Invitation(Model):
         ).distinct()
 
     @transition(
-        field=status, source=[STATUS.draft, STATUS.sent, STATUS.submitted], target=STATUS.sent
+        field=status,
+        source=[STATUS.draft, STATUS.sent, STATUS.submitted, STATUS.bounced],
+        target=STATUS.sent,
     )
     def send(self, request=None, by=None):
         if not by:

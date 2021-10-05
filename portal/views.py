@@ -787,11 +787,15 @@ def invite_panellist(request, round):
         models.Panellist.where(~Q(invitation__email=F("email")) | Q(status__isnull=True))
     )
     for p in panellist:
-        get_or_create_panellist_invitation(p)
+        p.get_or_create_invitation()
 
     invitations = list(
         models.Invitation.where(
-            round=round, panellist__in=panellist, type="P", sent_at__isnull=True
+            ~Q(status="accepted"),
+            round=round,
+            panellist__in=panellist,
+            type="P",
+            sent_at__isnull=True,
         )
     )
     for i in invitations:
@@ -799,41 +803,6 @@ def invite_panellist(request, round):
         i.save()
         count += 1
     return count
-
-
-def get_or_create_panellist_invitation(panellist):
-
-    u = panellist.user or models.User.objects.filter(email=panellist.email).first()
-    if not u and (ea := EmailAddress.objects.filter(email=panellist.email).first()):
-        u = ea.user
-    first_name = panellist.first_name or u and u.first_name or ""
-    last_name = panellist.last_name or u and u.last_name or ""
-    middle_names = panellist.middle_names or u and u.middle_names or ""
-
-    if hasattr(panellist, "invitation"):
-        i = panellist.invitation
-        if panellist.email != i.email:
-            i.email = panellist.email
-            i.first_name = first_name
-            i.middle_names = middle_names
-            i.last_name = last_name
-            i.sent_at = None
-            i.status = models.Invitation.STATUS.submitted
-            i.save()
-        return (i, False)
-    else:
-        return models.Invitation.get_or_create(
-            type=models.INVITATION_TYPES.P,
-            panellist=panellist,
-            email=panellist.email,
-            defaults=dict(
-                panellist=panellist,
-                round=panellist.round,
-                first_name=first_name,
-                middle_names=middle_names,
-                last_name=last_name,
-            ),
-        )
 
 
 class InvitationCreate(CreateView):
