@@ -762,8 +762,19 @@ class IdentityVerificationForm(forms.ModelForm):
                         scrolling="auto"
                         height="100%"
                         width="100%"
-                        style="min-height: 30rem;">
+                        style="min-height: 30rem; width:100%;">
                     </embed>
+                    """
+                    if self.instance
+                    and self.instance.file
+                    and self.instance.file.name.lower().endswith(".pdf")
+                    else """
+                    <img
+                        src="{% url 'identity-verification-file' pk=object.id %}"
+                        style="min-height: 30rem; width:100%;"
+                        height="100%"
+                        width="100%"
+                    >
                     """
                 ),
                 height="60%",

@@ -1702,9 +1702,13 @@ class ApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableMixin, Fi
 @login_required
 def photo_identity(request):
     """Redirect to the application section for a photo identity resubmission."""
-    iv = models.IdentityVerification.where(
-        ~Q(state="accepted", user=request.user), application__isnull=False
-    ).first()
+    iv = (
+        models.IdentityVerification.where(
+            ~Q(state="accepted"), user=request.user, application__isnull=False
+        )
+        .order("-id")
+        .first()
+    )
     if iv and iv.application:
         application = iv.application
     else:
