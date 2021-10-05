@@ -820,7 +820,7 @@ class AcademicRecord(Model):
 
 
 class Award(Model):
-    name = CharField(_("prestigious prize or medal"), max_length=200)
+    name = CharField(_("prestigious prize or medal"), max_length=100)
 
     def __str__(self):
         return self.name

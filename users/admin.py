@@ -3,7 +3,7 @@ from django.contrib import admin, messages
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import render
 from django.utils.translation import gettext as _
 from simple_history.admin import SimpleHistoryAdmin
@@ -76,7 +76,9 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
                 for u in list(queryset.filter(~Q(id=target_id))):
                     try:
                         with transaction.atomic():
-                            EmailAddress.objects.filter(user=u).update(user=target)
+                            EmailAddress.objects.filter(user=u).update(
+                                user=target, primary=(F("email") == target.email)
+                            )
                             u.socialaccount_set.update(user=target)
 
                             Application.where(submitted_by=u).update(submitted_by=target)
@@ -106,7 +108,7 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
                 messages.error(
                     request,
                     "Failed to merge all users:<ul>%s</ul>"
-                    % "".join("<li>{e}</li>" for e in errors),
+                    % "".join(f"<li>{e}</li>" for e in errors),
                 )
 
             return
