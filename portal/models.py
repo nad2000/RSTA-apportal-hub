@@ -1723,8 +1723,14 @@ class Invitation(Model):
 
     @property
     def handler_url(self):
-
         if self.type == INVITATION_TYPES.A:
+            if a := sefl.nomination.application:
+                if a.status != "submitted":
+                    return reverse(
+                        "application-update", kwargs=dict(pk=self.nomination.application.id)
+                    )
+                else:
+                    return reverse("application", kwargs=dict(pk=self.member.application.id))
             return reverse("nomination-detail", kwargs=dict(pk=self.nomination.id))
         elif self.type == INVITATION_TYPES.T:
             return reverse("application", kwargs=dict(pk=self.member.application.id))
