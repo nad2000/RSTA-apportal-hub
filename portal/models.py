@@ -1725,7 +1725,7 @@ class Invitation(Model):
     def handler_url(self):
         if self.type == INVITATION_TYPES.A:
             if a := self.nomination.application:
-                if a.status != "submitted":
+                if a.state != "submitted":
                     return reverse(
                         "application-update", kwargs=dict(pk=self.nomination.application.id)
                     )
