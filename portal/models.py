@@ -3017,7 +3017,7 @@ class IdentityVerification(Model):
         self.user.save()
 
     @transition(
-        field=state, source=["new", "draft", "sent", "accepted"], target="needs-resubmission"
+        field=state, source=["*"], target="needs-resubmission"
     )
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))

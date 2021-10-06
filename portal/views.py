@@ -1715,7 +1715,7 @@ def photo_identity(request):
         models.IdentityVerification.where(
             ~Q(state="accepted"), user=request.user, application__isnull=False
         )
-        .order("-id")
+        .order_by("-id")
         .first()
     )
     if iv and iv.application:
@@ -1766,6 +1766,7 @@ class IdentityVerificationView(LoginRequiredMixin, UpdateView):
         elif "reject" in self.request.POST:
             iv.request_resubmission(request=self.request)
             iv.save()
+            messages.info(self.request, _("Request to resubmit the ID sent to <b>%s</b>") % iv.user.email)
         return resp
 
 

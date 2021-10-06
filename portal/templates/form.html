@@ -16,6 +16,8 @@
   {% if view_name == "invitation-create" %}
     {% breadcrumb "Innovations" "invitation-list" %}
     {% breadcrumb "Innovation to Join" view_name %}
+  {% elif view_name == "identity-verification" %}
+    {% breadcrumb "Identity Verification" view_name %}
   {% endif %}
 {% endblock %}
 
