@@ -1082,10 +1082,10 @@ class ApplicationView(LoginRequiredMixin):
                     if has_deleted:
                         return redirect(url)
 
-                if identity_verification_form := context.get("identity_verification"):
-                    identity_verification_form.instance.application = a
-                    if identity_verification_form.is_valid():
-                        identity_verification_form.save()
+                # if identity_verification_form := context.get("identity_verification"):
+                #     identity_verification_form.instance.application = a
+                #     if identity_verification_form.is_valid():
+                #         identity_verification_form.save()
 
                 referees.instance = a
                 if referees.is_valid():
@@ -1114,7 +1114,14 @@ class ApplicationView(LoginRequiredMixin):
                         user=self.request.user,
                         defaults=dict(file=form.instance.photo_identity),
                     )
+                    if not created:
+                        iv.file = form.instance.photo_identity
+                        iv.resolution = ""
                     iv.send(self.request)
+                    messages.info(
+                        self.request,
+                        _("An identity verification request sent to the administration."),
+                    )
                     iv.save()
 
                 if ethics_statement_form := context.get("ethics_statement"):
@@ -1301,46 +1308,46 @@ class ApplicationView(LoginRequiredMixin):
                 ethics_statement_form.fields["comment"].required = es.not_relevant
             context["ethics_statement"] = ethics_statement_form
 
-        if (
-            round.pid_required
-            and not self.request.user.is_identity_verified
-            and (
-                not (self.object and self.object.id)
-                or (
-                    not self.object.submitted_by_id
-                    or self.object.submitted_by == self.request.user
-                )
-            )
-        ):
-            IdentityVerificationForm = model_forms.modelform_factory(
-                models.IdentityVerification,
-                exclude=["application", "resolution", "state"],
-                widgets={"user": HiddenInput()},
-            )
-            identity_verification_form = IdentityVerificationForm(
-                self.request.POST or None,
-                self.request.FILES or None,
-                instance=self.object.identity_verification
-                if self.object
-                and self.object.id
-                and models.IdentityVerification.where(application=self.object).exists()
-                else None,
-                prefix="iv",
-                initial={"user": self.request.user},
-            )
-            identity_verification_form.helper = forms.FormHelper(identity_verification_form)
-            identity_verification_form.helper.form_tag = False
-            identity_verification_form.helper.layout = Layout(
-                Field(
-                    "photo_identity",
-                    data_toggle="tooltip",
-                    title=_(
-                        "Please upload a scanned copy of the passport or drivers license "
-                        "of the team lead in PDF, JPG, or PNG format"
-                    ),
-                ),
-            )
-            context["identity_verification"] = identity_verification_form
+        # if (
+        #     round.pid_required
+        #     and not self.request.user.is_identity_verified
+        #     and (
+        #         not (self.object and self.object.id)
+        #         or (
+        #             not self.object.submitted_by_id
+        #             or self.object.submitted_by == self.request.user
+        #         )
+        #     )
+        # ):
+        #     IdentityVerificationForm = model_forms.modelform_factory(
+        #         models.IdentityVerification,
+        #         exclude=["application", "resolution", "state"],
+        #         widgets={"user": HiddenInput()},
+        #     )
+        #     identity_verification_form = IdentityVerificationForm(
+        #         self.request.POST or None,
+        #         self.request.FILES or None,
+        #         instance=self.object.identity_verification
+        #         if self.object
+        #         and self.object.id
+        #         and models.IdentityVerification.where(application=self.object).exists()
+        #         else None,
+        #         prefix="iv",
+        #         initial={"user": self.request.user},
+        #     )
+        #     identity_verification_form.helper = forms.FormHelper(identity_verification_form)
+        #     identity_verification_form.helper.form_tag = False
+        #     identity_verification_form.helper.layout = Layout(
+        #         Field(
+        #             "photo_identity",
+        #             data_toggle="tooltip",
+        #             title=_(
+        #                 "Please upload a scanned copy of the passport or drivers license "
+        #                 "of the team lead in PDF, JPG, or PNG format"
+        #             ),
+        #         ),
+        #     )
+        #     context["identity_verification"] = identity_verification_form
 
         if round.scheme.team_can_apply:
             context["helper"] = forms.MemberFormSetHelper()
@@ -1475,19 +1482,20 @@ class ApplicationCreate(ApplicationView, CreateView):
         a.submitted_by = self.request.user
         a.round = self.round
         a.scheme = a.round.scheme
-        resp = super().form_valid(form)
-        n = (
-            self.nomination
-            or self.round.user_nominations(self.request.user).order_by("-id").first()
-        )
-        if n and not n.application:
-            n.application = self.object
-            if not n.user:
-                n.user = self.request.user
-            if n.status != models.NOMINATION_STATUS.accepted:
-                n.accept()
-            n.save()
-            reset_cache(self.request)
+        with transaction.atomic():
+            resp = super().form_valid(form)
+            n = (
+                self.nomination
+                or self.round.user_nominations(self.request.user).order_by("-id").first()
+            )
+            if n and not n.application:
+                n.application = self.object
+                if not n.user:
+                    n.user = self.request.user
+                if n.status != models.NOMINATION_STATUS.accepted:
+                    n.accept()
+                n.save()
+        reset_cache(self.request)
 
         return resp
 

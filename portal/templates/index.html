@@ -53,7 +53,11 @@
             {% for a in draft_applications %}
               {% if a and a.id %}
                 <ul class="list-group list-group-flush">
-                  <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+                  {% if a|can_edit:user %}
+                    <li class="list-group-item"><a href="{% url 'application-update' pk=a.id %}">{{ a }}</a></li>
+                  {% else %}
+                    <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+                  {% endif %}
                 </ul>
               {% endif %}
             {% endfor %}

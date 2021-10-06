@@ -3016,9 +3016,7 @@ class IdentityVerification(Model):
         self.identity_verified_at = datetime.now()
         self.user.save()
 
-    @transition(
-        field=state, source=["*"], target="needs-resubmission"
-    )
+    @transition(field=state, source=["*"], target="needs-resubmission")
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))
         subject = __("Your ID verification requires your attention")
