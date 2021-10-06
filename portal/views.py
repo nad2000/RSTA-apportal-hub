@@ -895,7 +895,7 @@ class ApplicationDetail(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         u = self.request.user
-        if not (u.is_superuser or u.is_staff):
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
             a = self.get_object()
             if not a.user_can_view(u):
                 messages.error(request, _("You do not have permissions to view this application."))
