@@ -1751,6 +1751,13 @@ class IdentityVerificationView(LoginRequiredMixin, UpdateView):
     template_name = "form.html"
     form_class = forms.IdentityVerificationForm
 
+    def dispatch(self, request, *args, **kwargs):
+        u = request.user
+        if u.is_authenticated and not (u.is_staff or u.is_superuser):
+            messages.error(request, _("You do not have permissions to access this page."))
+            return redirect("index")
+        return super().dispatch(request, *args, **kwargs)
+
     def has_permission(self):
         return self.request.user.is_staff and super().has_permission()
 
@@ -1766,7 +1773,9 @@ class IdentityVerificationView(LoginRequiredMixin, UpdateView):
         elif "reject" in self.request.POST:
             iv.request_resubmission(request=self.request)
             iv.save()
-            messages.info(self.request, _("Request to resubmit the ID sent to <b>%s</b>") % iv.user.email)
+            messages.info(
+                self.request, _("Request to resubmit the ID sent to <b>%s</b>") % iv.user.email
+            )
         return resp
 
 
