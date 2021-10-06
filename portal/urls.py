@@ -173,7 +173,7 @@ urlpatterns = [
             ]
         ),
     ),
-    path("start", views.index, name="home"),
+    path("start", views.index, name="start"),
     path("", views.index, name="index"),
     # path("index", views.index, name="index"),
     path("home", views.index, name="home"),

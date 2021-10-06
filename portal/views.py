@@ -893,6 +893,15 @@ class ApplicationDetail(DetailView):
     model = Application
     template_name = "application_detail.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if not (u.is_superuser or u.is_staff):
+            a = self.get_object()
+            if not a.user_can_view(u):
+                messages.error(request, _("You do not have permissions to view this application."))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
 
         self.object = self.get_object()

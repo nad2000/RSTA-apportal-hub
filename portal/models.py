@@ -1027,6 +1027,15 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             or self.members.all().filter(Q(user=user) | Q(email=user.email)).exists()
         )
 
+    def user_can_view(self, user):
+        return (
+            user.is_superuser
+            or user.is_staff
+            or self.is_applicant(user)
+            or (self.referees.filter(Q(user=user) | Q(email=user.email)).exists())
+            or (self.round.panellists.filter(Q(user=user) | Q(email=user.email)).exists())
+        )
+
     def get_score_entries(self, user=None, panellist=None):
         if not panellist:
             panellist = Panellist.get(user=user, round=self.round)
