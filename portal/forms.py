@@ -771,13 +771,13 @@ class IdentityVerificationForm(forms.ModelForm):
                     else """
                     <img
                         src="{% url 'identity-verification-file' pk=object.id %}"
-                        style="min-height: 30rem; width:100%;"
-                        height="100%"
+                        style="min-height: 20rem; width:100%;"
                         width="100%"
                     >
                     """
                 ),
                 height="60%",
+                css_class="mb-4",
             ),
             ButtonHolder(
                 Submit(
