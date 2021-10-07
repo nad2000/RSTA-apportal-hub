@@ -16,7 +16,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.files.base import File
-from django.core.mail import mail_admins
 from django.core.validators import (
     FileExtensionValidator,
     MaxValueValidator,
