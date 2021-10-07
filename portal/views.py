@@ -2580,6 +2580,15 @@ class TestimonialView(CreateUpdateView):
     form_class = forms.TestimonialForm
     template_name = "testimonial.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            t = self.get_object()
+            if t and t.referee and t.referee.user and t.referee.user != u:
+                messages.error(request, _("You do not have permissions to access this testimonial."))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
     @property
     def application(self):
         return (
@@ -2773,6 +2782,19 @@ class NominationDetail(DetailView):
     model = models.Nomination
     template_name = "nomination_detail.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            n = self.get_object()
+            if not (
+                n.nominator == u
+                or n.user == u
+                or u.emailaddress_set.filter(email=n.email).exists()
+            ):
+                messages.error(request, _("You do not have permissions to view this nomination."))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
     @property
     def can_start_applying(self):
         return self.object.user == self.request.user and not self.object.application
@@ -2847,6 +2869,15 @@ class TestimonialDetail(DetailView):
 
     model = models.Testimonial
     template_name = "testimonial_detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            t = self.get_object()
+            if t.referee.user != u:
+                messages.error(request, _("You do not have permissions to view this testimonial."))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

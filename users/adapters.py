@@ -40,6 +40,16 @@ class AccountAdapter(DefaultAccountAdapter):
     def confirm_email(self, request, email_address):
         return super().confirm_email(request, email_address)
 
+    def clean_email(self, email):
+        email = super().clean_email(email)
+        if email:
+            return email.lower()
+        return email
+
+    def clean_username(self, username, shallow=False):
+        username = super().clean_username(username, shallow=False)
+        return username.lower()
+
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     invitation = None
