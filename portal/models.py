@@ -67,7 +67,7 @@ from weasyprint import HTML
 
 from common.models import TITLES, Base, Model, PersonMixin
 
-from .utils import send_mail
+from .utils import mail_admins, send_mail
 
 
 def __(s):

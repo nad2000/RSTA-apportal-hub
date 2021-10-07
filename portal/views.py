@@ -902,15 +902,25 @@ class ApplicationDetail(DetailView):
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_member(self):
+        """Returns the member entry related to the current user"""
+        user = self.request.user
+        return self.object.members.filter(
+            Q(user=user) | Q(email=user.email) | Q(email__in=user.emailaddress_set.values("email"))
+        ).last()
+
     def post(self, request, *args, **kwargs):
 
         self.object = self.get_object()
-        member = self.object.members.filter(user=self.request.user).first()
+        member = self.get_member()
+        if not member.user:
+            member.user = self.request.user
+
         if "submit" in request.POST:
             member.has_authorized = True
             member.status = models.MEMBER_STATUS.authorized
-            # member.authorized_at = datetime.now()
             member.save()
+
             if self.object.submitted_by.email:
                 send_mail(
                     __("A team member accepted your invitation"),
@@ -946,7 +956,10 @@ class ApplicationDetail(DetailView):
         context = super().get_context_data(**kwargs)
         a = self.object
         u = self.request.user
-        if a.members.filter(user=u, has_authorized__isnull=True).exists():
+        if a.members.filter(
+            Q(user=u) | Q(email=u.email) | Q(email__in=u.emailaddress_set.values("email")),
+            has_authorized__isnull=True,
+        ).exists():
             messages.info(
                 self.request,
                 _("Please review the application and authorize your team representative."),
@@ -1477,24 +1490,23 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return context
 
     def form_valid(self, form):
-        a = form.instance
-        a.organisation = a.org.name
-        a.submitted_by = self.request.user
-        a.round = self.round
-        a.scheme = a.round.scheme
         with transaction.atomic():
+            a = form.instance
+            a.organisation = a.org.name
+            a.submitted_by = self.request.user
+            a.round = self.round
+            a.scheme = a.round.scheme
             resp = super().form_valid(form)
+            a.save()
             n = (
                 self.nomination
                 or self.round.user_nominations(self.request.user).order_by("-id").first()
             )
             if n and not n.application:
                 n.application = self.object
-                if not n.user:
-                    n.user = self.request.user
                 if n.status != models.NOMINATION_STATUS.accepted:
                     n.accept()
-                n.save()
+                n.save(update_fields=["application_id", "status"])
         reset_cache(self.request)
 
         return resp

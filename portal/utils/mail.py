@@ -123,3 +123,22 @@ def send_mail(
             f"Failed to email the message: {resp.error}. Please contact a Hub administrator!"
         )
     return resp
+
+
+def mail_admins(subject, message, fail_silently=False, connection=None, html_message=None):
+    """Send a message to the admins, as defined by the ADMINS setting."""
+    if not all(isinstance(a, (list, tuple)) and len(a) == 2 for a in settings.ADMINS):
+        raise ValueError("The ADMINS setting must be a list of 2-tuples.")
+    recipient_list = set([f'"{a[0]}" <{a[1]}>' for a in settings.ADMINS])
+    recipient_list.update(
+        [u.full_email_address for u in models.User.where(is_superuser=True).all()]
+    )
+
+    send_mail(
+        subject=subject,
+        message=message,
+        recipient_list=recipient_list,
+        fail_silently=fail_silently,
+        connection=connection,
+        html_message=html_message,
+    )

@@ -241,6 +241,9 @@
           {% for o in outstanding_authorization_requests %}
             {% if o.application and o.application.id %}
               <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {% if o.created_at >= three_days_ago %}
+                  <span class="badge badge-primary">{% trans 'New' %}</span>
+                {% endif %}
                 {% trans "You have a request to join a Prize team that you still have to act on." %}
                 <a href="{% url 'application' pk=o.application.id %}" class="alert-link">
                   {% trans 'Please click here to review the request' %}!
