@@ -1725,11 +1725,9 @@ class Invitation(Model):
         if self.type == INVITATION_TYPES.A:
             if a := self.nomination.application:
                 if a.state != "submitted":
-                    return reverse(
-                        "application-update", kwargs=dict(pk=self.nomination.application.id)
-                    )
+                    return reverse("application-update", kwargs=dict(pk=a.id))
                 else:
-                    return reverse("application", kwargs=dict(pk=self.member.application.id))
+                    return reverse("application", kwargs=dict(pk=a.id))
             return reverse("nomination-detail", kwargs=dict(pk=self.nomination.id))
         elif self.type == INVITATION_TYPES.T:
             return reverse("application", kwargs=dict(pk=self.member.application.id))

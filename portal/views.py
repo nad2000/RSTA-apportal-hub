@@ -410,9 +410,9 @@ def check_profile(request, token=None):
     if token:
         u = request.user
         if i := models.Invitation.where(token=token).first():
-            if (
-                i.email != u.email
-                or not EmailAddress.objects.filter(email=u.email, user=u).exists()
+            if not (
+                i.email == u.email
+                or u.emailaddress_set.filter(email=i.email, verified=True).exists()
             ):
                 messages.warning(
                     request,
