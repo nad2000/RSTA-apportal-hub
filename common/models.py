@@ -1,3 +1,4 @@
+from django.db import models
 from django.db.models import DateTimeField
 from django.db.models import Model as Base
 from django.urls import reverse
@@ -117,3 +118,9 @@ class PersonMixin:
 
     def __str__(self):
         return self.full_name
+
+
+class EmailField(models.EmailField):
+    def get_prep_value(self, value):
+        if value:
+            return value.lower()

@@ -33,7 +33,6 @@ from django.db.models import (
     DateField,
     DateTimeField,
     DecimalField,
-    EmailField,
     F,
     FileField,
     ForeignKey,
@@ -64,7 +63,7 @@ from PyPDF2 import PdfFileMerger
 from simple_history.models import HistoricalRecords
 from weasyprint import HTML
 
-from common.models import TITLES, Base, Model, PersonMixin
+from common.models import TITLES, Base, EmailField, Model, PersonMixin
 
 from .utils import mail_admins, send_mail
 
