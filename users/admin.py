@@ -32,7 +32,15 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
         (None, {"fields": ("username", "password", "orcid")}),
         (
             _("Personal info"),
-            {"fields": ("title", "first_name", "middle_names", "last_name", "email")},
+            {
+                "fields": (
+                    "title",
+                    "first_name",
+                    "middle_names",
+                    "last_name",
+                    "email",
+                )
+            },
         ),
         (
             _("Permissions"),
@@ -61,6 +69,15 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
         "name",
         "username",
     ]
+
+    class EmailAddressInline(admin.TabularInline):
+        extra = 0
+        model = EmailAddress
+
+        # def view_on_site(self, obj):
+        #     return reverse("admin:account_emailaddress_change", kwargs={"object_id": obj.pk})
+
+    inlines = [EmailAddressInline]
 
     actions = ["merge_users"]
 
