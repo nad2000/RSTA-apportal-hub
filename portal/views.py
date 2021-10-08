@@ -16,7 +16,11 @@ from dal import autocomplete
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import (
+    AccessMixin,
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
@@ -159,6 +163,16 @@ def should_be_approved(function):
         return function(request, *args, **kwargs)
 
     return wrap
+
+
+class AdminRequiredMixin(AccessMixin):
+    """Verify that the current user is admin or staff."""
+
+    def dispatch(self, request, *args, **kwargs):
+        if not (u := request.user) or not u.is_authenticated or not (u.is_superuser or u.is_staff):
+            messages.error(request, _("Only the administrator can access this page"))
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
 
 
 class StateInPathMixin:
@@ -2585,7 +2599,9 @@ class TestimonialView(CreateUpdateView):
         if u.is_authenticated and not (u.is_superuser or u.is_staff):
             t = self.get_object()
             if t and t.referee and t.referee.user and t.referee.user != u:
-                messages.error(request, _("You do not have permissions to access this testimonial."))
+                messages.error(
+                    request, _("You do not have permissions to access this testimonial.")
+                )
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
@@ -3130,7 +3146,7 @@ class TestimonialExportView(ExportView, TestimonialDetail):
         return attachments
 
 
-class PanellistView(LoginRequiredMixin, ModelFormSetView):
+class PanellistView(AdminRequiredMixin, ModelFormSetView):
     model = models.Panellist
     form_class = forms.PanellistForm
     formset_class = forms.PanellistFormSet
@@ -3224,7 +3240,7 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
         return queryset
 
 
-class ScoreSheetList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
+class ScoreSheetList(AdminRequiredMixin, StateInPathMixin, SingleTableView):
 
     model = models.ScoreSheet
     table_class = tables.ScoreSheetTable
@@ -3506,6 +3522,23 @@ def edit_evaluation(request, pk):
 
 
 class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesView):
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            a = self.applicaton
+            if not (a and models.Panellist.where(round=a.round, user=u).exists()):
+                messages.error(
+                    request,
+                    _("You do not have permissions to create an evaluation for this application."),
+                )
+            return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
+    @property
+    def application(self):
+        if pk := self.kwargs.get("application"):
+            return get_object_or_404(models.Application, pk=pk)
+
     def get(self, *args, **kwargs):
         if "application" in self.kwargs:
             e = models.Evaluation.where(
@@ -3547,6 +3580,14 @@ class EvaluationDetail(DetailView):
 
     model = models.Evaluation
     template_name = "evaluation.html"
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if not (u := request.user) and u.is_authenticated and not (u.is_superuser or u.is_staff):
+            if (e := self.get_object()) and e.panellist and e.panellist.user != u:
+                messages.error(request, _("You do not have permission to access this review."))
+                return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
 
     # def post(self, request, *args, **kwargs):
 
@@ -3859,7 +3900,7 @@ def score_sheet(request, round):
     )
 
 
-class RoundScoreList(LoginRequiredMixin, ExportMixin, SingleTableView):
+class RoundScoreList(AdminRequiredMixin, ExportMixin, SingleTableView):
 
     export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
     model = models.Application
@@ -4046,7 +4087,7 @@ def status(request):
         )
 
 
-class RoundSummary(LoginRequiredMixin, ExportMixin, SingleTableView):
+class RoundSummary(AdminRequiredMixin, ExportMixin, SingleTableView):
 
     export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
     model = models.Application
