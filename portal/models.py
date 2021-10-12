@@ -1427,6 +1427,26 @@ class Member(PersonMixin, MemberMixin, Model):
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
 
+    @transition(field=status, source=["*"], target="accepted")
+    def accept(seflf, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="authorized")
+    def authorize(seflf, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="bounced")
+    def bounce(seflf, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="opted_out")
+    def opte_out(seflf, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="sent")
+    def send(seflf, *args, **kwargs):
+        pass
+
     def __str__(self):
         return self.full_name_with_email
 

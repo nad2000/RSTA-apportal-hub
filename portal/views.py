@@ -462,7 +462,10 @@ def check_profile(request, token=None):
                 messages.error(
                     request, _("there is already user with this email address: ") + i.email
                 )
-        i.accept(by=request.user)
+
+        if i.status != "accepted":
+            i.accept(by=request.user)
+
         i.save()
         next_url = i.handler_url
         reset_cache(request)
@@ -2456,6 +2459,17 @@ class NominationView(CreateUpdateView):
     model = models.Nomination
     form_class = forms.NominationForm
     template_name = "nomination.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            n = self.get_object()
+            if n and n.nominator and n.nominator != u:
+                messages.error(
+                    request, _("You do not have permissions to access this nomination.")
+                )
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
 
     @property
     def round(self):

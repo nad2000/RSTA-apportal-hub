@@ -1,7 +1,21 @@
 {% extends 'detail.html' %}
 
-{% load i18n crispy_forms_tags tags %}
+{% load i18n crispy_forms_tags tags django_bootstrap_breadcrumbs %}
 {% block sidebar %}{% include 'sidebar.html' with category="applications" %}{% endblock sidebar %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Nominations" "nominations" %}
+  {% if object.state == "draft" or object.state == "new" %}
+    {% breadcrumb "Draft" "nominations-draft" %}
+  {% elif object.state == "submitted" %}
+    {% breadcrumb "Submitted" "nominations-submitted" %}
+  {% endif %}
+
+  {% if object %}
+    {% breadcrumb object "nomination-detail" object.pk %}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 
