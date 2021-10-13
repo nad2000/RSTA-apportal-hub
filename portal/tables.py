@@ -322,6 +322,9 @@ class RoundSummaryTable(tables.Table):
     state = tables.Column(verbose_name=_("Status"))
     is_accepted = tables.Column(verbose_name=_("T&C"))
     referees = tables.Column(empty_values=(), verbose_name=_("Referees"), orderable=False)
+    members = tables.Column(
+        empty_values=(), verbose_name=_("Members (authorized/total)"), orderable=False
+    )
     is_identity_verified = tables.Column(verbose_name=_("Identity Verified"))
 
     def render_state(self, value):
@@ -329,6 +332,9 @@ class RoundSummaryTable(tables.Table):
 
     def render_referees(self, record):
         return f"{record.submitted_reference_count}/{record.referee_count}"
+
+    def render_members(self, record):
+        return f"{record.member_authorized_count}/{record.member_count}"
 
     def render_is_identity_verified(self, value):
         return _("Yes") if value else _("No")
@@ -386,3 +392,11 @@ class InvitationTable(tables.Table):
             "expired_at",
             "bounced_at",
         ]
+
+
+class SummaryReportTable(tables.Table):
+    class Meta:
+        model = models.Application
+        template_name = "django_tables2/bootstrap4.html"
+        attrs = {"class": "table table-striped table-bordered"}
+        fields = ["number", "round", "submitted_by", "status"]

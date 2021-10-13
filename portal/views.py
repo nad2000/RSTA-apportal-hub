@@ -1699,6 +1699,10 @@ class ApplicationFilter(django_filters.FilterSet):
             | Q(number__icontains=value)
             | Q(first_name__icontains=value)
             | Q(last_name__icontains=value)
+            | Q(email__icontains=value)
+            | Q(submitted_by__first_name__icontains=value)
+            | Q(submitted_by__last_name__icontains=value)
+            | Q(submitted_by__email__icontains=value)
             | Q(
                 Exists(
                     models.Member.where(first_name__icontains=value, application=OuterRef("pk"))
@@ -1707,7 +1711,7 @@ class ApplicationFilter(django_filters.FilterSet):
             | Q(
                 Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk")))
             )
-        )
+        ).distinct()
 
 
 class InvitationList(LoginRequiredMixin, SingleTableView):
@@ -4155,13 +4159,17 @@ class RoundSummary(AdminRequiredMixin, ExportMixin, SingleTableView):
     export_formats = ["xls", "xlsx", "csv", "json", "latex", "ods", "tsv", "yaml"]
     model = models.Application
     table_class = tables.RoundSummaryTable
-    paginator_class = django_tables2.paginators.LazyPaginator
     template_name = "table.html"
+    extra_context = {"category": "applications"}
+    paginator_class = django_tables2.paginators.LazyPaginator
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data["rounds"] = (
-            models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+            models.Round.current_rounds()
+            .order_by("title")
+            .values("id", "title")
+            .annotate(total_applications=Count("applications"))
         )
         data["round"] = self.round
         return data
@@ -4172,7 +4180,7 @@ class RoundSummary(AdminRequiredMixin, ExportMixin, SingleTableView):
 
     @property
     def round(self):
-        return models.Round.get(self.kwargs.get("round"))
+        return get_object_or_404(models.Round, pk=self.kwargs.get("round"))
 
     @property
     def export_name(self):
@@ -4184,8 +4192,12 @@ class RoundSummary(AdminRequiredMixin, ExportMixin, SingleTableView):
 
     def get_queryset(self, *args, **kwargs):
 
-        round = get_object_or_404(models.Round, pk=self.kwargs.get("round"))
-        return round.summary
+        # round = get_object_or_404(models.Round, pk=self.kwargs.get("round"))
+        return self.round.summary
+
+        # queryset = queryset.filter(round=F("round__scheme__current_round"))
+        # queryset = queryset.prefetch_related("round")
+        # return queryset
 
 
 def application_summary(request, number, lang=None):
@@ -4258,3 +4270,18 @@ def user_files(request):
     )
 
     return render(request, "user_files.html", locals())
+
+
+class SummaryReportList(LoginRequiredMixin, SingleTableMixin, FilterView):
+    model = models.Application
+    table_class = tables.SummaryReportTable
+    template_name = "table.html"
+    extra_context = {"category": "applications"}
+    filterset_class = ApplicationFilter
+    paginator_class = django_tables2.paginators.LazyPaginator
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(round=F("round__scheme__current_round"))
+        queryset = queryset.prefetch_related("round")
+        return queryset

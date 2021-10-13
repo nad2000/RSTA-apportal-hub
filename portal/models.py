@@ -2555,21 +2555,36 @@ class Round(Model):
                     LEFT JOIN referee AS r ON r.application_id=a.id
                 WHERE a.round_id=%s
                 GROUP BY a.id
+            ), member_summary AS (
+                SELECt a.id, count(m.id) AS member_count,
+                    sum(CASE WHEN m.status='authorized' OR has_authorized THEN 1 ELSE 0 END) AS member_authorized_count
+                FROM application AS a
+                    LEFT JOIN member AS m ON m.application_id=a.id
+                WHERE a.round_id=%s
+                GROUP BY a.id
             )
             SELECT
                 a.*,
                 s.referee_count,
                 s.submitted_reference_count,
+                ms.member_count,
+                ms.member_authorized_count,
                 u.is_identity_verified,
                 p.is_accepted
             FROM application AS a JOIN summary AS s ON s.id=a.id
+                LEFT JOIN member_summary AS ms ON ms.id=a.id
                 LEFT JOIN users_user AS u ON u.id = a.submitted_by_id
                 LEFT JOIN profile AS p ON p.user_id = u.id
+                LEFT JOIN scheme ON scheme.current_round_id = a.round_id
             WHERE a.round_id=%s
             ORDER BY a.number
             """,
-            [self.id, self.id],
+            [self.id, self.id, self.id],
         )
+
+    @classmethod
+    def current_rounds(cls):
+        return cls.where(id=F("scheme__current_round__id"))
 
     class Meta:
         db_table = "round"
