@@ -3399,6 +3399,15 @@ class ConflictOfInterestView(CreateUpdateView):
     form_class = forms.ConflictOfInterestForm
     template_name = "conflict_of_interest.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            coi = self.get_object()
+            if coi and coi.panellist and coi.panellist.user and coi.panellist.user != u:
+                messages.error(request, _("You do not have permissions to access this page."))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_initial(self):
         initial = super().get_initial()
         if coi := self.get_object():
@@ -3606,6 +3615,15 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
 
 
 class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesView):
+    def dispatch(self, request, *args, **kwargs):
+        u = self.request.user
+        if u.is_authenticated and not (u.is_superuser or u.is_staff):
+            e = self.get_object()
+            if e and e.panellist and e.panellist.user and e.panellist.user != u:
+                messages.error(request, _("You do not have permissions to access this page."))
+            return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, *args, **kwargs):
         resp = super().get(*args, **kwargs)
         if self.object.state == "submitted":
