@@ -11,6 +11,7 @@ import os
 import platform
 import socket
 import sys
+from datetime import datetime
 
 from django.conf import settings
 
@@ -70,6 +71,8 @@ def _info():
     info["socket_info"] = get_socket_info()
     info["multimedia_info"] = get_multimedia_info()
     info["app_config"] = settings
+    info["now"] = datetime.now()
+    info["utcnow"] = datetime.utcnow()
     return info
 
 
