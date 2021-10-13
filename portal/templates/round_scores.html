@@ -24,7 +24,13 @@
         <div class="dropdown-menu" aria-labelledby="active-round-menu-link">
           {% for r in rounds %}
             {% if r.id != round.id %}
-              <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}</a>
+              <a class="dropdown-item" href="{% url view_name round=r.id %}">{{ r.title }}
+                <span class="badge badge-primary"> {{ r.total_applications }}</span>
+              </a>
+            {% else %}
+              <span class="dropdown-item active">{{ r.title }}
+                <span class="badge badge-primary"> {{ r.total_applications }}</span>
+              </span>
             {% endif %}
           {% endfor %}
         </div>

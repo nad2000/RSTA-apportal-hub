@@ -4116,7 +4116,12 @@ def round_scores_export(request, round):
 def round_scores(request, round):
 
     round = get_object_or_404(models.Round, pk=round)
-    rounds = models.Round.objects.all().order_by("-opens_on", "title").values("id", "title")
+    rounds = (
+        models.Round.current_rounds()
+        .order_by("title")
+        .values("id", "title")
+        .annotate(total_applications=Count("applications"))
+    )
     criteria = models.Criterion.where(round_id=round)
 
     return render(request, "round_scores.html", locals())
