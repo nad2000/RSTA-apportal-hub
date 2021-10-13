@@ -1022,14 +1022,33 @@ class ApplicationView(LoginRequiredMixin):
 
         u = request.user
         if u.is_authenticated and not (u.is_staff or u.is_superuser):
-            if (
-                (pk := self.kwargs.get("pk"))
-                and (a := get_object_or_404(models.Application, pk=pk))
-                and not a.is_applicant(u)
+            if (pk := self.kwargs.get("pk")) and (
+                a := get_object_or_404(models.Application, pk=pk)
             ):
-                messages.error(request, _("You do not have permissions to edit this application."))
-                return redirect("application", pk=pk)
+                if not a.is_applicant(u):
+                    messages.error(
+                        request, _("You do not have permissions to edit this application.")
+                    )
+                    return redirect("application", pk=pk)
+                if a.state and a.state not in ["new", "draft"]:
+                    messages.error(
+                        request,
+                        _(
+                            "The application has been already submitted. "
+                            "You cannot modify a submitted application."
+                        ),
+                    )
+                    return redirect("application", pk=pk)
         return super().dispatch(request, *args, **kwargs)
+
+    def continue_url(self, fragment):
+        if self.object and self.object.pk:
+            url = reverse("application-update", kwargs=dict(pk=self.object.pk))
+        else:
+            url = self.request.path_info.split("?")[0]
+        if fragment:
+            url = f"{url}#{fragment}"
+        return url
 
     def get_initial(self):
         user = self.request.user
@@ -1099,7 +1118,8 @@ class ApplicationView(LoginRequiredMixin):
                     has_deleted = bool(members.deleted_forms)
                     if has_deleted:
                         # url = self.request.path_info + "?members=1"
-                        url = self.request.path_info.split("?")[0] + "#application"
+                        # url = self.request.path_info.split("?")[0] + "#application"
+                        url = self.continue_url("application")
                     if members.is_valid():
                         members.instance = a
                         members.save()
@@ -1122,7 +1142,8 @@ class ApplicationView(LoginRequiredMixin):
                     # referees.instance = a
                     has_deleted = bool(has_deleted or referees.deleted_forms)
                     if has_deleted or "send_invitations" in self.request.POST:
-                        url = self.request.path_info.split("?")[0] + "#referees"
+                        # url = self.request.path_info.split("?")[0] + "#referees"
+                        url = self.continue_url("referees")
                     referees.save()
                     count = invite_referee(self.request, a)
                     if count > 0:
@@ -1180,7 +1201,8 @@ class ApplicationView(LoginRequiredMixin):
                             ),
                         )
                         # url = self.request.path_info.split("?")[0] + "?summary=1"
-                        url = self.request.path_info.split("?")[0] + "#summary"
+                        # url = self.request.path_info.split("?")[0] + "#summary"
+                        url = self.continue_url("summary")
                         return redirect(url)
         except:
             return self.form_invalid(form)
@@ -1241,7 +1263,9 @@ class ApplicationView(LoginRequiredMixin):
                                 "If it is not relevant, please state why."
                             ),
                         )
-                        url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
+                        if not url:
+                            url = self.continue_url("ethics-statement")
+                        # url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
 
                     if not a.is_tac_accepted:
                         if a.submitted_by == user:
@@ -1251,7 +1275,9 @@ class ApplicationView(LoginRequiredMixin):
                                     "You have to accept the Terms and Conditions before submitting the application"
                                 ),
                             )
-                            url = url or (self.request.path_info.split("?")[0] + "#tac")
+                            if not url:
+                                url = self.continue_url("tac")
+                            # url = url or (self.request.path_info.split("?")[0] + "#tac")
 
                     if a.round.budget_template and not a.budget:
                         messages.error(
@@ -1260,7 +1286,9 @@ class ApplicationView(LoginRequiredMixin):
                                 "You must add a budget spreadsheet before submitting the application"
                             ),
                         )
-                        url = url or (self.request.path_info.split("?")[0] + "#summary")
+                        if not url:
+                            url = self.continue_url("summary")
+                        # url = url or (self.request.path_info.split("?")[0] + "#summary")
 
                     if not a.file:
                         messages.error(
@@ -1269,7 +1297,9 @@ class ApplicationView(LoginRequiredMixin):
                                 "Missing the application form. Please attach an application form and re-submit"
                             ),
                         )
-                        url = url or (self.request.path_info.split("?")[0] + "#summary")
+                        if not url:
+                            url = self.continue_url("summary")
+                        # url = url or (self.request.path_info.split("?")[0] + "#summary")
 
                     if url:
                         return redirect(url)
@@ -1292,7 +1322,8 @@ class ApplicationView(LoginRequiredMixin):
                     a.save_draft(request=self.request)
                     a.save()
                     if "send_invitations" in self.request.POST:
-                        url = self.request.path_info.split("?")[0] + "#referees"
+                        # url = self.request.path_info.split("?")[0] + "#referees"
+                        url = self.continue_url("referees")
                         return redirect(url)
             except Exception as e:
                 messages.error(self.request, str(e))
