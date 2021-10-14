@@ -136,16 +136,19 @@
                     {% if request.user.can_apply %}
 
                       {% if application and not is_panellist %}
-                        <div class="tooltip-wrapper{% if application.state == 'submitted'%} disabled{% endif %}"
+                        <div class="tooltip-wrapper{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
                              {% if application.state == 'submitted'%}
                                disabled
-                             data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+                               data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+                             {% elif round.has_closed %}
+                               disabled
+                               data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}. {% trans 'You cannot continue to apply.' %}"
                            {% else %}
                                data-title="{% trans 'Modify your application and continue application process' %}"
                              {% endif %}
                                >
                              <a href="{% if application and application.id %}{% url 'application-update' pk=application.id %}{% else %}#{% endif %}"
-                                class="btn btn-primary{% if application.state == 'submitted'%} disabled{% endif %}"
+                                class="btn btn-primary{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
                                 style="text-transform: uppercase;"
                                 > {% trans "Continue" %} <b>{% trans "Application" %}</b>
                              </a>

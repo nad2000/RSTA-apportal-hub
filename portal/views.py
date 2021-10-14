@@ -1039,6 +1039,15 @@ class ApplicationView(LoginRequiredMixin):
                         ),
                     )
                     return redirect("application", pk=pk)
+                if not a.round.is_open:
+                    messages.error(
+                        request,
+                        _(
+                            "The application period is closed. "
+                            "You cannot modify this application."
+                        ),
+                    )
+                    return redirect("application", pk=pk)
         return super().dispatch(request, *args, **kwargs)
 
     def continue_url(self, fragment):

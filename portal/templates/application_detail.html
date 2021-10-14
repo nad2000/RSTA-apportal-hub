@@ -40,12 +40,15 @@
          {% elif not is_owner %}
              disabled
            data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
+         {% elif not a.round.is_open %}
+             disabled
+           data-title="{% trans 'The application period is closed. You cannot modify this application.' %}"
          {% else %}
              data-title="{% trans 'Modify your application and continue application process' %}"
            {% endif %}
              >
              <a href="{% url update_view_name pk=a.pk %}"
-                class="btn btn-primary{% if not is_owner or was_submitted %} disabled{% endif %}"
+                class="btn btn-primary{% if not is_owner or was_submitted or not a.round.is_open %} disabled{% endif %}"
                 >{% trans update_button_name %}
              </a>
       </div>
@@ -96,23 +99,23 @@
                {% endif %}
                  >
                  <a
-                    {% if r.has_online_scoring %}
-                      {% if evaluation %}
-                        href="{% url 'application-evaluation' pk=evaluation.pk %}"
-                      {% elif not evaluation and not has_coi %}
-                        href="{% url 'application-evaluation-create' application=a.pk %}"
-                      {% else %}
-                        href="{% url 'coi-create' application_id=a.pk %}"
-                      {% endif %}
-                    {% else %}
-                      {% if evaluation or not coi %}
-                        href="{% url 'score-sheet' round=a.round_id %}"
-                      {% else %}
-                        href="{% url 'round-coi' round=a.round_id %}"
-                      {% endif %}
-                    {% endif %}
-                         class="btn btn-primary{% if has_coi or evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
-                         > {% trans "Evaluate Application" %} </a>
+                     {% if r.has_online_scoring %}
+                       {% if evaluation %}
+                       href="{% url 'application-evaluation' pk=evaluation.pk %}"
+                     {% elif not evaluation and not has_coi %}
+                         href="{% url 'application-evaluation-create' application=a.pk %}"
+                       {% else %}
+                           href="{% url 'coi-create' application_id=a.pk %}"
+                         {% endif %}
+                         {% else %}
+                             {% if evaluation or not coi %}
+                             href="{% url 'score-sheet' round=a.round_id %}"
+                           {% else %}
+                               href="{% url 'round-coi' round=a.round_id %}"
+                             {% endif %}
+                             {% endif %}
+                               class="btn btn-primary{% if has_coi or evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+                               > {% trans "Evaluate Application" %} </a>
           </div>
 
             <div class="tooltip-wrapper{% if evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
@@ -127,13 +130,13 @@
                  {% endif %}
                    >
                    <a
-                    {% if r.has_online_scoring %}
-                       href="{% url 'round-application-review' round_id=a.round_id application_id=a.pk %}"
-                    {% else %}
-                       href="{% url 'round-coi' round=a.round_id %}"
-                    {% endif %}
-                       class="btn btn-primary{% if evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
-                       > {% trans "Conflict of Interst" %} </a>
+                       {% if r.has_online_scoring %}
+                         href="{% url 'round-application-review' round_id=a.round_id application_id=a.pk %}"
+                       {% else %}
+                           href="{% url 'round-coi' round=a.round_id %}"
+                         {% endif %}
+                           class="btn btn-primary{% if evaluation.state == 'submitted' or not was_submitted %} disabled{% endif %}"
+                           > {% trans "Conflict of Interst" %} </a>
             </div>
 
             {% endif %}
