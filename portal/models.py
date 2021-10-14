@@ -51,6 +51,7 @@ from django.db.models import (
     prefetch_related_objects,
 )
 from django.db.models.functions import Cast, Coalesce
+from django.http import HttpRequest
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.translation import get_language, gettext
@@ -163,6 +164,14 @@ LANGUAGES = Choices(
     "Vietnamese",
     "Yue Chinese (Cantonese)",
 )
+
+
+def get_request(*args, **kwargs):
+    if "request" in kwargs:
+        return kwargs["request"]
+    for v in args:
+        if isinstance(v, HttpRequest):
+            return v
 
 
 class PdfFileMixin:
@@ -1428,23 +1437,43 @@ class Member(PersonMixin, MemberMixin, Model):
     )
 
     @transition(field=status, source=["*"], target="accepted")
-    def accept(seflf, *args, **kwargs):
+    def accept(self, *args, **kwargs):
         pass
 
     @transition(field=status, source=["*"], target="authorized")
-    def authorize(seflf, *args, **kwargs):
-        pass
+    def authorize(self, *args, **kwargs):
+        self.has_authorized = True
+        request = get_request(*args, **kwargs)
+        if self.application.submitted_by.email:
+            send_mail(
+                __("A team member accepted your invitation"),
+                __("Your team member %s has accepted your invitation.") % self,
+                recipient_list=[self.application.submitted_by.email],
+                fail_silently=False,
+                request=request,
+                reply_to=self.full_email_address,
+            )
 
     @transition(field=status, source=["*"], target="bounced")
-    def bounce(seflf, *args, **kwargs):
+    def bounce(self, *args, **kwargs):
         pass
 
     @transition(field=status, source=["*"], target="opted_out")
-    def opte_out(seflf, *args, **kwargs):
-        pass
+    def opt_out(self, *args, **kwargs):
+        self.has_authorized = False
+        request = get_request(*args, **kwargs)
+        if self.application.submitted_by.email:
+            send_mail(
+                __("A team member opted out of application"),
+                __("Your team member %s has opted out of application") % self,
+                recipient_list=[self.application.submitted_by.email],
+                fail_silently=False,
+                request=request,
+                reply_to=self.full_email_address,
+            )
 
     @transition(field=status, source=["*"], target="sent")
-    def send(seflf, *args, **kwargs):
+    def send(self, *args, **kwargs):
         pass
 
     def __str__(self):
@@ -1509,6 +1538,26 @@ class Referee(RefereeMixin, PersonMixin, Model):
             raise ValidationError(
                 _("Before inviting referees, please upload a completed application form.")
             )
+
+    @transition(field=status, source=["*"], target="accepted")
+    def accept(self, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="testified")
+    def testify(self, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="bounced")
+    def bounce(self, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="opted_out")
+    def opt_out(self, *args, **kwargs):
+        self.has_testifed = False
+
+    @transition(field=status, source=["*"], target="sent")
+    def send(self, *args, **kwargs):
+        pass
 
     def __str__(self):
         return str(self.user or self.email)
@@ -1579,7 +1628,8 @@ class Panellist(PanellistMixin, PersonMixin, Model):
                 i.middle_names = middle_names
                 i.last_name = last_name
                 i.sent_at = None
-                i.status = Invitation.STATUS.submitted
+                # i.status = Invitation.STATUS.submitted
+                i.submit()
                 i.save()
             return (i, False)
         else:
@@ -1619,6 +1669,18 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     @property
     def has_all_coi_statements_submitted(self):
         return self.has_all_coi_statements_submitted_for()
+
+    @transition(field=status, source=["*"], target="accepted")
+    def accept(self, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="bounced")
+    def bounce(self, *args, **kwargs):
+        pass
+
+    @transition(field=status, source=["*"], target="sent")
+    def send(self, *args, **kwargs):
+        pass
 
     def __str__(self):
         return str(self.user or self.email)
@@ -1778,6 +1840,14 @@ class Invitation(Model):
 
     @transition(
         field=status,
+        source=["*"],
+        target=STATUS.submitted,
+    )
+    def submit(self, *args, **kwargs):
+        pass
+
+    @transition(
+        field=status,
         source=[STATUS.draft, STATUS.sent, STATUS.submitted, STATUS.bounced],
         target=STATUS.sent,
     )
@@ -1888,15 +1958,18 @@ class Invitation(Model):
 
         if self.type == INVITATION_TYPES.T:
             if self.member:
-                self.member.status = REFEREE_STATUS.sent
+                # self.member.status = REFEREE_STATUS.sent
+                self.member.send(request)
                 self.member.save()
         elif self.type == INVITATION_TYPES.R:
             if self.referee:
-                self.referee.status = REFEREE_STATUS.sent
+                # self.referee.status = REFEREE_STATUS.sent
+                self.referee.send(request)
                 self.referee.save()
         elif self.type == INVITATION_TYPES.P:
             if self.panellist:
-                self.panellist.status = PANELLIST_STATUS.sent
+                # self.panellist.status = PANELLIST_STATUS.sent
+                self.panellist.send(request)
                 self.panellist.save()
         return resp
 
@@ -1912,8 +1985,9 @@ class Invitation(Model):
             by = request.user
         if self.type == INVITATION_TYPES.T:
             m = self.member
-            m.status = MEMBER_STATUS.accepted
             m.user = by
+            # m.status = MEMBER_STATUS.accepted
+            m.accept(request)
             m.save()
         elif self.type == INVITATION_TYPES.A:
             if self.nomination:
@@ -1923,7 +1997,8 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.R:
             r = self.referee
             r.user = by
-            r.status = Referee.STATUS.accepted
+            # r.status = Referee.STATUS.accepted
+            r.accept(request)
             r.save()
             if self.status != self.STATUS.accepted:
                 t = Testimonial.objects.create(referee=r)
@@ -1932,8 +2007,9 @@ class Invitation(Model):
                 # by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
-            p.status = PANELLIST_STATUS.accepted
             p.user = by
+            # p.status = PANELLIST_STATUS.accepted
+            p.accept(request)
             p.save()
 
     @transition(

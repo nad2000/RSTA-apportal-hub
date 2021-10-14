@@ -719,7 +719,7 @@ def invite_referee(request, application):
         i.send(request)
         i.save()
         if i.referee:
-            i.referee.status = models.Referee.STATUS.sent
+            i.referee.send()
             i.referee.save()
         count += 1
     return count
@@ -742,7 +742,7 @@ def get_or_create_team_member_invitation(member):
             i.middle_names = middle_names
             i.last_name = last_name
             i.sent_at = None
-            i.status = models.Invitation.STATUS.submitted
+            i.submit()
             i.save()
         return (i, False)
     else:
@@ -778,7 +778,7 @@ def get_or_create_referee_invitation(referee, by=None):
             i.middle_names = middle_names
             i.last_name = last_name
             i.sent_at = None
-            i.status = models.Invitation.STATUS.submitted
+            i.submit()
             i.save()
         referee.satus = None
         return (i, False)
@@ -934,39 +934,16 @@ class ApplicationDetail(DetailView):
             member.user = self.request.user
 
         if "submit" in request.POST:
-            member.has_authorized = True
-            member.status = models.MEMBER_STATUS.authorized
+            member.authorize(request)
             member.save()
-
-            if self.object.submitted_by.email:
-                send_mail(
-                    __("A team member accepted your invitation"),
-                    __("Your team member %s has accepted your invitation.") % member,
-                    settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[self.object.submitted_by.email],
-                    fail_silently=False,
-                    request=self.request,
-                    reply_to=settings.DEFAULT_FROM_EMAIL,
-                )
             messages.info(
                 self.request,
                 _("Thank you for accepting the invitation."),
             )
 
         elif "turn_down" in request.POST:
-            member.has_authorized = False
-            member.status = models.MEMBER_STATUS.opted_out
+            member.opt_out(request)
             member.save()
-            if self.object.submitted_by.email:
-                send_mail(
-                    __("A team member opted out of application"),
-                    __("Your team member %s has opted out of application") % member,
-                    settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[self.object.submitted_by.email],
-                    fail_silently=False,
-                    request=self.request,
-                    reply_to=settings.DEFAULT_FROM_EMAIL,
-                )
         return redirect(request.path)
 
     def get_context_data(self, **kwargs):
@@ -2791,8 +2768,7 @@ class TestimonialView(CreateUpdateView):
                 t.save_draft(request=self.request)
                 t.save()
             elif "turn_down" in self.request.POST:
-                t.referee.has_testifed = False
-                t.referee.status = "opted_out"
+                t.referee.opt_out()
                 t.referee.save()
                 self.model.where(id=t.id).delete()
                 send_mail(

@@ -278,13 +278,13 @@ class ApplicationForm(forms.ModelForm):
                 *fields,
             ),
             Tab(
-                _("Referees"),
-                Div(TableInlineFormset("referees"), css_id="referees"),
-            ),
-            Tab(
                 _("Summary and Forms"),
                 css_id="summary",
                 *summary_fields,
+            ),
+            Tab(
+                _("Referees"),
+                Div(TableInlineFormset("referees"), css_id="referees"),
             ),
         ]
         # if user and not user.is_identity_verified:
