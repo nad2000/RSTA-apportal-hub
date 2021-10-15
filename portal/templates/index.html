@@ -142,7 +142,7 @@
                                data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
                              {% elif round.has_closed %}
                                disabled
-                               data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}. {% trans 'You cannot continue to apply.' %}"
+                               data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}. {% trans 'Applications can no longer be accepted for this round.' %}"
                            {% else %}
                                data-title="{% trans 'Modify your application and continue application process' %}"
                              {% endif %}

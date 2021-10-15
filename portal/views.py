@@ -1020,8 +1020,8 @@ class ApplicationView(LoginRequiredMixin):
                     messages.error(
                         request,
                         _(
-                            "The application period is closed. "
-                            "You cannot modify this application."
+                            "The application period has closed. "
+                            "You cannot longer modify this application."
                         ),
                     )
                     return redirect("application", pk=pk)

@@ -42,7 +42,7 @@
            data-title="{% trans 'Only the main applicant or a team member can edit the application' %}"
          {% elif not a.round.is_open %}
              disabled
-           data-title="{% trans 'The application period is closed. You cannot modify this application.' %}"
+           data-title="{% trans 'The application period has closed. You can no longer modify this application.' %}"
          {% else %}
              data-title="{% trans 'Modify your application and continue application process' %}"
            {% endif %}
