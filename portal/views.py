@@ -405,6 +405,7 @@ def test_task(req, message):
 
 
 def check_profile(request, token=None):
+
     if not request.user.is_authenticated:
         invitation = models.Invitation.where(token=token).first()
         user_exists = invitation and (
@@ -456,15 +457,15 @@ def check_profile(request, token=None):
 
         if i.email and u.email != i.email:
             ea, created = EmailAddress.objects.get_or_create(
-                email=i.email, defaults=dict(user=request.user, verified=True)
+                email=i.email, defaults=dict(user=u, verified=True)
             )
-            if not created and ea.user != request.user:
-                messages.error(
+            if not created and ea.user != u:
+                messages.warning(
                     request, _("there is already user with this email address: ") + i.email
                 )
 
         if i.status != "accepted":
-            i.accept(by=request.user)
+            i.accept(by=u, request=request)
 
         i.save()
         next_url = i.handler_url
@@ -1143,7 +1144,7 @@ class ApplicationView(LoginRequiredMixin):
                     for f in referees.forms:
                         if not f.is_valid():
                             form.errors.update(f.errors)
-                            raise Exception(_("Invalid referee form"))
+                            raise forms.ValidationError(_("Invalid referee form"))
 
                 if "photo_identity" in form.changed_data and form.instance.photo_identity:
                     iv, created = models.IdentityVerification.get_or_create(
@@ -1191,7 +1192,7 @@ class ApplicationView(LoginRequiredMixin):
                         url = self.continue_url("summary")
                         return redirect(url)
         except:
-            return self.form_invalid(form)
+            raise
 
         if has_deleted:  # keep editing
             return redirect(url)
@@ -1524,24 +1525,26 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return context
 
     def form_valid(self, form):
-        with transaction.atomic():
-            a = form.instance
-            a.organisation = a.org.name
-            a.submitted_by = self.request.user
-            a.round = self.round
-            a.scheme = a.round.scheme
-            resp = super().form_valid(form)
-            a.save()
-            n = (
-                self.nomination
-                or self.round.user_nominations(self.request.user).order_by("-id").first()
-            )
-            if n and not n.application:
-                n.application = self.object
-                if n.status != models.NOMINATION_STATUS.accepted:
-                    n.accept()
-                n.save(update_fields=["application_id", "status"])
-        reset_cache(self.request)
+        try:
+            with transaction.atomic():
+                a = form.instance
+                a.organisation = a.org.name
+                a.submitted_by = self.request.user
+                a.round = self.round
+                a.scheme = a.round.scheme
+                resp = super().form_valid(form)
+                a.save()
+                n = (
+                    self.nomination
+                    or self.round.user_nominations(self.request.user).order_by("-id").first()
+                )
+                if n and not n.application:
+                    n.application = self.object
+                    if n.status != models.NOMINATION_STATUS.accepted:
+                        n.accept()
+                    n.save(update_fields=["application_id", "status"])
+        except:
+            return self.form_invalid(form)
 
         return resp
 
