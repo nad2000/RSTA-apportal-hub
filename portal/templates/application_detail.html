@@ -66,7 +66,7 @@
           </div>
         {% endif %}
 
-        {% if testimonial %}
+        {% if testimonial or referee   %}
 
           <div class="tooltip-wrapper{% if testimonial.state == "submitted" %} disabled{% endif %}"
                {% if testimonial.state == "submitted" %}
@@ -77,7 +77,13 @@
                {% endif %}
                  >
                  <a class="btn btn-outline-primary{% if testimonial.state == "submitted" %} disabled{% endif %}"
-                    href="{% url 'testimonial-update' pk=testimonial.pk %}">{% trans 'Update' %} <strong>{% trans 'Testimonial' %}</strong></a>
+                  href="{% if testimonial %}{% url 'testimonial-update' pk=testimonial.pk %}{% else %}{% url 'application-review-create' application=referee.application_id %}{% endif %}">
+                   {% if testimonial %}
+                     {% trans 'Update' %}
+                  {% else %}
+                     {% trans 'Submit' %}
+                  {% endif %}
+                 <strong>{% trans 'Testimonial' %}</strong></a>
           </div>
 
         {% endif %}

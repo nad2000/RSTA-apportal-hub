@@ -15,7 +15,11 @@
   {% elif object.state == "submitted" %}
     {% breadcrumb "Submitted" "testimonials-submitted" %}
   {% endif %}
-  {% breadcrumb object "testimonial-update" object.pk %}
+  {% if object.pk %}
+    {% breadcrumb object "testimonial-update" object.pk %}
+  {% else %}
+    {% breadcrumb application "application" application.pk %}
+  {% endif %}
 {% endblock %}
 
 
@@ -67,6 +71,9 @@
       $('#button-id-submit_button').click(function() {
         if (this.form.checkValidity()) $('#confirm-submit').modal('show');
         else this.form.reportValidity();
+      });
+      $('#submit-id-turn_down').click(function() {
+        document.getElementById("id_file").removeAttribute("required");
       });
       $('#submit-button').click(function(){
         /* when the submit button in the modal is clicked, submit the form */

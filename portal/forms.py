@@ -697,7 +697,13 @@ class TestimonialForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.include_media = False
         self.helper.form_id = "entry-form"
-        round = self.instance.application.round
+        initial = kwargs.get("initial")
+        round = (
+            self.instance.id
+            and self.instance.application.round
+            or initial
+            and initial["application"].round
+        )
         fields = [
             Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
             # Field("summary"),
@@ -742,6 +748,11 @@ class TestimonialForm(forms.ModelForm):
                 css_class="mb-4 float-right",
             ),
         )
+
+    def is_valid(self):
+        if "turn_down" in self.data:
+            self.fields["file"].required = False
+        return super().is_valid()
 
     class Meta:
         model = models.Testimonial

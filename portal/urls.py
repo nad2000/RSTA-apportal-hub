@@ -67,6 +67,11 @@ urlpatterns = [
                     name="application-update",
                 ),
                 path("<int:pk>", views.ApplicationDetail.as_view(), name="application"),
+                path(
+                    "<int:application>/review/~create",
+                    views.TestimonialView.as_view(),
+                    name="application-review-create",
+                ),
                 path("draft", views.ApplicationList.as_view(), name="applications-draft"),
                 path("submitted", views.ApplicationList.as_view(), name="applications-submitted"),
                 path("", views.ApplicationList.as_view(), name="applications"),

@@ -993,6 +993,10 @@ class ApplicationDetail(DetailView):
                 .first()
             ):
                 context["testimonial"] = t
+            if referee := a.referees.filter(
+                Q(user=u) | Q(email__in=u.emailaddress_set.values("email"))
+            ).last():
+                context["referee"] = referee
 
         return context
 
@@ -2520,26 +2524,6 @@ class NominationView(CreateUpdateView):
 
         resp = super().form_valid(form)
 
-        # if (
-        #     self.request.user.email == n.email
-        #     or EmailAddress.objects.filter(~Q(email=n.email), user=self.request.user).exists()
-        # ):
-        #     messages.error(
-        #         self.request,
-        #         _("You cannot nominate yourself to apply to this round."),
-        #     )
-        #     return redirect(self.request.get_full_path())
-
-        # user = self.request.user
-        # if not user.is_superuser and (
-        #     n.email == user.email or EmailAddress.objects.filter(email=n.email, user=user)
-        # ):
-        #     messages.error(
-        #         self.request,
-        #         _("You cannot nominate yourself for this round."),
-        #     )
-        #     return resp
-
         if self.request.method == "POST" and "file" in form.changed_data and n.file:
 
             try:
@@ -2650,6 +2634,12 @@ class TestimonialView(CreateUpdateView):
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if a := self.application:
+            initial.update({"application": a, "referee": self.referee})
+        return initial
+
     @property
     def application(self):
         return (
@@ -2658,19 +2648,34 @@ class TestimonialView(CreateUpdateView):
             else self.object.referee.application
         )
 
+    @property
+    def referee(self):
+        u = self.request.user
+        t = self.get_object()
+        if a := self.application:
+            return (
+                t
+                and t.referee
+                and t.referee.has_testifed
+                or a.referees.filter(
+                    Q(user=u) | Q(email__in=u.emailaddress_set.values("email"))
+                ).last()
+            )
+
     def form_valid(self, form):
 
-        resp = super().form_valid(form)
         t = form.instance
-
         reset_cache(self.request)
 
         if not t.id:
             a = self.application
+            t.applicaton = a
             if a:
                 t.referee = models.Referee.get(user=self.request.user, application=a)
             else:
-                t.referee = models.Referee.where(user=self.request.user).order("-id").first()
+                t.referee = models.Referee.where(user=self.request.user).last()
+
+        resp = super().form_valid(form)
 
         if t.state != "submitted":
 
@@ -2790,7 +2795,6 @@ class TestimonialView(CreateUpdateView):
             elif "turn_down" in self.request.POST:
                 t.referee.opt_out()
                 t.referee.save()
-                self.model.where(id=t.id).delete()
                 send_mail(
                     __("A Referee opted out of Testimonial"),
                     __("Your Referee %s has opted out of Testimonial") % t.referee,
@@ -2809,7 +2813,7 @@ class TestimonialView(CreateUpdateView):
                     _("You opted out of Testimonial."),
                 )
                 reset_cache(self.request)
-                return HttpResponseRedirect(reverse("testimonials"))
+                return redirect("testimonials")
         else:
             messages.warning(
                 self.request,
@@ -2820,7 +2824,7 @@ class TestimonialView(CreateUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["application"] = self.application
-        if not self.object.referee.has_testifed:
+        if not self.referee:
             messages.info(
                 self.request,
                 _("Please submit your review."),
