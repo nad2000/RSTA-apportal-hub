@@ -27,7 +27,14 @@ from django.db import connection, transaction
 from django.db.models import Count, Exists, F, Func, OuterRef, Q, Value
 from django.db.models.functions import Coalesce
 from django.forms import widgets  # BooleanField,
-from django.forms import DateInput, Form, HiddenInput, TextInput, modelformset_factory
+from django.forms import (
+    DateInput,
+    Form,
+    HiddenInput,
+    TextInput,
+    ValidationError,
+    modelformset_factory,
+)
 from django.forms import models as model_forms
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
@@ -1144,7 +1151,7 @@ class ApplicationView(LoginRequiredMixin):
                     for f in referees.forms:
                         if not f.is_valid():
                             form.errors.update(f.errors)
-                            raise forms.ValidationError(_("Invalid referee form"))
+                            raise ValidationError(_("Invalid referee form"))
 
                 if "photo_identity" in form.changed_data and form.instance.photo_identity:
                     iv, created = models.IdentityVerification.get_or_create(
@@ -2652,8 +2659,11 @@ class TestimonialView(CreateUpdateView):
         )
 
     def form_valid(self, form):
-        reset_cache(self.request)
+
+        resp = super().form_valid(form)
         t = form.instance
+
+        reset_cache(self.request)
 
         if not t.id:
             a = self.application
@@ -2685,7 +2695,7 @@ class TestimonialView(CreateUpdateView):
                             "Please save your testimonial form into PDF format and try to upload it again."
                         ),
                     )
-                    return HttpResponseRedirect(self.request.get_full_path())
+                    return resp
 
             if "submit" in self.request.POST or self.request.POST.get("action") == "submit":
 
@@ -2706,6 +2716,13 @@ class TestimonialView(CreateUpdateView):
                             ),
                         )
                         return redirect(reverse("profile-cvs") + "?next=" + next_url)
+
+                if not t.file:
+                    messages.error(
+                        self.request,
+                        _("You haven't uploaded your testimonial, please do and then submit."),
+                    )
+                    return resp
 
                 t.submit(request=self.request)
                 t.save()
@@ -2798,7 +2815,7 @@ class TestimonialView(CreateUpdateView):
                 self.request,
                 _("Testimonial is already submitted."),
             )
-        return HttpResponseRedirect(reverse("testimonial-detail", kwargs=dict(pk=t.id)))
+        return redirect("testimonial-detail", pk=t.id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

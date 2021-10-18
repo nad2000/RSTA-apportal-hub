@@ -709,6 +709,7 @@ class TestimonialForm(forms.ModelForm):
             ) % (round.referee_template.url, os.path.basename(round.referee_template.name))
             # fields.insert(0, HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             self.fields["file"].help_text = help_text
+        self.fields["file"].required = True
         fields = [
             Fieldset(_("Testimonial"), *fields),
         ]
