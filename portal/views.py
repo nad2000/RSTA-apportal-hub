@@ -1104,6 +1104,7 @@ class ApplicationView(LoginRequiredMixin):
         referees = context["referees"]
         reset_cache(self.request)
 
+        url = None
         try:
             with transaction.atomic():
 
@@ -1158,6 +1159,15 @@ class ApplicationView(LoginRequiredMixin):
                     for f in referees.forms:
                         if not f.is_valid():
                             form.errors.update(f.errors)
+                            if not a.file:
+                                url = self.continue_url("summary")
+                                messages.error(
+                                    self.request,
+                                    "Please upload a new applicaton form or remove the referees.",
+                                )
+                                raise ValidationError()
+                            else:
+                                url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
 
                 if "photo_identity" in form.changed_data and form.instance.photo_identity:
@@ -1205,8 +1215,11 @@ class ApplicationView(LoginRequiredMixin):
                         # url = self.request.path_info.split("?")[0] + "#summary"
                         url = self.continue_url("summary")
                         return redirect(url)
-        except:
-            raise
+        except Exception as ex:
+            if hasattr(ex, "message"):
+                messages.error(self.request, ex.message)
+            return redirect(url)
+            # return resp
 
         if has_deleted:  # keep editing
             return redirect(url)
