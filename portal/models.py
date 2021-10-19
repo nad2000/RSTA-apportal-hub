@@ -1131,9 +1131,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
         if Referee.where(
-            Q(testified_at__isnull=True)
+            Q(~Q(status="opted_out"), testified_at__isnull=True)
             | Q(user__isnull=True)
-            | ~Q(testimonial__state__in=["opted_out", "submitted"]),
+            | ~Q(testimonial__state="submitted", status="opted_out"),
             application=self,
         ).exists():
             raise Exception(
