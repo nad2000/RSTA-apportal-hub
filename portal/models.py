@@ -1134,7 +1134,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             Q(testified_at__isnull=True)
             | Q(user__isnull=True)
             | ~Q(testimonial__state="submitted"),
-            ~Q(state__in=["submitted", "opted_out"]),
+            ~Q(status__in=["submitted", "opted_out"]),
         ).exists():
             raise Exception(
                 _(
