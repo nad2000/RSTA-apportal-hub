@@ -408,7 +408,12 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_display = ["full_name", "application", "status", "has_authorized"]
     fsm_field = ["status"]
-    search_fields = ["first_name", "last_name"]
+    search_fields = [
+        "first_name",
+        "last_name",
+        "application__number",
+        "application__application_title",
+    ]
     list_filter = ["application__round", "created_at", "updated_at", "status", "has_authorized"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
