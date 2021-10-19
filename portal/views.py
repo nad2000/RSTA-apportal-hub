@@ -391,10 +391,13 @@ def index(request):
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
         ).filter(~Q(round__panellists__user=user))
-        if user.is_staff:
+        if user.is_staff or user.is_superuser:
             outstanding_identity_verifications = models.IdentityVerification.where(
                 ~Q(file=""), file__isnull=False, state__in=["new", "sent"]
             )
+            user_verifications = User.where(
+                Q(is_approved=False) | Q(is_approved__isnull=True)
+            ).order_by("-last_login")
         schemes = models.SchemeApplication.get_data(user)
     else:
         messages.info(
