@@ -1130,11 +1130,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "Please upload a scan of a document proving your identity."
                 )
             )
-        if Referee.where(
-            Q(~Q(status="opted_out"), testified_at__isnull=True)
+        if self.referees.filter(
+            Q(testified_at__isnull=True)
             | Q(user__isnull=True)
-            | ~Q(testimonial__state="submitted", status="opted_out"),
-            application=self,
+            | ~Q(testimonial__state="submitted"),
+            ~Q(state__in=["submitted", "opted_out"]),
         ).exists():
             raise Exception(
                 _(
