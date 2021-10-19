@@ -1232,7 +1232,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             q = q.filter(round__in=Scheme.objects.all().values("current_round"))
 
         f = (
-            Q(Q(members__user=user) | Q(members__has_authorized=True))
+            Q(members__user=user, members__has_authorized=True)
             | Q(referees__user=user)
             | Q(nomination__user=user)
             | Q(submitted_by=user)
