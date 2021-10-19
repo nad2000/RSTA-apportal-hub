@@ -395,7 +395,12 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_display = ["application", "full_name", "status", "testified_at"]
     fsm_field = ["status"]
-    search_fields = ["first_name", "last_name"]
+    search_fields = [
+        "first_name",
+        "last_name",
+        "application__number",
+        "application__application_title",
+    ]
     list_filter = ["application__round", "created_at", "testified_at", "status"]
     date_hierarchy = "testified_at"
     inlines = [StateLogInline]
