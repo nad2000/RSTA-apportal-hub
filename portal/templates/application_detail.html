@@ -78,7 +78,7 @@
                  >
                  <a class="btn btn-outline-primary{% if testimonial.state == "submitted" %} disabled{% endif %}"
                   href="{% if testimonial %}{% url 'testimonial-update' pk=testimonial.pk %}{% else %}{% url 'application-review-create' application=referee.application_id %}{% endif %}">
-                   {% if testimonial %}
+                   {% if testimonial and testimonial.file %}
                      {% trans 'Update' %}
                   {% else %}
                      {% trans 'Submit' %}
