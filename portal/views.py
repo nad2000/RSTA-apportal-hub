@@ -1302,6 +1302,37 @@ class ApplicationView(LoginRequiredMixin):
                             url = self.continue_url("summary")
                         # url = url or (self.request.path_info.split("?")[0] + "#summary")
 
+                    if (
+                        a.round
+                        and a.round.pid_required
+                        and a.submitted_by.needs_identity_verification
+                        and not (
+                            a.photo_identity
+                            or models.IdentityVerification.where(application=a).exists()
+                        )
+                    ):
+                        if (
+                            a.photo_identity
+                            or models.IdentityVerification.where(application=a).exists()
+                        ):
+                            messages.error(
+                                self.request,
+                                _(
+                                    "Your identity has not been verified yet by the administration. "
+                                    "We will notify you when it is verified and you can complete your application."
+                                ),
+                            )
+                        else:
+                            messages.error(
+                                self.request,
+                                _(
+                                    "Your identity has not been verified. "
+                                    "Please upload a scan of a document proving your identity."
+                                ),
+                            )
+                        if not url:
+                            url = self.continue_url("id-verification")
+
                     if url:
                         return redirect(url)
 
