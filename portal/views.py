@@ -970,7 +970,7 @@ class ApplicationDetail(DetailView):
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        is_owner = a.submitted_by == u or a.members.filter(user=u).exists()
+        is_owner = a.submitted_by == u or a.members.filter(user=u, has_authorized=True).exists()
         if p := a.round.panellists.filter(user=u).first():
             context["is_panellist"] = True
             coi = p.conflict_of_interests.filter(Q(application=a)).last()
@@ -1042,7 +1042,7 @@ class ApplicationView(LoginRequiredMixin):
                     return redirect("application", pk=pk)
         return super().dispatch(request, *args, **kwargs)
 
-    def continue_url(self, fragment):
+    def continue_url(self, fragment=None):
         if self.object and self.object.pk:
             url = reverse("application-update", kwargs=dict(pk=self.object.pk))
         else:
@@ -1328,7 +1328,7 @@ class ApplicationView(LoginRequiredMixin):
                         return redirect(url)
             except Exception as e:
                 messages.error(self.request, str(e))
-                return redirect(self.request.get_full_path())
+                return redirect(self.continue_url())
 
         return resp
 
