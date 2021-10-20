@@ -1391,7 +1391,7 @@ class EthicsStatement(PdfFileMixin, Model):
         blank=True,
         null=True,
     )
-    not_relevant = BooleanField(default=False)
+    not_relevant = BooleanField(default=False, verbose_name=_("Not Applicable"))
     comment = TextField(_("Comment"), max_length=1000, null=True, blank=True)
 
     class Meta:

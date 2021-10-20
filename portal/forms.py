@@ -279,8 +279,21 @@ class ApplicationForm(forms.ModelForm):
             ),
             Tab(
                 _("Summary and Forms"),
-                css_id="summary",
+                HTML(
+                    '<div class="alert alert-dark" role="alert"><p>%s</p><p>%s</p></div>'
+                    % (
+                        _(
+                            "An application form must be uploaded before referees can be invited; "
+                            "however, the form can be updated at any point up until submission."
+                        ),
+                        _(
+                            'Click "Browse" and you will be prompted for the new file location; '
+                            'and then "Save" to replace the existing file.'
+                        ),
+                    )
+                ),
                 *summary_fields,
+                css_id="summary",
             ),
             Tab(
                 _("Referees"),
@@ -316,6 +329,15 @@ class ApplicationForm(forms.ModelForm):
             tabs.append(
                 Tab(
                     _("Ethics"),
+                    HTML(
+                        '<div class="alert alert-dark" role="alert"><p>%s</p></div>'
+                        % (
+                            _(
+                                "Please provide an ethics form.  If this is not applicable to your application, click "
+                                '"Not Applicable" and state why in the comment.'
+                            ),
+                        )
+                    ),
                     InlineSubform("ethics_statement"),
                     css_id="ethics-statement",
                 ),
@@ -407,6 +429,7 @@ class ApplicationForm(forms.ModelForm):
             # summary=SummernoteWidget(),
             daytime_phone=TelInput(),
             mobile_phone=TelInput(),
+            # file=FileInput(),
             # summary=SummernoteInplaceWidget(),
             # summary_en=SummernoteInplaceWidget(),
             # summary_mi=SummernoteInplaceWidget(),
