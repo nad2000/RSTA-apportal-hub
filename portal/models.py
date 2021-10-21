@@ -1280,20 +1280,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
         # import ssl
 
+        r = self.round
+
         attachments = []
+        cvs = []
         if self.file:
             attachments.append(
                 (_("Application Form"), settings.PRIVATE_STORAGE_ROOT + "/" + str(self.pdf_file))
             )
 
-        if cv := (
-            self.cv
-            or CurriculumVitae.where(
-                Q(owner=self.submitted_by) | Q(profile__user_id=self.submitted_by_id)
-            )
-            .order_by("-id")
-            .first()
+        if r.applicant_cv_required and (
+            cv := self.cv or CurriculumVitae.last_user_cv(self.submitted_by)
         ):
+            cvs.append(cv)
             attachments.append(
                 (
                     f"{cv.full_name} {_('Curriculum Vitae')}",
@@ -1308,23 +1307,49 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 panellist__user=request.user, has_conflict=False, has_conflict__isnull=False
             )
         ):
-            attachments.extend(
-                (
-                    _("Nomination Submitted By %s") % n.nominator.full_name,
-                    settings.PRIVATE_STORAGE_ROOT + "/" + str(n.pdf_file),
-                )
-                for n in Nomination.where(application=self)
-                if n.file and n.nominator
-            )
+            for n in Nomination.where(application=self):
+                if n.file and n.nominator:
+                    attachments.append(
+                        (
+                            _("Nomination Submitted By %s") % n.nominator.full_name,
+                            settings.PRIVATE_STORAGE_ROOT + "/" + str(n.pdf_file),
+                        )
+                    )
 
-            attachments.extend(
-                (
-                    _("Testimonial Form Submitted By %s") % t.referee.full_name,
-                    settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
-                )
-                for t in self.get_testimonials()
-                if t.file and t.referee
-            )
+                    if (
+                        r.nominator_cv_required
+                        and (nominator_cv := n.cv or CurriculumVitae.last_user_cv(n.nominator))
+                        and nominator_cv not in cvs
+                    ):
+                        cvs.append(nominator_cv)
+                        attachments.append(
+                            (
+                                f"{cv.full_name} {_('Curriculum Vitae')}",
+                                settings.PRIVATE_STORAGE_ROOT + "/" + str(nominator_cv.pdf_file),
+                            )
+                        )
+
+            for t in self.get_testimonials():
+                if t.file and t.referee:
+                    attachments.append(
+                        (
+                            _("Testimonial Form Submitted By %s") % t.referee.full_name,
+                            settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
+                        )
+                    )
+
+                    if (
+                        r.referee_cv_required
+                        and (referee_cv := n.cv or CurriculumVitae.last_user_cv(r.user))
+                        and referee_cv not in cvs
+                    ):
+                        cvs.append(referee_cv)
+                        attachments.append(
+                            (
+                                f"{cv.full_name} {_('Curriculum Vitae')}",
+                                settings.PRIVATE_STORAGE_ROOT + "/" + str(referee_cv.pdf_file),
+                            )
+                        )
 
         # ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -2196,6 +2221,10 @@ class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
     converted_file = ForeignKey(
         ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file")
     )
+
+    @classmethod
+    def last_user_cv(cls, user):
+        return cls.where(Q(owner=user) | Q(profile__user=user)).order_by("-id").first()
 
     def __str__(self):
         return self.filename
