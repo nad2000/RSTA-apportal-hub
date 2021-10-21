@@ -16,7 +16,11 @@ option {direction: rtl;}
   {% elif evaluation.state == "submitted" %}
     {% breadcrumb "Submitted" "reviews-submitted" %}
   {% endif %}
-  {% breadcrumb application.round.title "round-application-list-with-state" round_id=application.round_id state=evaluation.state %}
+  {% if evaluation.state %}
+    {% breadcrumb round "round-application-list-with-state" round_id=application.round_id state=evaluation.state %}
+  {% else %}
+    {% breadcrumb round "round-application-list" round_id=application.round_id %}
+  {% endif %}
   {% if pk %}
     {% breadcrumb application "evaluation-update" pk=pk %}
   {% else %}
@@ -29,6 +33,49 @@ option {direction: rtl;}
 {% block title %}{{ application }}{% endblock %}
 
 {% block content %}
+
+
+  {% with a=application u=user r=round %}
+    <div class="table-responsive">
+
+      <p>
+      <button class="btn btn-primary"
+              type="button"
+              data-toggle="collapse"
+              data-target="#details"
+              aria-expanded="false"
+              aria-controls="details">
+        {% trans 'Show Details' %}
+      </button>
+
+      <a class="btn btn-outline-primary"
+         href="{% url 'application-export' pk=a.pk %}"
+      >
+         {% trans 'Export Application' %}
+      </a>
+
+      {% if coi %}
+        <a class="btn btn-outline-primary"
+          href="{% url 'coi-update' pk=coi.pk %}"
+        >
+          {% trans "Conflict of Interst" %}
+        </a>
+      {% endif %}
+
+      <a href="{% url 'application' pk=a.pk%}" type="button" role="button" class="btn btn-secondary" id="cancel">
+        {% trans "Close" %}
+      </a>
+
+      </p>
+
+      <div class="collapse" id="details">
+        <div class="card card-body">
+          {% include 'snippets/application_detail_table.html' %}
+        </div>
+      </div>
+
+    </div>
+  {% endwith %}
 
   <form method="post">
 

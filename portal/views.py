@@ -3623,6 +3623,10 @@ class EvaluationMixin:
         ):
             data["application"] = application
             data["round"] = application.round
+            data["coi"] = application.conflict_of_interests.filter(
+                panellist__user=self.request.user
+            ).last()
+
         return data
 
 
