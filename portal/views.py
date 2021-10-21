@@ -1163,7 +1163,7 @@ class ApplicationView(LoginRequiredMixin):
                                 url = self.continue_url("summary")
                                 messages.error(
                                     self.request,
-                                    "Please upload a new applicaton form or remove the referees.",
+                                    "Please upload a new application form or remove the referees.",
                                 )
                                 raise ValidationError()
                             else:
@@ -2716,7 +2716,7 @@ class TestimonialView(CreateUpdateView):
 
         if not t.id:
             a = self.application
-            t.applicaton = a
+            t.application = a
             if a:
                 t.referee = models.Referee.get(user=self.request.user, application=a)
             else:
@@ -3476,6 +3476,7 @@ class ConflictOfInterestView(CreateUpdateView):
             a := models.Application.where(id=self.kwargs["application_id"]).first()
         ):
             initial["application"] = a
+            initial["has_conflict"] = True
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -3516,20 +3517,18 @@ class ConflictOfInterestView(CreateUpdateView):
         except:
             application = models.Application.where(id=self.kwargs["application_id"]).first()
         round = application.round
-        if "submit" in self.request.POST:
-            n.panellist = models.Panellist.where(round=round, user=self.request.user).first()
-            n.application = application
-            form.save()
-        elif "close" in self.request.POST:
-            return redirect("round-application-list", round_id=round.pk)
+        n.application = application
+        n.panellist = models.Panellist.where(round=round, user=self.request.user).first()
+        resp = super().form_valid(form)
+
         if n.has_conflict:
             messages.warning(
                 self.request, _("You have conflict of interest for this application.")
             )
             return redirect("round-application-list", round_id=round.pk)
         else:
-            return redirect("application", pk=application.pk)
-        return super().form_valid(form)
+            return redirect("application-evaluation-create", application=application.pk)
+        return resp
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -3639,13 +3638,13 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
     def dispatch(self, request, *args, **kwargs):
         u = self.request.user
         if u.is_authenticated and not (u.is_superuser or u.is_staff):
-            a = self.applicaton
+            a = self.application
             if not (a and models.Panellist.where(round=a.round, user=u).exists()):
                 messages.error(
                     request,
                     _("You do not have permissions to create an evaluation for this application."),
                 )
-            return redirect(self.request.META.get("HTTP_REFERER", "index"))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
     @property
@@ -3681,7 +3680,7 @@ class UpdateEvaluation(LoginRequiredMixin, EvaluationMixin, UpdateWithInlinesVie
             e = self.get_object()
             if e and e.panellist and e.panellist.user and e.panellist.user != u:
                 messages.error(request, _("You do not have permissions to access this page."))
-            return redirect(self.request.META.get("HTTP_REFERER", "index"))
+                return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
