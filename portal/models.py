@@ -540,9 +540,11 @@ class Qualification(Model):
 def default_organisation_code(name):
     name = name.lower()
     prefix = "".join(w[0] for w in name.split() if w).upper()
-    code = prefix
+    code = prefix[:8]
     suffix = 1
     while Organisation.where(code=code).exists():
+        if len(prefix) > 7:
+            prefix = prefix[:7]
         code = f"{prefix}{suffix}"
         suffix += 1
     return code
@@ -1278,8 +1280,6 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def to_pdf(self, request=None):
         """Create PDF file for export and return PdfFileMerger"""
 
-        # import ssl
-
         r = self.round
 
         attachments = []
@@ -1324,7 +1324,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                         cvs.append(nominator_cv)
                         attachments.append(
                             (
-                                f"{cv.full_name} {_('Curriculum Vitae')}",
+                                f"{nominator_cv.full_name} {_('Curriculum Vitae')}",
                                 settings.PRIVATE_STORAGE_ROOT + "/" + str(nominator_cv.pdf_file),
                             )
                         )
@@ -1340,17 +1340,16 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
                     if (
                         r.referee_cv_required
-                        and (referee_cv := n.cv or CurriculumVitae.last_user_cv(r.user))
+                        and (referee_cv := t.cv or CurriculumVitae.last_user_cv(t.referee.user))
                         and referee_cv not in cvs
                     ):
                         cvs.append(referee_cv)
                         attachments.append(
                             (
-                                f"{cv.full_name} {_('Curriculum Vitae')}",
+                                f"{referee_cv.full_name} {_('Curriculum Vitae')}",
                                 settings.PRIVATE_STORAGE_ROOT + "/" + str(referee_cv.pdf_file),
                             )
                         )
-
         # ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger()

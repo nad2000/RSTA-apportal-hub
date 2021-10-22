@@ -374,10 +374,18 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
 
 admin.site.register(models.Award)
 admin.site.register(models.ConvertedFile)
-admin.site.register(models.CurriculumVitae)
 
 
 class AwardAdmin(admin.ModelAdmin):
+    view_on_site = False
+
+
+@admin.register(models.CurriculumVitae)
+class CurriculumVitaeAdmin(admin.ModelAdmin):
+    list_display = ["profile", "owner", "title", "file"]
+    # list_filter = ["owner"]
+    search_fields = ["owner"]
+    date_hierarchy = "created_at"
     view_on_site = False
 
 
@@ -535,7 +543,7 @@ class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
     nominator_name.short_description = "nominator"
     nominator_name.admin_order_field = "nominator__first_name"
 
-    list_display = ["round", "nominee_name", "nominator_name"]
+    list_display = ["round", "nominee_name", "nominator_name", "application"]
     date_hierarchy = "created_at"
     list_filter = ["created_at", "updated_at", "round", "status"]
     fsm_field = ["status"]
