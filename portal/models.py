@@ -879,6 +879,9 @@ class Nominee(Model):
 class ConvertedFile(Base):
     file = PrivateFileField(upload_subfolder=lambda instance: ["converted"])
 
+    def __str__(self):
+        return self.file.name
+
 
 APPLICATION_STATUS = Choices(
     (None, None),

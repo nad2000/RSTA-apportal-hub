@@ -1,7 +1,10 @@
+import os
+
 import modeltranslation
 from django.contrib import admin, messages
 from django.db.models import Q
 from django.shortcuts import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django_fsm_log.admin import StateLogInline
 from fsm_admin.mixins import FSMTransitionMixin
@@ -15,6 +18,36 @@ from . import models
 admin.site.site_url = "/start"
 admin.site.site_header = _("Portal Administration")
 admin.site.site_title = _("Portal Administration")
+
+
+class PdfFileAdminMixin:
+    """Mixin for handling attached file update and conversion to a PDF copy."""
+
+    def save_model(self, request, obj, form, change):
+        if change and "file" in form.changed_data and obj.file:
+            try:
+                if cf := obj.update_converted_file():
+                    messages.success(
+                        request,
+                        format_html(
+                            (
+                                "The attachment was converted into PDF file. "
+                                "Please review the converted file version <a href='%s'>%s</a>."
+                            )
+                            % (cf.file.url, os.path.basename(cf.file.name))
+                        ),
+                    )
+
+            except:
+                messages.error(
+                    request,
+                    (
+                        "Failed to convert the attachment form into PDF. "
+                        "Please save your attachment  into PDF format and try to upload it again."
+                    ),
+                )
+                raise
+        super().save_model(request, obj, form, change)
 
 
 class StaffPermsMixin:
@@ -291,7 +324,9 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
 
 
 @admin.register(models.Application)
-class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin):
+class ApplicationAdmin(
+    PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin
+):
 
     date_hierarchy = "created_at"
     list_display = ["number", "complete", "application_title", "full_name", "org"]
@@ -320,6 +355,7 @@ class ApplicationAdmin(StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, Si
         model = models.Member
 
         def view_on_site(self, obj):
+
             return reverse("application", kwargs={"pk": obj.application_id})
 
     class RefereeInline(StaffPermsMixin, admin.TabularInline):
@@ -530,7 +566,7 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 
 @admin.register(models.Nomination)
-class NominationAdmin(FSMTransitionMixin, SimpleHistoryAdmin):
+class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin):
     def nominator_name(self, obj):
         return obj.nominator.full_name_with_email or obj.nominator
 
@@ -611,7 +647,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 
 
 @admin.register(models.Testimonial)
-class TestimonialAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     # summernote_fields = ["summary"]
     exclude = ["summary"]
