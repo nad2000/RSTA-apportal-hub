@@ -24,9 +24,11 @@ class PdfFileAdminMixin:
     """Mixin for handling attached file update and conversion to a PDF copy."""
 
     def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
         if change and "file" in form.changed_data and obj.file:
             try:
                 if cf := obj.update_converted_file():
+                    obj.save()
                     messages.success(
                         request,
                         format_html(
@@ -47,7 +49,6 @@ class PdfFileAdminMixin:
                     ),
                 )
                 raise
-        super().save_model(request, obj, form, change)
 
 
 class StaffPermsMixin:

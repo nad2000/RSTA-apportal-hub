@@ -223,7 +223,15 @@ class PdfFileMixin:
                 ],
                 capture_output=True,
             )
-            if cp.returncode != 0:
+            if cp.returncode != 0 or ((stderr := (cp.stderr and cp.stderr.decode())) and "error" in stderr.lower()):
+                if stderr:
+                    raise Exception(
+                        _(
+                            "Failed to convert your application form into PDF: %s. "
+                            "Please save your application form into PDF format and try to upload it again."
+                        ) % stderr,
+                    )
+
                 raise Exception(
                     _(
                         "Failed to convert your application form into PDF. "
