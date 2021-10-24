@@ -2351,27 +2351,40 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
         if not formset.deleted_forms:
 
             cv = models.CurriculumVitae.where(owner=self.request.user).order_by("-id").first()
-            if cv and (cf := cv.update_converted_file()):
-                messages.success(
-                    self.request,
-                    _(
-                        "Your CV was converted into PdF file. Please review the converted version <a href='%s'>%s</a>."
-                    )
-                    % (cf.file.url, os.path.basename(cf.file.name)),
-                )
-
-            if "next" in self.request.GET:
-                if (
-                    cv := models.CurriculumVitae.where(owner=self.request.user)
-                    .order_by("-id")
-                    .first()
-                ):
-                    messages.info(
+            try:
+                if cv and (cf := cv.update_converted_file()):
+                    cv.save()
+                    messages.success(
                         self.request,
-                        _('A CV successfully uploaded: <a href="%s">%s</a>')
-                        % (cv.file.url, cv.filename),
+                        _(
+                            "Your CV was converted into PDF file. Please review "
+                            "the converted version <a href='%s'>%s</a>."
+                        )
+                        % (cf.file.url, os.path.basename(cf.file.name)),
                     )
-                return redirect(self.request.GET["next"])
+
+                if "next" in self.request.GET:
+                    if (
+                        cv := models.CurriculumVitae.where(owner=self.request.user)
+                        .order_by("-id")
+                        .first()
+                    ):
+                        messages.info(
+                            self.request,
+                            _('A CV successfully uploaded: <a href="%s">%s</a>')
+                            % (cv.file.url, cv.filename),
+                        )
+                    return redirect(self.request.GET["next"])
+            except Exception as ex:
+                messages.error(
+                    self.request,
+                    str(ex)
+                    or _(
+                        "Failed to convert your nomination form into PDF. "
+                        "Please save your nomination form into PDF format and try to upload it again."
+                    ),
+                )
+                return redirect(self.request.get_full_path())
 
         return resp
 
