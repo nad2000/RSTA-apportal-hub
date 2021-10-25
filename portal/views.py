@@ -2729,7 +2729,6 @@ class TestimonialView(CreateUpdateView):
 
         if not t.id:
             a = self.application
-            t.application = a
             if a:
                 t.referee = models.Referee.get(user=self.request.user, application=a)
             else:
