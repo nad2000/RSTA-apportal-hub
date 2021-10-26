@@ -31,6 +31,19 @@
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
 
 {% block more_info %}
+
+  {% if application %}
+    <p>
+    <a class="btn btn-primary"
+       data-toggle="tooltip"
+       title="{% trans 'Submit Conflict of Interest Statements in batch for the whole round' %}"
+       href="{% url 'round-coi' round=application.round.pk %}"
+       >
+       {% trans 'Conflict of Interest Statements' %}
+    </a>
+    </p>
+  {% endif %}
+
   <table class="table table-bordered searchable">
     <tbody>
       {% for field in application|fields %}

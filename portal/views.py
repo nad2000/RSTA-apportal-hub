@@ -3405,6 +3405,9 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
         context = super().get_context_data(**kwargs)
         if round := self.round:
             context["round"] = round
+            if panellist := round.panellists.filter(user=self.request.user).last():
+                context["is_panellist"] = True
+                context["panellist"] = panellist
         if state := self.state:
             context["state"] = state
         return context

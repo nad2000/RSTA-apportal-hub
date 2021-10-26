@@ -198,9 +198,14 @@ option {direction: rtl;}
     <div class="buttonHolder mb-3 float-right">
       <input type="submit" name="save_draft"
                            value="{% trans 'Save' %}" class="btn btn btn-primary" id="submit-id-save_draft">
-      <a href="{% url 'reviews' %}" type="button" role="button" class="btn btn-secondary" id="cancel">
-        {% trans 'Cancel' %}
-      </a>
+    <a href="{% if round %}{% url 'round-application-list' round_id=round.pk %}{% else %}{% url 'reviews' %}{% endif %}"
+       type="button"
+       role="button"
+       class="btn btn-secondary"
+       id="cancel"
+       >
+       {% trans 'Cancel' %}
+    </a>
       {% if round.score_sheet_template %}
         <a
             href="{{ round.score_sheet_template.url }}"
