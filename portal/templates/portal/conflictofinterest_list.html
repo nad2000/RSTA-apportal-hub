@@ -78,7 +78,7 @@ option {direction: rtl;}
           <button type="button" class="btn btn-{% if not is_all_coi_statements_sumitted or not has_conflict_True %}outline-{% endif %}danger" data-toggle="fun" data-title="1">{% trans 'Yes' %}</button>
         </div>
         <label for="fun" class="col-sm-9 col-md-9 control-label">
-          {% trans 'I have or do not have a conflict of interest in respoect to all the applications' %}
+          {% trans 'I have or do not have a conflict of interest in respect to all the applications' %}
         </label>
       </div>
     </div>
@@ -206,29 +206,33 @@ option {direction: rtl;}
        >
        {% trans 'Cancel' %}
     </a>
-      {% if round.score_sheet_template %}
-        <a
-            href="{{ round.score_sheet_template.url }}"
-            type="button" role="button"
-                          class="btn btn-success" id="download-score-sheet"
-                                                  data-toggle="tooltip" title="{% trans 'Download score sheet template' %}"
-                                                                        >
-                                                                        {% trans 'Download Score Sheet' %}...
-        </a>
-        {% else %}
+
+      {% if not round.has_online_scoring %}
+        {% if round.score_sheet_template %}
           <a
-              href="{% url 'export-score-sheet' round=view.kwargs.round %}"
-              type="button" role="button" class="btn btn-success" id="download-score-sheet"
-                                                                  data-toggle="tooltip" title="{% trans 'Download generated score sheet' %}"
-                                                                                        >
-                                                                                        {% trans 'Download Score Sheet' %}...
+              href="{{ round.score_sheet_template.url }}"
+              type="button" role="button"
+                            class="btn btn-success" id="download-score-sheet"
+                                                    data-toggle="tooltip" title="{% trans 'Download score sheet template' %}"
+                                                                          >
+                                                                          {% trans 'Download Score Sheet' %}...
           </a>
+          {% else %}
+            <a
+                href="{% url 'export-score-sheet' round=view.kwargs.round %}"
+                type="button" role="button" class="btn btn-success" id="download-score-sheet"
+                                                                    data-toggle="tooltip" title="{% trans 'Download generated score sheet' %}">
+              {% trans 'Download Score Sheet' %}...
+            </a>
           {% endif %}
+
           {% if is_all_coi_statements_sumitted %}
             <a href="{% url 'score-sheet' round=view.kwargs.round %}" type="button" role="button" class="btn btn-outline-success" id="download-score-sheet">
               {% trans 'Uploade Score Sheet' %}...
             </a>
           {% endif %}
+        {% endif %}
+
     </div>
   </form>
 
