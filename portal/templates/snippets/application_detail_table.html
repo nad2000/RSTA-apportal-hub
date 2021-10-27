@@ -144,11 +144,18 @@
       {% endif %}
 
       <tr>
-        <th class="table-dark" scope="row">{% trans 'Completed Application Form' %}</th>
+        <th class="table-dark" scope="row">
+          {% trans 'Completed Application Form' %}
+          {% if is_panellist %}
+            ({% trans 'with attachments' %})
+          {% endif %}
+        </th>
         <td colspan="3">
           {% if a.file %}
             {% if a|can_edit:user %}
               <a href="{{ a.file.url }}" target="_blank"> {{ a.filename }} </a>
+            {% elif is_panellist %}
+              <a href="{% url 'application-export' pk=a.pk %}" target="_blank"> {{ a.number }}.pdf </a>
             {% else %}
               <a href="{{ a.pdf_file.url }}" target="_blank"> {{ a.pdf_filename }} </a>
             {% endif %}

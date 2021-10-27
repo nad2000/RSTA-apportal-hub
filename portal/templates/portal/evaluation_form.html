@@ -53,6 +53,7 @@ option {direction: rtl;}
 
       <a class="btn btn-outline-primary"
          href="{% url 'application-export' pk=a.pk %}"
+         target="_blank"
       >
          {% trans 'Export Application' %}
       </a>
@@ -73,7 +74,7 @@ option {direction: rtl;}
 
       <div class="collapse show" id="details">
         <div class="card card-body">
-          {% include 'snippets/application_detail_table.html' %}
+          {% include 'snippets/application_detail_table.html' with is_panellist=True %}
         </div>
       </div>
 

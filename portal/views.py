@@ -3070,7 +3070,7 @@ class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
             pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
             pdf_response[
                 "Content-Disposition"
-            ] = f"attachment; filename={self.get_filename(pk)}.pdf"
+            ] = f"inline; filename={self.get_filename(pk)}.pdf"
             return pdf_response
         except Exception as ex:
             messages.warning(
@@ -3141,7 +3141,8 @@ class ApplicationExportView(ExportView):
         # pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
         pdf_content.seek(0)
         pdf_response = FileResponse(pdf_content, content_type="application/pdf")
-        pdf_response["Content-Disposition"] = f"attachment; filename={a.number}.pdf"
+        # pdf_response["Content-Disposition"] = f"attachment; filename={a.number}.pdf"
+        pdf_response["Content-Disposition"] = f"inline; filename={a.number}.pdf"
         return pdf_response
 
         # except Exception as ex:
@@ -3198,7 +3199,8 @@ class RoundExportView(ExportView):
         content.seek(0)
 
         response = FileResponse(content, content_type="application/pdf")
-        response["Content-Disposition"] = f"attachment; filename={self.filename}.pdf"
+        # response["Content-Disposition"] = f"attachment; filename={self.filename}.pdf"
+        response["Content-Disposition"] = f"inline; filename={self.filename}.pdf"
         return response
 
         # except Exception as ex:
