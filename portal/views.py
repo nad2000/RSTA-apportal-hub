@@ -3622,11 +3622,12 @@ class EvaluationMixin:
     def form_valid(self, form):
         reset_cache(self.request)
         resp = super().form_valid(form)
+        e = self.object
         if "save_draft" in self.request.POST:
-            self.object.save_draft()
+            e.save_draft()
         else:
-            self.object.submit()
-        self.object.save()
+            e.submit()
+        e.save()
         return resp
 
     def get_context_data(self, **kwargs):

@@ -43,9 +43,12 @@ option {direction: rtl;}
               type="button"
               data-toggle="collapse"
               data-target="#details"
-              aria-expanded="false"
+              aria-expanded="true"
               aria-controls="details">
-        {% trans 'Show Details' %}
+        <b id="application-detail-button">
+          {% trans 'Hide' %}
+        </b>
+        {% trans 'Details' %}
       </button>
 
       <a class="btn btn-outline-primary"
@@ -68,7 +71,7 @@ option {direction: rtl;}
 
       </p>
 
-      <div class="collapse" id="details">
+      <div class="collapse show" id="details">
         <div class="card card-body">
           {% include 'snippets/application_detail_table.html' %}
         </div>
@@ -131,4 +134,16 @@ option {direction: rtl;}
 
   </form>
 
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    $('#details').on('hidden.bs.collapse', function () {
+          $("#application-detail-button").text("{% trans 'Show' %}");
+    });
+    $('#details').on('shown.bs.collapse', function () {
+          $("#application-detail-button").text("{% trans 'Hide' %}");
+    });
+  </script>
 {% endblock %}
