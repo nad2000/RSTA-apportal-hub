@@ -219,7 +219,9 @@ def application_review_link(table, record, value):
         e = record.evaluations.filter(panellist__user=user).order_by("-id").first()
         if e and e.state in ["new", "draft"]:
             return reverse("evaluation-update", kwargs=dict(pk=e.id))
-        else:
+        elif e:
+            return reverse("evaluation", kwargs=dict(pk=e.id))
+        elif not e:
             return reverse("application-evaluation-create", kwargs=dict(application=record.id))
     elif coi.has_conflict or record.state != "submitted":
         return
@@ -251,6 +253,15 @@ class RoundApplicationTable(tables.Table):
                 % (_("You have not submitted the statement of the conflict of interest"), value)
             )
         if not coi.has_conflict:
+            if record.evaluations.filter(panellist__user=user).exists():
+                return format_html(
+                    "<span data-toggle='tooltip' title='%s'>%s</span>"
+                    % (
+                        _("You have already submitted an evaluation of this application."),
+                        value,
+                    )
+                )
+
             return format_html(
                 "<span data-toggle='tooltip' title='%s'>%s</span>"
                 % (

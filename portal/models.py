@@ -223,13 +223,16 @@ class PdfFileMixin:
                 ],
                 capture_output=True,
             )
-            if cp.returncode != 0 or ((stderr := (cp.stderr and cp.stderr.decode())) and "error" in stderr.lower()):
+            if cp.returncode != 0 or (
+                (stderr := (cp.stderr and cp.stderr.decode())) and "error" in stderr.lower()
+            ):
                 if stderr:
                     raise Exception(
                         _(
                             "Failed to convert your application form into PDF: %s. "
                             "Please save your application form into PDF format and try to upload it again."
-                        ) % stderr,
+                        )
+                        % stderr,
                     )
 
                 raise Exception(
@@ -2751,7 +2754,7 @@ class Evaluation(EvaluationMixin, Model):
     #     help_text=_("Please upload completed application evaluation score sheet"),
     #     upload_subfolder=lambda instance: ["score-sheet", hash_int(instance.application.code)],
     # )
-    comment = TextField(_("Overall Comment"), null=True, blank=True)
+    comment = TextField(_("Overall Comment"))
     # scores = ManyToManyField(Criterion, blank=True, through="Score")
     total_score = PositiveIntegerField(_("Total Score"), default=0)
     state = StateField(null=True, blank=True, default="new")
@@ -2770,7 +2773,7 @@ class Evaluation(EvaluationMixin, Model):
     def submit(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
         if not self.comment:
-            raise Exception(_("The review is not completed. Missing an overall comment."))
+            raise ValidationError(_("The review is not completed. Missing an overall comment."))
 
     @classmethod
     def user_evaluations(cls, user, state=None, round=None):

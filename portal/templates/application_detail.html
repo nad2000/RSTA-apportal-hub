@@ -107,7 +107,7 @@
                  <a
                      {% if r.has_online_scoring %}
                        {% if evaluation %}
-                       href="{% url 'application-evaluation' pk=evaluation.pk %}"
+                       href="{% url 'application-evaluation' pk=a.pk %}"
                      {% elif not evaluation and not has_coi %}
                          href="{% url 'application-evaluation-create' application=a.pk %}"
                        {% else %}

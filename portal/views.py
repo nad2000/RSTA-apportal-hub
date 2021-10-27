@@ -3607,15 +3607,28 @@ class ScoreInline(InlineFormSetFactory):
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
-        if "application" in self.kwargs and self.request.method == "GET":
-            kwargs["extra"] = self.get_entries().count()
+        if "application" in self.kwargs and (a := get_object_or_404(models.Application, pk=self.kwargs["application"])):
+            if self.request.method == "GET":
+                kwargs["extra"] = self.get_entries().count()
+            else:
+                kwargs["extra"] = a.round.criteria.count() - self.object.scores.count()
         else:
-            kwargs["extra"] = 0
+            kwargs["extra"] = (
+                self.object.application.round.criteria.count() - self.object.scores.count()
+            )
         return kwargs
 
     def get_initial(self):
-        if "application" in self.kwargs and self.request.method == "GET":
-            return [dict(criterion=e, value=e.min_score) for e in self.get_entries()]
+        if self.request.method == "GET":
+            if "application" in self.kwargs:
+                return [dict(criterion=e, value=e.min_score) for e in self.get_entries()]
+            evaluation = self.object
+            return [
+                dict(criterion=e, value=e.min_score)
+                for e in evaluation.application.round.criteria.filter(
+                    ~Q(id__in=evaluation.scores.values("criterion"))
+                )
+            ]
         return super().get_initial()
 
 
@@ -3634,13 +3647,18 @@ class EvaluationMixin:
 
     def form_valid(self, form):
         reset_cache(self.request)
-        resp = super().form_valid(form)
-        e = self.object
-        if "save_draft" in self.request.POST:
-            e.save_draft()
-        else:
-            e.submit()
-        e.save()
+        try:
+            with transaction.atomic():
+                resp = super().form_valid(form)
+                e = self.object
+                if "save_draft" in self.request.POST:
+                    e.save_draft()
+                else:
+                    e.submit()
+                e.save()
+        except Exception as ex:
+            messages.error(self.request, getattr(ex, "message", str(ex)))
+            return super().form_invalid(form)
         return resp
 
     def get_context_data(self, **kwargs):

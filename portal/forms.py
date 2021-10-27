@@ -986,14 +986,15 @@ class ScoreForm(forms.ModelForm):
             if hasattr(self.instance, "criterion")
             else self.initial.get("criterion")
         )
+        self.fields["comment"].widget.attrs = {"rows": 3}
         if criterion:
             self.fields["comment"].required = criterion.comment
             self.comment_required = criterion.comment
             if criterion.comment:
                 fields.append(Field("comment", required=True))
+                self.fields["comment"].widget.attrs["required"] = True
             else:
                 fields.append(Field("comment"))
-        self.fields["comment"].widget.attrs = {"rows": 3}
         self.fields["value"] = forms.TypedChoiceField(
             choices=zip(
                 range(criterion.min_score, criterion.max_score + 1),
