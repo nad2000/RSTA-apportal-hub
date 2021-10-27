@@ -208,19 +208,20 @@ def application_review_link(table, record, value):
             url += f"?state={state}"
         return url
 
-    coi = record.conflict_of_interests.filter(panellist__user=user).first()
-    if not coi or (coi.has_conflict or coi.has_conflict is None):
+    coi = record.conflict_of_interests.filter(panellist__user=user).last()
+    #  coi = record.conflict_of_interests.last()
+    if not coi or coi.has_conflict is None:
         return reverse(
             "round-application-review",
             kwargs={"round_id": record.round.id, "application_id": record.id},
         )
-    elif coi and not coi.has_conflict:
+    elif not coi.has_conflict:
         e = record.evaluations.filter(panellist__user=user).order_by("-id").first()
         if e and e.state in ["new", "draft"]:
             return reverse("evaluation-update", kwargs=dict(pk=e.id))
         else:
             return reverse("application-evaluation-create", kwargs=dict(application=record.id))
-    elif record.state != "submitted":
+    elif coi.has_conflict or record.state != "submitted":
         return
 
 
@@ -241,13 +242,36 @@ class RoundApplicationTable(tables.Table):
 
     def render_number(self, record, value):
         user = self.request.user
-        coi = record.conflict_of_interests.filter(panellist__user=user).first()
+        coi = record.conflict_of_interests.filter(panellist__user=user).last()
+        #  coi = record.conflict_of_interests.last()
 
-        if not coi or (coi.has_conflict or coi.has_conflict is None):
+        if not coi or coi.has_conflict is None:
             return format_html(
                 "<span data-toggle='tooltip' title='%s'>%s</span>"
                 % (_("You have not submitted the statement of the conflict of interest"), value)
             )
+        if not coi.has_conflict:
+            return format_html(
+                "<span data-toggle='tooltip' title='%s'>%s</span>"
+                % (
+                    _(
+                        "You have submitted the statement of the conflict of interest. "
+                        "Please evaluate the application and submit scores."
+                    ),
+                    value,
+                )
+            )
+        # if coi.has_conflict:
+        #     return format_html(
+        #         "<span data-toggle='tooltip' title='%s'>%s</span>"
+        #         % (
+        #             _(
+        #                 "You have stated that you have a conflict of interest in respect of this application. "
+        #                 "You cannot evaluate this application."
+        #             ),
+        #             value,
+        #         )
+        #     )
 
         if record.state != "submitted":
             return format_html(

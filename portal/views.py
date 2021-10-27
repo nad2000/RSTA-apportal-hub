@@ -24,7 +24,16 @@ from django.contrib.auth.mixins import (
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
-from django.db.models import Count, Exists, F, Func, OuterRef, Q, Value
+from django.db.models import (
+    Count,
+    Exists,
+    F,
+    FilteredRelation,
+    Func,
+    OuterRef,
+    Q,
+    Value,
+)
 from django.db.models.functions import Coalesce
 from django.forms import widgets  # BooleanField,
 from django.forms import (
@@ -3437,7 +3446,12 @@ class RoundApplicationList(LoginRequiredMixin, SingleTableView):
 
         user = self.request.user
         if not (user.is_staff or user.is_superuser):
-            queryset = queryset.filter(round__panellists__user=user, state="submitted")
+            queryset = queryset.filter(round__panellists__user=user, state="submitted").annotate(
+                coi=FilteredRelation(
+                    "conflict_of_interests",
+                    condition=Q(conflict_of_interests__panelist__user=user),
+                )
+            )
         else:
             queryset = queryset.annotate(evaluation_count=Count("evaluations"))
 
@@ -3589,7 +3603,6 @@ class ScoreInline(InlineFormSetFactory):
             # return a.get_score_entries(user=self.request.user).distinct()
             return a.round.criteria.all()
         else:
-            breakpoint()
             pass
 
     def get_factory_kwargs(self):
