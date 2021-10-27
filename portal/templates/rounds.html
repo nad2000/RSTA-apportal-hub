@@ -32,12 +32,12 @@
 {% block content %}
   {% if round %}
     <h2>
-      {{ round.title|default:round.scheme.title|title }}
+      {{ round.title|default:round.scheme.title }}
     </h2>
   {% elif application %}
     <h2>
       {{ application.number }}:
-      {{ application.title|default:application.round.title|title }}
+      {{ application.title|default:application.round.title }}
     </h2>
   {% endif %}
 

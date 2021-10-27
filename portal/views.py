@@ -3068,9 +3068,7 @@ class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
             pdf_content = io.BytesIO()
             merger.write(pdf_content)
             pdf_response = HttpResponse(pdf_content.getvalue(), content_type="application/pdf")
-            pdf_response[
-                "Content-Disposition"
-            ] = f"inline; filename={self.get_filename(pk)}.pdf"
+            pdf_response["Content-Disposition"] = f"inline; filename={self.get_filename(pk)}.pdf"
             return pdf_response
         except Exception as ex:
             messages.warning(
@@ -3591,6 +3589,7 @@ class ScoreInline(InlineFormSetFactory):
             # return a.get_score_entries(user=self.request.user).distinct()
             return a.round.criteria.all()
         else:
+            breakpoint()
             pass
 
     def get_factory_kwargs(self):
@@ -3774,6 +3773,23 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
     def post(self, *args, **kwargs):
         reset_cache(self.request)
         resp = super().post(*args, **kwargs)
+        return resp
+
+    def formset_valid(self, formset):
+        resp = super().formset_valid(formset)
+        if "submit" in self.request.POST:
+            r = get_object_or_404(models.Round, pk=self.kwargs["round"])
+            messages.success(
+                self.request,
+                _(
+                    "Your conflicts of interest statements have been recorded. "
+                    "You can now evaluate the application(s) and submit scores."
+                ),
+            )
+            if r.has_online_scoring:
+                return redirect("round-application-list", round_id=r.pk)
+            else:
+                return redirect("score-sheet", round=r.pk)
         return resp
 
     def get_context_data(self, *args, **kwargs):
