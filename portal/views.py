@@ -3199,8 +3199,7 @@ class RoundExportView(ExportView):
         content.seek(0)
 
         response = FileResponse(content, content_type="application/pdf")
-        # response["Content-Disposition"] = f"attachment; filename={self.filename}.pdf"
-        response["Content-Disposition"] = f"inline; filename={self.filename}.pdf"
+        response["Content-Disposition"] = f"attachment; filename={self.filename}.pdf"
         return response
 
         # except Exception as ex:
