@@ -1,4 +1,4 @@
-{% extends 'detail.html' %}
+{% extends 'base.html' %}
 
 {% load i18n tags django_bootstrap_breadcrumbs %}
 
@@ -15,3 +15,122 @@
 {% endblock %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="reviews" %}{% endblock sidebar %}
+
+{% block content %}
+  <h1>
+    {{ object }}
+  </h1>
+
+  <div class="table-responsive">
+  <table class="table table-bordered searchable">
+    <tbody>
+
+      {% for field in object|fields %}
+        {% if field.name != 'id' and exclude is None or field.name not in exclude %}
+          {% if not object|field_is_empty:field.name %}
+          <tr>
+            <th class="table-dark" scope="row" style="width: 21%; min-width: 160px; max-width: 180px;">
+              {{ field.verbose_name|title }}
+            </th>
+            <td>
+              {% if object|field_is_empty:field.name %}
+                {% trans 'N/A' %}
+              {% elif field.name == "summary" %}
+                {{ object|field_value:field.name|safe }}
+              {% elif field|is_file_field %}
+                <a href="{{ object|field_file_url }}" target="_blank">{{ object|field_file_name|basename }}</a>
+              {% elif field.name == "converted_file"%}
+                <a href="{{ object.converted_file|field_file_url }}" target="_blank">
+                  {{ object.converted_file|field_file_name|basename }}
+                </a>
+              {% else %}
+                {{ object|field_value:field.name }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+    </tbody>
+  </table>
+  </div>
+
+
+  <div class="form-group">
+    <div class="">
+      <button class="btn btn-primary"
+              type="button"
+              data-toggle="collapse"
+              data-target="#details"
+              aria-expanded="true"
+              aria-controls="details">
+        <b id="application-detail-button">
+          {% trans 'Show' %}
+        </b>
+        {% trans 'Scores' %}
+      </button>
+
+      <div class="tooltip-wrapper{% if not scheme.current_round.is_open %} disabled{% endif %} float-right"
+          {% if object.state == "submitted" or object.status == "submitted" %}
+            disabled
+            data-title="{% trans 'The evaluation has been already submitted and cannot be modified.' %}"
+          {% endif %}
+        >
+        <a class="btn btn-primary{% if object.state == "submitted" or object.status == "submitted" %} disabled{% endif %} float-right"
+          href="{% url update_view_name pk=object.pk %}">{% trans update_button_name %}</a>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="collapse" id="details">
+    <div class="card card-body">
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col" style="max-width: 30%;">{% trans 'Criterion' %}</th>
+            <th scope="col">{% trans 'Score' %}</th>
+            {% if user.is_staff or user.is_staff %}
+              <th scope="col">{% trans 'Effective Score' %}</th>
+            {% endif %}
+            <th scope="col">{% trans 'Comment' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for s in object.scores.all %}
+            <tr>
+              <!-- th scope="row">1</th -->
+              <td style="max-width: 30%;">{{ s.criterion.definition }}</td>
+              <td style="text-align: right;">{{ s.value }}</td>
+              {% if user.is_staff or user.is_staff %}
+                <td style="text-align: right;">{{ s.effective_score }}</td>
+              {% endif %}
+              <td>{{ s.comment }}</td>
+            </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function(){
+        $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+    });
+    $('#details').on('hidden.bs.collapse', function () {
+        $("#application-detail-button").text("{% trans 'Show' %}");
+    });
+    $('#details').on('shown.bs.collapse', function () {
+        $("#application-detail-button").text("{% trans 'Hide' %}");
+    });
+  </script>
+{% endblock javascript %}

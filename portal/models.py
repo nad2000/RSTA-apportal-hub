@@ -2778,9 +2778,7 @@ class Evaluation(EvaluationMixin, Model):
     def submit(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
         if not self.comment:
-            raise ValidationError(
-                _("The review is not completed. Missing an overall comment.")
-            )
+            raise ValidationError(_("The review is not completed. Missing an overall comment."))
 
     @classmethod
     def user_evaluations(cls, user, state=None, round=None):
@@ -2825,6 +2823,12 @@ class Score(Model):
     criterion = ForeignKey(Criterion, on_delete=CASCADE, related_name="scores")
     value = PositiveIntegerField(_("Score"), default=0)
     comment = TextField(null=True, blank=True)
+
+    @property
+    def effective_score(self):
+        if (c := self.criterion) and c.scale:
+            return self.value * c.scale
+        return self.value
 
     def __str__(self):
         return self.criterion.definition
