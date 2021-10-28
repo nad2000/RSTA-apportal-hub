@@ -250,7 +250,7 @@ class RoundApplicationTable(tables.Table):
         if not coi or coi.has_conflict is None:
             return format_html(
                 "<span data-toggle='tooltip' title='%s'>%s</span>"
-                % (_("You have not submitted the statement of the conflict of interest"), value)
+                % (_("Conflict of Interest statement to complete."), value)
             )
         if not coi.has_conflict:
             if record.evaluations.filter(panellist__user=user).exists():
