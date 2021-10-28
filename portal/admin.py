@@ -540,7 +540,7 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
 @admin.register(models.ConflictOfInterest)
 class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
 
-    list_display = ["panellist", "application"]
+    list_display = ["panellist", "application", "has_conflict"]
     readonly_fields = [
         "created_at",
         "updated_at",
@@ -549,7 +549,7 @@ class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
         # "has_conflict",
         "panellist",
     ]
-    list_filter = ["application__round", "created_at", "updated_at"]
+    list_filter = ["has_conflict", "application__round", "created_at", "updated_at"]
     search_fields = ["panellist__first_name", "panellist__last_name", "application__number"]
     date_hierarchy = "created_at"
 
