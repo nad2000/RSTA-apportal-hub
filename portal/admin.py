@@ -545,12 +545,12 @@ class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
         "created_at",
         "updated_at",
         "application",
-        "comment",
-        "has_conflict",
+        # "comment",
+        # "has_conflict",
         "panellist",
     ]
     list_filter = ["application__round", "created_at", "updated_at"]
-    search_fields = ["panellist__first_name", "panellist__last_name"]
+    search_fields = ["panellist__first_name", "panellist__last_name", "application__number"]
     date_hierarchy = "created_at"
 
     def view_on_site(self, obj):
