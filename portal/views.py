@@ -3607,7 +3607,9 @@ class ScoreInline(InlineFormSetFactory):
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
-        if "application" in self.kwargs and (a := get_object_or_404(models.Application, pk=self.kwargs["application"])):
+        if "application" in self.kwargs and (
+            a := get_object_or_404(models.Application, pk=self.kwargs["application"])
+        ):
             if self.request.method == "GET":
                 kwargs["extra"] = self.get_entries().count()
             else:
@@ -3645,11 +3647,11 @@ class EvaluationMixin:
     ]
     fields = ["comment"]
 
-    def form_valid(self, form):
+    def forms_valid(self, form, inlines):
         reset_cache(self.request)
         try:
             with transaction.atomic():
-                resp = super().form_valid(form)
+                resp = super().forms_valid(form, inlines)
                 e = self.object
                 if "save_draft" in self.request.POST:
                     e.save_draft()
@@ -3658,7 +3660,7 @@ class EvaluationMixin:
                 e.save()
         except Exception as ex:
             messages.error(self.request, getattr(ex, "message", str(ex)))
-            return super().form_invalid(form)
+            return super().forms_invalid(form, inlines)
         return resp
 
     def get_context_data(self, **kwargs):
@@ -3719,8 +3721,8 @@ class CreateEvaluation(LoginRequiredMixin, EvaluationMixin, CreateWithInlinesVie
     def form_valid(self, form):
         a = models.Application.get(self.kwargs.get("application"))
         p = models.Panellist.where(round=a.round, user=self.request.user).first()
-        self.object.application = a
-        self.object.panellist = p
+        form.instance.application = a
+        form.instance.panellist = p
         return super().form_valid(form)
 
 

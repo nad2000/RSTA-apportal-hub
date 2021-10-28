@@ -1727,7 +1727,12 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     def outstanding_requests(cls, user):
         q = Invitation.objects.raw(
             "SELECT DISTINCT p.* FROM panellist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
-            "WHERE (p.user_id=%s OR ae.user_id=%s) AND p.status <> 'submitted' AND p.status IS NOT NULL",
+            "JOIN application AS a ON a.round_id = p.round_id AND a.state NOT IN ('new', 'draft', 'archived') "
+            "LEFT JOIN conflict_of_interest AS coi ON coi.application_id = a.id AND coi.panellist_id = p.id "
+            "LEFT JOIN evaluation AS e ON e.application_id = a.id AND e.panellist_id = p.id "
+            "WHERE (p.user_id=%s OR ae.user_id=%s) "
+            "  AND (coi.has_conflict IS NULL OR NOT coi.has_conflict) "
+            "  AND (e.state IS NULL OR e.state <> 'submitted')",
             [user.id, user.id],
         )
         prefetch_related_objects(q, "round")
@@ -2773,7 +2778,9 @@ class Evaluation(EvaluationMixin, Model):
     def submit(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
         if not self.comment:
-            raise ValidationError(_("The review is not completed. Missing an overall comment."))
+            raise ValidationError(
+                _("The review is not completed. Missing an overall comment.")
+            )
 
     @classmethod
     def user_evaluations(cls, user, state=None, round=None):
