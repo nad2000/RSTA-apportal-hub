@@ -253,7 +253,7 @@ class RoundApplicationTable(tables.Table):
                 % (_("Conflict of Interest statement to complete."), value)
             )
         if not coi.has_conflict:
-            if record.evaluations.filter(panellist__user=user).exists():
+            if record.evaluations.filter(state="submitted", panellist__user=user).exists():
                 return format_html(
                     "<span data-toggle='tooltip' title='%s'>%s</span>"
                     % (
