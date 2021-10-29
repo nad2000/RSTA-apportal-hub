@@ -462,33 +462,33 @@ def check_profile(request, token=None):
             messages.warning(request, _("There is no invitation with the given token."))
             return redirect(next_url or "home")
 
-        u = User.get(request.user.id)
-        if i.first_name and not u.first_name:
-            u.first_name = i.first_name
-        if i.middle_names and not u.middle_names:
-            u.middle_names = i.middle_names
-        if i.last_name and not u.last_name:
-            u.last_name = i.last_name
-        if not u.name:
-            u.name = u.full_name
-        u.is_approved = True
-        u.save()
+        if i.status in ["draft", "submitted", "sent"]:
+            u = User.get(request.user.id)
+            if i.first_name and not u.first_name:
+                u.first_name = i.first_name
+            if i.middle_names and not u.middle_names:
+                u.middle_names = i.middle_names
+            if i.last_name and not u.last_name:
+                u.last_name = i.last_name
+            if not u.name:
+                u.name = u.full_name
+            u.is_approved = True
+            u.save()
 
-        if i.email and u.email != i.email:
-            ea, created = EmailAddress.objects.get_or_create(
-                email=i.email, defaults=dict(user=u, verified=True)
-            )
-            if not created and ea.user != u:
-                messages.warning(
-                    request, _("there is already user with this email address: ") + i.email
+            if i.email and u.email != i.email:
+                ea, created = EmailAddress.objects.get_or_create(
+                    email=i.email, defaults=dict(user=u, verified=True)
                 )
+                if not created and ea.user != u:
+                    messages.warning(
+                        request, _("there is already user with this email address: ") + i.email
+                    )
 
-        if i.status != "accepted":
             i.accept(by=u, request=request)
+            i.save()
+            reset_cache(request)
 
-        i.save()
         next_url = i.handler_url
-        reset_cache(request)
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")

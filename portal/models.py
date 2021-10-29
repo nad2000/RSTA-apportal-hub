@@ -1437,12 +1437,13 @@ class EthicsStatement(PdfFileMixin, Model):
 
 
 MEMBER_STATUS = Choices(
-    (None, None),
     ("accepted", _("accepted")),
     ("authorized", _("authorized")),
     ("bounced", _("bounced")),
+    ("new", _("new")),
     ("opted_out", _("opted out")),
     ("sent", _("sent")),
+    (None, None),
 )
 
 
@@ -1469,12 +1470,12 @@ class Member(PersonMixin, MemberMixin, Model):
     role = CharField(max_length=200, null=True, blank=True)
     has_authorized = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
-    status = StateField(null=True, blank=True)
+    status = StateField(null=True, blank=True, default="new")
     authorized_at = MonitorField(
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
 
-    @transition(field=status, source=["*"], target="accepted")
+    @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
@@ -1535,12 +1536,13 @@ simple_history.register(
 
 
 REFEREE_STATUS = Choices(
-    (None, None),
-    ("sent", _("sent")),
     ("accepted", _("accepted")),
-    ("testified", _("testified")),
-    ("opted_out", _("opted out")),
     ("bounced", _("bounced")),
+    ("new", _("new")),
+    ("opted_out", _("opted out")),
+    ("sent", _("sent")),
+    ("testified", _("testified")),
+    (None, None),
 )
 
 
@@ -1566,7 +1568,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
     last_name = CharField(max_length=150, null=True, blank=True)
     has_testifed = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
-    status = StateField(null=True, blank=True)
+    status = StateField(null=True, blank=True, default=REFEREE_STATUS.new)
     testified_at = MonitorField(
         monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
     )
@@ -1577,7 +1579,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
                 _("Before inviting referees, please upload a completed application form.")
             )
 
-    @transition(field=status, source=["*"], target="accepted")
+    @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
@@ -1620,6 +1622,7 @@ simple_history.register(
 
 PANELLIST_STATUS = Choices(
     (None, None),
+    ("new", _("new")),
     ("sent", _("sent")),
     ("accepted", _("accepted")),
     ("bounced", _("bounced")),
@@ -1635,7 +1638,7 @@ class PanellistMixin:
 class Panellist(PanellistMixin, PersonMixin, Model):
     """Round Panellist."""
 
-    status = StateField(null=True, blank=True)
+    status = StateField(null=True, blank=True, default=PANELLIST_STATUS.new)
     round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
@@ -1708,7 +1711,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     def has_all_coi_statements_submitted(self):
         return self.has_all_coi_statements_submitted_for()
 
-    @transition(field=status, source=["*"], target="accepted")
+    @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
@@ -1781,8 +1784,23 @@ INVITATION_TYPES = Choices(
     ("P", _("panellist")),
 )
 
+INVITATION_STATUS = Choices(
+    ("draft", _("draft")),
+    ("submitted", _("submitted")),
+    ("sent", _("sent")),
+    ("accepted", _("accepted")),
+    ("expired", _("expired")),
+    ("bounced", _("bounced")),
+)
 
-class Invitation(Model):
+
+class InvitationMixin:
+    """Workaround for simple history."""
+
+    STATUS = INVITATION_STATUS
+
+
+class Invitation(InvitationMixin, Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced")
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
@@ -1823,8 +1841,7 @@ class Invitation(Model):
     round = ForeignKey(
         "Round", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
     )
-    # TODO: take a look FSM ... as an alternative. might be more appropriate...
-    status = StateField()
+    status = StateField(default="draft")
     submitted_at = MonitorField(
         monitor="status", when=[STATUS.submitted], null=True, blank=True, default=None
     )
@@ -2001,17 +2018,14 @@ class Invitation(Model):
 
         if self.type == INVITATION_TYPES.T:
             if self.member:
-                # self.member.status = REFEREE_STATUS.sent
                 self.member.send(request)
                 self.member.save()
         elif self.type == INVITATION_TYPES.R:
             if self.referee:
-                # self.referee.status = REFEREE_STATUS.sent
                 self.referee.send(request)
                 self.referee.save()
         elif self.type == INVITATION_TYPES.P:
             if self.panellist:
-                # self.panellist.status = PANELLIST_STATUS.sent
                 self.panellist.send(request)
                 self.panellist.save()
         return resp
@@ -2029,7 +2043,6 @@ class Invitation(Model):
         if self.type == INVITATION_TYPES.T:
             m = self.member
             m.user = by
-            # m.status = MEMBER_STATUS.accepted
             m.accept(request)
             m.save()
         elif self.type == INVITATION_TYPES.A:
@@ -2040,18 +2053,14 @@ class Invitation(Model):
         elif self.type == INVITATION_TYPES.R:
             r = self.referee
             r.user = by
-            # r.status = Referee.STATUS.accepted
             r.accept(request)
             r.save()
             if self.status != self.STATUS.accepted:
                 t = Testimonial.objects.create(referee=r)
                 t.save()
-                # referee_group, created = Group.objects.get_or_create(name="REFEREE")
-                # by.groups.add(referee_group)
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
             p.user = by
-            # p.status = PANELLIST_STATUS.accepted
             p.accept(request)
             p.save()
 
@@ -2126,6 +2135,11 @@ class Invitation(Model):
 
     class Meta:
         db_table = "invitation"
+
+
+simple_history.register(
+    Invitation, inherit=True, table_name="invitation_history", bases=[InvitationMixin, Model]
+)
 
 
 TESTIMONIAL_STATUS = Choices(
@@ -2959,13 +2973,13 @@ class SchemeApplication(Model):
 
 
 NOMINATION_STATUS = Choices(
-    (None, None),
     ("accepted", _("accepted")),
     ("bounced", _("bounced")),
     ("draft", _("draft")),
     ("new", _("new")),
     ("sent", _("sent")),
     ("submitted", _("submitted")),
+    (None, None),
 )
 
 
@@ -3096,6 +3110,10 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
 
     @transition(
         field=status,
+        source=[
+            NOMINATION_STATUS.submitted,
+            NOMINATION_STATUS.bounced,
+        ],
         target=NOMINATION_STATUS.accepted,
     )
     def accept(self, *args, **kwargs):
@@ -3177,9 +3195,7 @@ class IdentityVerification(Model):
             % dict(user=self.user, url=url),
         )
 
-    @transition(
-        field=state, source=["new", "draft", "sent", "submitted", "accepted"], target="accepted"
-    )
+    @transition(field=state, source=["submitted"], target="accepted")
     def accept(self, *args, request=None, **kwargs):
         self.user.is_identity_verified = True
         if request:
@@ -3187,7 +3203,7 @@ class IdentityVerification(Model):
         self.identity_verified_at = datetime.now()
         self.user.save()
 
-    @transition(field=state, source=["*"], target="needs-resubmission")
+    @transition(field=state, target="needs-resubmission")
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))
         subject = __("Your ID verification requires your attention")
