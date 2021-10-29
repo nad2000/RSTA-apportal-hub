@@ -29,179 +29,192 @@
 
   <!-- div class="container">
     <div class="row">
-      <div class="col-sm-12" -->
+    <div class="col-sm-12" -->
 
-        <h1>
-          {% if object.number %}{{ object.number }}: {% endif %}
-          {% if object.application_title %}
-            {{ object.application_title|title }}
-          {% elif object.round %}
-            {{ object.round.title|title }}
-          {% else %}
-            {{ round.title|title }}
-          {% endif %}
-        </h1>
+      <h1>
+        {% if object.number %}{{ object.number }}: {% endif %}
+        {% if object.application_title %}
+          {{ object.application_title|title }}
+        {% elif object.round %}
+          {{ object.round.title|title }}
+        {% else %}
+          {{ round.title|title }}
+        {% endif %}
+      </h1>
 
-        <form method="post" enctype="multipart/form-data">
-          {% crispy form form.helper %}
-          {% if inlines %}
-            <hr />
-            {% for formset in inlines %}
-              {% if helper %}
-                {% crispy formset helper %}
-              {% elif formset.helper %}
-                {% crispy formset formset.helper %}
-              {% else %}
-                {% crispy formset %}
-              {% endif %}
-            {% endfor %}
-          {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% crispy form form.helper %}
+        {% if inlines %}
+          <hr />
+          {% for formset in inlines %}
+            {% if helper %}
+              {% crispy formset helper %}
+            {% elif formset.helper %}
+              {% crispy formset formset.helper %}
+            {% else %}
+              {% crispy formset %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
 
-        </form>
+      </form>
 
       <!-- /div>
-    </div>
-  </div -->
+        </div>
+        </div -->
+        <div class="alert alert-primary" role="alert" id="wait-message" style="display:none;">
+          <img src="{% static 'images/spinner.png' %}" />
+          {% trans 'We are processing your request.  Please be patient.' %}
+        </div>
 
-{% endblock %}
+      {% endblock %}
 
-{% block javascript %}
-  {{ block.super }}
-    {#{ form.media.js }#}
-  <!-- JS -->
-  <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
-  <script>
-    function activateRefereeTab() {
-      document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new invitation(s)' %}";
-      document.getElementById("submit-id-save_draft").name = "send_invitations";
-      document.getElementById("submit-id-submit").hidden = true;
-      document.getElementById("cancel").hidden = true;
-    }
-    $(document).ready(function() {
-      bootbox.addLocale('mi', {
-        OK      : 'Pai',
-        CANCEL  : 'Whakakore',
-        CONFIRM : 'Whakaū'
-      });
-      bootbox.setDefaults({
-        locale: "{{ LANGUAGE_CODE }}"
-      });
-      {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
-      $('#id_is_team_application').change(function() {
-        if (!($(this).prop('checked'))) {
-          $("#members").hide();
-          $("#submitter legend").text("{% trans 'Individual applicant' %}");
-          $("a[href='#applicant']").text("{% trans 'Applicant' %}");
-        } else {
-          $("#members").show()
-          $("#submitter legend").text("{% trans 'Team representative' %}");
-          $("a[href='#applicant']").text("{% trans 'Team' %}");
-        };
-      });
-      $('#id_et-not_relevant').change(function() {
-        if ($(this).is(':checked')) {
-          document.getElementById("id_et-comment").setAttribute("required", "true");
-          $("label[for='id_et-comment']").append('<span class="asteriskField">*</span>');
-        } else {
-          document.getElementById("id_et-comment").removeAttribute("required");
-          $("label[for='id_et-comment']").children().remove();
-        }
-      });
-      {% if not form.is_bilingual_summary.value %}
-        $("#div_id_summary_en").hide();
-        $("#div_id_summary_mi").hide();
-      {% endif %}
-      $('#id_is_bilingual_summary').change(function() {
-        if (!($(this).prop('checked'))) {
-          $("#div_id_summary_en").hide();
-          $("#div_id_summary_mi").hide();
-        } else {
-          $("#div_id_summary_en").show()
-          $("#div_id_summary_mi").show()
-        };
-      });
-      // Focus on the first tab with invalid input:
-      $('#submit-id-save_draft,#submit-id-submit').click(function () {
-          $('input:invalid,textarea:invalid').each(function () {
-              // Find the tab-pane that this element is inside, and get the id
-              var $closest = $(this).closest('.tab-pane');
-              var id = $closest.attr('id');
+      {% block javascript %}
+        {{ block.super }}
+        {#{ form.media.js }#}
+        <!-- JS -->
+        <script src="{% static 'js/jquery.blockUI.js' %}"></script>
+        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js" integrity="sha512-8vfyGnaOX2EeMypNMptU+MwwK206Jk1I/tMQV4NkhOz+W8glENoMhGyU6n/6VgQUhQcJH8NqQgHhMtZjJJBv3A==" crossorigin="anonymous"></script>
+        <script>
+          function activateRefereeTab() {
+                      document.getElementById("submit-id-save_draft").value = "{% trans 'Save and send new invitation(s)' %}";
+                      document.getElementById("submit-id-save_draft").name = "send_invitations";
+                      document.getElementById("submit-id-submit").hidden = true;
+                      document.getElementById("cancel").hidden = true;
+                    }
+                    $(document).ready(function() {
+                                bootbox.addLocale('mi', {
+                                            OK      : 'Pai',
+                                            CANCEL  : 'Whakakore',
+                                            CONFIRM : 'Whakaū'
+                                          });
+                                bootbox.setDefaults({
+                                            locale: "{{ LANGUAGE_CODE }}"
+                                          });
+                                {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
+                                $('#id_is_team_application').change(function() {
+                                            if (!($(this).prop('checked'))) {
+                                                        $("#members").hide();
+                                                        $("#submitter legend").text("{% trans 'Individual applicant' %}");
+                                                        $("a[href='#applicant']").text("{% trans 'Applicant' %}");
+                                                      } else {
+                                                                  $("#members").show()
+                                                                  $("#submitter legend").text("{% trans 'Team representative' %}");
+                                                                  $("a[href='#applicant']").text("{% trans 'Team' %}");
+                                                                };
+                                          });
+                                $('#id_et-not_relevant').change(function() {
+                                            if ($(this).is(':checked')) {
+                                                        document.getElementById("id_et-comment").setAttribute("required", "true");
+                                                        $("label[for='id_et-comment']").append('<span class="asteriskField">*</span>');
+                                                      } else {
+                                                                  document.getElementById("id_et-comment").removeAttribute("required");
+                                                                  $("label[for='id_et-comment']").children().remove();
+                                                                }
+                                          });
+                                {% if not form.is_bilingual_summary.value %}
+                                  $("#div_id_summary_en").hide();
+                                $("#div_id_summary_mi").hide();
+                              {% endif %}
+                                $('#id_is_bilingual_summary').change(function() {
+                                            if (!($(this).prop('checked'))) {
+                                                        $("#div_id_summary_en").hide();
+                                                        $("#div_id_summary_mi").hide();
+                                                      } else {
+                                                                  $("#div_id_summary_en").show()
+                                                                  $("#div_id_summary_mi").show()
+                                                                };
+                                          });
+                                // Focus on the first tab with invalid input:
+                                $('#submit-id-save_draft,#submit-id-submit').click(function () {
+                                            $('input:invalid,textarea:invalid').each(function () {
+                                                        // Find the tab-pane that this element is inside, and get the id
+                                                        var $closest = $(this).closest('.tab-pane');
+                                                        var id = $closest.attr('id');
 
-              // Find the link that corresponds to the pane and have it show
-              $('.nav a[href="#' + id + '"]').tab('show');
+                                                        // Find the link that corresponds to the pane and have it show
+                                                        $('.nav a[href="#' + id + '"]').tab('show');
 
-              // Only want to do it once
-              return false;
-          });
-      });
-      // Track the changes in the form fields
-      $("form :input").change(function() {
-        $(this.form).data("changed", true);
-      });
-      $(document).on("click", "#cancel", function(e) {
-          if (!$(e.toElement).closest("form").data("changed")) return;
-          e.preventDefault();  // need for a link
-          href = $(this).attr('href');
-          return bootbox.confirm("{% trans 'Do you want to close the form without saving it?' %}", function(result) {
-            // console.log("Result: ", result);
-            if (result) window.location = href;
-          });
-      });
-      // Keep track of the active tab
-      $(document.body).on("click", "a[data-toggle='tab']", function(event) {
-        location.hash = this.getAttribute("href");
-      });
-      {% if "verification" in request.GET %}
-        $('.nav a[href="#id-verification"]').tab('show');
-      {% elif "referees" in request.GET %}
-        $('.nav a[href="#referees"]').tab('show'); activateRefereeTab();
-      {% elif "summary" in request.GET %}
-        $('.nav a[href="#summary"]').tab('show');
-      {% else %}
-        // Jump to the last active tab:
-        if (location.hash) {
-          if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
-          if (location.hash == "#referees") activateRefereeTab();
-        };
-        if (!location.hash || location.hash == "#applicant")
-          document.getElementById("button-id-previous").disabled = true;
-        else if (location.hash.endsWith($(".tab-pane").last().attr('id')))
-          document.getElementById("button-id-next").disabled = true;
-      {% endif %}
-      /* $("#div_id_title").parent().css("min-width", "4rem");
-      $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
-      $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
-      $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
-        document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
-        document.getElementById("submit-id-save_draft").name = "save_draft";
-        document.getElementById("submit-id-submit").hidden = false;
-        document.getElementById("cancel").hidden = false;
-      });
-      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        document.getElementById("button-id-next").disabled = (e.target.hash.endsWith($(".tab-pane").last().attr('id')));
-        document.getElementById("button-id-previous").disabled = (e.target.hash == "#applicant");
-      })
-      $('#button-id-next').on('click', function (e) {
-        var active = $(".nav-link.active");
-        if (active.length > 0) {
-          var nextTab = active.parent().next().children();
-          if (nextTab.length > 0) {
-            var nextTabHash = nextTab.attr("href");
-            $('a[href="'+nextTabHash+'"').tab("show");
-          }
-        }
-      });
-      $('#button-id-previous').on('click', function (e) {
-        var active = $(".nav-link.active");
-        if (active.length > 0) {
-          var prevTab = active.parent().prev().children();
-          if (prevTab.length > 0) {
-            var prevTabHash = prevTab.attr("href");
-            $('a[href="'+prevTabHash+'"').tab("show");
-          }
-        }
-      });
-    });
-  </script>
-{% endblock %}
+                                                        // Only want to do it once
+                                                        return false;
+                                                      });
+                                            $.blockUI({
+                                                        message: $('#wait-message'),
+                                                        css: {
+                                                                    backgroundColor: '#0000',
+                                                                    color: '#0fff',
+                                                                    border: '0px',
+                                                                  }
+                                                      });
+                                          });
+                                // Track the changes in the form fields
+                                $("form :input").change(function() {
+                                            $(this.form).data("changed", true);
+                                          });
+                                $(document).on("click", "#cancel", function(e) {
+                                            if (!$(e.toElement).closest("form").data("changed")) return;
+                                            e.preventDefault();  // need for a link
+                                            href = $(this).attr('href');
+                                            return bootbox.confirm("{% trans 'Do you want to close the form without saving it?' %}", function(result) {
+                                                        // console.log("Result: ", result);
+                                                        if (result) window.location = href;
+                                                      });
+                                          });
+                                // Keep track of the active tab
+                                $(document.body).on("click", "a[data-toggle='tab']", function(event) {
+                                            location.hash = this.getAttribute("href");
+                                          });
+                                {% if "verification" in request.GET %}
+                                  $('.nav a[href="#id-verification"]').tab('show');
+                              {% elif "referees" in request.GET %}
+                                  $('.nav a[href="#referees"]').tab('show'); activateRefereeTab();
+                              {% elif "summary" in request.GET %}
+                                  $('.nav a[href="#summary"]').tab('show');
+                              {% else %}
+                                  // Jump to the last active tab:
+                                if (location.hash) {
+                                            if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
+                                            if (location.hash == "#referees") activateRefereeTab();
+                                          };
+                                if (!location.hash || location.hash == "#applicant")
+                                  document.getElementById("button-id-previous").disabled = true;
+                                else if (location.hash.endsWith($(".tab-pane").last().attr('id')))
+                                  document.getElementById("button-id-next").disabled = true;
+                              {% endif %}
+                                /* $("#div_id_title").parent().css("min-width", "4rem");
+         $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
+                                $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
+                                $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
+                                            document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
+                                            document.getElementById("submit-id-save_draft").name = "save_draft";
+                                            document.getElementById("submit-id-submit").hidden = false;
+                                            document.getElementById("cancel").hidden = false;
+                                          });
+                                $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                                            document.getElementById("button-id-next").disabled = (e.target.hash.endsWith($(".tab-pane").last().attr('id')));
+                                            document.getElementById("button-id-previous").disabled = (e.target.hash == "#applicant");
+                                          })
+                                $('#button-id-next').on('click', function (e) {
+                                            var active = $(".nav-link.active");
+                                            if (active.length > 0) {
+                                                        var nextTab = active.parent().next().children();
+                                                        if (nextTab.length > 0) {
+                                                                    var nextTabHash = nextTab.attr("href");
+                                                                    $('a[href="'+nextTabHash+'"').tab("show");
+                                                                  }
+                                                      }
+                                          });
+                                $('#button-id-previous').on('click', function (e) {
+                                            var active = $(".nav-link.active");
+                                            if (active.length > 0) {
+                                                        var prevTab = active.parent().prev().children();
+                                                        if (prevTab.length > 0) {
+                                                                    var prevTabHash = prevTab.attr("href");
+                                                                    $('a[href="'+prevTabHash+'"').tab("show");
+                                                                  }
+                                                      }
+                                          });
+                              });
+        </script>
+      {% endblock %}
