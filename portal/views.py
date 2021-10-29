@@ -1592,6 +1592,28 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return context
 
     def form_valid(self, form):
+
+        # Extra layer of protection - to prevent dupliate submssion:
+        kwargs = self.kwargs
+        r = (
+            models.Round.get(kwargs["round"])
+            if "round" in kwargs
+            else models.Nomination.get(kwargs["nomination"]).round
+            if "nomination" in kwargs
+            else getattr(form.instance, "round")
+        )
+        if r and (a := models.Application.where(round=r, submitted_by=self.request.user).last()):
+            messages.error(
+                self.request,
+                _(
+                    "Fatal ERROR! You already have a created application. "
+                    "Please continue with this application."
+                ),
+            )
+            if a.state == "draft":
+                return redirect("application-update", pk=a.id)
+            return redirect("application", pk=a.id)
+
         try:
             with transaction.atomic():
                 a = form.instance
