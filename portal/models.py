@@ -64,7 +64,7 @@ from PyPDF2 import PdfFileMerger
 from simple_history.models import HistoricalRecords
 from weasyprint import HTML
 
-from common.models import TITLES, Base, EmailField, Model, PersonMixin
+from common.models import TITLES, Base, EmailField, HelperMixin, Model, PersonMixin
 
 from .utils import mail_admins, send_mail
 
@@ -176,6 +176,10 @@ def get_request(*args, **kwargs):
 
 class PdfFileMixin:
     """Mixin for handling attached file update and conversion to a PDF copy."""
+
+    @property
+    def file_size(self):
+        return os.path.getsize(self.file.path)
 
     @property
     def filename(self):
@@ -887,8 +891,12 @@ class Nominee(Model):
         db_table = "nominee"
 
 
-class ConvertedFile(Base):
+class ConvertedFile(HelperMixin, Base):
     file = PrivateFileField(upload_subfolder=lambda instance: ["converted"])
+
+    @property
+    def file_size(self):
+        return os.path.getsize(self.file.path)
 
     def __str__(self):
         return self.file.name
@@ -1206,6 +1214,13 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         if self.number:
             title = f"{title} ({self.number})"
         return title
+
+    @property
+    def deadline_days(self):
+        if closes_on := self.round.closes_on:
+            now = datetime.now(tz=closes_on.tzinfo)
+            if closes_on >= now:
+                return (closes_on - now).days
 
     @property
     def lead(self):
@@ -2352,7 +2367,7 @@ class Round(Model):
     title = CharField(_("title"), max_length=100, null=True, blank=True)
     scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds", verbose_name=_("scheme"))
     opens_on = DateField(_("opens on"), null=True, blank=True)
-    closes_on = DateField(_("closes on"), null=True, blank=True)
+    closes_on = DateTimeField(_("closes on"), null=True, blank=True)
 
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
@@ -2475,7 +2490,12 @@ class Round(Model):
     )
 
     def clean(self):
-        if self.opens_on and self.closes_on and self.opens_on > self.closes_on:
+        if (
+            self.opens_on
+            and self.closes_on
+            and datetime.combine(self.opens_on, datetime.min.time()).timestamp()
+            > self.closes_on.timestamp()
+        ):
             raise ValidationError(_("the round cannot close before it opens."))
         if not self.title:
             self.title = self.scheme.title
@@ -2589,13 +2609,13 @@ class Round(Model):
 
     @property
     def is_open(self):
-        today = date.today()
-        return self.opens_on <= today and (self.closes_on is None or self.closes_on >= today)
+        return self.opens_on <= date.today() and (
+            self.closes_on is None or self.closes_on >= datetime.now()
+        )
 
     @property
     def has_closed(self):
-        today = date.today()
-        return self.closes_on and self.closes_on < today
+        return self.closes_on and self.closes_on < datetime.now()
 
     @property
     def will_open(self):

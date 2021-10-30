@@ -410,11 +410,16 @@ class ApplicationAdmin(
 
 
 admin.site.register(models.Award)
-admin.site.register(models.ConvertedFile)
 
 
 class AwardAdmin(admin.ModelAdmin):
     view_on_site = False
+
+
+@admin.register(models.ConvertedFile)
+class ConvertedFileAdmin(admin.ModelAdmin):
+
+    list_display = ["file", "file_size"]
 
 
 @admin.register(models.CurriculumVitae)

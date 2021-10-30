@@ -49,12 +49,25 @@
         <div class="card text-white bg-success border-success mb-3">
           <h5 class="card-header" style="text-transform: uppercase;"><strong>
               {% trans 'Application Drafts' %}
+                        <i class="fas fa-exclamation-circle"></i>
             </strong></h5>
             {% for a in draft_applications %}
               {% if a and a.id %}
                 <ul class="list-group list-group-flush">
                   {% if a|can_edit:user %}
-                    <li class="list-group-item"><a href="{% url 'application-update' pk=a.id %}">{{ a }}</a></li>
+                    <li class="list-group-item">
+                      {% if a.deadline_days < 5 %}
+                        <i class="fas fa-exclamation-circle text-danger"
+                           data-toggle="tooltip"
+                           title="The round is closing in {{ a.deadline_days }} day(s)"
+                        ></i>
+                      {% endif %}
+                      <a href="{% url 'application-update' pk=a.id %}"
+                        {% if a.deadline_days < 5 %}
+                            data-toggle="tooltip"
+                            title="The round is closing in {{ a.deadline_days }} day(s)"
+                        {% endif %}
+                      >{{ a }}</a></li>
                   {% else %}
                     <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
                   {% endif %}
@@ -111,7 +124,10 @@
                     <strong {% if not round.is_open %}class="badge-danger"{% endif %}>
                       {{ round.opens_on|date:"c" }}
                       {% if round.closes_on %}
-                        - {{ round.closes_on|date:"c" }}
+                        - {{ round.closes_on|date:"d-m-Y" }}
+                        {% if round.closes_on.hour or round.closes_on.minute %}
+                          {{ round.closes_on|time:"H:i" }}
+                        {% endif %}
                       {% endif %}
                     </strong>
                     </p>
