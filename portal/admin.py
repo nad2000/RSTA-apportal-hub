@@ -418,8 +418,14 @@ class AwardAdmin(admin.ModelAdmin):
 
 @admin.register(models.ConvertedFile)
 class ConvertedFileAdmin(admin.ModelAdmin):
+    def file_size_kb(self, obj):
+        if size := obj.file_size:
+            return round(size / 1000, 2)
 
-    list_display = ["file", "file_size"]
+    file_size_kb.short_description = "file size (KB)"
+
+    view_on_site = False
+    list_display = ["file", "file_size_kb"]
 
 
 @admin.register(models.CurriculumVitae)
