@@ -432,7 +432,13 @@ class ConvertedFileAdmin(admin.ModelAdmin):
 class CurriculumVitaeAdmin(admin.ModelAdmin):
     list_display = ["profile", "owner", "title", "file"]
     # list_filter = ["owner"]
-    search_fields = ["owner"]
+    search_fields = [
+        "owner__first_name",
+        "owner__last_name",
+        "owner__username",
+        "owner__email",
+        "file",
+    ]
     date_hierarchy = "created_at"
     view_on_site = False
 

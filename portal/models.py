@@ -1220,7 +1220,8 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         if closes_on := self.round.closes_on:
             now = datetime.now(tz=closes_on.tzinfo)
             if closes_on >= now:
-                return (closes_on - now).days
+                ts = closes_on - now
+                return round(ts / 86400)
 
     @property
     def lead(self):
@@ -2610,12 +2611,12 @@ class Round(Model):
     @property
     def is_open(self):
         return self.opens_on <= date.today() and (
-            self.closes_on is None or self.closes_on >= datetime.now()
+            self.closes_on is None or self.closes_on >= datetime.now(tz=self.closes_on.tzinfo)
         )
 
     @property
     def has_closed(self):
-        return self.closes_on and self.closes_on < datetime.now()
+        return self.closes_on and self.closes_on < datetime.now(tz=self.closes_on.tzinfo)
 
     @property
     def will_open(self):

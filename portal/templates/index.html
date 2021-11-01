@@ -48,15 +48,13 @@
       {% if draft_applications %}
         <div class="card text-white bg-success border-success mb-3">
           <h5 class="card-header" style="text-transform: uppercase;"><strong>
-              {% trans 'Application Drafts' %}
-                        <i class="fas fa-exclamation-circle"></i>
-            </strong></h5>
+              {% trans 'Application Drafts' %} </strong></h5>
             {% for a in draft_applications %}
               {% if a and a.id %}
                 <ul class="list-group list-group-flush">
                   {% if a|can_edit:user %}
                     <li class="list-group-item">
-                      {% if a.deadline_days < 5 %}
+                      {% if a.deadline_days > 0 and a.deadline_days < 5 %}
                         <i class="fas fa-exclamation-circle text-danger"
                            data-toggle="tooltip"
                            title="The round is closing in {{ a.deadline_days }} day(s)"
