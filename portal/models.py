@@ -1382,7 +1382,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                         )
         # ssl._create_default_https_context = ssl._create_unverified_context
 
-        merger = PdfFileMerger()
+        merger = PdfFileMerger(strict=False)
         merger.addMetadata(
             {"/Title": f"{self.number}: {self.application_title or self.round.title}"}
         )
