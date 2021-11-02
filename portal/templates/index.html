@@ -57,13 +57,13 @@
                       {% if a.deadline_days > 0 and a.deadline_days < 5 %}
                         <i class="fas fa-exclamation-circle text-danger"
                            data-toggle="tooltip"
-                           title="The round is closing in {{ a.deadline_days }} day(s)"
+                           title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
                         ></i>
                       {% endif %}
                       <a href="{% url 'application-update' pk=a.id %}"
                         {% if a.deadline_days < 5 %}
                             data-toggle="tooltip"
-                            title="The round is closing in {{ a.deadline_days }} day(s)"
+                            title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
                         {% endif %}
                       >{{ a }}</a></li>
                   {% else %}
@@ -119,12 +119,24 @@
                   <p class="card-text"> {{ scheme.description }}</p>
                   {% if round %}
                     <p class="card-text">{% trans 'Application period' %}:
-                    <strong {% if not round.is_open %}class="badge-danger"{% endif %}>
+                    <strong
+                       {% if not round.is_open %}
+                         class="badge-danger"
+                       {% elif round.deadline_days > 0 and round.deadline_days < 5 %}
+                          class="badge-warning"
+                       {% endif %}
+                       {% if round.deadline_days > 0 and round.deadline_days < 5 %}
+                          data-toggle="tooltip"
+                          title="{% blocktrans with deadline_days=round.deadline_days closes_on=round.closes_on|date:"d-m-Y" closes_at=round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
+                       {% endif %}
+                    >
                       {{ round.opens_on|date:"c" }}
                       {% if round.closes_on %}
                         - {{ round.closes_on|date:"d-m-Y" }}
                         {% if round.closes_on.hour or round.closes_on.minute %}
-                          {{ round.closes_on|time:"H:i" }}
+                          {% blocktrans  with round.closes_on|time:"P" as closes_at %}
+                           at {{ closes_at }}
+                          {% endblocktrans %}
                         {% endif %}
                       {% endif %}
                     </strong>

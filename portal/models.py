@@ -1217,11 +1217,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
     @property
     def deadline_days(self):
-        if closes_on := self.round.closes_on:
-            now = datetime.now(tz=closes_on.tzinfo)
-            if closes_on >= now:
-                ts = closes_on - now
-                return round(ts / 86400)
+        return self.round.deadline_days
 
     @property
     def lead(self):
@@ -2607,6 +2603,14 @@ class Round(Model):
         """User has a nomination to apply for the round."""
 
         return self.user_nominations(user).exists()
+
+    @property
+    def deadline_days(self):
+        if closes_on := self.closes_on:
+            now = datetime.now(tz=closes_on.tzinfo)
+            if closes_on >= now:
+                ts = closes_on - now
+                return round(ts.total_seconds() / 86400)
 
     @property
     def is_open(self):
