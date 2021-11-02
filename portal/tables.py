@@ -121,6 +121,33 @@ class ApplicationTable(tables.Table):
         else None
     )
 
+    def render_number(self, record, value):
+        if (
+            record.state in ["draft", "new"]
+            and (deadline_days := record.deadline_days)
+            and record.deadline_days < 5
+        ):
+            r = record.round
+            return format_html(
+                """<span
+                    data-toggle="tooltip"
+                    title="%s"
+                >
+                    <i class="fas fa-exclamation-circle text-danger"
+                    ></i> %s
+                </span>"""
+                % (
+                    _("The round is closing in %s day(s) on %s by %s")
+                    % (
+                        deadline_days,
+                        r.closes_on.strftime("%d-%m-%Y"),
+                        r.closes_on.strftime("%I:%M %P"),
+                    ),
+                    value,
+                )
+            )
+        return value
+
     class Meta:
         model = models.Application
         template_name = "django_tables2/bootstrap4.html"
@@ -289,6 +316,25 @@ class RoundApplicationTable(tables.Table):
                 "<span data-toggle='tooltip' title='%s'>%s</span>"
                 % (
                     _("The application has not been submitted yet"),
+                    value,
+                )
+            )
+        if (r := record.round) and (deadline_days := r.deadline_days) and deadline_days < 5:
+            return format_html(
+                """<span
+                    data-toggle="tooltip"
+                    title="%s"
+                >
+                    <i class="fas fa-exclamation-circle text-danger"
+                    ></i> %s
+                </span>"""
+                % (
+                    _("The round is closing in %s day(s) on %s by %s")
+                    % (
+                        deadline_days,
+                        r.closes_on.strftime("%d-%m-%Y"),
+                        r.closes_on.strftime("%I:%M %P"),
+                    ),
                     value,
                 )
             )
