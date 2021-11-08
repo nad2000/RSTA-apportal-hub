@@ -103,7 +103,7 @@ def handler500(request, *args, **argv):
 
 def handler413(request, *args, **argv):
     capture_message(
-        f"User {request.user} attempted uploade a file exceeding the limit.", level="error"
+        f"User {request.user} attempted upload a file exceeding the limit.", level="error"
     )
     return render(
         request,
