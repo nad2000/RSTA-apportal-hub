@@ -101,6 +101,18 @@ def handler500(request, *args, **argv):
     )
 
 
+def handler413(request, *args, **argv):
+    return render(
+        request,
+        "500.html",
+        {
+            "sentry_event_id": last_event_id(),
+            "SENTRY_DSN": settings.SENTRY_DSN,
+        },
+        status=413,
+    )
+
+
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
 def pyinfo(request, message=None):
     """Show Python and runtime environment and settings or test exception handling."""
