@@ -67,7 +67,7 @@ from extra_views import (
 )
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger
-from sentry_sdk import last_event_id
+from sentry_sdk import capture_message, last_event_id
 from weasyprint import HTML
 
 from . import forms, models, tables
@@ -102,6 +102,9 @@ def handler500(request, *args, **argv):
 
 
 def handler413(request, *args, **argv):
+    capture_message(
+        f"User {request.user} attempted uploade a file exceeding the limit.", level="error"
+    )
     return render(
         request,
         "413.html",
