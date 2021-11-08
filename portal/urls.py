@@ -412,6 +412,7 @@ urlpatterns = [
     ),
     path("pyinfo/", views.pyinfo),
     path("pyinfo/<message>", views.pyinfo),
+    path("413/", views.handler413),
 ]
 
 if settings.SENTRY_DSN:

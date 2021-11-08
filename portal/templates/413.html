@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Request Entity Too Large' %}{% endblock %}
+
+{% block content %}
+  <h1>{% trans 'Request Entity Too Large' %}</h1>
+
+  <p>{% trans 'The file you have attempted to upload is too large.' %}
+  {% trans 'The maximum allowed size is 100Mb.' %}</p>
+{% endblock content %}

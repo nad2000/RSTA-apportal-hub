@@ -104,7 +104,7 @@ def handler500(request, *args, **argv):
 def handler413(request, *args, **argv):
     return render(
         request,
-        "500.html",
+        "413.html",
         {
             "sentry_event_id": last_event_id(),
             "SENTRY_DSN": settings.SENTRY_DSN,
