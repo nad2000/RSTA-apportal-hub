@@ -417,10 +417,10 @@ def index(request):
         ).filter(~Q(round__panellists__user=user))
         if user.is_staff or user.is_superuser:
             outstanding_identity_verifications = models.IdentityVerification.where(
-                ~Q(file=""), file__isnull=False, state__in=["new", "sent"]
+                ~Q(file=""), user__is_active=True, file__isnull=False, state__in=["new", "sent"]
             )
             user_verifications = User.where(
-                Q(is_approved=False) | Q(is_approved__isnull=True)
+                Q(Q(is_approved=False) | Q(is_approved__isnull=True)), is_active=True
             ).order_by("-last_login")
         schemes = models.SchemeApplication.get_data(user)
     else:
