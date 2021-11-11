@@ -410,11 +410,15 @@ def index(request):
             status__in=["sent", "submitted"], user=user
         )
         draft_applications = models.Application.user_draft_applications(user).filter(
-            ~Q(round__panellists__user=user)
+            ~Q(round__panellists__user=user),
+            round__in=models.Scheme.objects.values("current_round"),
         )
         current_applications = models.Application.user_applications(
             user, ["submitted", "review", "accepted"]
-        ).filter(~Q(round__panellists__user=user))
+        ).filter(
+            ~Q(round__panellists__user=user),
+            round__in=models.Scheme.objects.values("current_round"),
+        )
         if user.is_staff or user.is_superuser:
             outstanding_identity_verifications = models.IdentityVerification.where(
                 ~Q(file=""), user__is_active=True, file__isnull=False, state__in=["new", "sent"]
