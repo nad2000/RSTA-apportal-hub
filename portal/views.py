@@ -3342,6 +3342,19 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
                 )
             return HttpResponseRedirect(self.request.path_info)
 
+    def formset_valid(self, formset):
+        for form in formset.forms[:]:
+            # remove the duplicates for newly added entries
+            email = form.instance.email.lower()
+            if not form.instance.id and self.model.where(email=email).exists():
+                messages.warning(
+                    self.request,
+                    _("The panellist %s was already invited once.") % email,
+                )
+                formset.forms.remove(form)
+
+        return super().formset_valid(formset)
+
     def get_queryset(self):
         return self.model.where(round=self.round)
 
