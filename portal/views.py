@@ -3346,7 +3346,7 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
         for form in formset.forms[:]:
             # remove the duplicates for newly added entries
             email = form.instance.email.lower()
-            if not form.instance.id and self.model.where(email=email).exists():
+            if not form.instance.id and self.model.where(email=email, round=self.round).exists():
                 messages.warning(
                     self.request,
                     _("The panellist %s was already invited once.") % email,
