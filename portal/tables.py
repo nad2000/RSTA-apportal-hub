@@ -61,6 +61,20 @@ class NominationTable(tables.Table):
         linkify=lambda record: record.get_absolute_url() if record.status != "submitted" else None
     )
     status = StatusColumn()
+    application = tables.Column(
+        # accessor="referee.application.number",
+        linkify=lambda record: reverse("application", kwargs=dict(pk=record.application_id))
+        if record.application
+        else None,
+    )
+
+    def render_application(self, record, value):
+        if value:
+            return value.number
+
+    def render_nominator(self, record, value):
+        if value:
+            return value.full_name_with_email
 
     class Meta:
         model = models.Nomination
@@ -69,9 +83,11 @@ class NominationTable(tables.Table):
         fields = (
             "status",
             "round",
+            "nominator",
             "email",
             "first_name",
             "last_name",
+            "application",
         )
 
 

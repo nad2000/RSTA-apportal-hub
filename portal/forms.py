@@ -627,7 +627,7 @@ class NominationForm(forms.ModelForm):
             <label for="id_nominator" class=" requiredField">%s</label>
                 <div class="">
                     <input
-                        value="{{ nominator.full_name }}"
+                        value="{{ nominator.full_name_with_email }}"
                         disabled="" class="input form-control">
                 </div>
             </div>

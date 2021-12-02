@@ -1028,6 +1028,9 @@ class ApplicationDetail(DetailView):
                 Q(user=u) | Q(email__in=u.emailaddress_set.values("email"))
             ).last():
                 context["referee"] = referee
+            if n := models.Nomination.where(application=a).last():
+                context["nomination"] = n
+                context["nominator"] = n.nominator
 
         return context
 
@@ -2723,7 +2726,7 @@ class NominationView(CreateUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
-        context["nominator"] = self.request.user
+        context["nominator"] = self.object.nominator if hasattr(self, "object") else self.request.user
         return context
 
 

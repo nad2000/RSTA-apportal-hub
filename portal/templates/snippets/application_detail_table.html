@@ -187,6 +187,15 @@
       </tr>
     {% endif %}
 
+    {% if nominator %}
+      <tr>
+        <th class="table-dark" scope="row">{% trans 'Nominator' %}</th>
+        <td colspan="3">
+          {{ nominator | person_with_email }}
+        </td>
+      </tr>
+    {% endif %}
+
     {% if a.referees.all.count and a|can_see_referees:u %}
       <tr>
         <th class="table-dark" scope="row">{% trans 'Referees' %}</th>
