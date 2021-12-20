@@ -201,6 +201,10 @@ class PdfFileMixin:
                 return os.path.basename(self.file.name)
             return os.path.basename(self.pdf_file.name)
 
+    def title_page(self):
+        """Title page for composite export into PDF"""
+        return {}
+
     @property
     def is_pdf_content(self):
         """The content is PDF."""
@@ -1323,6 +1327,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 (
                     f"{cv.full_name} {_('Curriculum Vitae')}",
                     settings.PRIVATE_STORAGE_ROOT + "/" + str(cv.pdf_file),
+                    cv.title_page,
                 )
             )
 
@@ -1339,6 +1344,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                         (
                             _("Nomination Submitted By %s") % n.nominator.full_name,
                             settings.PRIVATE_STORAGE_ROOT + "/" + str(n.pdf_file),
+                            n.title_page,
                         )
                     )
 
@@ -1352,6 +1358,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                             (
                                 f"{nominator_cv.full_name} {_('Curriculum Vitae')}",
                                 settings.PRIVATE_STORAGE_ROOT + "/" + str(nominator_cv.pdf_file),
+                                nominator_cv.title_page,
                             )
                         )
 
@@ -1361,6 +1368,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                         (
                             _("Testimonial Form Submitted By %s") % t.referee.full_name,
                             settings.PRIVATE_STORAGE_ROOT + "/" + str(t.pdf_file),
+                            t.title_page,
                         )
                     )
 
@@ -1374,6 +1382,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                             (
                                 f"{referee_cv.full_name} {_('Curriculum Vitae')}",
                                 settings.PRIVATE_STORAGE_ROOT + "/" + str(referee_cv.pdf_file),
+                                referee_cv.title_page,
                             )
                         )
         # ssl._create_default_https_context = ssl._create_unverified_context
@@ -1422,8 +1431,29 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             bookmark=(self.application_title or self.round.title),
             import_bookmarks=True,
         )
-        for title, a in attachments:
+        for title, a, *rest in attachments:
             # merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
+            if rest and (title_page := rest[0]):
+                template = get_template("application-export-title-page.html")
+                html = HTML(
+                    string=template.render(
+                        {
+                            "application": self,
+                            "title_page": title_page,
+                            # "objects": objects,
+                            "user": request and request.user,
+                        }
+                    )
+                )
+                pdf_object = html.write_pdf(presentational_hints=True)
+                # converting pdf bytes to stream which is required for pdf merger.
+                pdf_stream = io.BytesIO(pdf_object)
+                merger.append(
+                    pdf_stream,
+                    # bookmark=(self.application_title or self.round.title),
+                    import_bookmarks=True,
+                )
+
             merger.append(a, bookmark=title, import_bookmarks=True)
         return merger
 
@@ -2272,6 +2302,10 @@ class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
 
     def __str__(self):
         return self.filename
+
+    def title_page(self):
+        """Title page for composite export into PDF"""
+        return {}
 
     class Meta:
         db_table = "curriculum_vitae"

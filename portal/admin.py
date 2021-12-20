@@ -272,6 +272,7 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
+
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
