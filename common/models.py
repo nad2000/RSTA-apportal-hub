@@ -90,6 +90,8 @@ class PersonMixin:
             return self.submitted_by
         elif hasattr(self, "profile") and self.profile.user:
             return self.profile.user
+        elif hasattr(self, "referee") and self.referee.user:
+            return self.referee.user
 
     @property
     def full_name(self):

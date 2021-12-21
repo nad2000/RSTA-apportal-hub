@@ -203,7 +203,16 @@ class PdfFileMixin:
 
     def title_page(self):
         """Title page for composite export into PDF"""
-        return {}
+        return {
+            "TITLES": [
+                f"{_('Attachment')} - {self.__class__.__name__}",
+                self,
+                f"({self.filename})",
+            ],
+            _("File Name"): self.filename,
+            _("Submitted At"): self.updated_at or self.created_at,
+            _("Submitted By"): self.full_name,
+        }
 
     @property
     def is_pdf_content(self):
@@ -2197,7 +2206,7 @@ class TestimonialMixin:
     STATUS = TESTIMONIAL_STATUS
 
 
-class Testimonial(TestimonialMixin, PdfFileMixin, Model):
+class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     """A Testimonial/endorsement/feedback given by a referee."""
 
     referee = OneToOneField(
@@ -2305,7 +2314,10 @@ class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
 
     def title_page(self):
         """Title page for composite export into PDF"""
-        return {}
+        return {
+            "TITLES": [_("Curriculum Vitae"), self.full_name],
+            _("Submitted At"): self.updated_at or self.created_at,
+        }
 
     class Meta:
         db_table = "curriculum_vitae"
