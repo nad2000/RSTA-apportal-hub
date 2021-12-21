@@ -1,0 +1,105 @@
+{% load i18n tags %}
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+</style>
+
+<div class="mb-0" id="header_content" style="margin-left:5%;border-bottom-width:1px;border-bottom-style:solid;">
+
+  <header class="header" >
+    <picture>
+      <img id="logo" width="190px" height="50px"
+           src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png"
+           alt="The Prime Minister's Science Prizes"
+           srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x">
+    </picture>
+  </header>
+
+</div>
+
+{% if title_page %}
+
+    <div style="margin-top:36%;border-color:grey;border-width:2px;border-style:solid;margin-left:10%;margin-right:5%;font-size:15px;padding:25px;border-radius:25px;">
+
+      <table>
+        {% if title_page.TITLES %}
+          <center>
+            {% for value in title_page.TITLES %}
+              <h{{ forloop.counter }}>
+                {{ value }}
+              </h{{ forloop.counter }}>
+            {% endfor %}
+          </center>
+        {% endif %}
+
+      {% for attribute, value in title_page.items %}
+        {% if attribute != 'TITLES' %}
+          <tr>
+            <th>
+              {{ attribute }}
+            </th>
+            <td>
+              {{ value }}
+            </td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+      </table>
+    </div>
+  <center>
+  </center>
+{% else %}
+
+{% with a=application u=user %}
+  <h2>
+    {{ a.number }}: {{ a.application_title|default:a.round.title|title }}
+  </h2>
+  {% include 'snippets/application_detail_table.html' with export=True %}
+{% endwith %}
+
+{% for object in objects %}
+<h2>
+  {{ object }}
+</h2>
+<table class="table table-bordered searchable">
+  <tbody>
+
+  {% for field in object|fields %}
+    {% with name=field.name %}
+      {% if name != 'budget' and name != 'organisation' and name != 'id' and name != 'summary' and name != 'summary_en' and name != 'summary_mi' and exclude is None or name not in exclude %}
+  <tr>
+    <th style="width: 21%; min-width: 160px; max-width: 180px;">{{ field.verbose_name|title }}</th>
+    <td>
+      {% if field.name == "summary" %}
+        {{ object.summary|safe }}
+      {% elif field.name == "file" %}
+        {{ object.file.name|basename }}
+      {% elif field.name == "converted_file" %}
+        {{ object.converted_file.file.name|basename }}
+      {% else %}
+        {{ object|field_value:field.name }}
+      {% endif %}
+    </td>
+  </tr>
+
+      {% endif %}
+    {% endwith %}
+  {% endfor %}
+
+  </tbody>
+</table>
+{% endfor %}
+
+{% endif %}
+
+</body>
+</html>
