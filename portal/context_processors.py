@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.db import connection
 from django.utils import timezone
@@ -10,6 +11,7 @@ from . import models
 
 def portal_context(request):
     view_name = (rm := request.resolver_match) and rm.view_name
+    request.site = get_current_site(request)
     context = {
         "settings": settings,
         "view_name": view_name,
