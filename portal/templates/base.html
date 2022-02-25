@@ -85,8 +85,17 @@
                       </a>
                     </li>
                     <li class="nav-item" id="about-the-prizes">
-                      <a class="nav-link" href="{% url 'about' %}">
-                        <i class="fas fa-trophy"></i> {% trans 'About the Prizes' %}
+                    <a class="nav-link" href="{% url 'about' %}"
+                     {% if request.site.domain == "international.royalsociety.org.nz" %}
+                         data-toggle="tooltip" title="About Falling Walls Lab New Zealand"
+                     {% endif %}
+                    >
+                        <i class="fas fa-trophy"></i>
+                        {% if request.site.domain == 'international.royalsociety.org.nz' %}
+                          About
+                        {% else %}
+                          {% trans 'About the Prizes' %}
+                        {% endif %}
                       </a>
                     </li>
                     {% if request.user.is_superuser or request.user.is_staff %}
@@ -139,6 +148,7 @@
                     </li>
                   {% endif %}
 
+                 {% if request.site.domain != "international.royalsociety.org.nz" %}
                   <form action="{% url 'set_language' %}" method="post">
                     {% csrf_token %}
                     <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
@@ -163,6 +173,7 @@
                       </div>
                     </div>
                   </form>
+                 {% endif %}
 
                 </ul>
               </div>
