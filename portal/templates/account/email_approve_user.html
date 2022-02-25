@@ -4,9 +4,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>{% block title %}The Prime Minister's Science Prize Portal{% endblock title %}</title>
+    <title>
+      {% block title %}
+        {% trans request.site.name|default:"The Prime Minister’s Science Prize Portal" %}
+      {% endblock title %}
+    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Prime Minister's Science Prizes">
+    <meta name="description" content="{{ request.site.name }}">
     <meta name="author" content="Royal Society Te Apārangi">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->

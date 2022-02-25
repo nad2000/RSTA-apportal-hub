@@ -13,6 +13,7 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.sites.managers import CurrentSiteManager
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.files.base import File
@@ -26,6 +27,7 @@ from django.db.models import (
     CASCADE,
     DO_NOTHING,
     PROTECT,
+    SET_DEFAULT,
     SET_NULL,
     BooleanField,
     Case,
@@ -36,6 +38,7 @@ from django.db.models import (
     F,
     FileField,
     ForeignKey,
+    Manager,
     ManyToManyField,
     OneToOneField,
     PositiveIntegerField,
@@ -924,12 +927,18 @@ APPLICATION_STATUS = Choices(
 )
 
 
+class ApplicationManager(Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(round__site=Site.objects.get_current())
+
+
 class ApplicationMixin:
 
     STATUS = APPLICATION_STATUS
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
+    objects = ApplicationManager()
     number = CharField(
         _("number"), max_length=24, null=True, blank=True, editable=False, unique=True
     )
@@ -1254,6 +1263,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     @classmethod
     def user_applications(cls, user, state=None, round=None, select_related=True):
         q = cls.objects.all()
+        # q = cls.where(round__site=Site.objects.get_current())
 
         if state:
             if isinstance(state, (list, tuple)):
@@ -2340,6 +2350,8 @@ class Scheme(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -2531,6 +2543,8 @@ class Round(Model):
             )
         ],
     )
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
 
     def clean(self):
         if (
@@ -2627,6 +2641,8 @@ class Round(Model):
                 .first()
             ):
                 kwargs["budget_template"] = pr5.budget_template
+            if "site" not in kwargs:
+                kwargs["site"] = scheme.site
         super().__init__(*args, **kwargs)
 
     def __str__(self):

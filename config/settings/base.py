@@ -5,6 +5,7 @@ from pathlib import Path
 
 import environ
 from django.conf.locale import LANG_INFO
+from multisite import SiteID
 
 ROOT_DIR = Path(__file__).parents[2]
 # portal/)
@@ -68,6 +69,7 @@ LANG_INFO.update(
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 #  SITE_ID = 1
+SITE_ID = SiteID(default=1)
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
 USE_I18N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-l10n
@@ -98,7 +100,9 @@ DJANGO_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
-    "django.contrib.sites",
+    # "django.contrib.sites",
+    "portal.apps.SitesConfig",
+    "multisite",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "django.contrib.humanize", # Handy template tags
@@ -214,6 +218,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "multisite.middleware.DynamicSiteMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
@@ -256,6 +261,7 @@ TEMPLATES = [
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
             "loaders": [
+                "multisite.template.loaders.filesystem.Loader",
                 "django.template.loaders.filesystem.Loader",
                 "django.template.loaders.app_directories.Loader",
             ],

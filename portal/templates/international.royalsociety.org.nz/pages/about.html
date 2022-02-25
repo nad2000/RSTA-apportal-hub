@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static i18n cache django_bootstrap_breadcrumbs %}
+{% block title %}{% trans 'About Falling Walls Lab New Zealand' %}{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Falling Walls Lab New Zealand" "about" %}
+{% endblock %}
+
+{% cache None about_content %}
+{% block content %}
+  <h1>
+    {% trans 'About Falling Walls Lab New Zealand' %}
+  </h1>
+  <div class="row">
+
+    <div class="col-md-4">
+      <h2><a name="Award"></a>Award and winner's prize</h2>
+      <p>Applicants selected to participate in Falling Walls Lab New Zealand will have their flight cost from place of residence to Wellington covered. PIF nation-based finalists (excluding New Zealand and Australia) will additionally receive two night’s accommodation in Wellington.</p>
+
+      <p>Lunch and a closing reception is provided for finalists and guests at the September 7 event. Additional expenses for meals, accommodation (in addition to what has been discussed above), visa applications, insurance cover (where applicable) and other costs are the responsibility of the finalists.</p>
+
+      <p>The winner of Falling Walls Lab New Zealand will be invited to represent Aotearoa New Zealand at the <a title="FWL Berlin" rel="noopener" href="https://falling-walls.com/lab/" target="_blank">Falling Walls Lab Global Finale</a> in Berlin on November 7, 2021.&nbsp; <a rel="noopener" href="https://falling-walls.com/lab/the-prize/" target="_blank">The&nbsp;winner's prize</a>&nbsp;will consist of return economy flights from place of residence to Berlin and four night’s accommodation in Berlin (includes one night's accommodation covered by Falling Walls Lab Berlin) and a ticket to the&nbsp;<a rel="noopener" href="http://www.falling-walls.com/conference" target="_blank">Falling Walls Conference</a>&nbsp;on November 9.&nbsp;</p>
+
+      <p>Royal Society Te Apārangi's partner EURAXESS will provide a high-quality online science communication training to the winner, led by European experts including the opportunity to have one-on-one consultation with the experts. This training will focus on equipping the winner with essential communication skills which are directly applicable to the effective communication of their innovative idea in a virtual setting.</p>
+
+    </div>
+
+    <div class="col-md-8">
+      {% blocktrans %}
+        The Prime Minister’s Science Prizes are awarded to:<br><br>
+        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/science-2-2-2/"><strong>Te Puiaki Pūtaiao Matua
+            a Te Pirimia The Prime Minister’s Science Prize</strong></a></p>
+        <p>An individual or team for a transformative scientific discovery or
+        achievement, which has had a significant economic, health, social and/or
+        environmental impact on New Zealand and/or internationally.</p>
+        <p><strong><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/macdiarmid-2-2/">Te Puiaki Kaipūtaiao Maea
+            The Prime Minister’s MacDiarmid Emerging Scientist Prize</a></strong></p>
+        <p>An outstanding emerging scientist who has had their PhD or equivalent
+        qualification conferred within the last eight years</p>
+        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/media-2-2-2/"><strong>Te Puiaki Whakapā Pūtaiao
+            The Prime Minister’s Science Communication Prize</strong></a></p>
+        <p>A practising scientist&nbsp;who can demonstrate an interest, passion
+        and aptitude for science communication and public engagement, <strong>or</strong>
+        to a person who has developed expertise in public engagement with, or
+        communication of complex scientific or technological information to the
+        public and/or science and research communities and hapori.</p>
+        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/teacher-2-2-3/"><strong>Te Puiaki Kaiwhakaaroaro
+            Pūtaiao The Prime Minister’s Science Teacher Prize</strong></a></p>
+        <p>A registered teacher kaiako who has been teaching science,
+        mathematics, technology, pūtaiao, hangarau or pāngarau learning areas of
+        the New Zealand curriculum to school-age children in a primary,
+        intermediate or secondary New Zealand registered school or kura kaupapa.</p>
+        <p><strong><a
+                       href="https://www.pmscienceprizes.org.nz/about-the-prizes/the-prime-ministers-future-scientist-prize-2-2-2/">Te
+                       Puiaki Kaipūtaiao Ānamata The Prime Minister’s Future Scientist Prize</a></strong></p>
+        <p>A secondary school tauira student for outstanding achievement in
+        carrying out a practical and innovative science research, maths,
+        technology or engineering project.</p>
+      {% endblocktrans %}
+    </div>
+
+    <p>&nbsp;<br>&nbsp;</p>
+    <p>Supported by the New Zealand Government with funding from the <strong>Ministry of Business, Innovation and
+      Employment</strong>.&nbsp; Nā Te Hīkina Whakatutuki te mana hāpai.<br>
+    <img border='0' width='100%' src="{% static 'images/MBIE-logos.png' %}" alt='MBIE Logo'></p>
+  </div>
+
+{% endblock content %}
+{% endcache %}
