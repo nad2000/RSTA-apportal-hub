@@ -27,7 +27,6 @@ from django.db.models import (
     CASCADE,
     DO_NOTHING,
     PROTECT,
-    SET_DEFAULT,
     SET_NULL,
     BooleanField,
     Case,
@@ -938,7 +937,10 @@ class ApplicationMixin:
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
-    objects = ApplicationManager()
+    # objects = ApplicationManager()
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
+
     number = CharField(
         _("number"), max_length=24, null=True, blank=True, editable=False, unique=True
     )
@@ -1319,12 +1321,12 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             "JOIN application AS app "
             "  ON app.id = r.application_id "
             "LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
-            "WHERE (r.application_id=%s OR app.id=%s)"
+            "WHERE (r.application_id=%s OR app.id=%s) AND a.site_id=%s"
         )
         if has_testifed:
             sql += " AND r.has_testified IS NOT NULL"
 
-        return Testimonial.objects.raw(sql, [self.id, self.id])
+        return Testimonial.objects.raw(sql, [self.id, self.id, self.current_site_id])
 
     def to_pdf(self, request=None):
         """Create PDF file for export and return PdfFileMerger"""
@@ -1666,7 +1668,8 @@ class Referee(RefereeMixin, PersonMixin, Model):
     @classmethod
     def outstanding_requests(cls, user):
         return Invitation.objects.raw(
-            "SELECT DISTINCT r.*, tm.id AS testimonial_id FROM referee AS r JOIN account_emailaddress AS ae ON "
+            "SELECT DISTINCT r.*, tm.id AS testimonial_id "
+            "FROM referee AS r JOIN account_emailaddress AS ae ON "
             "ae.email = r.email LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
             "WHERE (r.user_id=%s OR ae.user_id=%s) AND status NOT IN ('testified', 'opted_out')",
             [user.id, user.id],
@@ -1699,6 +1702,8 @@ class PanellistMixin:
 class Panellist(PanellistMixin, PersonMixin, Model):
     """Round Panellist."""
 
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
     status = StateField(null=True, blank=True, default=PANELLIST_STATUS.new)
     round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
     email = EmailField(max_length=120)
@@ -1796,8 +1801,9 @@ class Panellist(PanellistMixin, PersonMixin, Model):
             "LEFT JOIN evaluation AS e ON e.application_id = a.id AND e.panellist_id = p.id "
             "WHERE (p.user_id=%s OR ae.user_id=%s) "
             "  AND (coi.has_conflict IS NULL OR NOT coi.has_conflict) "
-            "  AND (e.state IS NULL OR e.state <> 'submitted')",
-            [user.id, user.id],
+            "  AND (e.state IS NULL OR e.state <> 'submitted')"
+            "  AND a.site_id=%s",
+            [user.id, user.id, cls.get_current_site_id()],
         )
         prefetch_related_objects(q, "round")
         return q
@@ -1864,6 +1870,10 @@ class InvitationMixin:
 class Invitation(InvitationMixin, Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced")
+
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
+
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
     url = CharField(max_length=200, null=True, blank=True)
     inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
@@ -2184,11 +2194,12 @@ class Invitation(InvitationMixin, Model):
 
     @classmethod
     def outstanding_invitations(cls, user):
+        site_id = cls.get_current_site_id()
         return cls.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
-            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') "
-            "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired')",
-            [user.id, user.email],
+            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') AND i.site_id=%s"
+            "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired') AND site_id=%s",
+            [user.id, site_id, user.email, site_id],
         )
 
     def __str__(self):
@@ -2342,6 +2353,8 @@ def default_scheme_code(title):
 
 
 class Scheme(Model):
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
     title = CharField(_("title"), max_length=100)
     # groups = ManyToManyField(
     #     Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
@@ -2350,8 +2363,6 @@ class Scheme(Model):
     current_round = OneToOneField(
         "Round", blank=True, null=True, on_delete=SET_NULL, related_name="+"
     )
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
-    objects = CurrentSiteManager()
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -2418,6 +2429,9 @@ def round_template_path(instance, filename):
 
 
 class Round(Model):
+
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
 
     title = CharField(_("title"), max_length=100, null=True, blank=True)
     scheme = ForeignKey(Scheme, on_delete=CASCADE, related_name="rounds", verbose_name=_("scheme"))
@@ -2543,8 +2557,6 @@ class Round(Model):
             )
         ],
     )
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
-    objects = CurrentSiteManager()
 
     def clean(self):
         if (
@@ -2707,6 +2719,7 @@ class Round(Model):
     @property
     def avg_scores(self):
 
+        site_id = self.current_site_id
         return Application.objects.raw(
             """SELECT a.*, t.total
             FROM application AS a JOIN (
@@ -2721,13 +2734,13 @@ class Round(Model):
                     FROM evaluation AS e JOIN score AS s ON s.evaluation_id=e.id
                         JOIN application AS a ON a.id=e.application_id
                         JOIN criterion AS c ON c.id=s.criterion_id
-                    WHERE a.round_id=%s
+                    WHERE a.round_id=%s AND a.site_id=%s
                     GROUP BY e.id, e.application_id) AS et
                 GROUP BY et.application_id
             ) AS t ON t.application_id=a.id
-            WHERE a.round_id=%s
+            WHERE a.round_id=%s AND a.site_id=%s
             ORDER BY a.number""",
-            [self.id, self.id],
+            [self.id, site_id, self.id, site_id],
         )
 
     @property
@@ -2775,6 +2788,7 @@ class Round(Model):
 
     @property
     def summary(self):
+        site_id = self.current_site_id
         return Application.objects.raw(
             """
             WITH summary AS (
@@ -2782,14 +2796,14 @@ class Round(Model):
                     sum(CASE WHEN r.status='testified' OR has_testifed THEN 1 ELSE 0 END) AS submitted_reference_count
                 FROM application AS a
                     LEFT JOIN referee AS r ON r.application_id=a.id
-                WHERE a.round_id=%s
+                WHERE a.round_id=%s AND a.site_id=%s
                 GROUP BY a.id
             ), member_summary AS (
                 SELECt a.id, count(m.id) AS member_count,
                     sum(CASE WHEN m.status='authorized' OR has_authorized THEN 1 ELSE 0 END) AS member_authorized_count
                 FROM application AS a
                     LEFT JOIN member AS m ON m.application_id=a.id
-                WHERE a.round_id=%s
+                WHERE a.round_id=%s AND a.site_id=%s
                 GROUP BY a.id
             )
             SELECT
@@ -2805,10 +2819,10 @@ class Round(Model):
                 LEFT JOIN users_user AS u ON u.id = a.submitted_by_id
                 LEFT JOIN profile AS p ON p.user_id = u.id
                 LEFT JOIN scheme ON scheme.current_round_id = a.round_id
-            WHERE a.round_id=%s
+            WHERE a.round_id=%s AND a.site_id=%s
             ORDER BY a.number
             """,
-            [self.id, self.id, self.id],
+            [self.id, site_id, self.id, site_id, self.id, site_id],
         )
 
     @classmethod
@@ -3015,6 +3029,7 @@ class SchemeApplication(Model):
     @classmethod
     def get_data(cls, user):
         lang = get_language()
+        site_id = cls.get_current_site_id()
         q = cls.objects.raw(
             f"""
             SELECT DISTINCT
@@ -3027,26 +3042,31 @@ class SchemeApplication(Model):
                 p.id IS NOT NULL AS is_panellist,
                 EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted
             FROM scheme AS s
-            LEFT JOIN round AS r ON r.id = s.current_round_id
+            LEFT JOIN round AS r ON r.id = s.current_round_id AND r.site_id = %s
             LEFT JOIN (
                 SELECT
                     max(a.id) AS id,
                     count(*) AS app_count,
                     a.round_id
                 FROM application AS a LEFT JOIN member AS m
-                    ON m.application_id = a.id AND m.user_id = %s
+                    ON m.application_id = a.id AND m.user_id = %s AND a.site_id = %s
                 WHERE (m.user_id IS NULL AND a.submitted_by_id = %s)
                     OR m.user_id = %s
                 GROUP BY a.round_id
             ) AS la ON la.round_id = r.id
             LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
+            WHERE
+              s.site_id = %s
             ORDER BY 2;""",
             [
                 user.id,
+                site_id,
                 user.id,
                 user.id,
+                site_id,
                 user.id,
                 user.id,
+                site_id,
             ],
         )
         prefetch_related_objects(q, "application")
@@ -3077,6 +3097,9 @@ class NominationMixin:
 
 
 class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
+
+    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    objects = CurrentSiteManager()
 
     round = ForeignKey(
         Round, on_delete=CASCADE, related_name="nominations", verbose_name=_("round")
@@ -3211,13 +3234,14 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
         sql = """
             SELECT count(*) AS "count"
             FROM nomination AS n
-            WHERE
+            WHERE site_id=%s AND
         """
-        if user.is_staff or user.is_superuser:
-            params = []
-        else:
+        params = [
+            cls.get_current_site_id(),
+        ]
+        if not (user.is_staff or user.is_superuser):
             sql += " n.nominator_id=%s AND "
-            params = [user.id]
+            params.append(user.id)
 
         if status:
             if isinstance(status, (list, tuple)):

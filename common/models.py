@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.db.models import DateTimeField
 from django.db.models import Model as Base
@@ -38,6 +39,14 @@ class TimeStampMixin(Base):
 
 
 class HelperMixin:
+    @property
+    def current_site_id(self):
+        return settings.SITE_ID.site_id
+
+    @classmethod
+    def get_current_site_id(self):
+        return settings.SITE_ID.site_id
+
     @classmethod
     def first(cls):
         return cls.objects.first()
