@@ -41,11 +41,11 @@ class TimeStampMixin(Base):
 class HelperMixin:
     @property
     def current_site_id(self):
-        return settings.SITE_ID.site_id
+        return int(settings.SITE_ID)
 
     @classmethod
     def get_current_site_id(self):
-        return settings.SITE_ID.site_id
+        return int(settings.SITE_ID)
 
     @classmethod
     def first(cls):

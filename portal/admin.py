@@ -272,7 +272,6 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
-
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
@@ -345,7 +344,7 @@ class ApplicationAdmin(
         "round__title",
     ]
     # summernote_fields = ["summary"]
-    exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary"]
+    exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary", "site"]
 
     def complete(self, obj):
         return obj.state == "submitted" or obj.state == "archive"
@@ -694,7 +693,7 @@ class SchemeResource(ModelResource):
 class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
     list_display = ["title"]
     resource_class = SchemeResource
-    exclude = ["groups", "cv_required"]
+    exclude = ["groups", "cv_required", "site"]
 
     def view_on_site(self, obj):
         if obj.current_round_id:

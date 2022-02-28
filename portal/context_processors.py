@@ -15,11 +15,13 @@ def portal_context(request):
     context = {
         "settings": settings,
         "view_name": view_name,
+        "domain": request.site.domain,
         "disable_breadcrumbs": not view_name
         or view_name in ["index", "home"],  # , "account_login", "account_signup"],
     }
     if (u := request.user) and u.is_authenticated:
-        stats = cache.get(u.username)
+        cache_key = f"{u.username}:{settings.SITE_ID}"
+        stats = cache.get(cache_key)
         if not stats:
             score_sheet_count = models.ScoreSheet.user_score_sheet_count(u)
             stats = {
@@ -59,6 +61,6 @@ def portal_context(request):
                 stats["has_testimonials"] = row[0]
                 stats["has_reviews"] = row[1]
                 stats["has_nominations"] = row[2]
-            cache.set(u.username, stats)
+            cache.set(cache_key, stats)
         context.update(stats)
     return context

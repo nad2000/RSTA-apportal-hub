@@ -29,7 +29,12 @@
       <!-- link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
       <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
-      <link href="{% static 'css/project.css' %}" rel="stylesheet">
+      {% if domain == "international.royalsociety.org.nz" %}
+        <link href="{% static 'css/international.royalsociety.org.nz.css' %}" rel="stylesheet">
+      {% else %}
+        <link href="{% static 'css/portal.pmscienceprizes.org.nz.css' %}" rel="stylesheet">
+        <!-- link href="{% static 'css/project.css' %}" rel="stylesheet" -->
+      {% endif %}
 
       <!-- Your stuff: Third-party CSS libraries go here -->
       {% compress css %}
@@ -58,8 +63,14 @@
 
           <header class="header">
             <a href="{% url 'home' %}" style="margin-left: 24px;">
-              <img id="logo"
-                   src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
+              {% if domain == "international.royalsociety.org.nz" %}
+                <img id="logo"
+                    src="https://www.royalsociety.org.nz/assets/Uploads/FW-Lab17-Logo.png"
+                >
+              {% else %}
+                <img id="logo"
+                    src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
+              {% endif %}
             </a>
           </header>
 
@@ -86,12 +97,12 @@
                     </li>
                     <li class="nav-item" id="about-the-prizes">
                     <a class="nav-link" href="{% url 'about' %}"
-                     {% if request.site.domain == "international.royalsociety.org.nz" %}
+                     {% if domain == "international.royalsociety.org.nz" %}
                          data-toggle="tooltip" title="About Falling Walls Lab New Zealand"
                      {% endif %}
                     >
                         <i class="fas fa-trophy"></i>
-                        {% if request.site.domain == 'international.royalsociety.org.nz' %}
+                        {% if domain == 'international.royalsociety.org.nz' %}
                           About
                         {% else %}
                           {% trans 'About the Prizes' %}
@@ -148,7 +159,7 @@
                     </li>
                   {% endif %}
 
-                 {% if request.site.domain != "international.royalsociety.org.nz" %}
+                 {% if domain != "international.royalsociety.org.nz" %}
                   <form action="{% url 'set_language' %}" method="post">
                     {% csrf_token %}
                     <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->

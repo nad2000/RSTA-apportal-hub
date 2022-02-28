@@ -938,7 +938,7 @@ class ApplicationMixin:
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     # objects = ApplicationManager()
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
     number = CharField(
@@ -1702,7 +1702,7 @@ class PanellistMixin:
 class Panellist(PanellistMixin, PersonMixin, Model):
     """Round Panellist."""
 
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
     status = StateField(null=True, blank=True, default=PANELLIST_STATUS.new)
     round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
@@ -1871,7 +1871,7 @@ class Invitation(InvitationMixin, Model):
 
     STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced")
 
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
     token = CharField(max_length=42, default=get_unique_invitation_token, unique=True)
@@ -2230,6 +2230,9 @@ class TestimonialMixin:
 class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     """A Testimonial/endorsement/feedback given by a referee."""
 
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
+    objects = CurrentSiteManager()
+
     referee = OneToOneField(
         Referee, related_name="testimonial", on_delete=CASCADE, verbose_name=_("referee")
     )
@@ -2353,8 +2356,9 @@ def default_scheme_code(title):
 
 
 class Scheme(Model):
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
+
     title = CharField(_("title"), max_length=100)
     # groups = ManyToManyField(
     #     Group, blank=True, verbose_name=_("who starts the application"), db_table="scheme_group"
@@ -2430,7 +2434,7 @@ def round_template_path(instance, filename):
 
 class Round(Model):
 
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
     title = CharField(_("title"), max_length=100, null=True, blank=True)
@@ -3098,7 +3102,7 @@ class NominationMixin:
 
 class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
 
-    site = ForeignKey(Site, on_delete=PROTECT, default=1)
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
     round = ForeignKey(

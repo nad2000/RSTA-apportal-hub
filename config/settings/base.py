@@ -100,8 +100,8 @@ DJANGO_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
-    # "django.contrib.sites",
-    "portal.apps.SitesConfig",
+    "django.contrib.sites",
+    # "portal.apps.SitesConfig",
     "multisite",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -146,6 +146,9 @@ THIRD_PARTY_APPS = [
     # "dynamic_breadcrumbs",
     "django_bootstrap_breadcrumbs",
 ]
+
+# workaround for https://github.com/shestera/django-multisite/issues/9
+SILENCED_SYSTEM_CHECKS = ["sites.E101"]  # Check to ensure SITE_ID is an int - ours is an object
 
 # EXPLORER_CONNECTIONS = {"Default": "readonly"}
 # EXPLORER_DEFAULT_CONNECTION = "readonly"
@@ -208,6 +211,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
+    "multisite.middleware.CookieDomainMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
