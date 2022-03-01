@@ -61,18 +61,7 @@
       {% block header %}
         <div class="mb-0" style="box-shadow: 0px 0px 19px rgb(0 0 0 / 30%);">
 
-          <header class="header">
-            <a href="{% url 'home' %}" style="margin-left: 24px;">
-              {% if domain == "international.royalsociety.org.nz" %}
-                <img id="logo"
-                    src="https://www.royalsociety.org.nz/assets/Uploads/FW-Lab17-Logo.png"
-                >
-              {% else %}
-                <img id="logo"
-                    src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png" alt="The Prime Minister's Science Prizes" srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@2x.png  2x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@3x.png  3x, https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@4x.png 4x">
-              {% endif %}
-            </a>
-          </header>
+          {% include 'header.html' %}
 
           <nav class="navbar navbar-expand-md navbar-dark bg-primary">
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
