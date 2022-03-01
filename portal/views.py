@@ -117,7 +117,6 @@ def handler413(request, *args, **argv):
     )
 
 
-@cache_page(60 * 15)
 def favicon(request):
     if request.site.domain == "international.royalsociety.org.nz":
         return redirect(
