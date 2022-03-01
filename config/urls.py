@@ -2,12 +2,10 @@ import private_storage.urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import include, path
 from django.views import defaults as default_views
-from django.views.generic import TemplateView
-from django.views.generic.base import RedirectView
 from rest_framework.authtoken.views import obtain_auth_token
+
 from users.views import LoginView, SignupView
 
 urlpatterns = [
@@ -61,16 +59,5 @@ if settings.DEBUG:
         import debug_toolbar
 
         urlpatterns = [path("__debug__/", include(debug_toolbar.urls))] + urlpatterns
-
-    # A workaround for 'favicon.ico'
-    urlpatterns.append(
-        path(
-            "favicon.ico",
-            RedirectView.as_view(
-                url=staticfiles_storage.url("images/favicons/favicon.ico"), permanent=True
-            ),
-            name="favicon",
-        )
-    )
 
 handler500 = "portal.views.handler500"

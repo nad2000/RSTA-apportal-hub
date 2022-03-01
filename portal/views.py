@@ -21,6 +21,7 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     UserPassesTestMixin,
 )
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
@@ -114,6 +115,18 @@ def handler413(request, *args, **argv):
         },
         status=413,
     )
+
+
+@cache_page(60 * 15)
+def favicon(request):
+    if request.site.domain == "international.royalsociety.org.nz":
+        return redirect(
+            staticfiles_storage.url(
+                "images/international.royalsociety.org.nz/favicons/favicon.ico"
+            ),
+            permanent=True,
+        )
+    return redirect(staticfiles_storage.url("images/favicons/favicon.ico"), permanent=True)
 
 
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
@@ -2726,7 +2739,9 @@ class NominationView(CreateUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
-        context["nominator"] = self.object.nominator if hasattr(self, "object") else self.request.user
+        context["nominator"] = (
+            self.object.nominator if hasattr(self, "object") else self.request.user
+        )
         return context
 
 

@@ -413,6 +413,7 @@ urlpatterns = [
     path("pyinfo/", views.pyinfo),
     path("pyinfo/<message>", views.pyinfo),
     path("413/", views.handler413),
+    path("favicon.ico", views.favicon)
 ]
 
 if settings.SENTRY_DSN:
