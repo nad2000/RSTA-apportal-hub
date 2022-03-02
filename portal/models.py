@@ -286,7 +286,24 @@ def hash_int(value):
 User = get_user_model()
 
 
+class ApplicationSiteManager(Manager):
+    """Select only applications linked to the current site."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(application__site=Site.objects.get_current())
+
+
+class RoundSiteManager(Manager):
+    """Select only rounds linked to the current site."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(round__site=Site.objects.get_current())
+
+
 class Subscription(Model):
+
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
+    objects = CurrentSiteManager()
 
     email = EmailField(max_length=120)
     name = CharField(max_length=120, null=True, blank=True)
@@ -886,27 +903,31 @@ class Recognition(Model):
         db_table = "recognition"
 
 
-class Nominee(Model):
-    title = CharField(max_length=40, null=True, blank=True)
-    # email = EmailField(max_length=119)
-    email = EmailField("email address")
-    first_name = CharField(max_length=30)
-    middle_names = CharField(
-        _("middle names"),
-        blank=True,
-        null=True,
-        max_length=280,
-        help_text=_("Comma separated list of middle names"),
-    )
-    last_name = CharField(max_length=150)
+# class Nominee(Model):
+#     title = CharField(max_length=40, null=True, blank=True)
+#     # email = EmailField(max_length=119)
+#     email = EmailField("email address")
+#     first_name = CharField(max_length=30)
+#     middle_names = CharField(
+#         _("middle names"),
+#         blank=True,
+#         null=True,
+#         max_length=280,
+#         help_text=_("Comma separated list of middle names"),
+#     )
+#     last_name = CharField(max_length=150)
 
-    user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+#     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
 
-    class Meta:
-        db_table = "nominee"
+#     class Meta:
+#         db_table = "nominee"
 
 
 class ConvertedFile(HelperMixin, Base):
+
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
+    objects = CurrentSiteManager()
+
     file = PrivateFileField(upload_subfolder=lambda instance: ["converted"])
 
     @property
@@ -926,18 +947,13 @@ APPLICATION_STATUS = Choices(
 )
 
 
-class ApplicationManager(Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(round__site=Site.objects.get_current())
-
-
 class ApplicationMixin:
 
     STATUS = APPLICATION_STATUS
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
-    # objects = ApplicationManager()
+    # objects = RoundSiteManager()
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
@@ -1519,6 +1535,8 @@ class MemberMixin:
 class Member(PersonMixin, MemberMixin, Model):
     """Application team member."""
 
+    objects = ApplicationSiteManager()
+
     application = ForeignKey(Application, on_delete=CASCADE, related_name="members")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
@@ -1618,6 +1636,8 @@ class RefereeMixin:
 class Referee(RefereeMixin, PersonMixin, Model):
     """Application referee."""
 
+    objects = ApplicationSiteManager()
+
     application = ForeignKey(Application, on_delete=CASCADE, related_name="referees")
     email = EmailField(max_length=120)
     first_name = CharField(max_length=30, null=True, blank=True)
@@ -1704,6 +1724,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
 
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
+
     status = StateField(null=True, blank=True, default=PANELLIST_STATUS.new)
     round = ForeignKey("Round", editable=True, on_delete=DO_NOTHING, related_name="panellists")
     email = EmailField(max_length=120)
@@ -3357,6 +3378,9 @@ def get_unique_mail_token(length=10):
 class MailLog(Model):
     """Email log - the log of email sent from the Hub."""
 
+    site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
+    objects = CurrentSiteManager()
+
     sent_at = DateTimeField(auto_now_add=True)
     user = ForeignKey(User, null=True, on_delete=SET_NULL)
     recipient = CharField(max_length=200, db_index=True)
@@ -3375,6 +3399,8 @@ class MailLog(Model):
 
 
 class ScoreSheet(Model):
+
+    objects = RoundSiteManager()
 
     panellist = ForeignKey(Panellist, null=True, on_delete=SET_NULL)
     round = ForeignKey(Round, editable=False, on_delete=CASCADE, related_name="score_sheets")

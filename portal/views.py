@@ -21,6 +21,7 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     UserPassesTestMixin,
 )
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
@@ -118,7 +119,8 @@ def handler413(request, *args, **argv):
 
 
 def favicon(request):
-    if request.site.domain == "international.royalsociety.org.nz":
+    site = get_current_site(request)
+    if site.domain == "international.royalsociety.org.nz":
         return redirect(
             staticfiles_storage.url(
                 "images/international.royalsociety.org.nz/favicons/favicon.ico"

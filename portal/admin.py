@@ -84,6 +84,9 @@ class StaffPermsMixin:
 @admin.register(models.Subscription)
 class SubscriptionAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
     view_on_site = False
+    exclude = [
+        "site",
+    ]
     list_display = ["email", "name"]
     list_filter = ["created_at", "updated_at", "is_confirmed"]
     search_fields = ["email"]
@@ -423,6 +426,9 @@ class ConvertedFileAdmin(admin.ModelAdmin):
             return round(size / 1000, 2)
 
     file_size_kb.short_description = "file size (KB)"
+    exclude = [
+        "site",
+    ]
 
     view_on_site = False
     list_display = ["file", "file_size_kb"]
@@ -496,6 +502,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     search_fields = ["first_name", "last_name"]
     list_filter = ["round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
+    exclude = ["site"]
     inlines = [StateLogInline]
 
     actions = ["resend_invitations"]
@@ -579,6 +586,7 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
     view_on_site = False
     search_fields = ["token", "recipient"]
+    exclude = ["site"]
     list_filter = ["sent_at", "updated_at", "was_sent_successfully"]
     date_hierarchy = "sent_at"
 
@@ -603,7 +611,7 @@ class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin)
     fsm_field = ["status"]
     search_fields = ["title", "email", "first_name", "last_name", "round__title"]
     # summernote_fields = ["summary"]
-    exclude = ["summary"]
+    exclude = ["summary", "site", ]
 
     actions = ["resend_invitations"]
 
@@ -656,6 +664,9 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 
     view_on_site = False
     fsm_field = ["status"]
+    exclude = [
+        "site",
+    ]
     list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email", "token"]
@@ -668,7 +679,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     # summernote_fields = ["summary"]
-    exclude = ["summary"]
+    exclude = ["summary", "site"]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
     search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
@@ -705,6 +716,9 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
     list_display = ["title", "scheme", "opens_on", "closes_on"]
     list_filter = ["opens_on", "closes_on"]
     date_hierarchy = "opens_on"
+    exclude = [
+        "site",
+    ]
 
     def view_on_site(self, obj):
         return f"{reverse('applications')}?round={obj.id}"
@@ -712,6 +726,9 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
     class PanellistInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Panellist
+        exclude = [
+            "site",
+        ]
 
         def view_on_site(self, obj):
             return reverse("panellist-invite", kwargs={"round": obj.round_id})
