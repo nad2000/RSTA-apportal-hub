@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.db.models import (
     SET_NULL,
@@ -11,6 +12,7 @@ from django.db.models import (
     CharField,
     DateTimeField,
     ForeignKey,
+    ManyToManyField,
 )
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -40,10 +42,20 @@ class User(HelperMixin, AbstractUser, PersonMixin):
     identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
     identity_verified_at = DateTimeField(null=True, blank=True)
 
+    staff_of_sites = ManyToManyField(Site, null=True, blank=True)
+
+    @property
+    def is_site_staff(self):
+        """Test if the user is staff of the current site"""
+        if not self.is_staff:
+            return False
+        if site := Site.objects.get_current():
+            return self.staff_of_sites.through.objects.filter(site=site, user=self).exists()
+
     @property
     def can_apply(self):
         """Admin nor staff cannot apply nor nominate other user."""
-        return not self.is_superuser and not self.is_staff
+        return not self.is_superuser and not self.is_site_staff
 
     @property
     def needs_identity_verification(self):

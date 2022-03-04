@@ -78,7 +78,7 @@ class StaffPermsMixin:
         return super().has_view_permission(request, obj)
 
     def has_module_permission(self, request):
-        return request.user.is_active and (request.user.is_superuser or request.user.is_staff)
+        return request.user.is_active and (request.user.is_superuser or request.user.is_site_staff)
 
 
 @admin.register(models.Subscription)
@@ -611,7 +611,10 @@ class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin)
     fsm_field = ["status"]
     search_fields = ["title", "email", "first_name", "last_name", "round__title"]
     # summernote_fields = ["summary"]
-    exclude = ["summary", "site", ]
+    exclude = [
+        "summary",
+        "site",
+    ]
 
     actions = ["resend_invitations"]
 
