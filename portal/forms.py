@@ -414,6 +414,7 @@ class ApplicationForm(forms.ModelForm):
     class Meta:
         model = models.Application
         exclude = [
+            "site",
             "organisation",
             "state",
             "round",
