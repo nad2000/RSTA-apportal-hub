@@ -862,7 +862,7 @@ class IdentityVerificationForm(forms.ModelForm):
 class PanellistForm(forms.ModelForm):
     class Meta:
         model = models.Panellist
-        exclude = ()
+        exclude = ("site", )
         widgets = dict(
             has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
@@ -873,7 +873,7 @@ class PanellistForm(forms.ModelForm):
 PanellistFormSet = modelformset_factory(
     models.Panellist,
     form=PanellistForm,
-    exclude=(),
+    exclude=("site", ),
     can_delete=True,
     widgets={"round": HiddenInput(), "status": InvitationStatusInput(attrs={"readonly": True})},
 )

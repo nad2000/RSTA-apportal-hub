@@ -64,7 +64,8 @@ def send_mail(
     token=None,
     convert_to_html=False,
 ):
-    domain = request and request.get_host().split(":")[0] or Site.objects.get_current().domain
+    site = (invitation and invitation.site) or Site.objects.get_current()
+    domain = request and request.get_host().split(":")[0] or site.domain
     root = f"https://{domain}"
 
     if not message and html_message:
@@ -117,6 +118,7 @@ def send_mail(
             was_sent_successfully=resp,
             token=f"{token}#{no}" if no else token,
             invitation=invitation,
+            site=site,
         )
     if not resp:
         raise Exception(

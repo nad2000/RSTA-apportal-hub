@@ -21,6 +21,7 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     UserPassesTestMixin,
 )
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
@@ -307,7 +308,7 @@ class DetailView(LoginRequiredMixin, _DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["exclude"] = ["id", "created_at", "updated_at", "org"]
+        context["exclude"] = ["id", "created_at", "updated_at", "org", "site", ]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
         context["update_button_name"] = _("Edit")
         if self.model and self.model in (models.Application, models.Testimonial):
@@ -786,6 +787,7 @@ def get_or_create_team_member_invitation(member):
     first_name = member.first_name or u and u.first_name or ""
     last_name = member.last_name or u and u.last_name or ""
     middle_names = member.middle_names or u and u.middle_names or ""
+    site = (member.application and member.application.site) or Site.objects.get_current()
 
     if hasattr(member, "invitation"):
         i = member.invitation
@@ -795,6 +797,7 @@ def get_or_create_team_member_invitation(member):
             i.middle_names = middle_names
             i.last_name = last_name
             i.sent_at = None
+            i.site = site
             i.submit()
             i.save()
         return (i, False)
@@ -808,6 +811,7 @@ def get_or_create_team_member_invitation(member):
                 first_name=first_name,
                 middle_names=middle_names,
                 last_name=last_name,
+                site=site,
             ),
         )
 
@@ -820,6 +824,7 @@ def get_or_create_referee_invitation(referee, by=None):
     first_name = referee.first_name or u and u.first_name or ""
     last_name = referee.last_name or u and u.last_name or ""
     middle_names = referee.middle_names or u and u.middle_names or ""
+    site = (referee.application and referee.application.site) or Site.objects.get_current()
 
     if hasattr(referee, "invitation"):
         i = referee.invitation
@@ -831,6 +836,7 @@ def get_or_create_referee_invitation(referee, by=None):
             i.middle_names = middle_names
             i.last_name = last_name
             i.sent_at = None
+            i.site = site
             i.submit()
             i.save()
         referee.satus = None
@@ -846,6 +852,7 @@ def get_or_create_referee_invitation(referee, by=None):
                 first_name=first_name,
                 middle_names=middle_names,
                 last_name=last_name,
+                site=site,
             ),
         )
 
@@ -3336,7 +3343,7 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
     form_class = forms.PanellistForm
     formset_class = forms.PanellistFormSet
     template_name = "panellist.html"
-    exclude = ("user",)
+    exclude = ("user", "site", )
 
     @property
     def round(self):
@@ -3423,7 +3430,7 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
         kwargs = super().get_table_kwargs()
         if (u := self.request.user) and (u.is_staff or u.is_superuser):
             return kwargs
-        kwargs.update({"exclude": ("evaluation_count",)})
+        kwargs.update({"exclude": ("evaluation_count", "site", )})
         return kwargs
 
     def get_queryset(self, *args, **kwargs):
