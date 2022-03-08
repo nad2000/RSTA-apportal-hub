@@ -2613,7 +2613,7 @@ class ProfileSummaryView(AdminstaffRequiredMixin, DetailView):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser or u.is_site_staff)
 def approve_user(request, user_id=None):
     if not user_id:
         user_id = request.POST.get("user_id")

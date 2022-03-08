@@ -90,8 +90,9 @@ def send_mail(
     else:
         url = f"{urljoin(root, url)}"
     headers = {"Message-ID": f"<{token}@{domain}>", "List-Unsubscribe": f"<{url}>"}
-    if not subject.startswith(settings.EMAIL_SUBJECT_PREFIX):
-        subject = f"{settings.EMAIL_SUBJECT_PREFIX} {subject}"
+    subject_prefix = f"[{site.name}]" if site else settings.EMAIL_SUBJECT_PREFIX
+    if not subject.startswith(subject_prefix):
+        subject = f"{subject_prefix} {subject}"
     msg = mail.EmailMultiAlternatives(
         subject,
         message,
