@@ -308,7 +308,13 @@ class DetailView(LoginRequiredMixin, _DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["exclude"] = ["id", "created_at", "updated_at", "org", "site", ]
+        context["exclude"] = [
+            "id",
+            "created_at",
+            "updated_at",
+            "org",
+            "site",
+        ]
         context["update_view_name"] = f"{self.model.__name__.lower()}-update"
         context["update_button_name"] = _("Edit")
         if self.model and self.model in (models.Application, models.Testimonial):
@@ -436,10 +442,16 @@ def index(request):
         )
         if user.is_staff or user.is_superuser:
             outstanding_identity_verifications = models.IdentityVerification.where(
-                ~Q(file=""), user__is_active=True, file__isnull=False, state__in=["new", "sent"]
+                ~Q(file=""),
+                user__is_active=True,
+                file__isnull=False,
+                state__in=["new", "sent"],
+                user__registered_on_id=settings.SITE_ID,
             )
             user_verifications = User.where(
-                Q(Q(is_approved=False) | Q(is_approved__isnull=True)), is_active=True
+                Q(Q(is_approved=False) | Q(is_approved__isnull=True)),
+                is_active=True,
+                registered_on_id=settings.SITE_ID,
             ).order_by("-last_login")
         schemes = models.SchemeApplication.get_data(user)
     else:
@@ -3343,7 +3355,10 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
     form_class = forms.PanellistForm
     formset_class = forms.PanellistFormSet
     template_name = "panellist.html"
-    exclude = ("user", "site", )
+    exclude = (
+        "user",
+        "site",
+    )
 
     @property
     def round(self):
@@ -3430,7 +3445,14 @@ class RoundList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
         kwargs = super().get_table_kwargs()
         if (u := self.request.user) and (u.is_staff or u.is_superuser):
             return kwargs
-        kwargs.update({"exclude": ("evaluation_count", "site", )})
+        kwargs.update(
+            {
+                "exclude": (
+                    "evaluation_count",
+                    "site",
+                )
+            }
+        )
         return kwargs
 
     def get_queryset(self, *args, **kwargs):

@@ -1,4 +1,3 @@
-from functools import cached_property
 from hashlib import md5
 from urllib.parse import urlencode
 
@@ -15,6 +14,7 @@ from django.db.models import (
     ManyToManyField,
 )
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from simple_history.models import HistoricalRecords
 
@@ -42,22 +42,31 @@ class User(HelperMixin, AbstractUser, PersonMixin):
     identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
     identity_verified_at = DateTimeField(null=True, blank=True)
 
-    staff_of_sites = ManyToManyField(Site, null=True, blank=True)
+    staff_of_sites = ManyToManyField(Site, null=True, blank=True, related_name="staff_users")
+    registered_on = ForeignKey(
+        Site,
+        null=True,
+        blank=True,
+        related_name="registered_users",
+        on_delete=SET_NULL,
+        default=HelperMixin.get_current_site_id,
+    )
 
-    @property
+    @cached_property
     def is_site_staff(self):
         """Test if the user is staff of the current site"""
         if not self.is_staff:
             return False
-        if site := Site.objects.get_current():
-            return self.staff_of_sites.through.objects.filter(site=site, user=self).exists()
+        return self.staff_of_sites.through.objects.filter(
+            site_id=self.current_site_id, user=self
+        ).exists()
 
     @property
     def can_apply(self):
         """Admin nor staff cannot apply nor nominate other user."""
         return not self.is_superuser and not self.is_site_staff
 
-    @property
+    @cached_property
     def needs_identity_verification(self):
         return not (
             self.is_identity_verified
