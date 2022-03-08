@@ -39,6 +39,10 @@ class UserSignupForm(allauth_forms.SignupForm):
         "password2": "",
     }
 
+    # class Meta(allauth_forms.SignupForm.Meta):
+    class Meta:
+        exclude = ["registered_on"]
+
 
 # class UserLoginForm(allauth_forms.LoginForm):
 #     captcha = ReCaptchaField()
