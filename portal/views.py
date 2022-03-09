@@ -88,8 +88,7 @@ def __(s):
 
 
 def reset_cache(request):
-    u = request.user
-    cache.delete(u.username)
+    cache.delete(f"{request.user.username}:{settings.SITE_ID}")
 
 
 def handler500(request, *args, **argv):
