@@ -51,6 +51,7 @@ from django.forms import models as model_forms
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
+from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import ugettext_lazy
 from django.views import View
@@ -2651,11 +2652,16 @@ class NominationView(CreateUpdateView):
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
         return super().dispatch(request, *args, **kwargs)
 
-    @property
+    @cached_property
     def round(self):
         return (
             models.Round.get(self.kwargs["round"]) if "round" in self.kwargs else self.object.round
         )
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["round"] = self.round.id
+        return initial
 
     def form_valid(self, form):
 
@@ -2664,8 +2670,10 @@ class NominationView(CreateUpdateView):
         if not n.id:
             if not n.nominator:
                 n.nominator = self.request.user
-            if not n.round:
+            if not n.round_id:
                 n.round = self.round
+            if not n.site:
+                n.site = Site.objects.get_current()
 
         resp = super().form_valid(form)
 
@@ -2752,6 +2760,7 @@ class NominationView(CreateUpdateView):
             if a:
                 kwargs["initial"]["org"] = a.org
         kwargs["initial"]["round"] = self.round
+        kwargs["initial"]["round_id"] = self.round.id
         kwargs["initial"]["nominator"] = self.request.user
         return kwargs
 
@@ -2759,7 +2768,7 @@ class NominationView(CreateUpdateView):
         context = super().get_context_data(**kwargs)
         context["round"] = self.round
         context["nominator"] = (
-            self.object.nominator if hasattr(self, "object") else self.request.user
+            self.object.nominator if hasattr(self, "object") and self.object else self.request.user
         )
         return context
 

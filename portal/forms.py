@@ -620,7 +620,7 @@ class NominationForm(forms.ModelForm):
         self.helper.include_media = False
         self.helper.form_id = "nomination-form"
         fields = [
-            "round",
+            # "round",
             "nominator",
             HTML(
                 """
@@ -692,7 +692,7 @@ class NominationForm(forms.ModelForm):
     class Meta:
         model = models.Nomination
         fields = [
-            "round",
+            # "round",
             "nominator",
             "title",
             "first_name",
@@ -709,7 +709,7 @@ class NominationForm(forms.ModelForm):
                 attrs={"data-placeholder": _("Choose an organisation or create a new one ...")},
             ),
             nominator=HiddenInput(),
-            round=HiddenInput(),
+            # round=HiddenInput(),
             # summary=SummernoteInplaceWidget(),
         )
 
@@ -862,7 +862,7 @@ class IdentityVerificationForm(forms.ModelForm):
 class PanellistForm(forms.ModelForm):
     class Meta:
         model = models.Panellist
-        exclude = ("site", )
+        exclude = ("site",)
         widgets = dict(
             has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
@@ -873,7 +873,7 @@ class PanellistForm(forms.ModelForm):
 PanellistFormSet = modelformset_factory(
     models.Panellist,
     form=PanellistForm,
-    exclude=("site", ),
+    exclude=("site",),
     can_delete=True,
     widgets={"round": HiddenInput(), "status": InvitationStatusInput(attrs={"readonly": True})},
 )
