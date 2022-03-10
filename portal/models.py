@@ -1334,10 +1334,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def get_testimonials(self, has_testifed=None):
         sql = (
             "SELECT DISTINCT tm.* FROM referee AS r "
-            "JOIN application AS app "
-            "  ON app.id = r.application_id "
+            "JOIN application AS a "
+            "  ON a.id = r.application_id "
             "LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
-            "WHERE (r.application_id=%s OR app.id=%s) AND a.site_id=%s"
+            "WHERE (r.application_id=%s OR a.id=%s) AND a.site_id=%s"
         )
         if has_testifed:
             sql += " AND r.has_testified IS NOT NULL"
@@ -3331,7 +3331,7 @@ class IdentityVerification(Model):
             % dict(user=self.user, url=url),
         )
 
-    @transition(field=state, source=["submitted"], target="accepted")
+    @transition(field=state, source=["submitted", "sent", "accepted"], target="accepted")
     def accept(self, *args, request=None, **kwargs):
         self.user.is_identity_verified = True
         if request:
