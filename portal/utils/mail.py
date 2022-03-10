@@ -50,7 +50,7 @@ for the addressee and may be confidential. If you are not the intended recipient
 def send_mail(
     subject,
     message=None,
-    from_email=settings.DEFAULT_FROM_EMAIL,
+    from_email=None,
     recipient_list=None,
     fail_silently=False,
     auth_user=None,
@@ -67,6 +67,9 @@ def send_mail(
     site = (invitation and invitation.site) or Site.objects.get_current()
     domain = request and request.get_host().split(":")[0] or site.domain
     root = f"https://{domain}"
+
+    if not from_email:
+        from_email = f"{site.name} <noreply@{domain}>"
 
     if not message and html_message:
         message = html2text.html2text(html_message)
