@@ -103,7 +103,7 @@ class InlineSubform(LayoutObject):
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = models.Subscription
-        fields = "__all__"
+        exclude = ["site",]
 
 
 class UserForm(forms.ModelForm):
