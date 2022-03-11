@@ -590,7 +590,7 @@ class ProfileSectionFormSetHelper(FormHelper):
             self.add_input(previous_button)
             complete_button = Button(
                 "complete",
-                _("Complete"),
+                _("Skip and Complete"),
                 data_toggle="tooltip",
                 title=_("Skip the rest of the profile sections and complete the profile now"),
                 css_class="btn-outline-secondary",

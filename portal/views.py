@@ -170,7 +170,11 @@ def shoud_be_onboarded(function):
                 elif not profile.is_professional_bodies_completed:
                     view_name = "profile-professional-records"
             messages.info(
-                request, _("Your profile is not completed yet. Please complete your profile.")
+                request,
+                _(
+                    "Your profile is not completed yet. "
+                    "Please complete your profile or skip it."
+                ),
             )
             return redirect(reverse(view_name) + "?next=" + quote(request.get_full_path()))
         request.profile = profile
@@ -534,12 +538,13 @@ def check_profile(request, token=None):
             i.save()
             reset_cache(request)
 
-        next_url = i.handler_url
+        if i.status != "accepted":
+            next_url = i.handler_url
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
         return redirect(next_url or "home")
     else:
-        messages.info(request, _("Please complete your profile."))
+        messages.info(request, _("Please complete your profile or skip it."))
         return redirect(
             reverse("profile-update")
             if Profile.where(user=request.user).exists()
@@ -2118,17 +2123,17 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
         else:
             if url_name == "profile-employments":
                 profile.is_employments_completed = True
-            if url_name == "profile-professional-records":
+            elif url_name == "profile-professional-records":
                 profile.is_professional_bodies_completed = True
-            if url_name == "profile-career-stages":
+            elif url_name == "profile-career-stages":
                 profile.is_career_stages_completed = True
-            if url_name == "profile-external-ids":
+            elif url_name == "profile-external-ids":
                 profile.is_external_ids_completed = True
-            if url_name == "profile-cvs":
+            elif url_name == "profile-cvs":
                 profile.is_cvs_completed = True
-            if url_name == "profile-academic-records":
+            elif url_name == "profile-academic-records":
                 profile.is_academic_records_completed = True
-            if url_name == "profile-recognitions":
+            elif url_name == "profile-recognitions":
                 profile.is_recognitions_completed = True
         profile.save()
         resp = super().formset_valid(formset)
@@ -2143,6 +2148,24 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                     self.request,
                     _("%d records deleted") % len(formset.deleted_objects),
                 )
+        elif not profile.is_completed:
+
+            if not profile.is_employments_completed:
+                msg = _("You have not completed the affiliation section.")
+            elif not profile.is_professional_bodies_completed:
+                msg = _("You have not completed the professional body section.")
+            elif not profile.is_career_stages_completed:
+                msg = _("You have not completed the career stage section.")
+            elif not profile.is_external_ids_completed:
+                msg = _("You have not completed the external ID section.")
+            elif not profile.is_cvs_completed:
+                msg = _("You have not completed the CV section.")
+            elif not profile.is_academic_records_completed:
+                msg = _("You have not completed the academic record section.")
+            elif not profile.is_recognitions_completed:
+                msg = _("You have not completed the recognition section.")
+            messages.info(self.request, "%s %s" % (msg, _("Please complete or skip it.")))
+
         return resp
 
 
