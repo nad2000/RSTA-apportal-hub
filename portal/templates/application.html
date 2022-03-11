@@ -139,7 +139,8 @@
                                                         // Only want to do it once
                                                         return false;
                                                       });
-                                            $.blockUI({
+                                            if (this.form.checkValidity()) {
+                                                  $.blockUI({
                                                         message: $('#wait-message'),
                                                         css: {
                                                                     backgroundColor: '#0000',
@@ -147,6 +148,7 @@
                                                                     border: '0px',
                                                                   }
                                                       });
+                                            }
                                           });
                                 // Track the changes in the form fields
                                 $("form :input").change(function() {
