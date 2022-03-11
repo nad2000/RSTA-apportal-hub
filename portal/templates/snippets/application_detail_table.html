@@ -196,7 +196,7 @@
       </tr>
     {% endif %}
 
-    {% if a.referees.all.count and a|can_see_referees:u %}
+    {% if r.has_referees and  a.referees.all.count and a|can_see_referees:u %}
       <tr>
         <th class="table-dark" scope="row">{% trans 'Referees' %}</th>
         <td colspan="3">

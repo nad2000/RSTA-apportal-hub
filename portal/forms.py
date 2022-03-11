@@ -103,7 +103,9 @@ class InlineSubform(LayoutObject):
 class SubscriptionForm(forms.ModelForm):
     class Meta:
         model = models.Subscription
-        exclude = ["site",]
+        exclude = [
+            "site",
+        ]
 
 
 class UserForm(forms.ModelForm):
@@ -295,11 +297,14 @@ class ApplicationForm(forms.ModelForm):
                 *summary_fields,
                 css_id="summary",
             ),
-            Tab(
-                _("Referees"),
-                Div(TableInlineFormset("referees"), css_id="referees"),
-            ),
         ]
+        if round.has_referees:
+            tabs.append(
+                Tab(
+                    _("Referees"),
+                    Div(TableInlineFormset("referees"), css_id="referees"),
+                ),
+            )
         # if user and not user.is_identity_verified:
         if (
             round.pid_required

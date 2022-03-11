@@ -2477,6 +2477,8 @@ class Round(Model):
         _("Applicant/Team representative CV required"), default=True
     )
     nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
+
+    has_referees = BooleanField(_("can invite referees"), default=True)
     referee_cv_required = BooleanField(_("Referee CV required"), default=True)
 
     direct_application_allowed = BooleanField(default=True)
@@ -2636,6 +2638,7 @@ class Round(Model):
                 "nominator_cv_required",
                 "pid_required",
                 "presentation_required",
+                "has_referees",
                 "referee_cv_required",
                 "research_summary_required",
                 "team_can_apply",
