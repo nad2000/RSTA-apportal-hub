@@ -30,7 +30,10 @@ def test_template_views(client, admin_user):
     assert resp.status_code == 302
 
     resp = client.get("/", follow=True)
-    assert b"Your profile is not completed yet. Please complete your profile or skip it." in resp.content
+    assert (
+        b"Your profile is not completed yet. Please complete your profile or skip it."
+        in resp.content
+    )
 
     Profile.create(user=admin_user, is_completed=True)
 
