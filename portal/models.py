@@ -2007,26 +2007,30 @@ class Invitation(InvitationMixin, Model):
         if not by:
             by = request.user if request else self.inviter
         url = reverse("onboard-with-token", kwargs=dict(token=self.token))
+        site = Site.objects.get_current()
+        site_name = site.name
         if request:
             url = request.build_absolute_uri(url)
         else:
-            url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+            url = f"https://{urljoin(site.domain, url)}"
         self.url = url
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
-            subject = __("You are invited to part of a Prime Minister's Science Prize application")
+            subject = __("You are invited to part of a %(site_name)s application") % {
+                "site_name": site_name
+            }
             body = __(
                 "Tēnā koe,\n\n"
-                "You have been invited to join %(inviter)s's team for their Prime Minister Science Prize application. "
+                "You have been invited to join %(inviter)s's team for their %(site_name)s application. "
                 "\n\nTo review this invitation, please follow the link: %(url)s\n\n"
                 "Ngā mihi"
-            ) % dict(inviter=by, url=url)
+            ) % dict(inviter=by, url=url, site_name=site_name)
             html_body = __(
                 "Tēnā koe,<br><br>You have been invited to join %(inviter)s's team for their "
-                "Prime Minister's Science Prize application.<br><br>"
+                "%(site_name)s application.<br><br>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
-            ) % dict(inviter=by, url=url)
+            ) % dict(inviter=by, url=url, site_name=site_name)
         elif self.type == INVITATION_TYPES.R:
             subject = __(
                 "You are invited as a referee for a Prime Minister's Science Prize application"
@@ -2034,15 +2038,15 @@ class Invitation(InvitationMixin, Model):
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "
-                "the Prime Minister's Science Prizes. \n\n"
+                "the %(site_name)s. \n\n"
                 "To review this invitation, please follow the link: %(url)s\n\n"
                 "Ngā mihi"
-            ) % dict(inviter=by, url=url)
+            ) % dict(inviter=by, url=url, site_name=site_name)
             html_body = __(
                 "Tēnā koe,<br><br>You have been invited to be a referee for %(inviter)s's application to the "
-                "Prime Minister's Science Prize application.<br><br>"
+                "%(site_name)s application.<br><br>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
-            ) % dict(inviter=by, url=url)
+            ) % dict(inviter=by, url=url, site_name=site_name)
         elif self.type == INVITATION_TYPES.A:
             subject = __("You have been nominated for %s") % self.nomination.round
             body = __(
@@ -2066,36 +2070,32 @@ class Invitation(InvitationMixin, Model):
                 url=url,
             )
         elif self.type == INVITATION_TYPES.P:
-            subject = __(
-                "You are invited to be a Panellist for the Prime Minister's Science Prizes"
-            )
-            body = (
-                __(
-                    "Tēnā koe\n\n"
-                    "You are invited to be a panellist for the Prime Minister's Science Prizes.\n\n"
-                    "To review this invitation, please follow the link: %s \n\n"
-                    "Ngā mihi"
-                )
-                % url
-            )
+            subject = __("You are invited to be a Panellist for the %(site_name)s") % {
+                "site_name": site_name
+            }
+            body = __(
+                "Tēnā koe\n\n"
+                "You are invited to be a panellist for the %(site_name)s.\n\n"
+                "To review this invitation, please follow the link: %(url)s \n\n"
+                "Ngā mihi"
+            ) % {"url": url, "site_name": site_name}
             html_body = __(
-                "Tēnā koe,<br><br>You are invited to be a panellist for the Prime Minister's Science Prizes.<br><br>"
+                "Tēnā koe,<br><br>You are invited to be a panellist for the %(site_name)s.<br><br>"
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
-            ) % {"url": url}
+            ) % {"url": url, "site_name": site.name}
         else:
-            subject = __("You have been given access to the Prime Minister's Science Prize portal")
-            body = (
-                __(
-                    "Tēnā koe,\n\n You have been given access to the Prime Minister's Science Prize portal.\n\n"
-                    "To confirm this access, please follow the link: %s \n\n"
-                    "Ngā mihi"
-                )
-                % url
-            )
+            subject = __("You have been given access to the %(site_name)s portal") % {
+                "site_name": site_name
+            }
+            body = __(
+                "Tēnā koe,\n\n You have been given access to the %(site_name)s portal.\n\n"
+                "To confirm this access, please follow the link: %(url)s \n\n"
+                "Ngā mihi"
+            ) % {"site_name": site_name, "url": url}
             html_body = __(
-                "Tēnā koe,<br><br>You have been given access to the Prime Minister's Science Prize portal.<br><br>"
+                "Tēnā koe,<br><br>You have been given access to the %(site_name)s portal.<br><br>"
                 "To confirm this access, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
-            ) % {"url": url}
+            ) % {"url": url, "site_name": site_name}
 
         resp = send_mail(
             subject,
