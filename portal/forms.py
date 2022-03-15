@@ -28,6 +28,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django_summernote.widgets import SummernoteInplaceWidget
+from django.contrib.sites.models import Site
 
 from . import models
 
@@ -345,15 +346,23 @@ class ApplicationForm(forms.ModelForm):
             )
 
         if not instance.submitted_by or instance.submitted_by == user:
-            tac_text = _(
-                "As authorized lead applicant, I affirm that all information provided in this application is "
-                "to the best of my knowledge true and correct. "
-                "<br/><br/>I affirm that if successful, I (and where relevant, my team) will participate in publicity "
-                "and that the content of this application can be used in promotion of the Prizes."
-                "<br/><br/>If the Prize comes with conditions on use, I affirm that any Prize money will be used in "
-                "accordance with the Prize's guidelines, and in accord with any plan submitted as part "
-                "of the Prize application"
-            )
+            if Site.objects.get_current().domain == "international.royalsociety.org.nz":
+                tac_text = _(
+                    "I affirm that all information provided in this application is "
+                    "to the best of my knowledge true and correct. "
+                    "<br/><br/>I affirm that I fulfil the eligibility reqirements for this scheme " 
+                    "and that my application abides by the scheme's rules."
+                )
+            else:
+                tac_text = _(
+                    "As authorized lead applicant, I affirm that all information provided in this application is "
+                    "to the best of my knowledge true and correct. "
+                    "<br/><br/>I affirm that if successful, I (and where relevant, my team) will participate in publicity "
+                    "and that the content of this application can be used in promotion of the Prizes."
+                    "<br/><br/>If the Prize comes with conditions on use, I affirm that any Prize money will be used in "
+                    "accordance with the Prize's guidelines, and in accord with any plan submitted as part "
+                    "of the Prize application"
+                )
             tabs.append(
                 Tab(
                     _("Terms and Conditions"),
