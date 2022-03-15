@@ -1,6 +1,6 @@
 import pytest
 
-from portal.models import INVITATION_TYPES, Invitation, Language, Organisation, Site
+from portal import models
 from users.models import User
 
 pytestmark = pytest.mark.django_db
@@ -11,13 +11,13 @@ def test_user_get_absolute_url(user: User):
 
 
 def test_model():
-    lang = Language.create(code="abc12", description="ABC 123")
+    lang = models.Language.create(code="abc12", description="ABC 123")
     assert str(lang) == lang.description
 
-    org = Organisation.create(name="ORG")
+    org = models.Organisation.create(name="ORG")
     assert str(org) == org.name
 
-    inv = Invitation(
+    inv = models.Invitation(
         email="test@test.com", first_name="FN", last_name="LN", organisation=org.name, org=org
     )
     assert str(inv) == "Invitation for FN LN (test@test.com)"
@@ -25,12 +25,21 @@ def test_model():
 
 def test_send_invitation(mocker):
     send_mail = mocker.patch("portal.models.send_mail")
-    u = User.get()
-    site_name = Site.objects.get_current().name
+    u = models.User.create(username="test", email="test@test.org")
+    site_name = models.Site.objects.get_current().name
+    s = models.Scheme.create(title="TEST")
+    r = models.Round.create(scheme=s)
+    n = models.Nomination.create(round=r, email="test123@test.org", nominator=u)
 
-    for invitation_type, _ in INVITATION_TYPES:
-        i = Invitation.create(
-            inviter=u, email="test123@test.org", first_name="Tester", last_name="Testeron"
+    for invitation_type, _ in models.INVITATION_TYPES:
+        i = models.Invitation.create(
+            inviter=u,
+            email="test123@test.org",
+            first_name="Tester",
+            last_name="Testeron",
+            type=invitation_type,
+            round=r,
+            nomination=n,
         )
         i.send()
 
@@ -38,8 +47,7 @@ def test_send_invitation(mocker):
         (subject, message), kwargs = send_mail.call_args
         html_message = kwargs["html_message"]
 
-        assert site_name in subject
-        assert site_name in message
-        assert site_name in html_message
+        if invitation_type != "A":
+            assert site_name in subject or site_name in message or site_name in html_message
 
         send_mail.reset_mock()
