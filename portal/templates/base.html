@@ -205,14 +205,25 @@
       <div class="container-fluid">
 
         {% if requery.user.needs_identity_verification %}
-          <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <span class="badge badge-info">{% trans 'New' %}</span>
-            {% trans "This Prize requires photo identification for the the lead applicant." %}
-            <a href="{% url 'photo-identity' %}" class="alert-link">{% trans "Please upload a scan of your Driver's Licence or Passport" %}!</a>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
+          {% if domain == 'international.royalsociety.org.nz' %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <span class="badge badge-info">{% trans 'New' %}</span>
+              {% trans "This scheme requires a copy of the passport for the the lead applicant." %}
+              <a href="{% url 'photo-identity' %}" class="alert-link">{% trans "Please upload a scan of your Passport" %}!</a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% else %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+              <span class="badge badge-info">{% trans 'New' %}</span>
+              {% trans "This Prize requires photo identification for the the lead applicant." %}
+              <a href="{% url 'photo-identity' %}" class="alert-link">{% trans "Please upload a scan of your Driver's Licence or Passport" %}!</a>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endif %}
         {% endif %}
 
         {% if outstanding_invitations %}

@@ -320,10 +320,6 @@ class ApplicationForm(forms.ModelForm):
                     Field(
                         "photo_identity",
                         data_toggle="tooltip",
-                        title=_(
-                            "Please upload a scanned copy of the passport or drivers license "
-                            "of the team lead in PDF, JPG, or PNG format"
-                        ),
                     ),
                     # InlineSubform("identity_verification"),
                     css_id="id-verification",
