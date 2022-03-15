@@ -2032,9 +2032,9 @@ class Invitation(InvitationMixin, Model):
                 "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
             ) % dict(inviter=by, url=url, site_name=site_name)
         elif self.type == INVITATION_TYPES.R:
-            subject = __(
-                "You are invited as a referee for a Prime Minister's Science Prize application"
-            )
+            subject = __("You are invited as a referee for a %(site_name)s application") % {
+                "site_name": site_name
+            }
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "

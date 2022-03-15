@@ -400,7 +400,7 @@ urlpatterns = [
                 path(
                     "schema",
                     get_schema_view(
-                        title="Prime Minister Science Prise Portal",
+                        title="Royal Society Te Apārangi Portals",
                         description="API for all things …",
                         version="1.0.0",
                     ),
