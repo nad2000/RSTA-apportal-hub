@@ -20,10 +20,10 @@ from crispy_forms.layout import (
 )
 from dal import autocomplete
 from django import forms
+from django.contrib.sites.models import Site
 from django.forms import HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
-from django.contrib.sites.models import Site
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
