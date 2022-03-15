@@ -1043,8 +1043,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by_id)],
         verbose_name=_("Photo Identity"),
-        help_text=_(
+        help_text=lambda:_(
             "Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"
+        ) if Site.objects.get_current().domain != "international.royalsociety.org.nz" else _(
+            "Please upload a scanned copy of your passport in PDF, JPG, or PNG format"
         ),
         validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
