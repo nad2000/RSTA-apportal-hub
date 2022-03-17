@@ -122,7 +122,7 @@ def send_mail(
             html_footer = DEFAULT_SITE_HTML_FOOTER.get(site.domain, DEFAULT_HTML_FOOTER) % {
                 "logo_url": f"{urljoin(root, 'static/images/alt_logo.jpg')}"
                 if site.domain == "portal.pmscienceprizes.org.nz"
-                else f"{urljoin(root, 'static/images/{site.domain}/alt_logo.png')}"
+                else f"{urljoin(root, f'static/images/{site.domain}/alt_logo.png')}"
             }
         html_message = f"<html><body>{html_message}\n{html_footer}"
 
