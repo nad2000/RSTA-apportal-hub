@@ -1167,6 +1167,10 @@ class ApplicationView(LoginRequiredMixin):
         if "nomination" in self.kwargs:
             return models.Nomination.get(self.kwargs["nomination"])
 
+    def form_invalid(self, form):
+        breakpoint()
+        return super().form_invalid()
+
     def form_valid(self, form):
 
         context = self.get_context_data()

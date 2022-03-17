@@ -74,10 +74,87 @@ class QuickstartUser(HttpUser):
         self.org_name = name
 
     # @task
-    # def index_page(self):
-    #     self.client.get("/")
-    #     self.client.get("/index")
-    #     self.client.get("/start")
+    def index_page(self):
+        self.client.get("/")
+        self.client.get("/index")
+        self.client.get("/start")
+
+    @task
+    def draft_applications_page(self):
+        self.client.get("/applications/draft")
+
+    @task
+    def home_page(self):
+        self.client.get("/home")
+
+    @task
+    def about_page(self):
+        self.client.get("/about")
+
+    @task
+    def update_applicaton(self):
+        app_id = 40
+        # app_id = 1680
+
+        resp = self.client.get(f"/api/organisations/")
+        org_id = resp.json()[-1]["id"]
+
+        resp = self.client.get(f"/applications/{app_id}/~update")
+        csrftoken = resp.cookies["csrftoken"]
+
+        with open("/home/rcir178/Documents/application.pdf", "rb") as f:
+            resp = self.client.post(
+                f"/applications/{app_id}/~update",
+                {
+                    "csrfmiddlewaretoken": csrftoken,
+                    # "title": "",
+                    "first_name": "Rad",
+                    "middle_names": "",
+                    "last_name": "Cirskis",
+                    "email": "nad2000@gmail.com",
+                    "org": f"{org_id}",
+                    "position": "tester",
+                    "postal_address": f"{random.randint(10,100)} Liverpool Street",
+                    "city": "Auckland",
+                    "postcode": f"{random.randint(1000,10000)}",
+                    "daytime_phone": "+64221221442",
+                    "mobile_phone": "",
+                    # "file": "(binary)",
+                    "referees-TOTAL_FORMS": 1,
+                    "referees-INITIAL_FORMS": 0,
+                    "referees-MIN_NUM_FORMS": 0,
+                    "referees-MAX_NUM_FORMS": 1000,
+                    "referees-__prefix__-status": "new",
+                    "referees-__prefix__-email": "",
+                    "referees-__prefix__-first_name": "",
+                    "referees-__prefix__-middle_names": "",
+                    "referees-__prefix__-last_name": "",
+                    "referees-__prefix__-id": "",
+                    "referees-__prefix__-DELETE": "",
+                    "referees-__prefix__-application": 1680,
+                    "referees-0-status": "new",
+                    "referees-0-email": "referee010@mailinator.com",
+                    "referees-0-first_name": "FN010",
+                    "referees-0-middle_names": "",
+                    "referees-0-last_name": "",
+                    "referees-0-id": "",
+                    "referees-0-DELETE": "",
+                    "referees-0-application": app_id,
+                    "is_tac_accepted": "on",
+                    "save_draft": "Save",
+                },
+                headers={
+                    "X-CSRFToken": csrftoken,
+                    "Referer": self.client.base_url + "/applications/40/~update",
+                },
+                files={"file": ("application.pdf", f, "application/pdf")},
+            )
+
+        # # breakpoint()
+        with open(f"output{random.randint(1000,10000)}.html", "w") as o:
+            o.write(resp.text)
+
+        # self.client.post(url, files=files, data=values)
 
     # @task
     # def view_profile(self):
@@ -97,11 +174,11 @@ class QuickstartUser(HttpUser):
                 break
         return org_ids
 
-    @task
+    # @task
     def admin_organisations(self):
         self.client.get(f"/admin/portal/organisation/?p={random.randint(1,100)}")
 
-    @task
+    # @task
     def admin_organisations_add(self):
         resp = self.client.get("/admin/portal/organisation/add/")
         csrftoken = resp.cookies["csrftoken"]
