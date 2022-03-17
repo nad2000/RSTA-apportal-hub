@@ -1168,7 +1168,6 @@ class ApplicationView(LoginRequiredMixin):
             return models.Nomination.get(self.kwargs["nomination"])
 
     def form_invalid(self, form):
-        breakpoint()
         return super().form_invalid()
 
     def form_valid(self, form):
