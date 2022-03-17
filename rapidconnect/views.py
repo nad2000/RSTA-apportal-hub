@@ -32,6 +32,7 @@ class RapidConnectApiError(Exception):
 
 def login(request):
     app = providers.registry.by_id(RapidConnectProvider.id, request).get_app(request)
+
     url = app.client_id
     if BASE_URL:
         url = urljoin(BASE_URL, url)
