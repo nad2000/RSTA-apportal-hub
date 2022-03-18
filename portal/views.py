@@ -1124,6 +1124,15 @@ class ApplicationView(LoginRequiredMixin):
         user = self.request.user
         initial = super().get_initial()
         initial["round"] = self.round.id
+
+        if (
+            self.round.letter_of_support_required
+            and self.object.letter_of_support
+            and self.object.letter_of_support.file
+        ):
+            initial["letter_of_support_file"] = self.object.letter_of_support.file
+
+        initial["round"] = self.round.id
         if not (self.object and self.object.id):
             initial["user"] = user
             initial["email"] = user.email
@@ -1167,8 +1176,9 @@ class ApplicationView(LoginRequiredMixin):
         if "nomination" in self.kwargs:
             return models.Nomination.get(self.kwargs["nomination"])
 
-    def form_invalid(self, form):
-        return super().form_invalid()
+    # def form_invalid(self, form):
+    #     breakpoint()
+    #     return super().form_invalid(form)
 
     def form_valid(self, form):
 
@@ -1181,6 +1191,14 @@ class ApplicationView(LoginRequiredMixin):
             with transaction.atomic():
 
                 form.instance.organisation = form.instance.org.name
+
+                if self.round.letter_of_support_required and (
+                    letter_of_support_file := self.request.FILES.get("letter_of_support_file")
+                ):
+                    letter_of_support = models.LetterOfSupport.create(file=letter_of_support_file)
+                    form.instance.letter_of_support = letter_of_support
+                    # if letter_of_support_file.name.endswith(".pdf")
+
                 resp = super().form_valid(form)
 
                 has_deleted = False
@@ -1287,6 +1305,7 @@ class ApplicationView(LoginRequiredMixin):
                         # url = self.request.path_info.split("?")[0] + "#summary"
                         url = self.continue_url("summary")
                         return redirect(url)
+
         except Exception as ex:
             if hasattr(ex, "message"):
                 messages.error(self.request, ex.message)

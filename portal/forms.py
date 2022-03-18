@@ -21,11 +21,12 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.contrib.sites.models import Site
-from django.forms import HiddenInput, Widget, inlineformset_factory
+from django.forms import FileField, HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, TextInput
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django_summernote.widgets import SummernoteInplaceWidget
@@ -163,7 +164,63 @@ class ProfileForm(forms.ModelForm):
         )
 
 
+class AdminFileWidget(forms.FileInput):
+    """
+    A FileField Widget that shows its current value if it has one.
+    """
+
+    def __init__(self, attrs={}):
+        super(AdminFileWidget, self).__init__(attrs)
+
+    def render(self, name, value, attrs=None):
+        output = []
+        if value and hasattr(value, "url"):
+            output.append(
+                '%s <a target="_blank" href="%s">%s</a> <br />%s '
+                % (_("Currently:"), value.url, value, _("Change:"))
+            )
+        output.append(super(AdminFileWidget, self).render(name, value, attrs))
+        return mark_safe("".join(output))
+
+
 class ApplicationForm(forms.ModelForm):
+
+    letter_of_support_file = FileField(
+        required=False,
+        widget=forms.ClearableFileInput(
+            attrs={"accept": "pdf,.odt,.ott,.oth,.odm,.doc,.docx,.docm,.docb"}
+        ),
+    )
+
+    def clean_letter_of_support_file(self):
+        super().clean()
+
+        if "submit" in self.data and (
+            round := (
+                models.Round.get(self.initial["round"])
+                if "round" in self.initial
+                else self.instance.round
+            )
+        ):
+            if round.letter_of_support_required and not (
+                self.cleaned_data.get("letter_of_support_file") or self.instance.letter_of_support
+            ):
+                raise forms.ValidationError(
+                    _("Need to attache a letter of support before submitting the application."),
+                )
+
+        return self.cleaned_data.get("letter_of_support_file")
+
+    def save(self):
+        if (
+            self.cleaned_data.get("letter_of_support_file") is False
+            and self.instance
+            and (los := self.instance.letter_of_support)
+        ):
+            self.instance.letter_of_support = None
+            los.delete()
+        return super().save()
+
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
@@ -254,6 +311,10 @@ class ApplicationForm(forms.ModelForm):
             # fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
             summary_fields.append(Field("budget"))
             self.fields["budget"].help_text = help_text
+
+        if round.letter_of_support_required:
+            summary_fields.append(Field("letter_of_support_file", label=_("Letter of Support")))
+            # self.fields["letter_of_support_file"].help_text = help_text
 
         # if round.scheme.research_summary_required:
         #     summary_fields.extend(
@@ -430,6 +491,7 @@ class ApplicationForm(forms.ModelForm):
             "round",
             "submitted_by",
             "converted_file",
+            "letter_of_support",
             "cv",
         ]
         widgets = dict(
@@ -446,6 +508,9 @@ class ApplicationForm(forms.ModelForm):
             # summary_mi=SummernoteInplaceWidget(),
             ethics_statement__comment=SummernoteInplaceWidget(),
             # round=HiddenInput(),
+            letter_of_support_file=forms.ClearableFileInput(
+                attrs={"accept": "pdf,.odt,.ott,.oth,.odm,.doc,.docx,.docm,.docb"}
+            ),
         )
 
 

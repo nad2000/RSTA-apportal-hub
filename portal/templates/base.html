@@ -156,7 +156,7 @@
                     </li>
                   {% endif %}
 
-                 {% if domain != "international.royalsociety.org.nz" %}
+                 {#% if domain != "international.royalsociety.org.nz" %#}
                   <form action="{% url 'set_language' %}" method="post">
                     {% csrf_token %}
                     <!-- input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" / -->
@@ -181,7 +181,7 @@
                       </div>
                     </div>
                   </form>
-                 {% endif %}
+                 {#% endif %#}
 
                 </ul>
               </div>

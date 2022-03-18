@@ -947,9 +947,50 @@ APPLICATION_STATUS = Choices(
 )
 
 
+class LetterOfSupport(PdfFileMixin, Model):
+
+    file = PrivateFileField(
+        upload_subfolder=lambda instance: [
+            "letters_of_support",
+        ],
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=[
+                    "pdf",
+                    "odt",
+                    "ott",
+                    "oth",
+                    "odm",
+                    "doc",
+                    "docx",
+                    "docm",
+                    "docb",
+                ]
+            )
+        ],
+    )
+    converted_file = ForeignKey(
+        ConvertedFile, null=True, blank=True, on_delete=SET_NULL, verbose_name=_("converted file")
+    )
+
+    def __str__(self):
+        return self.filename
+
+    class Meta:
+        db_table = "letter_of_support"
+
+
 class ApplicationMixin:
 
     STATUS = APPLICATION_STATUS
+
+
+def photo_identity_help_text():
+    if Site.objects.get_current().domain != "international.royalsociety.org.nz":
+        return _(
+            "Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"
+        )
+    return _("Please upload a scanned copy of your passport in PDF, JPG, or PNG format")
 
 
 class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
@@ -1043,11 +1084,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         blank=True,
         upload_subfolder=lambda instance: ["ids", hash_int(instance.submitted_by_id)],
         verbose_name=_("Photo Identity"),
-        help_text=lambda:_(
-            "Please upload a scanned copy of your passport or drivers license in PDF, JPG, or PNG format"
-        ) if Site.objects.get_current().domain != "international.royalsociety.org.nz" else _(
-            "Please upload a scanned copy of your passport in PDF, JPG, or PNG format"
-        ),
+        help_text=photo_identity_help_text,
         validators=[FileExtensionValidator(allowed_extensions=["pdf", "jpg", "jpeg", "png"])],
     )
     presentation_url = URLField(
@@ -1092,9 +1129,10 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             )
         ],
     )
+    letter_of_support = ForeignKey(LetterOfSupport, on_delete=SET_NULL, blank=True, null=True)
 
     def is_applicant(self, user):
-        """Is user the mail applicant or a memeber."""
+        """Is user the mail applicant or a member."""
         return (
             self.submitted_by == user
             or self.members.all().filter(Q(user=user) | Q(email=user.email)).exists()
@@ -2483,6 +2521,8 @@ class Round(Model):
     has_referees = BooleanField(_("can invite referees"), default=True)
     referee_cv_required = BooleanField(_("Referee CV required"), default=True)
 
+    letter_of_support_required = BooleanField(default=False)
+
     direct_application_allowed = BooleanField(default=True)
     can_nominate = BooleanField(default=True)
 
@@ -2642,6 +2682,7 @@ class Round(Model):
                 "presentation_required",
                 "has_referees",
                 "referee_cv_required",
+                "letter_of_support_required",
                 "research_summary_required",
                 "team_can_apply",
                 # "budget_required",

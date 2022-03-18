@@ -167,7 +167,9 @@
                                 $(document.body).on("click", "a[data-toggle='tab']", function(event) {
                                             location.hash = this.getAttribute("href");
                                           });
-                                {% if "verification" in request.GET %}
+                                {% if form.errors.letter_of_support_file %}
+                                  $('.nav a[href="#summary"]').tab('show');
+                                {% elif "verification" in request.GET %}
                                   $('.nav a[href="#id-verification"]').tab('show');
                               {% elif "referees" in request.GET %}
                                   $('.nav a[href="#referees"]').tab('show'); activateRefereeTab();
