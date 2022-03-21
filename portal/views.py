@@ -1127,6 +1127,7 @@ class ApplicationView(LoginRequiredMixin):
 
         if (
             self.round.letter_of_support_required
+            and self.object
             and self.object.letter_of_support
             and self.object.letter_of_support.file
         ):
