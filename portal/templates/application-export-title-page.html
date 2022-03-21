@@ -39,6 +39,10 @@ tr:nth-child(even) {background-color: #f2f2f2;}
               </h{{ forloop.counter }}>
             {% endfor %}
           </center>
+        {% elif title %}
+          <center>
+            <h1>{{ title }}</h>
+          </center>
         {% endif %}
 
       {% for attribute, value in title_page.items %}

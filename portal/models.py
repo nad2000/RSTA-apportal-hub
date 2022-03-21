@@ -205,7 +205,7 @@ class PdfFileMixin:
 
     def title_page(self):
         """Title page for composite export into PDF"""
-        return {
+        tp = {
             "TITLES": [
                 f"{_('Attachment')} - {self.__class__.__name__}",
                 self,
@@ -213,8 +213,10 @@ class PdfFileMixin:
             ],
             _("File Name"): self.filename,
             _("Submitted At"): self.updated_at or self.created_at,
-            _("Submitted By"): self.full_name,
         }
+        if hasattr(self, "full_name"):
+            tp[_("Submitted By")] = self.full_name
+        return tp
 
     @property
     def is_pdf_content(self):
@@ -1462,6 +1464,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                                 referee_cv.title_page,
                             )
                         )
+        if (
+            self.round.letter_of_support_required
+            and self.letter_of_support
+            and self.letter_of_support.file
+        ):
+            attachments.append(
+                (
+                    _("Letter of Support"),
+                    settings.PRIVATE_STORAGE_ROOT + "/" + str(self.letter_of_support.pdf_file),
+                    self.letter_of_support.title_page,
+                )
+            )
+
         # ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger(strict=False)
@@ -1517,6 +1532,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                         {
                             "application": self,
                             "title_page": title_page,
+                            "title": title,
                             # "objects": objects,
                             "user": request and request.user,
                         }
