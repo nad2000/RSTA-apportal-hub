@@ -341,25 +341,50 @@ class ApplicationForm(forms.ModelForm):
                 css_id="applicant",
                 *fields,
             ),
-            Tab(
-                _("Summary and Forms"),
-                HTML(
-                    '<div class="alert alert-dark" role="alert"><p>%s</p><p>%s</p></div>'
-                    % (
-                        _(
-                            "An application form must be uploaded before referees can be invited; "
-                            "however, the form can be updated at any point up until submission."
-                        ),
-                        _(
-                            'Click "Browse" and you will be prompted for the new file location; '
-                            'and then "Save" to replace the existing file.'
-                        ),
-                    )
-                ),
-                *summary_fields,
-                css_id="summary",
-            ),
         ]
+        if Site.objects.get_current().domain == "international.royalsociety.org.nz":
+            tabs.append(
+                Tab(
+                    _("Summary and Forms"),
+                    HTML(
+                        '<div class="alert alert-dark" role="alert"><p>%s</p><p>%s</p></div>'
+                        % (
+                            _(
+                                'An application form must be uploaded to enable submission; '
+                                'however, the application can be updated at any point before the '
+                                '"Submit" button is clicked.'
+                            ),
+                            _(
+                                'To revise the application, click "Browse" and you will be prompted for the new file '
+                                'location; and then "Save" to replace the existing file.'
+                            ),
+                        )
+                    ),
+                    *summary_fields,
+                    css_id="summary",
+                ),
+            )
+        else:
+            tabs.append(
+                Tab(
+                    _("Summary and Forms"),
+                    HTML(
+                        '<div class="alert alert-dark" role="alert"><p>%s</p><p>%s</p></div>'
+                        % (
+                            _(
+                                "An application form must be uploaded before referees can be invited; "
+                                "however, the form can be updated at any point up until submission."
+                            ),
+                            _(
+                                'To revise the application, click "Browse" and you will be prompted for the new file '
+                                'location; and then "Save" to replace the existing file.'
+                            ),
+                        )
+                    ),
+                    *summary_fields,
+                    css_id="summary",
+                ),
+            )
         if round.has_referees:
             tabs.append(
                 Tab(
