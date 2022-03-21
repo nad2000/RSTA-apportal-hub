@@ -3576,13 +3576,13 @@ msgid "next"
 msgstr "ki muri"
 
 msgid "Currently"
-msgstr "??????"
+msgstr "O-nāianei"
 
 msgid "Change"
-msgstr "??????"
+msgstr "Huri"
 
 msgid "Browse"
-msgstr "??????"
+msgstr "Tirotiro"
 
 #~ msgid "State"
 #~ msgstr "Tūnga"
