@@ -1307,6 +1307,39 @@ class ApplicationView(LoginRequiredMixin):
                         url = self.continue_url("summary")
                         return redirect(url)
 
+                if (
+                    "letter_of_support_file" in form.changed_data
+                    and form.instance.letter_of_support
+                    and form.instance.letter_of_support.file
+                    and form.cleaned_data["letter_of_support_file"].content_type != "application/pdf"
+                ):
+                    try:
+                        if (
+                            letter_of_support_cf := form.instance.letter_of_support.update_converted_file()
+                        ):
+                            messages.success(
+                                self.request,
+                                _(
+                                    "Your letter of support form was converted into PDF file. "
+                                    "Please review the converted file <a href='%s'>%s</a>."
+                                )
+                                % (
+                                    letter_of_support_cf.file.url,
+                                    os.path.basename(letter_of_support_cf.file.name),
+                                ),
+                            )
+
+                    except:
+                        messages.error(
+                            self.request,
+                            _(
+                                "Failed to convert your lettter of support form into PDF. "
+                                "Please save the letter of support into PDF format and try to upload it again."
+                            ),
+                        )
+                        url = self.continue_url("summary")
+                        return redirect(url)
+
         except Exception as ex:
             if hasattr(ex, "message"):
                 messages.error(self.request, ex.message)
