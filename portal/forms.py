@@ -341,7 +341,9 @@ class ApplicationForm(forms.ModelForm):
                 css_id="applicant",
                 *fields,
             ),
-            if Site.objects.get_current().domain == "international.royalsociety.org.nz":
+        ]
+        if Site.objects.get_current().domain == "international.royalsociety.org.nz":
+            tabs.append(
                 Tab(
                     _("Summary and Forms"),
                     HTML(
@@ -361,7 +363,9 @@ class ApplicationForm(forms.ModelForm):
                     *summary_fields,
                     css_id="summary",
                 ),
-            else:
+            )
+        else:
+            tabs.append(
                 Tab(
                     _("Summary and Forms"),
                     HTML(
@@ -380,7 +384,7 @@ class ApplicationForm(forms.ModelForm):
                     *summary_fields,
                     css_id="summary",
                 ),
-        ]
+            )
         if round.has_referees:
             tabs.append(
                 Tab(
