@@ -2,7 +2,7 @@ import os
 
 import modeltranslation
 from django.contrib import admin, messages
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
@@ -327,14 +327,59 @@ class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
         return reverse("profile-instance", kwargs={"pk": obj.id})
 
 
+class IsActiveRoundApplicationListFilter(admin.SimpleListFilter):
+    title = "Is Active Round"
+
+    parameter_name = "is_active_round"
+
+    def choices(self, changelist):
+        yield {
+            "selected": self.value() == "ACTIVE" or self.value() is None,
+            "query_string": changelist.get_query_string(remove=[self.parameter_name]),
+            "display": "ACTIVE",
+        }
+        for lookup, title in self.lookup_choices:
+            yield {
+                "selected": self.value() == str(lookup),
+                "query_string": changelist.get_query_string({self.parameter_name: lookup}),
+                "display": title,
+            }
+
+    def lookups(self, request, model_admin):
+        return (
+            ("PREVIOUS", _("Previous")),
+            ("All", _("All")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "ACTIVE" or self.value() is None:
+            return queryset.filter(round__scheme__current_round__id=F("round_id"))
+        if self.value() == "PREVIOUS":
+            return queryset.filter(~Q(round__scheme__current_round__id=F("round_id")))
+        return queryset
+
+
 @admin.register(models.Application)
 class ApplicationAdmin(
     PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin
 ):
 
     date_hierarchy = "created_at"
-    list_display = ["number", "complete", "application_title", "full_name", "org"]
-    list_filter = ["round", "state", "created_at", "updated_at"]
+    list_display = [
+        "number",
+        "complete",
+        "application_title",
+        "full_name",
+        "org",
+        "is_active_round",
+    ]
+    list_filter = [
+        IsActiveRoundApplicationListFilter,
+        ("round", admin.RelatedOnlyFieldListFilter),
+        "state",
+        "created_at",
+        "updated_at",
+    ]
     readonly_fields = ["created_at", "updated_at"]
     search_fields = [
         "number",
@@ -346,6 +391,7 @@ class ApplicationAdmin(
         "org__name",
         "round__title",
     ]
+
     # summernote_fields = ["summary"]
     exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary", "site"]
 
@@ -353,6 +399,11 @@ class ApplicationAdmin(
         return obj.state == "submitted" or obj.state == "archive"
 
     complete.boolean = True
+
+    def is_active_round(self, obj):
+        return obj.round.scheme.current_round == obj.round
+
+    is_active_round.boolean = True
 
     class MemberInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
@@ -714,14 +765,37 @@ class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
             return f"{reverse('applications')}?round={obj.current_round_id}"
 
 
+class IsActiveRoundListFilter(admin.SimpleListFilter):
+    title = "Is Active"
+
+    parameter_name = "is_active"
+
+    def lookups(self, request, model_admin):
+        return (
+            (1, _("ACTIVE")),
+            (0, _("Previous")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "1":
+            return queryset.filter(scheme__current_round__id=F("id"))
+        if self.value() == "0":
+            return queryset.filter(~Q(scheme__current_round__id=F("id")))
+
+
 @admin.register(models.Round)
 class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
-    list_display = ["title", "scheme", "opens_on", "closes_on"]
-    list_filter = ["opens_on", "closes_on"]
+    list_display = ["title", "scheme", "opens_on", "closes_on", "is_active"]
+    list_filter = [IsActiveRoundListFilter, "opens_on", "closes_on"]
     date_hierarchy = "opens_on"
     exclude = [
         "site",
     ]
+
+    def is_active(self, obj):
+        return obj.scheme.current_round == obj
+
+    is_active.boolean = True
 
     def view_on_site(self, obj):
         return f"{reverse('applications')}?round={obj.id}"
