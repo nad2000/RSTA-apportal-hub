@@ -1311,7 +1311,8 @@ class ApplicationView(LoginRequiredMixin):
                     "letter_of_support_file" in form.changed_data
                     and form.instance.letter_of_support
                     and form.instance.letter_of_support.file
-                    and form.cleaned_data["letter_of_support_file"].content_type != "application/pdf"
+                    and form.cleaned_data["letter_of_support_file"].content_type
+                    != "application/pdf"
                 ):
                     try:
                         if (
@@ -4526,9 +4527,9 @@ def application_summary(request, number, lang=None):
 
 
 def application_exported_view(request, number, lang=None):
-    remote_addr = request.META.get("REMOTE_ADDR")
-    if not remote_addr.startswith("127.0.0."):
-        return remote_addr
+    # remote_addr = request.META.get("REMOTE_ADDR")
+    # if not remote_addr.startswith("127.0.0."):
+    #     return remote_addr
     number = vignere.decode(number)
     a = get_object_or_404(models.Application, number=number)
     objects = [a, *a.get_testimonials()]
