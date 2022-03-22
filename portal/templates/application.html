@@ -113,18 +113,24 @@
                                                                   $("label[for='id_et-comment']").children().remove();
                                                                 }
                                           });
-                                {% if not form.is_bilingual_summary.value %}
+                                {% if not form.is_bilingual.value %}
                                   $("#div_id_summary_en").hide();
-                                $("#div_id_summary_mi").hide();
+                                  $("#div_id_summary_mi").hide();
+                                  $("#div_id_application_title_en").hide();
+                                  $("#div_id_application_title_mi").hide();
                               {% endif %}
-                                $('#id_is_bilingual_summary').change(function() {
+                                $('#id_is_bilingual').change(function() {
                                             if (!($(this).prop('checked'))) {
                                                         $("#div_id_summary_en").hide();
                                                         $("#div_id_summary_mi").hide();
+                                                        $("#div_id_application_title_en").hide();
+                                                        $("#div_id_application_title_mi").hide();
                                                       } else {
-                                                                  $("#div_id_summary_en").show()
-                                                                  $("#div_id_summary_mi").show()
-                                                                };
+                                                        $("#div_id_summary_en").show()
+                                                        $("#div_id_summary_mi").show()
+                                                        $("#div_id_application_title_en").show();
+                                                        $("#div_id_application_title_mi").show();
+                                                      };
                                           });
                                 // Focus on the first tab with invalid input:
                                 $('#submit-id-save_draft,#submit-id-submit').click(function () {

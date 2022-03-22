@@ -4526,6 +4526,9 @@ def application_summary(request, number, lang=None):
 
 
 def application_exported_view(request, number, lang=None):
+    remote_addr = request.META.get("REMOTE_ADDR")
+    if not remote_addr.startswith("127.0.0."):
+        return remote_addr
     number = vignere.decode(number)
     a = get_object_or_404(models.Application, number=number)
     objects = [a, *a.get_testimonials()]

@@ -3,6 +3,7 @@ import io
 import os
 import re
 import secrets
+import ssl
 import subprocess
 import tempfile
 from datetime import date, datetime
@@ -68,7 +69,7 @@ from weasyprint import HTML
 
 from common.models import TITLES, Base, EmailField, HelperMixin, Model, PersonMixin
 
-from .utils import mail_admins, send_mail
+from .utils import mail_admins, send_mail, vignere
 
 
 def __(s):
@@ -1054,7 +1055,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     daytime_phone = CharField(_("daytime phone number"), max_length=24, null=True, blank=True)
     mobile_phone = CharField(_("mobile phone number"), max_length=24, null=True, blank=True)
     email = EmailField(_("email address"), blank=True)
-    is_bilingual_summary = BooleanField(default=False, verbose_name=_("is bilingual summary"))
+    is_bilingual = BooleanField(default=False, verbose_name=_("is bilingual"))
     summary = TextField(blank=True, null=True, verbose_name=_("summary"))
     file = PrivateFileField(
         blank=True,
@@ -1477,7 +1478,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
 
-        # ssl._create_default_https_context = ssl._create_unverified_context
+        ssl._create_default_https_context = ssl._create_unverified_context
 
         merger = PdfFileMerger(strict=False)
         merger.addMetadata(
@@ -1496,24 +1497,25 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         # ):
         #     objects.extend(self.get_testimonials())
 
-        # number = vignere.encode(self.number)
-        # url = reverse("application-exported-view", kwargs={"number": number})
-        # if request:
-        #     summary_url = request.build_absolute_uri(url)
-        # else:
-        #     summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
-        # html = HTML(summary_url)
-
-        template = get_template("application-export.html")
-        html = HTML(
-            string=template.render(
-                {
-                    "application": self,
-                    "objects": objects,
-                    "user": request and request.user,
-                }
+        if self.round.research_summary_required and (self.summary_en or self.summary_mi):
+            number = vignere.encode(self.number)
+            url = reverse("application-exported-view", kwargs={"number": number})
+            if request:
+                summary_url = request.build_absolute_uri(url)
+            else:
+                summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+            html = HTML(summary_url)
+        else:
+            template = get_template("application-export.html")
+            html = HTML(
+                string=template.render(
+                    {
+                        "application": self,
+                        "objects": objects,
+                        "user": request and request.user,
+                    }
+                )
             )
-        )
 
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
@@ -2522,6 +2524,8 @@ class Round(Model):
     guidelines = CharField(_("guideline link URL"), max_length=120, null=True, blank=True)
     description = TextField(_("short description"), max_length=1000, null=True, blank=True)
 
+    has_title = BooleanField(_("can have a title"), default=False)
+
     research_summary_required = BooleanField(_("research summary required"), default=False)
     team_can_apply = BooleanField(_("can be submitted by a team"), default=False)
     presentation_required = BooleanField(default=False)
@@ -2686,6 +2690,7 @@ class Round(Model):
         ):
 
             for f in [
+                "has_title",
                 "applicant_cv_required",
                 "can_nominate",
                 "description_en",

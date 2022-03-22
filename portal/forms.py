@@ -27,6 +27,7 @@ from django.forms.widgets import NullBooleanSelect, TextInput
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django_summernote.widgets import SummernoteInplaceWidget
@@ -226,7 +227,7 @@ class ApplicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         initial = kwargs.get("initial", {})
         user = initial.get("user")
-        # language = initial.get("language", "en")
+        language = get_language()
 
         self.helper = FormHelper(self)
         instance = self.instance
@@ -316,15 +317,24 @@ class ApplicationForm(forms.ModelForm):
             summary_fields.append(Field("letter_of_support_file", label=_("Letter of Support")))
             # self.fields["letter_of_support_file"].help_text = help_text
 
-        # if round.scheme.research_summary_required:
-        #     summary_fields.extend(
-        #         [
-        #             Field(
-        #                 "is_bilingual_summary", data_toggle="toggle", template="portal/toggle.html"
-        #             ),
-        #             Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
-        #         ]
-        #     )
+        if round.has_title or round.research_summary_required:
+            summary_fields.append(
+                Field("is_bilingual", data_toggle="toggle", template="portal/toggle.html")
+            )
+        if round.has_title:
+            summary_fields.extend(
+                [
+                    Field("application_title"),
+                    Field(f"application_title_{'en' if language=='mi' else 'mi'}"),
+                ]
+            )
+
+        if round.research_summary_required:
+            summary_fields.extend(
+                [
+                    Row(Field("summary"), Field(f"summary_{'en' if language=='mi' else 'mi'}")),
+                ]
+            )
         if round.scheme.presentation_required:
             self.fields["presentation_url"].required = True
             summary_fields.insert(
@@ -350,8 +360,8 @@ class ApplicationForm(forms.ModelForm):
                         '<div class="alert alert-dark" role="alert"><p>%s</p><p>%s</p></div>'
                         % (
                             _(
-                                'An application form must be uploaded to enable submission; '
-                                'however, the application can be updated at any point before the '
+                                "An application form must be uploaded to enable submission; "
+                                "however, the application can be updated at any point before the "
                                 '"Submit" button is clicked.'
                             ),
                             _(
@@ -528,9 +538,9 @@ class ApplicationForm(forms.ModelForm):
             daytime_phone=TelInput(),
             mobile_phone=TelInput(),
             # file=FileInput(),
-            # summary=SummernoteInplaceWidget(),
-            # summary_en=SummernoteInplaceWidget(),
-            # summary_mi=SummernoteInplaceWidget(),
+            summary=SummernoteInplaceWidget(),
+            summary_en=SummernoteInplaceWidget(),
+            summary_mi=SummernoteInplaceWidget(),
             ethics_statement__comment=SummernoteInplaceWidget(),
             # round=HiddenInput(),
             letter_of_support_file=forms.ClearableFileInput(
