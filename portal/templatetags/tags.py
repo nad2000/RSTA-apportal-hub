@@ -27,13 +27,17 @@ def has_tooltip(value):
 @register.filter()
 def can_edit(value, user):
     """User can edit the application."""
-    return value.submitted_by == user or value.members.all().filter(user=user).exists()
+    return user.is_authenticated and (
+        value.submitted_by == user or value.members.all().filter(user=user).exists()
+    )
 
 
 @register.filter()
 def can_see_referees(value, user):
     """User can access list of the referees - applicants or panellists."""
-    return value.submitted_by == user or value.round.panellists.all().filter(user=user).exists()
+    return user.is_authenticated and (
+        value.submitted_by == user or value.round.panellists.all().filter(user=user).exists()
+    )
 
 
 @register.filter()

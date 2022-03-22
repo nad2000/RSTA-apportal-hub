@@ -4531,8 +4531,21 @@ def application_exported_view(request, number, lang=None):
     # if not remote_addr.startswith("127.0.0."):
     #     return remote_addr
     number = vignere.decode(number)
-    a = get_object_or_404(models.Application, number=number)
-    objects = [a, *a.get_testimonials()]
+    application = get_object_or_404(models.Application, number=number)
+    round = application.round
+
+    # if (show_summary := round.research_summary_required and (application.summary_en or application.summary_mi)):
+    #     summary_fields = []
+    #     if application.is_bilingual:
+    #         if application.summary_en:
+    #             summary_fields.append("summary_en")
+    #         if application.summary_mi:
+    #             summary_fields.append("summary_mi")
+    #     else:
+    #         if application.summary:
+    #             summary_fields.append("summary")
+
+    objects = application.get_testimonials()
     return render(request, "application-export.html", locals())
 
 
