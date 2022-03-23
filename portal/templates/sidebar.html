@@ -2,6 +2,7 @@
 
 {% if request.user.is_approved %}
 
+  {% if application_count > 0 or request.user.is_superuser or request.user.is_staff %}
   <div class="card mb-2">
     <div class="card-header">
       {% if application_count %}
@@ -16,34 +17,56 @@
       <div class="card-body">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item" id="nominations-draft">
-            <a
-                class="nav-link"
-                id="applications-draft"
-                href="{% url 'applications-draft' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
-                title="{% trans 'Saved application drafts' %}"
-                data-toggle="tooltip"
-                >
+            {% if application_draft_count > 0 %}
+              <a
+                  class="nav-link"
+                  id="applications-draft"
+                  href="{% url 'applications-draft' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
+                  title="{% trans 'Saved application drafts' %}"
+                  data-toggle="tooltip"
+                  >
+                  {% trans 'Drafts' %}
+                  <span class="badge badge-primary">{{ application_draft_count }}</span>
+              </a>
+            {% else %}
+              <span class="nav-link"
+                  title="{% trans 'No application drafts' %}"
+                  data-toggle="tooltip"
+              >
                 {% trans 'Drafts' %}
-                <span class="badge badge-primary">{{ application_draft_count }}</span>
-            </a>
+                <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
           <li class="nav-item">
-            <a
-                class="nav-link"
-                id="applications-submitted"
-                href="{% url 'applications-submitted' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
-                title="{% trans 'Submitted and previous applications' %}"
-                data-toggle="tooltip"
-                >
+            {% if application_submitted_count > 0 %}
+              <a
+                  class="nav-link"
+                  id="applications-submitted"
+                  href="{% url 'applications-submitted' %}{% if request.GET.round %}?round={{ request.GET.round }}{% endif %}"
+                  title="{% trans 'Submitted and previous applications' %}"
+                  data-toggle="tooltip"
+              >
+                  {% trans 'Submitted' %}
+                  <span class="badge badge-primary">{{ application_submitted_count }}</span>
+              </a>
+            {% else %}
+              <span class="nav-link"
+                  title="{% trans 'No submitted applications' %}"
+                  data-toggle="tooltip"
+              >
                 {% trans 'Submitted' %}
-                <span class="badge badge-primary">{{ application_submitted_count }}</span>
-            </a>
+                <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
         </ul>
       </div>
     {% endif %}
   </div>
+  {% endif %}
 
+  {% if has_nominations  or request.user.is_superuser or request.user.is_staff %}
   <div class="card mb-2">
     <div class="card-header">
       {% if has_nominations or request.user.is_superuser or request.user.is_staff %}
@@ -60,35 +83,57 @@
       <div class="card-body">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item">
-            <a
-                class="nav-link"
-                id="nominations-draft"
-                href="{% url 'nominations-draft' %}"
-                title="{% trans 'Saved nomination drafts' %}"
-                data-toggle="tooltip"
-                >{% trans 'Drafts' %}
-                <span class="badge badge-primary">{{ nomination_draft_count }}</span>
-            </a>
+            {% if nomination_draft_count > 0%}
+              <a
+                  class="nav-link"
+                  id="nominations-draft"
+                  href="{% url 'nominations-draft' %}"
+                  title="{% trans 'Saved nomination drafts' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Drafts' %}
+                  <span class="badge badge-primary">{{ nomination_draft_count }}</span>
+              </a>
+            {% else %}
+              <span
+                  class="nav-link"
+                  title="{% trans 'No nomination drafts' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Drafts' %}
+                  <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
           <li class="nav-item">
-            <a
-                class="nav-link"
-                id="nominations-submitted"
-                href="{% url 'nominations-submitted' %}"
-                title="{% trans 'Submitted and previous nominations' %}"
-                data-toggle="tooltip"
-                >{% trans 'Submitted' %}
-                <span class="badge badge-primary">{{ nomination_submitted_count }}</span>
-            </a>
+            {% if nomination_submitted_count > 0 %}
+              <a
+                  class="nav-link"
+                  id="nominations-submitted"
+                  href="{% url 'nominations-submitted' %}"
+                  title="{% trans 'Submitted and previous nominations' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Submitted' %}
+                  <span class="badge badge-primary">{{ nomination_submitted_count }}</span>
+              </a>
+            {% else %}
+              <span
+                  class="nav-link"
+                  title="{% trans 'No submitted nominations' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Submitted' %}
+                  <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
         </ul>
       </div>
     {% endif %}
   </div>
+  {% endif %}
 
+  {% if testimonial_count > 0 or request.user.is_superuser or request.user.is_staff %}
   <div class="card mb-2">
     <div class="card-header">
-      {% if testimonial_count or request.user.is_superuser or request.user.is_staff %}
+      {% if testimonial_count > 0 or request.user.is_superuser or request.user.is_staff %}
         <a href="{% url 'testimonials' %}" id="testimonials" > {% trans 'Testimonials' %}
           <span class="badge badge-primary">{{ testimonial_count }}</span>
         </a>
@@ -103,31 +148,52 @@
       <div class="card-body">
         <ul class="nav nav-pills flex-column">
           <li class="nav-item">
-            <a
-                class="nav-link"
-                href="{% url 'testimonials-draft' %}"
-                id="testimonials-draft"
-                title="{% trans 'Saved testimonial drafts' %}"
-                data-toggle="tooltip"
-                >{% trans 'Drafts' %}
+            {% if testimonial_draft_count > 0 %}
+              <a
+                  class="nav-link"
+                  href="{% url 'testimonials-draft' %}"
+                  id="testimonials-draft"
+                  title="{% trans 'Saved testimonial drafts' %}"
+                  data-toggle="tooltip"
+              >{% trans 'Drafts' %}
                 <span class="badge badge-primary">{{ testimonial_draft_count }}</span>
-            </a>
+              </a>
+            {% else %}
+              <span
+                  class="nav-link"
+                  title="{% trans 'No testimonial drafts' %}"
+                  data-toggle="tooltip"
+              >{% trans 'Drafts' %}
+                <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
           <li class="nav-item">
-            <a
-                class="nav-link"
-                href="{% url 'testimonials-submitted' %}"
-                id="testimonials-submitted"
-                title="{% trans 'Submitted and previous testimonials' %}"
-                data-toggle="tooltip"
-                >{% trans 'Submitted' %}
-                <span class="badge badge-primary">{{ testimonial_submitted_count }}</span>
-            </a>
+            {% if testimonial_draft_count > 0 %}
+              <a
+                  class="nav-link"
+                  href="{% url 'testimonials-submitted' %}"
+                  id="testimonials-submitted"
+                  title="{% trans 'Submitted and previous testimonials' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Submitted' %}
+                  <span class="badge badge-primary">{{ testimonial_submitted_count }}</span>
+              </a>
+            {% else %}
+              <span
+                  class="nav-link"
+                  title="{% trans 'No submitted testimonials' %}"
+                  data-toggle="tooltip"
+                  >{% trans 'Submitted' %}
+                  <span class="badge badge-primary">0</span>
+              </span>
+            {% endif %}
           </li>
         </ul>
       </div>
     {% endif %}
   </div>
+  {% endif %}
 
   {% if request.user.is_superuser or request.user.is_staff or review_count > 0 or score_sheet_count > 0 %}
     <div class="card mb-2">
@@ -148,40 +214,68 @@
         <div class="card-body">
           <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-              <a
-                  class="nav-link"
-                  id="reviews-working"
-                  href="{% url 'reviews-working' %}"
-                  title="{% trans 'Working review' %}"
-                  data-toggle="tooltip"
-                  >{% trans 'Working' %}
-                  <span class="badge badge-primary">{{ review_draft_count }}</span>
-              </a>
+              {% if review_draft_count > 0 %}
+                <a
+                    class="nav-link"
+                    id="reviews-working"
+                    href="{% url 'reviews-working' %}"
+                    title="{% trans 'Working reviews' %}"
+                    data-toggle="tooltip"
+                    >{% trans 'Working' %}
+                    <span class="badge badge-primary">{{ review_draft_count }}</span>
+                </a>
+              {% else %}
+                <span
+                    class="nav-link"
+                    title="{% trans 'No draft reviews' %}"
+                    data-toggle="tooltip"
+                >{% trans 'Working' %}
+                  <span class="badge badge-primary">0</span>
+                </span>
+              {% endif %}
             </li>
             <li class="nav-item">
-              <a
-                  class="nav-link"
-                  id="reviews-submitted"
-                  href="{% url 'reviews-submitted' %}"
-                  title="{% trans 'Submitted and previous reviews' %}"
-                  data-toggle="tooltip"
-                  >{% trans 'Submitted' %}
+              {% if review_submitted_count > 0 %}
+                <a
+                    class="nav-link"
+                    id="reviews-submitted"
+                    href="{% url 'reviews-submitted' %}"
+                    title="{% trans 'Submitted and previous reviews' %}"
+                    data-toggle="tooltip"
+                >{% trans 'Submitted' %}
                   <span class="badge badge-primary">{{ review_submitted_count }}</span>
-              </a>
+                </a>
+              {% else %}
+                <span
+                    class="nav-link"
+                    title="{% trans 'No submitted reviews' %}"
+                    data-toggle="tooltip"
+                >{% trans 'Submitted' %}
+                  <span class="badge badge-primary">0</span>
+                </a>
+              {% endif %}
             </li>
-            {% if score_sheet_count > 0 %}
-              <li class="nav-item">
+            <li class="nav-item">
+              {% if score_sheet_count > 0 %}
                 <a
                     class="nav-link"
                     id="score-sheet-list"
                     href="{% url 'score-sheet-list' %}"
                     title="{% trans 'Uploaded score sheets' %}"
                     data-toggle="tooltip"
-                    >{% trans 'Score Sheets' %}
-                    <span class="badge badge-primary">{{ score_sheet_count }}</span>
+                >{% trans 'Score Sheets' %}
+                  <span class="badge badge-primary">{{ score_sheet_count }}</span>
                 </a>
-              </li>
-            {% endif %}
+              {% else %}
+                <span
+                  class="nav-link"
+                  title="{% trans 'No uploaded score sheets' %}"
+                  data-toggle="tooltip"
+                >{% trans 'Score Sheets' %}
+                  <span class="badge badge-primary">0</span>
+                </span>
+              {% endif %}
+            </li>
           </ul>
         </div>
       {% endif %}

@@ -1926,7 +1926,22 @@ class InvitationList(LoginRequiredMixin, SingleTableView):
         return queryset
 
 
-class ApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableMixin, FilterView):
+class ApplicationListMixin:
+    def get_queryset(self, *args, **kwargs):
+        u = self.request.user
+        if not (u.is_superuser or u.is_staff):
+            return models.Application.user_applications(
+                self.request.user, round=self.request.GET.get("round")
+            )
+        queryset = super().get_queryset(*args, **kwargs)
+        if "round" in self.request.GET:
+            queryset = queryset.filter()
+        return queryset
+
+
+class ApplicationList(
+    LoginRequiredMixin, ApplicationListMixin, StateInPathMixin, SingleTableMixin, FilterView
+):
 
     model = models.Application
     table_class = tables.ApplicationTable
@@ -1934,25 +1949,6 @@ class ApplicationList(LoginRequiredMixin, StateInPathMixin, SingleTableMixin, Fi
     template_name = "table.html"
     filterset_class = ApplicationFilter
     paginator_class = django_tables2.paginators.LazyPaginator
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        u = self.request.user
-        if not (u.is_superuser or u.is_staff):
-            queryset = queryset.filter(
-                Q(submitted_by=u)
-                | Exists(models.Member.where(user=u, application=OuterRef("pk")))
-                | Exists(models.Referee.where(user=u, application=OuterRef("pk")))
-                | Exists(models.Panellist.where(user=u, round=OuterRef("round_id")))
-                | Exists(
-                    models.ConflictOfInterest.where(
-                        has_conflict=False, panellist__user=u, application=OuterRef("pk")
-                    )
-                )
-            )
-        if "round" in self.request.GET:
-            queryset = queryset.filter(round=self.request.GET["round"])
-        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
