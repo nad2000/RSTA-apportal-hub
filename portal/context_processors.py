@@ -24,13 +24,13 @@ def portal_context(request):
         stats = cache.get(cache_key)
         if not stats:
             score_sheet_count = models.ScoreSheet.user_score_sheet_count(u)
+            application_draft_count = models.Application.user_application_count(u, "draft")
+            application_submitted_count = models.Application.user_application_count(u, "submitted")
             stats = {
                 "three_days_ago": timezone.now() - timedelta(days=3),
-                "application_count": models.Application.user_application_count(u),
-                "application_draft_count": models.Application.user_application_count(u, "draft"),
-                "application_submitted_count": models.Application.user_application_count(
-                    u, "submitted"
-                ),
+                "application_count": application_draft_count + application_submitted_count,
+                "application_draft_count": application_draft_count,
+                "application_submitted_count": application_submitted_count,
                 "nomination_count": models.Nomination.user_nomination_count(u),
                 "nomination_draft_count": models.Nomination.user_nomination_count(u, "draft"),
                 "nomination_submitted_count": models.Nomination.user_nomination_count(
