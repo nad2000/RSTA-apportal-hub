@@ -55,8 +55,8 @@ DEFAULT_SITE_HTML_FOOTER = {
 <a href='https://www.royalsociety.org.nz/what-we-do/funds-and-opportunities/catalyst-fund/'>click here</a>.<br>
 <br>Ngā mihi,</p><br>
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
-font-family:"Helvetica",sans-serif;color:black'><img border='0' width='298'
-height='96' style='width:3.1041in;height:1.0in' src='%(logo_url)s'
+font-family:"Helvetica",sans-serif;color:black'>
+<img border='0' src='%(logo_url)s'
 alt='Catalyst Fund Logo Alternative'></span><br>
 <br>
 Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>
@@ -123,7 +123,7 @@ def send_mail(
             html_footer = DEFAULT_SITE_HTML_FOOTER.get(site.domain, DEFAULT_HTML_FOOTER) % {
                 "logo_url": f"{urljoin(root, 'static/images/alt_logo.jpg')}"
                 if site.domain == "portal.pmscienceprizes.org.nz"
-                else f"{urljoin(root, f'static/images/{site.domain}/alt_logo.png')}"
+                else f"{urljoin(root, f'static/images/{site.domain}/alt_logo_small.png')}"
             }
         html_message = f"<html><body>{html_message}\n{html_footer}"
 
