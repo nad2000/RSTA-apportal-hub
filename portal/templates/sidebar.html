@@ -66,10 +66,10 @@
   </div>
   {% endif %}
 
-  {% if has_nominations  or request.user.is_superuser or request.user.is_staff %}
+  {% if nomination_count > 0  or request.user.is_superuser or request.user.is_staff %}
   <div class="card mb-2">
     <div class="card-header">
-      {% if has_nominations or request.user.is_superuser or request.user.is_staff %}
+      {% if nomination_count > 0 %}
         <a href="{% url 'nominations' %}" id="nominations"> {% trans 'Nominations' %}
           <span class="badge badge-primary">{{ nomination_count }}</span>
         </a>
@@ -133,7 +133,7 @@
   {% if testimonial_count > 0 or request.user.is_superuser or request.user.is_staff %}
   <div class="card mb-2">
     <div class="card-header">
-      {% if testimonial_count > 0 or request.user.is_superuser or request.user.is_staff %}
+      {% if testimonial_count > 0 %}
         <a href="{% url 'testimonials' %}" id="testimonials" > {% trans 'Testimonials' %}
           <span class="badge badge-primary">{{ testimonial_count }}</span>
         </a>
@@ -169,7 +169,7 @@
             {% endif %}
           </li>
           <li class="nav-item">
-            {% if testimonial_draft_count > 0 %}
+            {% if testimonial_submitted_count > 0 %}
               <a
                   class="nav-link"
                   href="{% url 'testimonials-submitted' %}"
