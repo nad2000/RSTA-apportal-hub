@@ -106,7 +106,7 @@ def send_mail(
     convert_to_html=False,
 ):
     site = (invitation and invitation.site) or Site.objects.get_current()
-    domain = request and request.get_host().split(":")[0] or site.domain
+    domain = request and request.get_host() or site.domain
     root = f"https://{domain}"
 
     if not from_email:
