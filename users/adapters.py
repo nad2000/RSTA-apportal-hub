@@ -1,3 +1,6 @@
+from urllib.parse import urljoin
+
+import html2text
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.models import EmailAddress
 from allauth.account.utils import perform_login
@@ -6,12 +9,16 @@ from allauth.utils import email_address_exists
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
+from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import resolve_url
-from django.utils.translation import gettext as _
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 
 from portal.models import Invitation
+from portal.utils.mail import DEFAULT_HTML_FOOTER, DEFAULT_SITE_HTML_FOOTER
 
 User = get_user_model()
 
@@ -51,40 +58,54 @@ class AccountAdapter(DefaultAccountAdapter):
         username = super().clean_username(username, shallow=False)
         return username.lower()
 
-    # def render_mail(self, template_prefix, email, context):
-    #     """
-    #     Renders an e-mail to `email`.  `template_prefix` identifies the
-    #     e-mail that is to be sent, e.g. "account/email/email_confirmation"
-    #     """
-    #     to = [email] if isinstance(email, str) else email
-    #     subject = render_to_string("{0}_subject.txt".format(template_prefix), context)
-    #     # remove superfluous line breaks
-    #     subject = " ".join(subject.splitlines()).strip()
-    #     subject = self.format_email_subject(subject)
+    def render_mail(self, template_prefix, email, context):
+        site = Site.objects.get_current()
+        domain = self.request and self.request.get_host() or site.domain
+        root = f"https://{domain}"
 
-    #     from_email = self.get_from_email()
+        to = [email] if isinstance(email, str) else email
+        subject = render_to_string("{0}_subject.txt".format(template_prefix), context)
+        # remove superfluous line breaks
+        subject = " // ".join(subject.splitlines()).strip()
+        subject = self.format_email_subject(subject)
 
-    #     bodies = {}
-    #     for ext in ["html", "txt"]:
-    #         try:
-    #             template_name = "{0}_message.{1}".format(template_prefix, ext)
-    #             bodies[ext] = render_to_string(
-    #                 template_name,
-    #                 context,
-    #                 self.request,
-    #             ).strip()
-    #         except TemplateDoesNotExist:
-    #             if ext == "txt" and not bodies:
-    #                 # We need at least one body
-    #                 raise
-    #     if "txt" in bodies:
-    #         msg = EmailMultiAlternatives(subject, bodies["txt"], from_email, to)
-    #         if "html" in bodies:
-    #             msg.attach_alternative(bodies["html"], "text/html")
-    #     else:
-    #         msg = EmailMessage(subject, bodies["html"], from_email, to)
-    #         msg.content_subtype = "html"  # Main content is now text/html
-    #     return msg
+        from_email = self.get_from_email()
+
+        bodies = {}
+        for ext in ["html", "txt"]:
+            try:
+                template_name = "{0}_message.{1}".format(template_prefix, ext)
+                bodies[ext] = render_to_string(
+                    template_name,
+                    context,
+                    self.request,
+                ).strip()
+            except TemplateDoesNotExist:
+                if ext == "txt" and not bodies:
+                    # We need at least one body
+                    raise
+
+        if "txt" not in bodies and "html" in bodies:
+            bodies["txt"] = html2text.html2text(bodies["html"])
+        if "txt" in bodies and "html" not in bodies:
+            html_message = bodies["txt"].replace("\n\n", "<br/>\n")
+            html_message = f"<html><body><pre>{html_message}</pre></body></html>"
+            html_footer = DEFAULT_SITE_HTML_FOOTER.get(site.domain, DEFAULT_HTML_FOOTER) % {
+                "logo_url": f"{urljoin(root, 'static/images/alt_logo.jpg')}"
+                if site.domain == "portal.pmscienceprizes.org.nz"
+                else f"{urljoin(root, f'static/images/{site.domain}/alt_logo_small.png')}"
+            }
+            html_message = f"<html><body>{html_message}\n{html_footer}"
+            bodies["html"] = html_message
+
+        if "txt" in bodies:
+            msg = mail.EmailMultiAlternatives(subject, bodies["txt"], from_email, to)
+            if "html" in bodies:
+                msg.attach_alternative(bodies["html"], "text/html")
+        else:
+            msg = mail.EmailMessage(subject, bodies["html"], from_email, to)
+            msg.content_subtype = "html"  # Main content is now text/html
+        return msg
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
