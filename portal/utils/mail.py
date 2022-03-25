@@ -51,7 +51,7 @@ for the addressee and may be confidential. If you are not the intended recipient
 DEFAULT_SITE_HTML_FOOTER = {
     "portal.pmscienceprizes.org.nz": DEFAULT_HTML_FOOTER,
     "international.royalsociety.org.nz": """
-<br>To learn more about the Catalyst Fund
+<br>To learn more about the Catalyst Fund administered by the Royal Society Te Apārangi
 <a href='https://www.royalsociety.org.nz/what-we-do/funds-and-opportunities/catalyst-fund/'>click here</a>.<br>
 <br>Ngā mihi,</p><br>
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
@@ -59,20 +59,20 @@ font-family:"Helvetica",sans-serif;color:black'>
 <img border='0' src='%(logo_url)s'
 alt='Catalyst Fund Logo Alternative'></span><br>
 <br>
-Ngā Kaiwhakahaere o Te Puiaki Pūtaiao a Te Pirimia<br>
-Catalyst Fund</p>
+<br>
+International Applications</p>
 <table border='0' cellspacing='0' cellpadding='0' style=
 'border-collapse:collapse'>
 <tbody><tr><td style='padding:0cm 0cm 0cm 0cm'>
 <p style='line-height:115%%'><b><span style='font-size:8.5pt;
 line-height:115%%;color:black'>Waea telephone &nbsp;</span></b><span
-style='font-size:8.5pt;line-height:115%%;color:black'>+64 4 470 5762<br>
+style='font-size:8.5pt;line-height:115%%;color:black'>+64 4 470 5756<br>
 <b><style='font-size:8.5pt;line-height:115%%;color:black'>Īmēra email</span></b><span
 style='font-size:8.5pt;line-height:115%%'>&nbsp;</span><span
 style='font-size:8.5pt;line-height:115%%;color:black;background:white'>
-<a href='mailto:pmscienceprizes@royalsociety.org.nz'>
-<span style='color:black'>pmscienceprizes@royalsociety.org.nz</span></a></span></p>
-<p><b><span style='font-size:8.5pt;color:black'>C/- Royal Society Te Apārangi</span>
+<a href='mailto:International.Applications@royalsociety.org.nz'>
+<span style='color:black'>International.Applications@royalsociety.org.nz</span></a></span></p>
+<p><b><span style='font-size:8.5pt;color:black'>Royal Society Te Apārangi</span>
 </b><span style='font-size:8.5pt;color:black'><br>
 11 Turnbull Street, Thorndon, Wellington 6011<br>
 PO Box 598, Wellington 6140, New Zealand<br>

@@ -442,10 +442,10 @@ class ApplicationForm(forms.ModelForm):
         if not instance.submitted_by or instance.submitted_by == user:
             if Site.objects.get_current().domain == "international.royalsociety.org.nz":
                 tac_text = _(
+                    "I affirm that I fulfil the eligibility reqirements for this scheme "
+                    "and that my application abides by any rules as laid out in the scheme's guidelines. <br><br> "
                     "I affirm that all information provided in this application is "
-                    "to the best of my knowledge true and correct. "
-                    "<br/><br/>I affirm that I fulfil the eligibility reqirements for this scheme "
-                    "and that my application abides by the scheme's rules."
+                    "to the best of my knowledge true and correct."
                 )
             else:
                 tac_text = _(

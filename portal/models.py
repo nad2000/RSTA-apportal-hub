@@ -1098,7 +1098,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     )
     state = StateField(default=APPLICATION_STATUS.new, verbose_name=_("state"))
     is_tac_accepted = BooleanField(
-        default=False, verbose_name=_("I have read and accept Terms and Conditions")
+        default=False, verbose_name=_("I have read and accept the Terms and Conditions")
     )
     tac_accepted_at = MonitorField(
         monitor="state",
