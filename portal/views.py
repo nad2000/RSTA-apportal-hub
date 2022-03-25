@@ -2688,6 +2688,7 @@ class ProfileSummaryView(AdminstaffRequiredMixin, DetailView):
         return context
 
 
+@require_http_methods(["POST"])
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.is_site_staff)
 def approve_user(request, user_id=None):
@@ -2697,18 +2698,18 @@ def approve_user(request, user_id=None):
     if not u.is_approved:
         u.is_approved = True
         u.save()
-        url = request.build_absolute_uri(reverse("my-profile"))
+        url = request.build_absolute_uri(reverse("index"))
         send_mail(
             recipient_list=[u.full_email_address],
             subject=f"Confirmation of {u.email} Signup",
-            message="You have been approved by schema administrators, "
-            f"now start submitting an application to the Portal: {url}",
+            html_message="<p>You have been approved by schema administrators, "
+            f"now start submitting an application to the Portal: {url}</p>",
         )
         messages.success(request, f"You have just approved self signed user {u.email}")
     else:
         messages.info(request, f"Self signed user {u.email} is already approved")
 
-    return redirect("index")
+    return redirect("profile-summary", username=u.username)
 
 
 class NominationView(CreateUpdateView):
