@@ -66,7 +66,7 @@ class AccountAdapter(DefaultAccountAdapter):
         to = [email] if isinstance(email, str) else email
         subject = render_to_string("{0}_subject.txt".format(template_prefix), context)
         # remove superfluous line breaks
-        subject = " // ".join(subject.splitlines()).strip()
+        subject = " ".join(l for l in subject.splitlines() if l.strip()).strip()
         subject = self.format_email_subject(subject)
 
         from_email = self.get_from_email()
