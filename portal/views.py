@@ -2708,7 +2708,7 @@ def approve_user(request, user_id=None):
     else:
         messages.info(request, f"Self signed user {u.email} is already approved")
 
-    return redirect("profile-summary", username=u.username)
+    return redirect("index")
 
 
 class NominationView(CreateUpdateView):

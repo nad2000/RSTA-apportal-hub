@@ -289,19 +289,29 @@ class ApplicationForm(forms.ModelForm):
                 ]
             )
 
+        summary_fields = []
+        if round.has_title or round.research_summary_required:
+            summary_fields.append(
+                Field("is_bilingual", data_toggle="toggle", template="portal/toggle.html")
+            )
+        if round.has_title:
+            summary_fields.extend(
+                [
+                    Field("application_title"),
+                    Field(f"application_title_{'en' if language=='mi' else 'mi'}"),
+                ]
+            )
+
         if round.application_template:
             help_text = _(
                 'You can download the application form template at <strong><a href="%s">%s</a></strong>'
             ) % (round.application_template.url, os.path.basename(round.application_template.name))
             self.fields["file"].help_text = help_text
-            summary_fields = [
-                # HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'),
-                Field("file"),
-            ]
+            summary_fields.append(Field("file"))
         else:
-            summary_fields = [
-                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text),
-            ]
+            summary_fields.append(
+                Field("file", data_toggle="tooltip", title=self.fields["file"].help_text)
+            )
 
         if round.budget_template and not (
             instance and instance.submitted_by and instance.submitted_by != user
@@ -316,18 +326,6 @@ class ApplicationForm(forms.ModelForm):
         if round.letter_of_support_required:
             summary_fields.append(Field("letter_of_support_file", label=_("Letter of Support")))
             # self.fields["letter_of_support_file"].help_text = help_text
-
-        if round.has_title or round.research_summary_required:
-            summary_fields.append(
-                Field("is_bilingual", data_toggle="toggle", template="portal/toggle.html")
-            )
-        if round.has_title:
-            summary_fields.extend(
-                [
-                    Field("application_title"),
-                    Field(f"application_title_{'en' if language=='mi' else 'mi'}"),
-                ]
-            )
 
         if round.research_summary_required:
             summary_fields.extend(
