@@ -445,8 +445,7 @@ class ApplicationForm(forms.ModelForm):
                     "I affirm that I fulfil the eligibility reqirements for this scheme "
                     "and that my application abides by any rules as laid out in the scheme's guidelines. <br><br> "
                     "I affirm that all information provided in this application is "
-                    "to the best of my knowledge true and correct. "
-                    
+                    "to the best of my knowledge true and correct. "                    
                 )
             else:
                 tac_text = _(
