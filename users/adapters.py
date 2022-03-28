@@ -58,6 +58,11 @@ class AccountAdapter(DefaultAccountAdapter):
         username = super().clean_username(username, shallow=False)
         return username.lower()
 
+    def get_from_email(self):
+        site = Site.objects.get_current()
+        domain = site.domain
+        return f"{site.name} <noreply@{domain}>"
+
     def render_mail(self, template_prefix, email, context):
         site = Site.objects.get_current()
         domain = self.request and self.request.get_host() or site.domain
