@@ -13,18 +13,26 @@ th, td {
 tr:nth-child(even) {background-color: #f2f2f2;}
 </style>
 
-<div class="mb-0" id="header_content">
+{% include 'snippets/application-export-header.html' %}
 
-  <header class="header">
-    <picture>
-      <img id="logo" width="190px" height="50px"
-           src="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1.png"
-           alt="The Prime Minister's Science Prizes"
-           srcset="https://www.pmscienceprizes.org.nz/wp-content/uploads/2019/03/PM-SCIENCE-LOGO_HORIZONTAL_FINAL_7466-1-1@1x.png  1x">
-    </picture>
-  </header>
-</div>
 {% with a=application u=user %}
+<div style="margin-top:36%;border-color:grey;border-width:2px;border-style:solid;margin-left:10%;margin-right:5%;font-size:15px;padding:25px;border-radius:25px;">
+  <table>
+      <center>
+          <h2>
+          {{ a.number }}: {{ a.application_title|default:a.round.title }}
+          </h2>
+      </center>
+      <tr><th>{% trans 'Number' %}</th><td>{{ a.number }}</td></tr>
+      <tr><th>{% trans 'Title' %}</th><td>{{ a.application_title|default:a.round.title }}</td></tr>
+      <tr><th>{% trans 'Applicant' %}</th><td>{{ a.full_name }}</td></tr>
+  </table>
+</div>
+
+<div class="mb-2" id="header_content" style="page-break-before: always">
+  {% include 'snippets/application-export-header.html' %}
+</div>
+
   <h2>
     {{ a.number }}: {{ a.application_title|default:a.round.title|title }}
   </h2>

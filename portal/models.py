@@ -1496,6 +1496,14 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         #     and not (self.submitted_by == u or self.members.all().filter(user=u).exists())
         # ):
         #     objects.extend(self.get_testimonials())
+        site = Site.objects.get_current()
+        domain = site.domain
+
+        logo_url = None
+        if domain == "international.royalsociety.org.nz":
+            logo_path = os.path.join(settings.STATIC_ROOT, f"images/{domain}/alt_logo_small.png")
+            if os.path.exists(logo_path):
+                logo_url = f"file://{logo_path}"
 
         if self.round.research_summary_required and (self.summary_en or self.summary_mi):
             number = vignere.encode(self.number)
@@ -1503,19 +1511,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             if request:
                 summary_url = request.build_absolute_uri(url)
             else:
-                summary_url = f"https://{urljoin(Site.objects.get_current().domain, url)}"
+                summary_url = f"https://{urljoin(domain, url)}"
             html = HTML(summary_url)
         else:
             template = get_template("application-export.html")
-            html = HTML(
-                string=template.render(
-                    {
-                        "application": self,
-                        "objects": objects,
-                        "user": request and request.user,
-                    }
-                )
-            )
+            context = {
+                "application": self,
+                "objects": objects,
+                "user": request and request.user,
+                "site": site,
+                "domain": domain,
+                "logo": logo_url,
+            }
+            html = HTML(string=template.render(context))
 
         pdf_object = html.write_pdf(presentational_hints=True)
         # converting pdf bytes to stream which is required for pdf merger.
@@ -1528,7 +1536,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         for title, a, *rest in attachments:
             # merger.append(PdfFileReader(a, "rb"), bookmark=title, import_bookmarks=True)
             if rest and (title_page := rest[0]):
-                template = get_template("application-export-title-page.html")
+                template = get_template("application-export-attachment-title-page.html")
                 html = HTML(
                     string=template.render(
                         {
@@ -1537,6 +1545,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                             "title": title,
                             # "objects": objects,
                             "user": request and request.user,
+                            "site": site,
+                            "domain": domain,
+                            "logo": logo_url,
                         }
                     )
                 )
