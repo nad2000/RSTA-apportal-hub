@@ -93,6 +93,7 @@ def send_mail(
     message=None,
     from_email=None,
     recipient_list=None,
+    bcc=None,
     fail_silently=False,
     auth_user=None,
     auth_password=None,
@@ -147,6 +148,7 @@ def send_mail(
         message,
         from_email,
         recipient_list,
+        bcc=bcc,
         headers=headers,
     )
     if not reply_to and invitation and (inviter := invitation.inviter):
@@ -159,7 +161,7 @@ def send_mail(
 
     resp = msg.send()
 
-    for no, r in enumerate(recipient_list):
+    for no, r in enumerate((recipient_list or []) + (bcc or [])):
         models.MailLog.create(
             user=request.user if request and request.user.is_authenticated else None,
             recipient=r,
