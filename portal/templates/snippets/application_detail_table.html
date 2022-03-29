@@ -119,8 +119,10 @@
 
           {% if a.summary_en %}
             <tr>
-              <th class="table-dark" scope="row">{% trans 'Summary (English)' %}</th>
-              <td colspan="3">
+              <th class="table-dark" scope="row" colspan="4">{% trans 'Summary (English)' %}</th>
+            <tr>
+            </tr>
+              <td colspan="4">
                 {{ a.summary_en|safe }}
               </td>
             </tr>
@@ -128,8 +130,10 @@
 
           {% if a.summary_mi %}
             <tr>
-              <th class="table-dark" scope="row">{% trans 'Summary (Maori)' %}</th>
-              <td colspan="3">
+              <th class="table-dark" scope="row" colspan="4">{% trans 'Summary (Maori)' %}</th>
+            <tr>
+            </tr>
+              <td colspan="4">
                 {{ a.summary_mi|safe }}
               </td>
             </tr>
@@ -137,8 +141,10 @@
 
         {% elif a.summary %}
           <tr>
-            <th class="table-dark" scope="row">{% trans 'Summary' %}</th>
-            <td colspan="3">{{ a.summary|safe }}</td>
+            <th class="table-dark" scope="row" colspan="4">{% trans 'Summary' %}</th>
+          </tr>
+          <tr>
+            <td colspan="4">{{ a.summary|safe }}</td>
           </tr>
         {% endif %}
       {% endif %}

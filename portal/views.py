@@ -4530,19 +4530,16 @@ def application_exported_view(request, number, lang=None):
     number = vignere.decode(number)
     application = get_object_or_404(models.Application, number=number)
     round = application.round
+    site = Site.objects.get_current()
+    domain = site.domain
 
-    # if (show_summary := round.research_summary_required and (application.summary_en or application.summary_mi)):
-    #     summary_fields = []
-    #     if application.is_bilingual:
-    #         if application.summary_en:
-    #             summary_fields.append("summary_en")
-    #         if application.summary_mi:
-    #             summary_fields.append("summary_mi")
-    #     else:
-    #         if application.summary:
-    #             summary_fields.append("summary")
-
+    logo = None
+    if domain == "international.royalsociety.org.nz":
+        logo = request.build_absolute_uri(
+            f"{settings.STATIC_URL}images/{domain}/alt_logo_small.png"
+        )
     objects = application.get_testimonials()
+
     return render(request, "application-export.html", locals())
 
 

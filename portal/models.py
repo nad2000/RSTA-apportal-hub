@@ -1505,7 +1505,16 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             if os.path.exists(logo_path):
                 logo_url = f"file://{logo_path}"
 
-        if self.round.research_summary_required and (self.summary_en or self.summary_mi):
+        if (
+            self.round.research_summary_required
+            and (self.summary_en or self.summary_mi)
+            and (
+                (self.summary_en and ("<img" in self.summary_en or "<iframe" in self.summary_en))
+                or (
+                    self.summary_mi and ("<img" in self.summary_mi or "<iframe" in self.summary_mi)
+                )
+            )
+        ):
             number = vignere.encode(self.number)
             url = reverse("application-exported-view", kwargs={"number": number})
             if request:
