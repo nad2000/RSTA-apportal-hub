@@ -119,7 +119,11 @@ def handle_user_signed_up(request, user, *args, **kwargs):
         )
         send_mail(
             _("New User Signed up to join the portal"),
-            recipient_list=[u.email for u in User.where(is_staff=True)],
+            recipient_list=[
+                (u.email or u.emailaddress_set.filter(primary=True).get().email)
+                for u in User.where(is_staff=True)
+                if u.is_site_staff
+            ],
             fail_silently=False,
             html_message=html_body,
         )
