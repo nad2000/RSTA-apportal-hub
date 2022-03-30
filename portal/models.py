@@ -3528,10 +3528,7 @@ def clean_private_fils():
         for rel_name in files:
             filename = os.path.join(rel_dir, rel_name)
             if (
-                (
-                    rel_dir.startswith("cv/")
-                    and not CurriculumVitae.where(file=filename).exists()
-                )
+                (rel_dir.startswith("cv/") and not CurriculumVitae.where(file=filename).exists())
                 or (
                     rel_dir.startswith("converted/")
                     and not ConvertedFile.where(file=filename).exists()
@@ -3576,5 +3573,5 @@ def clean_private_fils():
                 total += size
 
     if total:
-        total = round(total/1048576, 2)
+        total = round(total / 1048576, 2)
         print(f"*** Recovered {total}MiB")
