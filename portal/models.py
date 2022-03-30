@@ -3521,6 +3521,7 @@ class ScoreSheet(Model):
 
 def clean_private_fils():
     root_dir = settings.PRIVATE_STORAGE_ROOT
+    total = 0
 
     for root, dirs, files in os.walk(root_dir):
         rel_dir = os.path.relpath(root, root_dir)
@@ -3568,5 +3569,12 @@ def clean_private_fils():
                     and not EthicsStatement.where(file=filename).exists()
                 )
             ):
+                full_filename = os.path.join(root_dir, filename)
+                size = os.path.getsize(full_filename)
                 os.remove(os.path.join(root_dir, filename))
-                print(f"*** Deleted ofphaned file: '{filename}'")
+                print(f"*** Deleted ofphaned file: '{filename}' ({size} bytes)")
+                total += size
+
+    if total:
+        total = round(total/1048576, 2)
+        print(f"*** Recovered {total}MiB")
