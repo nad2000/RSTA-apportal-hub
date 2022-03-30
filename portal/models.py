@@ -3517,3 +3517,56 @@ class ScoreSheet(Model):
 
     class Meta:
         db_table = "score_sheet"
+
+
+def clean_private_fils():
+    root_dir = settings.PRIVATE_STORAGE_ROOT
+
+    for root, dirs, files in os.walk(root_dir):
+        rel_dir = os.path.relpath(root, root_dir)
+        for rel_name in files:
+            filename = os.path.join(rel_dir, rel_name)
+            if (
+                (
+                    rel_dir.startswith("cv/")
+                    and not CurriculumVitae.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("converted/")
+                    and not ConvertedFile.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("ids/")
+                    and not IdentityVerification.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("score-sheeets/")
+                    and not ScoreSheet.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("nominations/")
+                    and not Nomination.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("applications/")
+                    and not Application.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("letters_of_support/")
+                    and not LetterOfSupport.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("testimonials/")
+                    and not Testimonial.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("score-sheets/")
+                    and not ScoreSheet.where(file=filename).exists()
+                )
+                or (
+                    rel_dir.startswith("statements/")
+                    and not EthicsStatement.where(file=filename).exists()
+                )
+            ):
+                os.remove(os.path.join(root_dir, filename))
+                print(f"*** Deleted ofphaned file: '{filename}'")
