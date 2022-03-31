@@ -38,7 +38,7 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Coalesce
-from django.forms import widgets  # BooleanField,
+from django.forms import widgets  # CharField,; ModelForm,; BooleanField,
 from django.forms import (
     DateInput,
     Form,
@@ -2592,11 +2592,47 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
         return context
 
 
+# class ProfileRecognitionForm(ModelForm):
+
+#     award_name = CharField(label=_("Award"))
+
+#     # def get_defaults(self, *args, **kwargs):
+#     #     if (
+#     #         self.round.letter_of_support_required
+#     #         and self.object
+#     #         and self.object.letter_of_support
+#     #         and self.object.letter_of_support.file
+#     #     ):
+#     #         initial["letter_of_support_file"] = self.object.letter_of_support.file
+
+#     def __init__(self, *, data=None, initial=None, **kwargs):
+#         breakpoint()
+#         if instance and instance.award:
+#             if not initial:
+#                 initial = {"award_name": instance.award.name}
+#             elif "award_name" not in initial:
+#                 initial["award_name"] =  instance.award.name
+#         super().__init__(data=data, initial=initial, **kwargs)
+
+#     class Meta:
+#         model = models.Recognition
+#         # fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
+#         exclude = ["award"]
+#         widgets = {
+#             "profile": HiddenInput(),
+#             "recognized_in": forms.YearInput(),
+#             "award": autocomplete.ModelSelect2("award-autocomplete"),
+#             "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+#         }
+
+
 class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
 
     model = models.Recognition
     # formset_class = forms.modelformset_factory(models.Affiliation, exclude=(), can_delete=True,)
     orcid_sections = ["funding"]
+    # exclude = ["award"]
+    # form_class = ProfileRecognitionForm
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -2623,6 +2659,15 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
             Submit("load_from_orcid", _("Import from ORCiD"), css_class="btn-orcid")
         )
         return context
+
+    # def formset_valid(self, *args, **kwargs):
+    #     breakpoint()
+    #     return super().formset_valid(*args, **kwargs)
+
+    # def get_form_class(self):
+    #     fc = super().get_form_class()
+    #     breakpoint()
+    #     return fc
 
 
 class AdminstaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
