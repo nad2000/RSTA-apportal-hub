@@ -53,7 +53,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 from django.views import View
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -78,7 +78,7 @@ from . import forms, models, tables
 from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .pyinfo import info
-from .tasks import notify_user
+# from .tasks import notify_user
 from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
 
@@ -466,11 +466,11 @@ def index(request):
     return render(request, "index.html", locals())
 
 
-@login_required
-def test_task(req, message):
-    notify_user(req.user.id, message)
-    messages.info(req, _("Task submitted with a message '%s'") % message)
-    return render(req, "index.html", locals())
+# @login_required
+# def test_task(req, message):
+#     notify_user(req.user.id, message)
+#     messages.info(req, _("Task submitted with a message '%s'") % message)
+#     return render(req, "index.html", locals())
 
 
 def check_profile(request, token=None):
@@ -1881,7 +1881,7 @@ class ApplicationFilter(django_filters.FilterSet):
     #     return parent.filter(is_published=True) | parent.filter(author=author)
 
     application_filter = django_filters.CharFilter(
-        method="set_filter", label=ugettext_lazy("Application Filter")
+        method="set_filter", label=gettext_lazy("Application Filter")
     )
 
     class Meta:
@@ -2358,8 +2358,8 @@ class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
                     "end_date": forms.DateInput(),
                 },
                 "labels": {
-                    "role": ugettext_lazy("Professional Membership"),
-                    "qualification": ugettext_lazy("Professional Qualification"),
+                    "role": gettext_lazy("Professional Membership"),
+                    "qualification": gettext_lazy("Professional Qualification"),
                 },
             }
         )

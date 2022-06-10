@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.db.models import F, Q
 from django.shortcuts import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_fsm_log.admin import StateLogInline
 from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin

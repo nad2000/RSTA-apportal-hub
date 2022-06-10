@@ -1,7 +1,7 @@
 from io import BytesIO
 
 import pytest
-from background_task.tasks import tasks
+# from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
 
 from portal import models
@@ -44,12 +44,12 @@ def test_template_views(client, admin_user):
     assert resp.status_code == 302
 
 
-def test_submit_task(client):
-    username, password = "tester", "p455w0rd"
-    user = User.objects.create_user(username=username, password=password)
-    client.force_login(user)
-    client.get("/test_task/TEST-MESSAGE")
-    assert tasks.run_next_task()
+# def test_submit_task(client):
+#     username, password = "tester", "p455w0rd"
+#     user = User.objects.create_user(username=username, password=password)
+#     client.force_login(user)
+#     client.get("/test_task/TEST-MESSAGE")
+#     assert tasks.run_next_task()
 
 
 def test_profile(client, admin_user):

@@ -1,10 +1,8 @@
+from allauth.account.models import EmailAddress
+from allauth.socialaccount.providers.base import Provider, ProviderAccount
 from django.conf import settings
 from django.urls import reverse
 from django.utils.http import urlencode
-
-from allauth.account.models import EmailAddress
-from allauth.socialaccount.providers.base import Provider, ProviderAccount
-
 
 rapidconnect_settings = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}).get("rapidconnect", {})
 ATTRIBUTE_KEY = rapidconnect_settings.get("ATTRIBUTE_KEY", "https://aaf.edu.au/attributes")

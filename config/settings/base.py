@@ -121,7 +121,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "captcha",
     "simple_history",
-    "background_task",
+    # "background_task",
     "crispy_forms",
     "allauth",
     "allauth.account",

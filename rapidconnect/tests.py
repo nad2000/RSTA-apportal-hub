@@ -57,15 +57,19 @@ class RapidConnectTests(TestCase):
                 "givenname": "Radomirs",
                 "mail": "radomirs.cirskis@aucklanduni.ac.nz",
                 "edupersonorcid": "",
-                "edupersonscopedaffiliation": "staff@virtualhome.test.tuakiri.ac.nz;member@virtualhome.test.tuakiri.ac.nz",
+                "edupersonscopedaffiliation":
+                    "staff@virtualhome.test.tuakiri.ac.nz;member@virtualhome.test.tuakiri.ac.nz",
                 "edupersonprincipalname": "",
-                "edupersontargetedid": "https://rapidconnect.staging.tuakiri.ac.nz!https://127.0.0.1:8080!6dLjlotTdfoLct+ALy5NW0SF3dg=",
+                "edupersontargetedid":
+                    "https://rapidconnect.staging.tuakiri.ac.nz!https://127.0.0.1:8080!6dLjlotTdfoLct+ALy5NW0SF3dg=",
             },
             "iss": "https://rapidconnect.staging.tuakiri.ac.nz",
-            "aud": "https://127.0.0.1:8080",
+            # "aud": "https://127.0.0.1:8080",
+            "aud": "http://testserver",
             "sub": "https://rapidconnect.staging.tuakiri.ac.nz!https://127.0.0.1:8080!6dLjlotTdfoLct+ALy5NW0SF3dg=",
         }
-        return jwt.encode(token, key=self.secret_key).decode()
+        # return jwt.encode(token, key=self.secret_key).decode()
+        return jwt.encode(token, key=self.secret_key)
 
     def test_login_redirect(self):
         response = self.client.get(reverse(views.login))
@@ -89,4 +93,6 @@ class RapidConnectTests(TestCase):
         response_jwt = self.get_rapidconnect_login_response()
 
         response = self.client.post(reverse(views.callback), {"assertion": response_jwt})
-        self.assertRedirects(response, "/accounts/social/connections/", fetch_redirect_response=False)
+        self.assertRedirects(
+            response, "/accounts/social/connections/", fetch_redirect_response=False
+        )

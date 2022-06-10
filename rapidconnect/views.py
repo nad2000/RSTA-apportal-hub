@@ -1,18 +1,8 @@
-import requests
 from hashlib import md5
 from urllib.parse import urljoin
 
-from django.contrib.auth import get_user_model
-from django.core import signing
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.utils.crypto import get_random_string
-from django.utils.http import urlencode
-from django.views.decorators.csrf import csrf_exempt
-
 import jwt
-
+import requests
 from allauth.account.utils import get_next_redirect_url
 from allauth.socialaccount import providers
 from allauth.socialaccount.helpers import (
@@ -22,6 +12,14 @@ from allauth.socialaccount.helpers import (
 from allauth.socialaccount.models import SocialLogin, SocialToken
 from allauth.socialaccount.providers.base import AuthError
 from allauth.utils import get_request_param
+from django.contrib.auth import get_user_model
+from django.core import signing
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.utils.crypto import get_random_string
+from django.utils.http import urlencode
+from django.views.decorators.csrf import csrf_exempt
 
 from .provider import ATTRIBUTE_KEY, AUDIENCE, BASE_URL, RapidConnectProvider
 
@@ -50,7 +48,12 @@ def login(request):
     verifier = get_random_string()
 
     cookie_name = RapidConnectProvider.id + ":state"
-    cookie_value = signing.dumps((state, verifier,))
+    cookie_value = signing.dumps(
+        (
+            state,
+            verifier,
+        )
+    )
 
     response = HttpResponseRedirect(url)
     response.set_cookie(cookie_name, cookie_value)
@@ -69,7 +72,13 @@ def callback(request):
         audience = AUDIENCE
         if not audience:
             audience = request.scheme + "://" + request.get_host()
-        token = jwt.decode(request.POST["assertion"], app.secret, audience=audience, verify=False)
+        token = jwt.decode(
+            request.POST["assertion"],
+            app.secret,
+            audience=audience,
+            verify=False,
+            algorithms=["HS256"],
+        )
         attributes = token[ATTRIBUTE_KEY]
 
         provider = providers.registry.by_id(RapidConnectProvider.id, request)
