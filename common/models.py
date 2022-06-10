@@ -40,6 +40,10 @@ class TimeStampMixin(Base):
 
 class HelperMixin:
     @property
+    def can_export_to_pdf(self):
+        return hasattr(self, "to_pdf")
+
+    @property
     def current_site_id(self):
         return int(settings.SITE_ID)
 

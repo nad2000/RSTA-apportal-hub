@@ -1,0 +1,31 @@
+{% extends "fsm_admin/change_form.html" %}
+{% block submit_buttons_top %}
+    {{ block.super }}
+    {% if original and original.can_export_to_pdf %}
+      {# Only show if changing #}
+        <div class="submit-row">
+          <a
+             href="{% url 'application-export' original.pk %}"
+             target="_blank"
+             title="Export the application into a consolidated PDF file"
+          >
+            Export
+          </a>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block submit_buttons_bottom %}
+    {% if original and original.can_export_to_pdf %}
+      {# Only show if changing #}
+        <div class="submit-row">
+          <a
+             href="{% url 'application-export' original.pk %}"
+             target="_blank"
+             title="Export the application into a consolidated PDF file"
+          >
+            Export
+          </a>
+        </div>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

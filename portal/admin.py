@@ -364,6 +364,7 @@ class ApplicationAdmin(
     PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, TranslationAdmin, SimpleHistoryAdmin
 ):
 
+    save_on_top = True
     date_hierarchy = "created_at"
     list_display = [
         "number",
