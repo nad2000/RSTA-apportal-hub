@@ -21,7 +21,7 @@ from django.utils.crypto import get_random_string
 from django.utils.http import urlencode
 from django.views.decorators.csrf import csrf_exempt
 
-from .provider import ATTRIBUTE_KEY, AUDIENCE, BASE_URL, RapidConnectProvider
+from .provider import ATTRIBUTE_KEY, BASE_URL, RapidConnectProvider
 
 
 class RapidConnectApiError(Exception):
@@ -69,9 +69,7 @@ def callback(request):
 
     try:
         app = providers.registry.by_id(RapidConnectProvider.id, request).get_app(request)
-        audience = AUDIENCE
-        if not audience:
-            audience = request.scheme + "://" + request.get_host()
+        audience = request.scheme + "://" + request.get_host()
         token = jwt.decode(
             request.POST["assertion"],
             app.secret,

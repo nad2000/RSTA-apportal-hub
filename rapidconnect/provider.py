@@ -7,7 +7,6 @@ from django.utils.http import urlencode
 rapidconnect_settings = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}).get("rapidconnect", {})
 ATTRIBUTE_KEY = rapidconnect_settings.get("ATTRIBUTE_KEY", "https://aaf.edu.au/attributes")
 BASE_URL = rapidconnect_settings.get("BASE_URL")
-AUDIENCE = rapidconnect_settings.get("AUDIENCE")
 
 
 class RapidConnectAccount(ProviderAccount):
