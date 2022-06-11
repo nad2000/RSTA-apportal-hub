@@ -11,6 +11,7 @@ from urllib.parse import urljoin, urlparse
 
 import simple_history
 from allauth.account.models import EmailAddress
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -2704,11 +2705,55 @@ class Round(Model):
             scheme.current_round = self
             scheme.save(update_fields=["current_round"])
 
+    def init_from_last_round(self, last_round=None):
+        if not last_round and self.scheme:
+            q = Round.where(scheme=self.scheme)
+            if self.id:
+                q = q.filter(~Q(id=self.id))
+            last_round = q.order_by("-id").first()
+
+        if last_round:
+            scheme = self.scheme or last_round.scheme
+
+            for f in [f.name for f in self._meta.fields]:
+                if f in ["title", "opens_on", "closes_on", "id"]:
+                    continue
+                v = getattr(last_round, f)
+                if v and not getattr(self, f):
+                    setattr(self, f, v)
+
+            if not self.opens_on and last_round.opens_on:
+                self.opens_on = last_round.opens_on + relativedelta(years=1)
+
+            if not self.closes_on and last_round.closes_on:
+                self.closes_on = last_round.closes_on + relativedelta(years=1)
+
+        if not self.title:
+            title = scheme.title
+            if self.opens_on:
+                title = f"{title} {self.opens_on.year}"
+            self.title = title
+
+        if self.title == self.scheme.title and self.opens_on:
+            self.title = f"{self.title} {self.opens_on.year}"
+
+        return self
+
+    def clone(self):
+        nr = Round(scheme=self.scheme)
+        nr.init_from_last_round(last_round=self)
+        if not nr.title:
+            nr.title = self.scheme.title
+        if nr.title == self.scheme.title and nr.opens_on:
+            nr.title = f"{nr.title} {nr.opens_on.year}"
+        nr.save()
+        return nr
+
     def __init__(self, *args, **kwargs):
+        opens_on = kwargs.get("opens_on")
         if (scheme := kwargs.get("scheme")) and (
             last_round := Round.where(scheme=scheme).order_by("-id").first()
         ):
-
             for f in [
                 "has_title",
                 "applicant_cv_required",
@@ -2729,7 +2774,28 @@ class Round(Model):
                 # "budget_required",
             ]:
                 if f not in kwargs:
-                    kwargs[f] = getattr(last_round, f)
+                    v = getattr(last_round, f)
+                    if v:
+                        kwargs[f] = getattr(last_round, f)
+                        setattr(self, f, v)
+
+            if not opens_on and last_round.opens_on:
+                opens_on = last_round.opens_on + relativedelta(years=1)
+                if "opens_on" not in kwargs:
+                    kwargs["opens_on"] = opens_on
+                    self.opens_on = opens_on
+
+            if "closes_on" not in kwargs and last_round.closes_on:
+                self.closes_on = kwargs["closes_on"] = last_round.closes_on + relativedelta(
+                    years=1
+                )
+
+            if "title" not in kwargs:
+                title = scheme.title
+                if opens_on:
+                    title = f"{title} {opens_on.year}"
+                kwargs["title"] = title
+                self.title = title
 
             if "score_sheet_template" not in kwargs and (
                 pr1 := Round.where(scheme=scheme, score_sheet_template__isnull=False)
@@ -2767,6 +2833,7 @@ class Round(Model):
                 kwargs["budget_template"] = pr5.budget_template
             if "site" not in kwargs:
                 kwargs["site"] = scheme.site
+
         super().__init__(*args, **kwargs)
 
     def __str__(self):

@@ -84,6 +84,7 @@ class StaffPermsMixin:
 @admin.register(models.Subscription)
 class SubscriptionAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
     view_on_site = False
+    save_on_top = True
     exclude = [
         "site",
     ]
@@ -105,6 +106,7 @@ class EthnicityResource(ModelResource):
 
 @admin.register(models.Ethnicity)
 class EthnicityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    save_on_top = True
     view_on_site = False
     search_fields = [
         "description",
@@ -127,6 +129,7 @@ class CodeResource(ModelResource):
 
 @admin.register(models.Language)
 class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    save_on_top = True
     view_on_site = False
 
     class LanguageResource(CodeResource):
@@ -140,6 +143,7 @@ class LanguageAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
 @admin.register(models.FieldOfStudy)
 class FieldOfStudyAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class FieldOfStudyResource(CodeResource):
@@ -152,6 +156,7 @@ class FieldOfStudyAdmin(ImportExportModelAdmin):
 
 @admin.register(models.FieldOfResearch)
 class FieldOfResearchAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class FieldOfResearchResource(CodeResource):
@@ -164,6 +169,7 @@ class FieldOfResearchAdmin(ImportExportModelAdmin):
 
 @admin.register(models.CareerStage)
 class CareerStageAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class CareerStageResource(CodeResource):
@@ -176,6 +182,7 @@ class CareerStageAdmin(ImportExportModelAdmin):
 
 @admin.register(models.PersonIdentifierType)
 class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class PersonIdentifierTypeResource(CodeResource):
@@ -189,6 +196,7 @@ class PersonIdentifierTypeAdmin(ImportExportModelAdmin):
 
 @admin.register(models.IwiGroup)
 class IwiGroupAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class IwiGroupResource(CodeResource):
@@ -201,6 +209,7 @@ class IwiGroupAdmin(ImportExportModelAdmin):
 
 @admin.register(models.ProtectionPattern)
 class ProtectionPatternAdmin(TranslationAdmin, ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class ProtectionPatternResource(CodeResource):
@@ -236,6 +245,7 @@ class ProtectionPatternAdmin(TranslationAdmin, ImportExportModelAdmin):
 
 @admin.register(models.OrgIdentifierType)
 class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class OrgIdentifierTypeResource(CodeResource):
@@ -248,6 +258,7 @@ class OrgIdentifierTypeAdmin(ImportExportModelAdmin):
 
 @admin.register(models.ApplicationDecision)
 class ApplicationDecisionAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class ApplicationDecisionResource(CodeResource):
@@ -260,6 +271,7 @@ class ApplicationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Qualification)
 class QualificationDecisionAdmin(ImportExportModelAdmin):
+    save_on_top = True
     view_on_site = False
 
     class QualificationDecisionResource(CodeResource):
@@ -275,6 +287,8 @@ class QualificationDecisionAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Profile)
 class ProfileAdmin(StaffPermsMixin, SimpleHistoryAdmin):
+    save_on_top = True
+
     class ProfileCareerStageInline(admin.StackedInline):
         extra = 1
         model = models.ProfileCareerStage
@@ -468,11 +482,14 @@ admin.site.register(models.Award)
 
 
 class AwardAdmin(admin.ModelAdmin):
+    save_on_top = True
     view_on_site = False
 
 
 @admin.register(models.ConvertedFile)
 class ConvertedFileAdmin(admin.ModelAdmin):
+    save_on_top = True
+
     def file_size_kb(self, obj):
         if size := obj.file_size:
             return round(size / 1000, 2)
@@ -488,6 +505,7 @@ class ConvertedFileAdmin(admin.ModelAdmin):
 
 @admin.register(models.CurriculumVitae)
 class CurriculumVitaeAdmin(admin.ModelAdmin):
+    save_on_top = True
     list_display = ["profile", "owner", "title", "file"]
     # list_filter = ["owner"]
     search_fields = [
@@ -503,6 +521,7 @@ class CurriculumVitaeAdmin(admin.ModelAdmin):
 
 @admin.register(models.ScoreSheet)
 class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
+    save_on_top = True
     list_display = ["panellist", "round", "file"]
     list_filter = ["round"]
     date_hierarchy = "created_at"
@@ -513,6 +532,7 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 @admin.register(models.Referee)
 class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    save_on_top = True
     list_display = ["application", "full_name", "status", "testified_at"]
     fsm_field = ["status"]
     search_fields = [
@@ -531,6 +551,7 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
 @admin.register(models.Member)
 class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    save_on_top = True
     list_display = ["full_name", "application", "status", "has_authorized"]
     fsm_field = ["status"]
     search_fields = [
@@ -549,6 +570,7 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
 @admin.register(models.Panellist)
 class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    save_on_top = True
     list_display = ["full_name_with_email", "round", "status"]
     fsm_field = ["status"]
     search_fields = ["first_name", "last_name"]
@@ -598,6 +620,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
 @admin.register(models.IdentityVerification)
 class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+    save_on_top = True
     list_display = ["user", "application"]
     search_fields = ["user__first_name", "user__last_name", "application__application_title"]
     list_filter = ["application__round", "created_at", "updated_at"]
@@ -616,6 +639,7 @@ class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.Model
 @admin.register(models.ConflictOfInterest)
 class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
 
+    save_on_top = True
     list_display = ["panellist", "application", "has_conflict"]
     readonly_fields = [
         "created_at",
@@ -636,6 +660,7 @@ class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
 @admin.register(models.MailLog)
 class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
+    save_on_top = True
     view_on_site = False
     search_fields = ["token", "recipient"]
     exclude = ["site"]
@@ -645,6 +670,8 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 @admin.register(models.Nomination)
 class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin):
+    save_on_top = True
+
     def nominator_name(self, obj):
         return obj.nominator.full_name_with_email or obj.nominator
 
@@ -706,6 +733,7 @@ class OrganisationResource(ModelResource):
 @admin.register(models.Organisation)
 class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAdmin):
 
+    save_on_top = True
     view_on_site = False
     list_display = ["code", "name"]
     list_filter = ["created_at", "updated_at", "applications__round"]
@@ -717,6 +745,7 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
 @admin.register(models.Invitation)
 class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmin):
 
+    save_on_top = True
     view_on_site = False
     fsm_field = ["status"]
     exclude = [
@@ -734,6 +763,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     # summernote_fields = ["summary"]
+    save_on_top = True
     exclude = ["summary", "site"]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
@@ -757,9 +787,24 @@ class SchemeResource(ModelResource):
 
 @admin.register(models.Scheme)
 class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
-    list_display = ["title"]
+    save_on_top = True
+    list_display = ["title", "current_round"]
     resource_class = SchemeResource
     exclude = ["groups", "cv_required", "site"]
+    actions = ["create_new_round"]
+
+    @admin.action(description="Create new round")
+    def create_new_round(self, request, queryset):
+        for s in queryset.filter():
+            r = models.Round(scheme=s)
+            r.init_from_last_round()
+            if not r.title:
+                r.title = s.title
+            if r.title == s.title and r.opens_on:
+                r.title = f"{r.title} {r.opens_on.year}"
+            r.save()
+            s.current_round = r
+            s.save(update_fields=["current_round"])
 
     def view_on_site(self, obj):
         if obj.current_round_id:
@@ -786,12 +831,21 @@ class IsActiveRoundListFilter(admin.SimpleListFilter):
 
 @admin.register(models.Round)
 class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
+    save_on_top = True
     list_display = ["title", "scheme", "opens_on", "closes_on", "is_active"]
     list_filter = [IsActiveRoundListFilter, "opens_on", "closes_on"]
     date_hierarchy = "opens_on"
     exclude = [
         "site",
     ]
+    actions = ["create_new_round"]
+
+    @admin.action(description="Create new round")
+    def create_new_round(self, request, queryset):
+        for r in queryset.filter():
+            nr = r.clone()
+            r.scheme.current_round = nr
+            r.scheme.save(update_fields=["current_round"])
 
     def is_active(self, obj):
         return obj.scheme.current_round == obj
@@ -823,6 +877,8 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
 
 @admin.register(models.Evaluation)
 class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
+    save_on_top = True
+
     class ScoreInline(admin.StackedInline):
         extra = 0
         model = models.Score
