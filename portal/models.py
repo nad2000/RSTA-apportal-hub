@@ -2716,7 +2716,7 @@ class Round(Model):
             scheme = self.scheme or last_round.scheme
 
             for f in [f.name for f in self._meta.fields]:
-                if f in ["title", "opens_on", "closes_on", "id"]:
+                if f in ["title", "opens_on", "closes_on", "id", "title_en", "title_mi"]:
                     continue
                 v = getattr(last_round, f)
                 if v and not getattr(self, f):
@@ -2728,14 +2728,23 @@ class Round(Model):
             if not self.closes_on and last_round.closes_on:
                 self.closes_on = last_round.closes_on + relativedelta(years=1)
 
-        if not self.title:
-            title = scheme.title
+        if not self.title_en:
+            title = scheme.title_en
             if self.opens_on:
                 title = f"{title} {self.opens_on.year}"
-            self.title = title
+            self.title_en = title
 
-        if self.title == self.scheme.title and self.opens_on:
-            self.title = f"{self.title} {self.opens_on.year}"
+        if self.title_en == scheme.title_en and self.opens_on:
+            self.title_en = f"{self.title_en} {self.opens_on.year}"
+
+        if not self.title_mi:
+            title = scheme.title_mi
+            if self.opens_on:
+                title = f"{title} {self.opens_on.year}"
+            self.title_mi = title
+
+        if self.title_mi == scheme.title_mi and self.opens_on:
+            self.title_mi = f"{self.title_mi} {self.opens_on.year}"
 
         return self
 
