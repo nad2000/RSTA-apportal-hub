@@ -395,7 +395,7 @@ class ApplicationAdmin(
         "created_at",
         "updated_at",
     ]
-    readonly_fields = ["created_at", "updated_at"]
+    readonly_fields = ["created_at", "updated_at", "converted_file", "letter_of_support"]
     search_fields = [
         "number",
         "first_name",
@@ -406,7 +406,11 @@ class ApplicationAdmin(
         "org__name",
         "round__title",
     ]
-
+    autocomplete_fields = [
+        "submitted_by",
+        "cv",
+        "org",
+    ]
     # summernote_fields = ["summary"]
     exclude = ["summary", "Summary_en", "summary_mi", "is_bilingual_summary", "site"]
 

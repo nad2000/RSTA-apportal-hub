@@ -69,6 +69,8 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
         "email",
         "name",
         "username",
+        "first_name",
+        "last_name",
     ]
 
     class EmailAddressInline(admin.TabularInline):

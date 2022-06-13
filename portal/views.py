@@ -78,6 +78,7 @@ from . import forms, models, tables
 from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .pyinfo import info
+
 # from .tasks import notify_user
 from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
@@ -423,6 +424,8 @@ def round_detail(request, round):
 @login_required
 @shoud_be_onboarded
 def index(request):
+    if request.resolver_match.view_name == "start":
+        reset_cache(request)
     if "error" in request.GET:
         raise Exception(request.GET["error"])
     user = request.user
