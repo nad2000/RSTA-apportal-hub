@@ -1190,7 +1190,7 @@ class ApplicationView(LoginRequiredMixin):
         referees = context["referees"]
         reset_cache(self.request)
 
-        url = None
+        url = self.request.path_info
         try:
             with transaction.atomic():
 
