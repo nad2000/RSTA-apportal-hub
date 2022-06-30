@@ -1191,7 +1191,7 @@ class ApplicationView(LoginRequiredMixin):
         user = self.request.user
         reset_cache(self.request)
 
-        url = None
+        url = self.request.path_info
         try:
             with transaction.atomic():
 

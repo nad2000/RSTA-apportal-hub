@@ -1340,11 +1340,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         if round:
             q = q.filter(round=round)
 
-        if user.is_staff or user.is_superuser:
-            return q
-
         if not round:
             q = q.filter(round__in=Scheme.objects.all().values("current_round"))
+
+        if user.is_staff or user.is_superuser:
+            return q
 
         f = (
             Q(members__user=user, members__has_authorized=True)
@@ -2386,6 +2386,7 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
         else:
             # q = q.filter(~Q(state="archived"), state__in=["draft", "submitted"])
             q = q.filter(state__in=["draft", "submitted"])
+        q = q.filter(referee__application__round__in=Scheme.objects.all().values("current_round"))
         return q
 
     @classmethod
@@ -3423,8 +3424,9 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
     def user_nomination_count(cls, user, status=None):
         sql = """
             SELECT count(*) AS "count"
-            FROM nomination AS n
-            WHERE site_id=%s AND
+            FROM nomination AS n JOIN scheme AS s
+              ON s.current_round_id=n.round_id
+            WHERE n.site_id=%s AND 
         """
         params = [
             cls.get_current_site_id(),
