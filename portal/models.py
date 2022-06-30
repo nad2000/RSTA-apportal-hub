@@ -1323,7 +1323,9 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         return reverse("application", args=[str(self.id)])
 
     @classmethod
-    def user_applications(cls, user, state=None, round=None, select_related=True):
+    def user_applications(
+        cls, user, state=None, round=None, select_related=True, include_inactive=True
+    ):
         q = cls.objects.all()
         # q = cls.where(round__site=Site.objects.get_current())
 

@@ -619,8 +619,16 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
 
 
 class ProfilePersonIdentifierForm(forms.ModelForm):
+
     def clean(self):
         data = super().clean()
+
+        if not data.get("code"):
+            raise forms.ValidationError(_("Invalid identifier type. Please select a valid type."))
+
+        if not data.get("value"):
+            raise forms.ValidationError(_("Invalid identifier value. Please enter a valid value."))
+
         if getattr(data.get("code"), "code") == "02" and (orcid := data.get("value")):
             p = data.get("profile")
             u = p.user

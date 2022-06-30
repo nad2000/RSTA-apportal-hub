@@ -161,7 +161,12 @@ def send_mail(
 
     resp = msg.send()
 
-    for no, r in enumerate((recipient_list or []) + (bcc or [])):
+    all_recipients = (
+        recipient_list.union(bcc or [])
+        if isinstance(recipient_list, set)
+        else ((recipient_list or []) + (bcc or []))
+    )
+    for no, r in enumerate(all_recipients):
         models.MailLog.create(
             user=request.user if request and request.user.is_authenticated else None,
             recipient=r,

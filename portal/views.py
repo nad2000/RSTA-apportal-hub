@@ -38,7 +38,6 @@ from django.db.models import (
     Value,
 )
 from django.db.models.functions import Coalesce
-from django.forms import widgets  # CharField,; ModelForm,; BooleanField,
 from django.forms import (
     DateInput,
     Form,
@@ -48,6 +47,7 @@ from django.forms import (
     modelformset_factory,
 )
 from django.forms import models as model_forms
+from django.forms import widgets
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
@@ -78,10 +78,10 @@ from . import forms, models, tables
 from .forms import Submit
 from .models import Application, Profile, ProfileCareerStage, Subscription, User
 from .pyinfo import info
-
-# from .tasks import notify_user
 from .utils import send_mail, vignere
 from .utils.orcid import OrcidHelper
+
+# from .tasks import notify_user
 
 
 def __(s):
@@ -1188,6 +1188,7 @@ class ApplicationView(LoginRequiredMixin):
 
         context = self.get_context_data()
         referees = context["referees"]
+        user = self.request.user
         reset_cache(self.request)
 
         url = None
@@ -1195,6 +1196,8 @@ class ApplicationView(LoginRequiredMixin):
             with transaction.atomic():
 
                 form.instance.organisation = form.instance.org.name
+                if not form.instance.email:
+                    form.instance.email = user.email
 
                 if self.round.letter_of_support_required and (
                     letter_of_support_file := self.request.FILES.get("letter_of_support_file")
@@ -1206,7 +1209,6 @@ class ApplicationView(LoginRequiredMixin):
                 resp = super().form_valid(form)
 
                 has_deleted = False
-                user = self.request.user
                 a = self.object
 
                 if a.is_team_application:
@@ -1347,6 +1349,9 @@ class ApplicationView(LoginRequiredMixin):
         except Exception as ex:
             if hasattr(ex, "message"):
                 messages.error(self.request, ex.message)
+            else:
+                messages.error(self.request, ex)
+
             return redirect(url)
             # return resp
 
@@ -2250,7 +2255,8 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
             {
                 "widgets": {
                     "profile": HiddenInput(),
-                    "code": autocomplete.ModelSelect2("person-identifier-autocomplete"),
+                    # "code": autocomplete.ModelSelect2("person-identifier-autocomplete", attrs={ "required": True}),
+                    # "code": widgets.Select(attrs={ "required": True}),
                     "value": TextInput(),
                 },
             }

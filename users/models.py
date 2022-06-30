@@ -42,7 +42,7 @@ class User(HelperMixin, AbstractUser, PersonMixin):
     identity_verified_by = ForeignKey("self", null=True, blank=True, on_delete=SET_NULL)
     identity_verified_at = DateTimeField(null=True, blank=True)
 
-    staff_of_sites = ManyToManyField(Site, null=True, blank=True, related_name="staff_users")
+    staff_of_sites = ManyToManyField(Site, blank=True, related_name="staff_users")
     registered_on = ForeignKey(
         Site,
         null=True,
