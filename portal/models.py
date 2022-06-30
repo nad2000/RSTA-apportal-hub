@@ -3426,7 +3426,7 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
             SELECT count(*) AS "count"
             FROM nomination AS n JOIN scheme AS s
               ON s.current_round_id=n.round_id
-            WHERE n.site_id=%s AND 
+            WHERE n.site_id=%s AND
         """
         params = [
             cls.get_current_site_id(),

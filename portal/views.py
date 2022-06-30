@@ -71,7 +71,7 @@ from extra_views import (
 )
 from private_storage.views import PrivateStorageDetailView
 from PyPDF2 import PdfFileMerger
-from sentry_sdk import capture_message, last_event_id
+from sentry_sdk import capture_exception, capture_message, last_event_id
 from weasyprint import HTML
 
 from . import forms, models, tables
@@ -1299,7 +1299,8 @@ class ApplicationView(LoginRequiredMixin):
                                 % (cf.file.url, os.path.basename(cf.file.name)),
                             )
 
-                    except:
+                    except Exception as ex:
+                        capture_exception(ex)
                         messages.error(
                             self.request,
                             _(
@@ -1335,7 +1336,8 @@ class ApplicationView(LoginRequiredMixin):
                                 ),
                             )
 
-                    except:
+                    except Exception as ex:
+                        capture_exception(ex)
                         messages.error(
                             self.request,
                             _(
@@ -1351,6 +1353,7 @@ class ApplicationView(LoginRequiredMixin):
                 messages.error(self.request, ex.message)
             else:
                 messages.error(self.request, ex)
+            capture_exception(ex)
 
             return redirect(url)
             # return resp
@@ -1505,6 +1508,7 @@ class ApplicationView(LoginRequiredMixin):
                         url = self.continue_url("referees")
                         return redirect(url)
             except Exception as e:
+                capture_exception(e)
                 messages.error(self.request, str(e))
                 return redirect(self.continue_url())
 
@@ -1757,7 +1761,8 @@ class ApplicationCreate(ApplicationView, CreateView):
                     if n.status != models.NOMINATION_STATUS.accepted:
                         n.accept()
                     n.save(update_fields=["application_id", "status"])
-        except:
+        except Exception as ex:
+            capture_exception(ex)
             return self.form_invalid(form)
 
         return resp
@@ -2547,6 +2552,7 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
                         )
                     return redirect(self.request.GET["next"])
             except Exception as ex:
+                capture_exception(ex)
                 messages.error(
                     self.request,
                     str(ex)
@@ -2736,8 +2742,8 @@ class ProfileSummaryView(AdminstaffRequiredMixin, DetailView):
                 context["recognitions"] = models.Recognition.where(profile=profile).order_by(
                     "-recognized_in"
                 )
-            except:
-                pass
+            except Exception as ex:
+                capture_exception(ex)
 
         return context
 
@@ -2821,7 +2827,8 @@ class NominationView(CreateUpdateView):
                         % (cf.file.url, os.path.basename(cf.file.name)),
                     )
 
-            except:
+            except Exception as ex:
+                capture_exception(ex)
                 messages.error(
                     self.request,
                     _(
@@ -2978,7 +2985,8 @@ class TestimonialView(CreateUpdateView):
                             % (cf.file.url, os.path.basename(cf.file.name)),
                         )
 
-                except:
+                except Exception as ex:
+                    capture_exception(ex)
                     messages.error(
                         self.request,
                         _(
@@ -3298,6 +3306,7 @@ class ExportView(LoginRequiredMixin, UserPassesTestMixin, View):
             pdf_response["Content-Disposition"] = f"inline; filename={self.get_filename(pk)}.pdf"
             return pdf_response
         except Exception as ex:
+            capture_exception(ex)
             messages.warning(
                 self.request,
                 _(f"Error while converting to pdf. Please contact Administrator: {ex}"),
@@ -3900,6 +3909,7 @@ class EvaluationMixin:
                     e.submit()
                 e.save()
         except Exception as ex:
+            capture_exception(ex)
             messages.error(self.request, getattr(ex, "message", str(ex)))
             return super().forms_invalid(form, inlines)
         return resp
@@ -4516,6 +4526,7 @@ def status(request):
             status=200 if free > 5 else 418,
         )
     except Exception as ex:
+        capture_exception(ex)
         return JsonResponse(
             {
                 "status": "Error",
