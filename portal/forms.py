@@ -619,7 +619,6 @@ ProfilePersonIdentifierFormSet = modelformset_factory(
 
 
 class ProfilePersonIdentifierForm(forms.ModelForm):
-
     def clean(self):
         data = super().clean()
 

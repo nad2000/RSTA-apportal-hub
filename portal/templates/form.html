@@ -70,6 +70,7 @@
 {% block javascript %}
   {{ block.super }}
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.all.min.js" integrity="sha256-HutwTOHexZPk7phZTEa350wtMYt10g21BKrAlsStcvw=" crossorigin="anonymous"></script>
+  <script src="{% static 'js/project.js' %}"></script>
   <!-- JS -->
   {{ form.media.js }}
   <!-- script src="{% static 'admin/js/SelectFilter2.js' %}"></script>

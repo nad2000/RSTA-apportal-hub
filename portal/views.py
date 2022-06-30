@@ -1261,7 +1261,7 @@ class ApplicationView(LoginRequiredMixin):
                                     self.request,
                                     "Please upload a new application form or remove the referees.",
                                 )
-                                raise ValidationError()
+                                raise ValidationError(_("Missing referee form file"))
                             else:
                                 url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
@@ -2261,11 +2261,35 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     # "code": autocomplete.ModelSelect2("person-identifier-autocomplete", attrs={ "required": True}),
-                    # "code": widgets.Select(attrs={ "required": True}),
-                    "value": TextInput(),
+                    "code": widgets.Select(
+                        attrs={
+                            # "required": True,
+                            "data-placeholder": _("Choose an identifier type ..."),
+                            "placeholder": _("Choose an identifier type ..."),
+                        }
+                    ),
+                    "value": TextInput(
+                        attrs={
+                            "placeholder": _("Enter an identifier value ..."),
+                            # "data-placeholder": _("Choose an identifier value ..."),
+                        }
+                    ),
                 },
             }
         )
+        # widgets = {
+        #     "profile": HiddenInput(),
+        #     "code": autocomplete.ModelSelect2(
+        #         "person-identifier-autocomplete", attrs={"required": True}
+        #     ),
+        #     # "code": Select(attrs={"data-placeholder": _("Choose an identifier type ...")}),
+        #     "value": TextInput(
+        #         attrs={
+        #             "placeholder": _("Enter an identifier value ..."),
+        #             "data-placeholder": _("Choose an identifier value ..."),
+        #         }
+        #     ),
+        # }
         return kwargs
 
     def get_queryset(self):

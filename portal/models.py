@@ -528,7 +528,7 @@ class ProfilePersonIdentifier(Model):
 
     def clean(self, *args, **kwargs):
         super().clean(*args, **kwargs)
-        if self.code:
+        if self.code_id:
             if self.code.code == "02":
                 validate_orcid_id(self.value)
             elif self.code.code == "03":
