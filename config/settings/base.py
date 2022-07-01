@@ -117,6 +117,7 @@ DJANGO_APPS = [
     # "grappelli",
     "django.contrib.admin",
     "django.forms",
+    "django.contrib.flatpages",
 ]
 THIRD_PARTY_APPS = [
     "captcha",

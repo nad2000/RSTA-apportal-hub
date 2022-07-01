@@ -23,6 +23,7 @@ urlpatterns = [
     path("", include("portal.urls")),
     path("summernote/", include("django_summernote.urls")),
     path("private-media/", include(private_storage.urls)),
+    path("pages/", include("django.contrib.flatpages.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # API URLS
 urlpatterns += [
