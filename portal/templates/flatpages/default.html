@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static i18n cache django_bootstrap_breadcrumbs %}
+{% block title %}{% trans flatpage.title %}{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb flatpage.title None %}
+{% endblock %}
+
+{#% cache None about_content %#}
+{% block content %}
+  <h1>
+    {% trans flatpage.title %}
+  </h1>
+  {{ flatpage.content }}
+{% endblock content %}
+{#% endcache %#}
