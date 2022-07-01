@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.flatpages.views import flatpage
 from django.http import HttpResponse
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
@@ -22,7 +23,8 @@ urlpatterns = [
     ),
     path(
         "about",
-        TemplateView.as_view(template_name="pages/about.html"),
+        # TemplateView.as_view(template_name="pages/about.html"),
+        lambda request: flatpage(request, url=f"/{request.LANGUAGE_CODE or 'en'}/about/"),
         name="about",
     ),
     path("logout", views.logout, name="logout"),
@@ -413,7 +415,7 @@ urlpatterns = [
     path("pyinfo/", views.pyinfo),
     path("pyinfo/<message>", views.pyinfo),
     path("413/", views.handler413),
-    path("favicon.ico", views.favicon)
+    path("favicon.ico", views.favicon),
 ]
 
 if settings.SENTRY_DSN:

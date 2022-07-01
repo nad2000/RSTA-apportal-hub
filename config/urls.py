@@ -2,11 +2,20 @@ import private_storage.urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.http import HttpResponsePermanentRedirect
+from django.urls import include, path, re_path
 from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
 
 from users.views import LoginView, SignupView
+
+
+def handle_pages(request, *args, **kwargs):
+    parts = request.path_info.split("/")
+    return HttpResponsePermanentRedirect(
+        "/".join([*parts[0:2], request.LANGUAGE_CODE or "en", *parts[2:]])
+    )
+
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
@@ -23,6 +32,7 @@ urlpatterns = [
     path("", include("portal.urls")),
     path("summernote/", include("django_summernote.urls")),
     path("private-media/", include(private_storage.urls)),
+    re_path("^pages/(?!(en|mi)).*/", handle_pages),
     path("pages/", include("django.contrib.flatpages.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # API URLS

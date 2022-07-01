@@ -2,6 +2,8 @@ import os
 
 import modeltranslation
 from django.contrib import admin, messages
+from django.contrib.flatpages.admin import FlatPageAdmin
+from django.contrib.flatpages.models import FlatPage
 from django.db.models import F, Q
 from django.shortcuts import reverse
 from django.utils.html import format_html
@@ -12,12 +14,37 @@ from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 from modeltranslation.admin import TranslationAdmin
 from simple_history.admin import SimpleHistoryAdmin
+from django_summernote.admin import SummernoteModelAdminMixin
+
 
 from . import models
 
 admin.site.site_url = "/start"
 admin.site.site_header = _("Portal Administration")
 admin.site.site_title = _("Portal Administration")
+
+
+class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
+    summernote_fields = ("content",)
+    fieldsets = (
+        (None, {"fields": ("url", "title", "content", "sites")}),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "enable_comments",
+                    "registration_required",
+                    "template_name",
+                ),
+            },
+        ),
+    )
+
+
+# Re-register FlatPageAdmin
+admin.site.unregister(FlatPage)
+admin.site.register(FlatPage, FlatPageAdmin)
 
 
 class PdfFileAdminMixin:
