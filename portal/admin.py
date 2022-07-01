@@ -1,27 +1,55 @@
 import os
 
 import modeltranslation
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.managers import CurrentSiteManager
 from django.db.models import F, Q
 from django.shortcuts import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_fsm_log.admin import StateLogInline
+from django_summernote.admin import SummernoteModelAdminMixin
 from fsm_admin.mixins import FSMTransitionMixin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 from modeltranslation.admin import TranslationAdmin
 from simple_history.admin import SimpleHistoryAdmin
-from django_summernote.admin import SummernoteModelAdminMixin
-
 
 from . import models
 
 admin.site.site_url = "/start"
 admin.site.site_header = _("Portal Administration")
 admin.site.site_title = _("Portal Administration")
+
+
+class CurrentSiteRelatedListFilter(admin.RelatedFieldListFilter):
+    def choices(self, changelist):
+        for pk_val, val in self.lookup_choices:
+            yield {
+                "selected": self.lookup_val == str(pk_val)
+                or (not self.lookup_val and pk_val == settings.SITE_ID),
+                "query_string": changelist.get_query_string(
+                    {self.lookup_kwarg: pk_val}, [self.lookup_kwarg_isnull]
+                ),
+                "display": val,
+            }
+        if self.include_empty_choice:
+            yield {
+                "selected": bool(self.lookup_val_isnull),
+                "query_string": changelist.get_query_string(
+                    {self.lookup_kwarg_isnull: "True"}, [self.lookup_kwarg]
+                ),
+                "display": self.empty_value_display,
+            }
+
+    def queryset(self, request, queryset):
+        q = super().queryset(request, queryset)
+        if not "sites__id__exact" in self.used_parameters:
+            return q.filter(sites__id__exact=settings.SITE_ID)
+        return q
 
 
 class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
@@ -40,10 +68,13 @@ class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
             },
         ),
     )
+    list_filter = (("sites", CurrentSiteRelatedListFilter), "registration_required")
 
 
 # Re-register FlatPageAdmin
+FlatPage.objects = CurrentSiteManager()
 admin.site.unregister(FlatPage)
+FlatPage.objects = CurrentSiteManager()
 admin.site.register(FlatPage, FlatPageAdmin)
 
 
