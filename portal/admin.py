@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
-from django.contrib.sites.managers import CurrentSiteManager
 from django.db.models import F, Q
 from django.shortcuts import reverse
 from django.utils.html import format_html
@@ -47,7 +46,7 @@ class CurrentSiteRelatedListFilter(admin.RelatedFieldListFilter):
 
     def queryset(self, request, queryset):
         q = super().queryset(request, queryset)
-        if not "sites__id__exact" in self.used_parameters:
+        if "sites__id__exact" not in self.used_parameters:
             return q.filter(sites__id__exact=settings.SITE_ID)
         return q
 
@@ -70,11 +69,12 @@ class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
     )
     list_filter = (("sites", CurrentSiteRelatedListFilter), "registration_required")
 
+    def view_on_site(self, obj):
+        return reverse("django.contrib.flatpages.views.flatpage", kwargs={"url": obj.url[1:]})
+
 
 # Re-register FlatPageAdmin
-FlatPage.objects = CurrentSiteManager()
 admin.site.unregister(FlatPage)
-FlatPage.objects = CurrentSiteManager()
 admin.site.register(FlatPage, FlatPageAdmin)
 
 
