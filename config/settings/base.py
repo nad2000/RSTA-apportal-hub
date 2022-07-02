@@ -225,7 +225,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "multisite.middleware.DynamicSiteMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
-    "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
+    # "django.contrib.flatpages.middleware.FlatpageFallbackMiddleware",
+    "portal.middleware.FlatpageFallbackMiddleware",
 ]
 
 
