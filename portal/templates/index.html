@@ -126,7 +126,7 @@
                           title="{% blocktrans with deadline_days=round.deadline_days closes_on=round.closes_on|date:"d-m-Y" closes_at=round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
                        {% endif %}
                     >
-                      {{ round.opens_on|date:"c" }}
+                      {{ round.opens_on|date:"d-m-Y" }}
                       {% if round.closes_on %}
                         - {{ round.closes_on|date:"d-m-Y" }}
                         {% if round.closes_on.hour or round.closes_on.minute %}
