@@ -1,8 +1,10 @@
 from io import BytesIO
 
 import pytest
+from django.conf import settings
 # from background_task.tasks import tasks
 from django.contrib.auth import get_user_model
+from django.contrib.flatpages.models import FlatPage
 
 from portal import models
 from portal.models import Ethnicity, Profile, Subscription
@@ -15,6 +17,18 @@ User = get_user_model()
 def test_template_views(client, admin_user):
     resp = client.get("/")
     assert resp.status_code == 302
+
+    fp, _ = FlatPage.objects.get_or_create(
+        title="About (en)", url="/en/about/", content="THIS IS EN ABOUT PAGE"
+    )
+    fp.sites.add(settings.SITE_ID)
+    fp.save()
+
+    resp = client.get("/pages/en/about/")
+    assert resp.status_code == 200
+
+    resp = client.get("/pages/about/")
+    assert resp.status_code == 200
 
     resp = client.get("/about")
     assert resp.status_code == 200

@@ -70,7 +70,7 @@ class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
     list_filter = (("sites", CurrentSiteRelatedListFilter), "registration_required")
 
     def view_on_site(self, obj):
-        return reverse("django.contrib.flatpages.views.flatpage", kwargs={"url": obj.url[1:]})
+        return reverse("flatpage", kwargs={"url": obj.url[1:]})
 
 
 # Re-register FlatPageAdmin
