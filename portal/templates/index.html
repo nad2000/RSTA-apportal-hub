@@ -3,6 +3,18 @@
 
 {% block breadcrumbs_content %}<div class="mt-3"></div>{% endblock %}
 
+{% block localcss %}
+  {{ block.super }}
+<style>
+.previous-applications-button {
+  background-color: white;
+}
+button:hover .previous-applications-button:hover, button:focus .previous-applications-button:focus {
+  background-color: inherit;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 
   <!-- Modal -->
@@ -41,6 +53,35 @@
     {% else %}
       <!-- h1>{% trans "Apply for The Prime Minister’s Science Prizes" %}</h1 -->
 
+      {% if previous_applications %}
+        <div class="card text-white bg-warning border-warning mb-3">
+          <h5 class="card-header align-middle" style="text-transform: uppercase;">
+            <div class="row">
+              <div class="col">
+              <strong class="align-middle"> {% trans 'Previous Applications' %} </strong>
+              <button
+                id="previous-applications-button"
+                style="padding-top: 1px; padding-bottom: 0px;"
+                data-toggle="collapse"
+                data-target="#previous-applications"
+                class="btn btn-outline-warning previous-applications-button float-right align-top"
+                type="button"
+              >{% trans 'Show' %}</button>
+              </div>
+            </div>
+          </h5>
+          <div class="collapse" id="previous-applications">
+            <ul class="list-group list-group-flush">
+            {% for a in previous_applications %}
+              <li class="list-group-item border-warning"><a href="{% url 'application' pk=a.id %}"
+                  class="text-warning"
+              >{{ a.title }}</a> ({% trans 'created on' %} {{ a.created_on }})</li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
       {% if draft_applications %}
         <div class="card text-white bg-success border-success mb-3">
           <h5 class="card-header" style="text-transform: uppercase;"><strong>
@@ -72,8 +113,8 @@
               <h5 class="card-title">Success card title</h5>
               <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
               </div -->
-  </div>
-{% endif %}
+        </div>
+      {% endif %}
 
 {% if current_applications %}
   <div class="card text-white bg-info border-info mb-3">
@@ -288,6 +329,12 @@
                       // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
                     });
               $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+              $('#previous-applications').on('hide.bs.collapse', function () {
+                $("#previous-applications-button").text("{% trans 'Show' %}")
+              });
+              $('#previous-applications').on('show.bs.collapse', function () {
+                $("#previous-applications-button").text("{% trans 'Hide' %}")
+              });
             });
     </script>
   {% endblock javascript %}

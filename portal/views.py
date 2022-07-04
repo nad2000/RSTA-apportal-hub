@@ -461,6 +461,16 @@ def index(request):
                 registered_on_id=settings.SITE_ID,
             ).order_by("-last_login")
         schemes = models.SchemeApplication.get_data(user)
+        previous_applications = [
+            dict(
+                id=pa.previous_application_id,
+                title=pa.previous_application_title,
+                created_on=pa.previous_application_created_on,
+            )
+            for pa in schemes
+            if pa.previous_application_id
+        ]
+
     else:
         messages.info(
             request,

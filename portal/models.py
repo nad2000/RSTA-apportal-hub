@@ -3216,6 +3216,18 @@ class SchemeApplication(Model):
     #     related_name="+",
     # )
     is_panellist = BooleanField(null=True, blank=True)
+    has_submitted = BooleanField(null=True, blank=True)
+    previous_application = ForeignKey(
+        Application,
+        db_column="previous_application_id",
+        null=True,
+        on_delete=DO_NOTHING,
+        db_constraint=False,
+        db_index=False,
+        related_name="+",
+    )
+    previous_application_title = CharField(max_length=100, null=True, blank=True)
+    previous_application_created_on = DateField(null=True, blank=True)
 
     @classmethod
     def get_data(cls, user):
@@ -3231,7 +3243,10 @@ class SchemeApplication(Model):
                 la.id AS application_id,
                 s.current_round_id,
                 p.id IS NOT NULL AS is_panellist,
-                EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted
+                EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted,
+                pa.id AS previous_application_id,
+                pa.application_title AS previous_application_title,
+                pa.created_on AS previous_application_created_on
             FROM scheme AS s
             LEFT JOIN round AS r ON r.id = s.current_round_id AND r.site_id = %s
             LEFT JOIN (
@@ -3246,6 +3261,22 @@ class SchemeApplication(Model):
                 GROUP BY a.round_id
             ) AS la ON la.round_id = r.id
             LEFT JOIN panellist AS p ON p.round_id = r.id AND p.user_id = %s
+            LEFT JOIN (
+                SELECT
+                    a.id,
+                    r.scheme_id,
+                    COALESCE(a.application_title, r.title_{lang}, r.title_en) AS application_title,
+                    COALESCE(a.created_at, r.opens_on) AS created_on
+                FROM application AS a LEFT JOIN round AS r ON r.id = a.round_id AND r.site_id = %s
+                WHERE a.id IN (
+                        SELECT
+                            max(a.id)
+                        FROM application AS a
+                            JOIN "round" AS r ON r.id=a.round_id AND r.site_id = %s
+                            LEFT JOIN scheme AS s ON s.current_round_id = a.round_id
+                        WHERE s.id IS NULL AND a.site_id = %s AND a.submitted_by_id = %s
+                        GROUP BY r.scheme_id)
+            ) AS pa ON pa.scheme_id = r.scheme_id
             WHERE
               s.site_id = %s
             ORDER BY 2;""",
@@ -3258,11 +3289,16 @@ class SchemeApplication(Model):
                 user.id,
                 user.id,
                 site_id,
+                site_id,
+                site_id,
+                user.id,
+                site_id,
             ],
         )
         prefetch_related_objects(q, "application")
         prefetch_related_objects(q, "current_round")
         prefetch_related_objects(q, "scheme")
+        prefetch_related_objects(q, "previous_application")
         return q
 
     class Meta:
