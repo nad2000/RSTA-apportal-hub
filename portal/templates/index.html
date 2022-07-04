@@ -77,7 +77,11 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                 <a href="{% url 'application' pk=a.id %}"
                   class="text-warning"
                   >
-                  <strong>{{ a.number }}</strong>: {{ a.title }}</a> ({% trans 'created on' %} {{ a.created_on }})</li>
+                  <strong>{{ a.number }}</strong>: {{ a.title }}
+                  {% if a.created_on %}
+                    <span class="text-muted">({{ a.created_on|date:"d-m-Y" }})</span>
+                  {% endif %}
+                </a></li>
             {% endfor %}
             </ul>
           </div>
