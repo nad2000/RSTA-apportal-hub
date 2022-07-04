@@ -2671,6 +2671,10 @@ class Round(Model):
         ],
     )
 
+    @property
+    def is_active(self):
+        return self.scheme.current_round == self
+
     def clean(self):
         if (
             self.opens_on

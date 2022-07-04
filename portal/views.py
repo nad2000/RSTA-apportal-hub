@@ -1109,6 +1109,13 @@ class ApplicationView(LoginRequiredMixin):
         if "previous" in self.request.GET:
             return models.Application.where(id=int(self.request.GET.get("previous"))).first()
 
+    @property
+    def latest_application(self):
+        return (
+            self.previous_application
+            or models.Application.where(submitted_by=self.request.user).order_by("-id").first()
+        )
+
     def dispatch(self, request, *args, **kwargs):
 
         u = request.user
@@ -1173,10 +1180,7 @@ class ApplicationView(LoginRequiredMixin):
                 .order_by("-start_date")
                 .first()
             )
-            latest_application = (
-                self.previous_application
-                or models.Application.where(submitted_by=user).order_by("-id").first()
-            )
+            latest_application = self.latest_application
             if current_affiliation:
                 initial["org"] = current_affiliation.org
                 initial["position"] = (
@@ -1192,6 +1196,18 @@ class ApplicationView(LoginRequiredMixin):
                 initial["postcode"] = latest_application.postcode
                 initial["daytime_phone"] = latest_application.daytime_phone
                 initial["mobile_phone"] = latest_application.mobile_phone
+
+                initial["is_bilingual"] = latest_application.is_bilingual
+                initial["summary_en"] = latest_application.summary_en
+                initial["summary_mi"] = latest_application.summary_mi
+                initial["summary"] = latest_application.summary
+                initial["file"] = latest_application.file
+                initial["letter_of_support_required"] = latest_application.letter_of_support
+                if latest_application.is_team_application:
+                    initial["is_team_application"] = latest_application.is_team_application
+                    initial["team_name"] = latest_application.team_name
+                    initial["members"] = latest_application.members
+                initial["presentation_url"] = latest_application.presentation_url
 
         return initial
 
@@ -1546,9 +1562,7 @@ class ApplicationView(LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         round = self.round
         context["round"] = round
-        latest_application = (
-            models.Application.where(submitted_by=self.request.user).order_by("-id").first()
-        )
+        latest_application = self.latest_application
         if round.ethics_statement_required:
             EthicsStatementForm = model_forms.modelform_factory(
                 models.EthicsStatement,
@@ -1638,6 +1652,7 @@ class ApplicationView(LoginRequiredMixin):
                             middle_names=m.middle_names,
                             last_name=m.last_name,
                             role=m.role,
+                            user=m.user,
                         )
                         for m in latest_application.members.all()
                     ]

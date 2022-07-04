@@ -872,6 +872,28 @@ class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
         if obj.current_round_id:
             return f"{reverse('applications')}?round={obj.current_round_id}"
 
+    class RoundInline(StaffPermsMixin, admin.TabularInline):
+        extra = 0
+        model = models.Round
+        ordering = ["-id"]
+        fields = [
+            "is_active", "year", "title", "opens_on", "closes_on",
+        ]
+        readonly_fields = ["is_active", "year"]
+
+        def is_active(self, obj):
+            return obj.is_active
+
+        def year(self, obj):
+            return obj.opens_on.year
+
+        is_active.boolean = True
+
+        view_on_site = False
+        can_delete = False
+
+    inlines = [RoundInline]
+
 
 class IsActiveRoundListFilter(admin.SimpleListFilter):
     title = "Is Active"
@@ -910,7 +932,7 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
             r.scheme.save(update_fields=["current_round"])
 
     def is_active(self, obj):
-        return obj.scheme.current_round == obj
+        return obj.is_active
 
     is_active.boolean = True
 
