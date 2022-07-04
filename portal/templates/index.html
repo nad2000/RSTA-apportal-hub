@@ -73,9 +73,11 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
           <div class="collapse" id="previous-applications">
             <ul class="list-group list-group-flush">
             {% for a in previous_applications %}
-              <li class="list-group-item border-warning"><a href="{% url 'application' pk=a.id %}"
+              <li class="list-group-item border-warning">
+                <a href="{% url 'application' pk=a.id %}"
                   class="text-warning"
-              >{{ a.title }}</a> ({% trans 'created on' %} {{ a.created_on }})</li>
+                  >
+                  <strong>{{ a.number }}</strong>: {{ a.title }}</a> ({% trans 'created on' %} {{ a.created_on }})</li>
             {% endfor %}
             </ul>
           </div>

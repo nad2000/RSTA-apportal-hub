@@ -3226,6 +3226,7 @@ class SchemeApplication(Model):
         db_index=False,
         related_name="+",
     )
+    previous_application_number = CharField(max_length=24, null=True, blank=True)
     previous_application_title = CharField(max_length=100, null=True, blank=True)
     previous_application_created_on = DateField(null=True, blank=True)
 
@@ -3245,6 +3246,7 @@ class SchemeApplication(Model):
                 p.id IS NOT NULL AS is_panellist,
                 EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted,
                 pa.id AS previous_application_id,
+                pa.number AS previous_application_number,
                 pa.application_title AS previous_application_title,
                 pa.created_on AS previous_application_created_on
             FROM scheme AS s
@@ -3264,6 +3266,7 @@ class SchemeApplication(Model):
             LEFT JOIN (
                 SELECT
                     a.id,
+                    a.number,
                     r.scheme_id,
                     COALESCE(a.application_title, r.title_{lang}, r.title_en) AS application_title,
                     COALESCE(a.created_at, r.opens_on) AS created_on

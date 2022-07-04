@@ -464,6 +464,7 @@ def index(request):
         previous_applications = [
             dict(
                 id=pa.previous_application_id,
+                number=pa.previous_application_number,
                 title=pa.previous_application_title,
                 created_on=pa.previous_application_created_on,
             )
@@ -1057,6 +1058,17 @@ class ApplicationDetail(DetailView):
             context["evaluation"] = models.Evaluation.where(panellist=p, application=a).last()
 
         context["is_owner"] = is_owner
+        if (
+            is_owner
+            and not a.round.is_open
+            and (current_round := a.round.scheme.current_round)
+            and current_round != a.round
+            and current_round.is_open
+            and not Application.user_applications(user=u, round=current_round).exists()
+        ):
+            context["can_reenter"] = True
+            context["current_round"] = current_round
+
         context["was_submitted"] = a.state == "submitted"
         if not is_owner:
             context["show_basic_details"] = not (
@@ -1156,8 +1168,10 @@ class ApplicationView(LoginRequiredMixin):
                 .order_by("-start_date")
                 .first()
             )
+            previous_id = int(self.request.GET.get("previous"))
             latest_application = (
-                models.Application.where(submitted_by=user).order_by("-id").first()
+                models.Application.where(id=previous_id).first()
+                or models.Application.where(submitted_by=user).order_by("-id").first()
             )
             if current_affiliation:
                 initial["org"] = current_affiliation.org
@@ -1699,6 +1713,7 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
+        previous_id = int(request.GET.get("previous"))
         r = (
             models.Round.get(kwargs["round"])
             if "round" in kwargs
@@ -1732,6 +1747,7 @@ class ApplicationCreate(ApplicationView, CreateView):
 
     def form_valid(self, form):
 
+        previous_id = int(request.GET.get("previous"))
         # Extra layer of protection - to prevent dupliate submssion:
         kwargs = self.kwargs
         r = (
