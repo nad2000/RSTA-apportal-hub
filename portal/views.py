@@ -1104,6 +1104,11 @@ class ApplicationView(LoginRequiredMixin):
     template_name = "application.html"
     form_class = forms.ApplicationForm
 
+    @property
+    def previous_application(self):
+        if "previous" in self.request.GET:
+            return models.Application.where(id=int(self.request.GET.get("previous"))).first()
+
     def dispatch(self, request, *args, **kwargs):
 
         u = request.user
@@ -1168,9 +1173,8 @@ class ApplicationView(LoginRequiredMixin):
                 .order_by("-start_date")
                 .first()
             )
-            previous_id = int(self.request.GET.get("previous"))
             latest_application = (
-                models.Application.where(id=previous_id).first()
+                self.previous_application
                 or models.Application.where(submitted_by=user).order_by("-id").first()
             )
             if current_affiliation:
@@ -1713,7 +1717,6 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return super().form_invalid(form)
 
     def get(self, request, *args, **kwargs):
-        previous_id = int(request.GET.get("previous"))
         r = (
             models.Round.get(kwargs["round"])
             if "round" in kwargs
@@ -1746,8 +1749,6 @@ class ApplicationCreate(ApplicationView, CreateView):
     #     return context
 
     def form_valid(self, form):
-
-        previous_id = int(request.GET.get("previous"))
         # Extra layer of protection - to prevent dupliate submssion:
         kwargs = self.kwargs
         r = (

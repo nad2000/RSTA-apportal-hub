@@ -34,7 +34,7 @@
     <div class="buttonHolder mb-5 mt-3 float-right">
 
         {% if can_reenter %}
-          <a href="{% url 'application-create' round=current_round.id %}"
+          <a href="{% url 'application-create' round=current_round.id %}?previous={{a.id}}"
             class="btn btn-primary"
             data-toggle="tooltip"
             data-title="{% trans 'You can re-enter the current round wiht the application as a new application.' %}"
