@@ -3283,7 +3283,7 @@ class SchemeApplication(Model):
                             LEFT JOIN scheme AS s ON s.current_round_id = a.round_id
                         WHERE s.id IS NULL AND a.site_id = %s AND a.submitted_by_id = %s
                         GROUP BY r.scheme_id)
-            ) AS pa ON pa.scheme_id = r.scheme_id
+            ) AS pa ON pa.scheme_id = r.scheme_id AND la.id IS NULL
             WHERE
               s.site_id = %s
             ORDER BY 2;""",
