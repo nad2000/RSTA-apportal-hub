@@ -3182,6 +3182,7 @@ class SchemeApplication(Model):
     current_round = ForeignKey(
         "Round", blank=True, null=True, on_delete=DO_NOTHING, related_name="+"
     )
+    description = TextField(null=True, blank=True)
     # can_be_applied_to = BooleanField(null=True, blank=True)
     # can_be_nominated_to = BooleanField(null=True, blank=True)
     application = ForeignKey(
@@ -3247,6 +3248,15 @@ class SchemeApplication(Model):
                 la.app_count AS "count",
                 la.id AS application_id,
                 s.current_round_id,
+                CASE
+                    WHEN r.description_{lang} IS NULL THEN (
+                        SELECT rr.description_{lang}
+                        FROM "round" AS rr
+                        WHERE rr.scheme_id = s.id AND rr.description_{lang} IS NOT NULL AND trim(rr.description_{lang}) != ''
+                        ORDER BY rr.id DESC LIMIT 1
+                    )
+                    ELSE r.description_{lang}
+                END AS description,
                 p.id IS NOT NULL AS is_panellist,
                 EXISTS (SELECT NULL FROM application WHERE submitted_by_id=%s AND round_id=r.id) AS has_submitted,
                 pa.id AS previous_application_id,
