@@ -8,10 +8,10 @@ function formset_add_a_row(btn, prefix="form") {
   var form_idx = total.value;
 
   // var el = $('<tr>' + $('form #empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
-  var el = $('<tr>' + $(root).find('#empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
+  var el = $('<tr>' + $(root).find('#'+prefix+'_empty_form').html().replace(/__prefix__/g, form_idx) + '</tr>') ;
   if (typeof setDatePickers == 'function') setDatePickers(el);
   // $('form #form_set').append(el);
-  $(root).find('#form_set').append(el);
+  $(root).find('#'+prefix+'_form_set').append(el);
   // root.querySelector("#form_set").append(el);
   //$('form #id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
   total.value = parseInt(form_idx) + 1;
