@@ -42,7 +42,7 @@
         {% endif %}
       </h1>
 
-      <form method="post" enctype="multipart/form-data">
+      <form method="post" enctype="multipart/form-data" id="application-form">
         {% crispy form form.helper %}
         {% if inlines %}
           <hr />
@@ -82,8 +82,13 @@
                       document.getElementById("submit-id-save_draft").name = "send_invitations";
                       document.getElementById("submit-id-submit").hidden = true;
                       document.getElementById("cancel").hidden = true;
-                    }
-                    $(document).ready(function() {
+          };
+          $(document).ready(function() {
+                      $("#submit-id-save_draft,#submit-id-submit").click(function() {
+                        formset_set_inputs(prefix="members");
+                        formset_set_inputs(prefix="referees");
+                        return true;
+                      });
                                 bootbox.addLocale('mi', {
                                             OK      : 'Pai',
                                             CANCEL  : 'Whakakore',
@@ -92,7 +97,7 @@
                                 bootbox.setDefaults({
                                             locale: "{{ LANGUAGE_CODE }}"
                                           });
-                                {% if not form.is_team_application.value %}$("#members").hide();{% endif %}
+                                {% if not form.is_team_application.value %}$(#members").hide();{% endif %}
                                 $('#id_is_team_application').change(function() {
                                             if (!($(this).prop('checked'))) {
                                                         $("#members").hide();
@@ -118,7 +123,7 @@
                                   $("#div_id_summary_mi").hide();
                                   $("#div_id_application_title_en").hide();
                                   $("#div_id_application_title_mi").hide();
-                              {% endif %}
+                                {% endif %}
                                 $('#id_is_bilingual').change(function() {
                                             if (!($(this).prop('checked'))) {
                                                         $("#div_id_summary_en").hide();
@@ -126,11 +131,11 @@
                                                         $("#div_id_application_title_en").hide();
                                                         $("#div_id_application_title_mi").hide();
                                                       } else {
-                                                        $("#div_id_summary_en").show()
-                                                        $("#div_id_summary_mi").show()
-                                                        $("#div_id_application_title_en").show();
-                                                        $("#div_id_application_title_mi").show();
-                                                      };
+                                                                  $("#div_id_summary_en").show()
+                                                                  $("#div_id_summary_mi").show()
+                                                                  $("#div_id_application_title_en").show();
+                                                                  $("#div_id_application_title_mi").show();
+                                                                };
                                           });
                                 // Focus on the first tab with invalid input:
                                 $('#submit-id-save_draft,#submit-id-submit').click(function () {
@@ -146,15 +151,15 @@
                                                         return false;
                                                       });
                                             if (this.form.checkValidity()) {
-                                                  $.blockUI({
-                                                        message: $('#wait-message'),
-                                                        css: {
-                                                                    backgroundColor: '#0000',
-                                                                    color: '#0fff',
-                                                                    border: '0px',
-                                                                  }
-                                                      });
-                                            }
+                                                        $.blockUI({
+                                                                    message: $('#wait-message'),
+                                                                    css: {
+                                                                                backgroundColor: '#0000',
+                                                                                color: '#0fff',
+                                                                                border: '0px',
+                                                                              }
+                                                                  });
+                                                      }
                                           });
                                 // Track the changes in the form fields
                                 $("form :input").change(function() {
@@ -175,7 +180,7 @@
                                           });
                                 {% if form.errors.letter_of_support_file %}
                                   $('.nav a[href="#summary"]').tab('show');
-                                {% elif "verification" in request.GET %}
+                              {% elif "verification" in request.GET %}
                                   $('.nav a[href="#id-verification"]').tab('show');
                               {% elif "referees" in request.GET %}
                                   $('.nav a[href="#referees"]').tab('show'); activateRefereeTab();

@@ -559,6 +559,7 @@ class MemberForm(forms.ModelForm):
         model = models.Member
         fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
         widgets = dict(
+            email=forms.EmailInput(attrs={"placeholder": _("Email"), "data-required": 1}),
             has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )
@@ -574,6 +575,7 @@ class RefereeForm(forms.ModelForm):
         model = models.Referee
         fields = ["status", "email", "first_name", "middle_names", "last_name"]
         widgets = dict(
+            email=forms.EmailInput(attrs={"placeholder": _("Email"), "data-required": 1}),
             has_testifed=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )
