@@ -487,7 +487,6 @@ class ApplicationAdmin(
         model = models.Member
 
         def view_on_site(self, obj):
-
             return reverse("application", kwargs={"pk": obj.application_id})
 
     class RefereeInline(StaffPermsMixin, admin.TabularInline):
@@ -614,7 +613,7 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 @admin.register(models.Member)
 class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     save_on_top = True
-    list_display = ["full_name", "application", "status", "has_authorized"]
+    list_display = ["email", "full_name", "application", "status", "has_authorized"]
     fsm_field = ["status"]
     search_fields = [
         "first_name",

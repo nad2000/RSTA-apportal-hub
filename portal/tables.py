@@ -21,7 +21,7 @@ class StatusColumn(tables.Column):
 
     attrs = {"td": {"class": "align-middle text-center"}}
 
-    def render(self, value):
+    def render(self, value, record):
         if not value or value in ["new", "draft"]:
             css_classes = "far fa-plus-square text-success text-center"
             if value == "draft":

@@ -1,23 +1,28 @@
 {% load static i18n %}
 <div class="align-middle text-center">
-
-{% if widget.value == 'sent' %}
-  <i class="far fa-envelope text-success text-center" aria-hidden="true"
-     data-toggle="tooltip" title="{% trans 'The invitation was sent' %}"></i>
-{% elif widget.value == 'accepted' %}
-  <i class="far fa-envelope-open text-success text-center" aria-hidden="true"
-     data-toggle="tooltip" title="{% trans 'The user has accepted your invitation' %}"></i>
-{% elif widget.value == 'testified' or widget.value == 'authorized' %}
-  <i class="fa fa-check-circle text-success text-center" aria-hidden="true"
-     data-toggle="tooltip" title="{% trans 'This invite has been acted on.' %}"></i>
-{% elif widget.value == 'opted-out' or widget.value == 'opted_out' %}
-<i class="fa fa-ban text-danger text-center" aria-hidden="true"
-  data-toggle="tooltip" title="{% trans 'The user has opted out of your invitation'%}"></i>
-{% elif widget.value == 'bounced' %}
-<i class="fa fa-exclamation-triangle text-danger text-center" aria-hidden="true"
-  data-toggle="tooltip" title="{% trans 'The invitation delivery failed. Please correct the email address and resend the invitation.'%}"></i>
-{% endif %}
-<input type="hidden" name="{{ widget.name }}"
-  {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+  {% with changed_at=widget.attrs.changed_at %}
+    {% if widget.value == 'sent' %}
+      <i class="far fa-envelope text-success text-center"
+         aria-hidden="true"
+         data-toggle="tooltip"
+         title="{% trans 'The invitation was sent at ' %}{{ changed_at }}"></i></i>
+   {% elif widget.value == 'accepted' %}
+     <i class="far fa-envelope-open text-success text-center" aria-hidden="true"
+                                                              data-toggle="tooltip" title="{% trans 'The user has accepted your invitation at ' %}{{ changed_at }}"></i>
+   {% elif widget.value == 'testified' or widget.value == 'authorized' %}
+     <i class="fa fa-check-circle text-success text-center" aria-hidden="true"
+                                                            data-toggle="tooltip" title="{% trans 'This invite has been acted on at ' %}{{ changed_at }}"></i>
+   {% elif widget.value == 'opted-out' or widget.value == 'opted_out' %}
+     <i class="fa fa-ban text-danger text-center" aria-hidden="true"
+                                                  data-toggle="tooltip" title="{% trans 'The user has opted out of your invitation at ' %}{{ changed_at }}"></i>
+   {% elif widget.value == 'bounced' %}
+     <i class="fa fa-exclamation-triangle text-danger text-center"
+        aria-hidden="true"
+        data-toggle="tooltip"
+        title="{% trans 'The invitation delivery failed at' %}{{ changed_at }}. {% trans 'Please correct the email address and resend the invitation.'%}"></i>
+   {% endif %}
+   <input type="hidden" name="{{ widget.name }}"
+                        {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
+ {% endwith %}
 
 </div>

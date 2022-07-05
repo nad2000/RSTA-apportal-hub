@@ -1633,6 +1633,7 @@ class Member(PersonMixin, MemberMixin, Model):
     has_authorized = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     status = StateField(null=True, blank=True, default="new")
+    status_changed_at = MonitorField(monitor="status", null=True, blank=True, default=None)
     authorized_at = MonitorField(
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
@@ -1733,6 +1734,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
     has_testifed = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     status = StateField(null=True, blank=True, default=REFEREE_STATUS.new)
+    status_changed_at = MonitorField(monitor="status", null=True, blank=True, default=None)
     testified_at = MonitorField(
         monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
     )
@@ -3252,7 +3254,9 @@ class SchemeApplication(Model):
                     WHEN r.description_{lang} IS NULL THEN (
                         SELECT rr.description_{lang}
                         FROM "round" AS rr
-                        WHERE rr.scheme_id = s.id AND rr.description_{lang} IS NOT NULL AND trim(rr.description_{lang}) != ''
+                        WHERE rr.scheme_id = s.id
+                            AND rr.description_{lang} IS NOT NULL
+                            AND trim(rr.description_{lang}) != ''
                         ORDER BY rr.id DESC LIMIT 1
                     )
                     ELSE r.description_{lang}

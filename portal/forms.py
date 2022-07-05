@@ -555,11 +555,25 @@ class InvitationStatusInput(Widget):
 
 
 class MemberForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields["status"].widget.attrs["changed_at"] = (
+                self.instance.status_changed_at or self.instance.updated_at
+            )
+
     class Meta:
         model = models.Member
         fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
         widgets = dict(
-            email=forms.EmailInput(attrs={"placeholder": _("Email"), "data-required": 1}),
+            email=forms.EmailInput(
+                attrs={
+                    "placeholder": _("Email"),
+                    "data-required": 1,
+                    "oninvalid": "this.setCustomValidity('%s')" % _("Email is required"),
+                    "oninput": "this.setCustomValidity('')",
+                }
+            ),
             has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )
@@ -571,11 +585,25 @@ MemberFormSet = inlineformset_factory(
 
 
 class RefereeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields["status"].widget.attrs["changed_at"] = (
+                self.instance.status_changed_at or self.instance.updated_at
+            )
+
     class Meta:
         model = models.Referee
         fields = ["status", "email", "first_name", "middle_names", "last_name"]
         widgets = dict(
-            email=forms.EmailInput(attrs={"placeholder": _("Email"), "data-required": 1}),
+            email=forms.EmailInput(
+                attrs={
+                    "placeholder": _("Email"),
+                    "data-required": 1,
+                    "oninvalid": "this.setCustomValidity('%s')" % _("Email is required"),
+                    "oninput": "this.setCustomValidity('')",
+                }
+            ),
             has_testifed=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )

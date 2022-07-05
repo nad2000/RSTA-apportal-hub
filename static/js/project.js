@@ -31,6 +31,7 @@ function formset_set_inputs(prefix="form") {
       if ($tr.find("input[type!='hidden']").filter(function() { return $(this).val(); }).length == 0) {
         // $(this).hide();
         $tr.find("input[required]").each(function() {
+          $(this)[0].setCustomValidity('');
           $(this).removeAttr('required');
         });
       } else {
