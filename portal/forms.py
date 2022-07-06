@@ -551,7 +551,8 @@ class ApplicationForm(forms.ModelForm):
 
 class InvitationStatusInput(Widget):
 
-    template_name = "portal/widgets/invitation_status.html"
+    # template_name = "portal/widgets/invitation_status.html"
+    template_name = "invitation_status.html"
 
 
 class MemberForm(forms.ModelForm):

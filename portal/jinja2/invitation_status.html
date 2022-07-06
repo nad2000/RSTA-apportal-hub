@@ -1,0 +1,36 @@
+<div class="align-middle text-center">
+  {% set changed_at = widget.attrs.changed_at %}
+  {% set changed_on = (changed_at and changed_at.strftime("%d-%m-%Y")) or _("N/A") %}
+  {% set changed_time_at = (changed_at and changed_at.strftime('%H:%M')) or _("N/A") %}
+  {% if widget.value == 'sent' %}
+    <i class="far fa-envelope text-success text-center"
+       aria-hidden="true"
+       data-toggle="tooltip"
+       title="{% trans %}The invitation was sent on {{ changed_on }} at {{ changed_time_at }}{% endtrans %}"></i></i>
+  {% elif widget.value == 'accepted' %}
+    <i class="far fa-envelope-open text-success text-center"
+       aria-hidden="true"
+       data-toggle="tooltip"
+       title="{% trans %}The user has accepted your invitation on {{ changed_on }} at {{ changed_time_at }}{% endtrans %}"></i>
+  {% elif widget.value == 'testified' or widget.value == 'authorized' %}
+    <i class="fa fa-check-circle text-success text-center"
+       aria-hidden="true"
+       data-toggle="tooltip"
+       title="{% trans %}This invite has been acted on {{ changed_on }} at {{ changed_time_at }}{% endtrans %}"></i>
+ {% elif widget.value == 'opted-out' or widget.value == 'opted_out' %}
+   <i class="fa fa-ban text-danger text-center"
+      aria-hidden="true"
+      data-toggle="tooltip"
+      title="{% trans %}The user has opted out of your invitation on {{ changed_at }} at {{ changed_time_at }}{% endtrans %}"></i>
+ {% elif widget.value == 'bounced' %}
+   <i class="fa fa-exclamation-triangle text-danger text-center"
+      aria-hidden="true"
+      data-toggle="tooltip"
+      title="{% trans %}The invitation delivery failed on {{ changed_on }} at {{ changed_time_at }}. Please correct the email address and resend the invitation{% endtrans %}"></i>
+ {% endif %}
+ <input type="hidden"
+        name="{{ widget.name }}"
+        {% if widget.value != None %}
+        value="{{ widget.value }}"
+      {% endif %}{% include "django/forms/widgets/attrs.html" %}>
+</div>
