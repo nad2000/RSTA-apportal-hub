@@ -1,10 +1,15 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n django_bootstrap_breadcrumbs %}
 
-{% block title %}{% trans 'Forbidden (403)' %}{% endblock %}
+{% block breadcrumbs_content %}<div class="mt-3"></div>{% endblock %}
+
+{% block title %}{% if exception %}{{ exception }}{% else %}{% trans 'Forbidden (403)' %}{% endif %}{% endblock %}
 
 {% block content %}
   <h1>{% trans 'Forbidden (403)' %}</h1>
-
-  <p>{% trans 'CSRF verification failed. Request aborted.' %}</p>
+  <p>
+    {% if exception %}{{ exception }}{% else %}
+    {% trans 'CSRF verification failed. Request aborted.' %}
+    {% endif %}
+  </p>
 {% endblock content %}

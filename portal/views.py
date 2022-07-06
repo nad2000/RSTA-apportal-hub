@@ -703,7 +703,7 @@ class ProfileDetail(ProfileView, LoginRequiredMixin, _DetailView):
             u = self.request.user
             if u.is_staff or u.is_superuser or p.user == u:
                 return p
-            raise PermissionDenied
+            raise PermissionDenied(_("You are not allowed to see this profile."))
         return self.request.user.profile
 
 
@@ -1106,8 +1106,12 @@ class ApplicationView(LoginRequiredMixin):
 
     @property
     def previous_application(self):
+        user = self.request.user
         if "previous" in self.request.GET:
-            return models.Application.where(id=int(self.request.GET.get("previous"))).first()
+            pa = models.Application.where(id=int(self.request.GET.get("previous"))).first()
+            if pa and (pa.submitted_by == user or user in pa.members.all()):
+                return pa
+            raise PermissionDenied(_("You do not have permission to access the source application."))
 
     @property
     def latest_application(self):
@@ -1563,6 +1567,7 @@ class ApplicationView(LoginRequiredMixin):
         round = self.round
         context["round"] = round
         latest_application = self.latest_application
+
         if round.ethics_statement_required:
             EthicsStatementForm = model_forms.modelform_factory(
                 models.EthicsStatement,

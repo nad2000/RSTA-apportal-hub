@@ -178,7 +178,7 @@
                                 $(document.body).on("click", "a[data-toggle='tab']", function(event) {
                                             location.hash = this.getAttribute("href");
                                           });
-                                {% if form.errors.letter_of_support_file %}
+                              {% if form.errors.letter_of_support_file %}
                                   $('.nav a[href="#summary"]').tab('show');
                               {% elif "verification" in request.GET %}
                                   $('.nav a[href="#id-verification"]').tab('show');
@@ -189,9 +189,9 @@
                               {% else %}
                                   // Jump to the last active tab:
                                 if (location.hash) {
-                                            if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
-                                            if (location.hash == "#referees") activateRefereeTab();
-                                          };
+                                    if (location.hash != "#members") $('.nav a[href="' + location.hash + '"]').tab('show');
+                                    if (location.hash == "#referees") activateRefereeTab();
+                                };
                                 if (!location.hash || location.hash == "#applicant")
                                   document.getElementById("button-id-previous").disabled = true;
                                 else if (location.hash.endsWith($(".tab-pane").last().attr('id')))
@@ -201,15 +201,15 @@
          $("#id_title").parent().css({"padding-left":"1px", "padding-right":"1px"}); */
                                 $('a[data-toggle="tab"][href="#referees"]').on('show.bs.tab', activateRefereeTab);
                                 $('a[data-toggle="tab"][href="#referees"]').on('hide.bs.tab', function (e) {
-                                            document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
-                                            document.getElementById("submit-id-save_draft").name = "save_draft";
-                                            document.getElementById("submit-id-submit").hidden = false;
-                                            document.getElementById("cancel").hidden = false;
-                                          });
+                                  document.getElementById("submit-id-save_draft").value = "{% trans 'Save' %}";
+                                  document.getElementById("submit-id-save_draft").name = "save_draft";
+                                  document.getElementById("submit-id-submit").hidden = false;
+                                  document.getElementById("cancel").hidden = false;
+                                });
                                 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                                            document.getElementById("button-id-next").disabled = (e.target.hash.endsWith($(".tab-pane").last().attr('id')));
-                                            document.getElementById("button-id-previous").disabled = (e.target.hash == "#applicant");
-                                          })
+                                  document.getElementById("button-id-next").disabled = (e.target.hash.endsWith($(".tab-pane").last().attr('id')));
+                                  document.getElementById("button-id-previous").disabled = (e.target.hash == "#applicant");
+                                })
                                 $('#button-id-next').on('click', function (e) {
                                             var active = $(".nav-link.active");
                                             if (active.length > 0) {
@@ -230,6 +230,6 @@
                                                                   }
                                                       }
                                           });
-                              });
+          });
         </script>
       {% endblock %}

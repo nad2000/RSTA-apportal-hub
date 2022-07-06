@@ -485,6 +485,7 @@ class ApplicationAdmin(
     class MemberInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Member
+        readonly_fields = ["status", "status_changed_at"]
 
         def view_on_site(self, obj):
             return reverse("application", kwargs={"pk": obj.application_id})
@@ -492,6 +493,7 @@ class ApplicationAdmin(
     class RefereeInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Referee
+        readonly_fields = ["status", "status_changed_at", "has_testifed", "testified_at"]
 
         def view_on_site(self, obj):
             return reverse("application", kwargs={"pk": obj.application_id})
@@ -604,6 +606,7 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     ]
     list_filter = ["application__round", "created_at", "testified_at", "status"]
     date_hierarchy = "testified_at"
+    readonly_fields = ["application", "status", "status_changed_at", "has_testifed", "testified_at"]
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
@@ -624,6 +627,7 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_filter = ["application__round", "created_at", "updated_at", "status", "has_authorized"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
+    readonly_fields = ["application", "status", "status_changed_at"]
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.application_id})

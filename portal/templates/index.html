@@ -22,7 +22,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="roundDetailLabel">{% trans 'Round' %}</h4>
+          <h4 class="modal-title" id="roundDetailLabel" style="color:inherit">{% trans 'Round' %}</h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -37,6 +37,48 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="previous-application" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="previous-application-title" style="color:inherit">
+            {% trans 'Copy over the previous application' %}
+          </h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="previous-application-body">
+          {% trans 'You have an application in the previous round' %}:<br/>
+          <a href="#" id="previous-application-link" target="_blank">
+            <strong id="previous-application-link-number"></strong>:
+            <span id="previous-application-link-title"></span></a>.
+          {% trans 'Do you wish to copy over it as new application and re-enter the current round?' %}
+        </div>
+        <div class="modal-footer">
+          <a id="copy-application-button"
+             type="button"
+             href="#"
+             class="btn btn-primary"
+             data-toggle="tooltip"
+             title="{% trans 'Copy the previous application over as a new application and re-enter the current round' %}"
+          >{% trans 'Yes' %}</a>
+          <a id="new-application-button"
+             type="button"
+             href="#"
+             class="btn btn-outline-primary"
+             data-toggle="tooltip"
+             title="{% trans 'Create a new application from scratch' %}"
+          >{% trans 'No' %}</a>
+          <a  type="button" href="#" class="btn btn-outline-danger" data-dismiss="modal">{% trans 'Cancel' %}</a>
+          <!-- button type="button" class="btn btn-primary">Save changes</button -->
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="container">
     {% if not request.user.is_approved %}
@@ -243,10 +285,25 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                                  data-title="{% trans 'Start a new application' %}"
                                {% endif %}
                                  >
-                                 <a href="{% url 'application-create' round=round.id %}" class="btn btn-primary {% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}"
+                                 <a href="{% url 'application-create' round=round.id %}"
+                                    class="btn btn-primary {% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}"
 
-                                                                                         style="text-transform: uppercase;"
-                                                                                         {% if not round.is_open or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}> {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                                    style="text-transform: uppercase;"
+                                    {% if not round.is_open or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}
+                                    {% if record.previous_application %}
+                                      data-toggle="modal"
+                                      data-target="#previous-application"
+                                      data-previous-id="{{ record.previous_application_id }}"
+                                      data-previous-title="{{ record.previous_application_title }}"
+                                      data-previous-number="{{ record.previous_application_number }}"
+                                      data-previous-url="{% url 'application' pk=record.previous_application_id %}"
+                                      data-round-id="{{ round.id }}"
+                                      data-round-title="{{ round.title }}"
+                                      data-new-url="{% url 'application-create' round=round.id %}"
+                                      data-copy-url="{% url 'application-create' round=round.id %}?previous={{ record.previous_application_id }}"
+                                    {% endif %}
+                                >
+                                    {% trans "Apply" %} <b>{% trans "Now" %}</b>
                                  </a>
                         </div>
                       {% endif %}
@@ -329,6 +386,16 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
     {{ block.super }}
     <script>
       $(document).ready(function(){
+              $("#previous-application").on("show.bs.modal", function(event){
+                      $("#previous-application-title").html(event.relatedTarget.dataset.roundTitle);
+                      $("#previous-application-link-number").html(event.relatedTarget.dataset.previousNumber);
+                      $("#previous-application-link-title").html(event.relatedTarget.dataset.previousTitle);
+                      $("#previous-application-link").attr("href", event.relatedTarget.dataset.previousUrl);
+                      $("#new-application-button").attr("href", event.relatedTarget.dataset.newUrl);
+                      $("#copy-application-button").attr("href", event.relatedTarget.dataset.copyUrl);
+                      // $("#previous-application-body").load("round/" + event.relatedTarget.dataset.roundId);
+                      // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
+                    });
               $("#roundDetail").on("show.bs.modal", function(event){
                       $("#roundDetailLabel").html(event.relatedTarget.dataset.roundTitle);
                       $("#roundDetailBody").load("round/" + event.relatedTarget.dataset.roundId);
