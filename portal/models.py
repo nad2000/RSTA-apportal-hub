@@ -3251,13 +3251,19 @@ class SchemeApplication(Model):
                 la.id AS application_id,
                 s.current_round_id,
                 CASE
-                    WHEN r.description_{lang} IS NULL THEN (
+                    WHEN r.description_{lang} IS NULL THEN (COALESCE((
                         SELECT rr.description_{lang}
                         FROM "round" AS rr
                         WHERE rr.scheme_id = s.id
                             AND rr.description_{lang} IS NOT NULL
                             AND trim(rr.description_{lang}) != ''
-                        ORDER BY rr.id DESC LIMIT 1
+                        ORDER BY rr.id DESC LIMIT 1),
+                        (SELECT rr.description_en
+                        FROM "round" AS rr
+                        WHERE rr.scheme_id = s.id
+                            AND rr.description_en IS NOT NULL
+                            AND trim(rr.description_en) != ''
+                        ORDER BY rr.id DESC LIMIT 1))
                     )
                     ELSE r.description_{lang}
                 END AS description,
