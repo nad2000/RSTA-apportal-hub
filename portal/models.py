@@ -3161,7 +3161,7 @@ class Score(Model):
 
 
 class SchemeApplication(Model):
-    title = CharField(max_length=100)
+    title = CharField(max_length=100, null=True, blank=True)
     scheme = ForeignKey(
         Scheme,
         null=True,
@@ -3245,7 +3245,7 @@ class SchemeApplication(Model):
             f"""
             SELECT DISTINCT
                 s.id,
-                COALESCE(r.title_{lang}, r.title_en, s.title_{lang}, s.title_en) AS title,
+                COALESCE(NULLIF(r.title_{lang},''), NULLIF(r.title_en,''), NULLIF(s.title_{lang},''), s.title_en) AS title,
                 s.id AS scheme_id,
                 la.app_count AS "count",
                 la.id AS application_id,

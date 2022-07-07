@@ -191,12 +191,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                 <h5 class="card-header">
                   {#% trans "The Prime Minister's" %#}
                   <b style="text-transform: uppercase;">
-
-                    {% if round %}
-                      {{ round.title }}
-                    {% else %}
-                      {{ scheme.title }}
-                    {% endif %}
+                    {{ record.title }}
                   </b>
                 </h5>
                 <div class="card-body">
