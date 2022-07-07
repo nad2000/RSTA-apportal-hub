@@ -4,6 +4,7 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
+  {% breadcrumb "Pages" "page-list" %}
   {% breadcrumb flatpage.title None %}
 {% endblock %}
 
@@ -11,6 +12,15 @@
 {% block content %}
   <h1>
     {% trans flatpage.title %}
+    {% if request.user.is_superuser or request.user.is_staff %}
+      <a type="button"
+         class="btn btn-primary"
+         data-toggle="tooltip"
+         title="{% trans 'Edit and change the content of the page' %}"
+         href="{% url 'admin:flatpages_flatpage_change' object_id=flatpage.id %}">
+        <i class="fas fa-edit"></i>
+      </a>
+    {% endif %}
   </h1>
   {{ flatpage.content }}
 {% endblock content %}

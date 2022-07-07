@@ -3,10 +3,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.flatpages.views import flatpage
+from django.http.response import Http404
 from django.urls import include, path
 from django.views import defaults as default_views
+from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
-from django.http.response import Http404
 
 from users.views import LoginView, SignupView
 
@@ -35,6 +36,7 @@ urlpatterns = [
     path("summernote/", include("django_summernote.urls")),
     path("private-media/", include(private_storage.urls)),
     path("pages/<path:url>", handle_pages, name="flatpage"),
+    path("pages/", TemplateView.as_view(template_name="flatpages/list.html"), name="page-list"),
     # re_path("^pages/(?P<url>!((en|mi)/).*)/", handle_pages),
     # path("pages/", include("django.contrib.flatpages.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

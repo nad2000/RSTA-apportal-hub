@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static i18n cache django_bootstrap_breadcrumbs flatpages %}
+{% block title %}{% trans 'Pages' %}{% endblock title %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% breadcrumb "Pages" "page-list" %}
+{% endblock %}
+
+{#% cache None about_content %#}
+{% block content %}
+  <h1>
+    {% trans "Pages" %}
+  </h1>
+  {% get_flatpages as flatpages %}
+  <ul>
+    {% for page in flatpages %}
+      <li><a href="{% url 'flatpage' url=page.url %}">{{ page.title }}</a>
+        {% if request.user.is_superuser or request.user.is_staff %}
+          <a type="button"
+             class="btn btn-primary"
+             style="padding-bottom: 2px; padding-top: 2px; padding-right: 6px; padding-left: 6px;"
+             data-toggle="tooltip"
+             title="{% trans 'Edit and change the content of the page' %}"
+             href="{% url 'admin:flatpages_flatpage_change' object_id=page.id %}">
+            <i class="fas fa-edit fa-sm"></i>
+          </a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock content %}
+{#% endcache %#}
