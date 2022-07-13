@@ -112,8 +112,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
               </div>
             </div>
           </h5>
-          <div class="collapse" id="previous-applications">
-            <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush collapse" id="previous-applications">
             {% for a in previous_applications %}
               <li class="list-group-item border-warning">
                 <a href="{% url 'application' pk=a.id %}"
@@ -125,8 +124,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                   {% endif %}
                 </a></li>
             {% endfor %}
-            </ul>
-          </div>
+          </ul>
         </div>
       {% endif %}
 

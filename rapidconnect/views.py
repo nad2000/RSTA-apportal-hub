@@ -45,7 +45,7 @@ def login(request):
     if process == "connect" and request.user.is_authenticated:
         state["user_id"] = request.user.id
 
-    verifier = get_random_string()
+    verifier = get_random_string(length=36)
 
     cookie_name = RapidConnectProvider.id + ":state"
     cookie_value = signing.dumps(
