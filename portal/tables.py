@@ -345,12 +345,12 @@ class RoundApplicationTable(tables.Table):
                     ></i> %s
                 </span>"""
                 % (
-                    _("The round is closing in %s day(s) on %s by %s")
-                    % (
-                        deadline_days,
-                        r.closes_on.strftime("%d-%m-%Y"),
-                        r.closes_on.strftime("%I:%M %P"),
-                    ),
+                    _("The round is closing in %(days)s day(s) on %(date)s by %(time)s")
+                    % {
+                        "days": deadline_days,
+                        "date": r.closes_on.strftime("%d-%m-%Y"),
+                        "time": r.closes_on.strftime("%I:%M %P"),
+                    },
                     value,
                 )
             )

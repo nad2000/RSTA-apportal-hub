@@ -272,7 +272,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                                {% endif %}
                              {% elif has_submitted %}
                                  disabled
-                               data-title="{% trans 'You have already submited one application in this round' %}"
+                               data-title="{% trans 'You have already submitted one application in this round' %}"
                              {% elif not round.direct_application_allowed and not round|user_has_nomination:user %}
                                  disabled
                                data-title="{% trans 'You need to be nominated in order to apply for the application' %}"
