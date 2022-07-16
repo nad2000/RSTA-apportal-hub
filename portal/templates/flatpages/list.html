@@ -15,7 +15,7 @@
   {% get_flatpages as flatpages %}
   <ul>
     {% for page in flatpages %}
-      <li><a href="{% url 'flatpage' url=page.url %}">{{ page.title }}</a>
+      <li><a href="{{ page.url }}{#% url 'flatpage' url=page.url %#}">{{ page.title }}</a>
         {% if request.user.is_superuser or request.user.is_staff %}
           <a type="button"
              class="btn btn-primary"
