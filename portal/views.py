@@ -1111,7 +1111,9 @@ class ApplicationView(LoginRequiredMixin):
             pa = models.Application.where(id=int(self.request.GET.get("previous"))).first()
             if pa and (pa.submitted_by == user or user in pa.members.all()):
                 return pa
-            raise PermissionDenied(_("You do not have permission to access the source application."))
+            raise PermissionDenied(
+                _("You do not have permission to access the source application.")
+            )
 
     @property
     def latest_application(self):
@@ -2287,7 +2289,19 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
     model = ProfileCareerStage
     formset_class = forms.ProfileCareerStageFormSet
     factory_kwargs = {
-        "widgets": {"year_achieved": widgets.DateInput(attrs={"class": "yearpicker"})}
+        "widgets": {
+            "year_achieved": widgets.DateInput(attrs={"class": "yearpicker", "min": 1950}),
+            "career_stage": widgets.Select(
+                attrs={
+                    # "required": True,
+                    "data-placeholder": _("Choose a career stage ..."),
+                    "placeholder": _("Choose a career stage ..."),
+                    "data-required": 1,
+                    "oninvalid": "this.setCustomValidity('%s')" % _("Career stage is required"),
+                    "oninput": "this.setCustomValidity('')",
+                }
+            ),
+        }
     }
 
     def get_queryset(self):
@@ -2313,12 +2327,20 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
                             # "required": True,
                             "data-placeholder": _("Choose an identifier type ..."),
                             "placeholder": _("Choose an identifier type ..."),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("Identifier type is required"),
+                            "oninput": "this.setCustomValidity('')",
                         }
                     ),
                     "value": TextInput(
                         attrs={
                             "placeholder": _("Enter an identifier value ..."),
                             # "data-placeholder": _("Choose an identifier value ..."),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("Identifier value is required"),
+                            "oninput": "this.setCustomValidity('')",
                         }
                     ),
                 },

@@ -28,15 +28,15 @@ function formset_add_a_row(btn, prefix="form") {
 function formset_set_inputs(prefix="form") {
   $("#"+prefix+"_form_set tr").not("[id]").each(function() {
       $tr = $(this);
-      if ($tr.find("input[type!='hidden']").filter(function() { return $(this).val(); }).length == 0) {
+      if ($tr.find("input[type!='hidden'],select").filter(function() { return $(this).val(); }).length == 0) {
         // $(this).hide();
-        $tr.find("input[required]").each(function() {
+        $tr.find("input[required],select").each(function() {
           $(this)[0].setCustomValidity('');
           $(this).removeAttr('required');
         });
       } else {
         // $(this).show();
-        $tr.find("input[data-required]").filter(function() { return !$(this).val(); }).each(function() {
+        $tr.find("input[data-required],select[data-required]").filter(function() { return !$(this).val(); }).each(function() {
           $(this).attr("required", '');
         });
       }

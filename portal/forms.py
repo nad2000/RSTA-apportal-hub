@@ -23,7 +23,7 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.forms import FileField, HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
-from django.forms.widgets import NullBooleanSelect, TextInput
+from django.forms.widgets import NullBooleanSelect, Select, TextInput
 from django.shortcuts import reverse
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -637,7 +637,20 @@ ProfileCareerStageFormSet = modelformset_factory(
     # fields=["profile", "year_achieved", "career_stage"],
     exclude=(),
     can_delete=True,
-    widgets=dict(profile=HiddenInput(), year_achieved=YearInput(attrs={"min": 1950})),
+    widgets=dict(
+        profile=HiddenInput(),
+        year_achieved=YearInput(attrs={"min": 1950}),
+        career_stage=Select(
+            attrs={
+                # "required": True,
+                "data-placeholder": _("Choose a career stage ..."),
+                "placeholder": _("Choose a career stage ..."),
+                "data-required": 1,
+                "oninvalid": "this.setCustomValidity('%s')" % _("Career stage is required"),
+                "oninput": "this.setCustomValidity('')",
+            }
+        ),
+    ),
 )
 
 
