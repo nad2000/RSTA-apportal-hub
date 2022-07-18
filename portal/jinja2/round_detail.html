@@ -14,10 +14,10 @@
       {% if round.opens_on %}
         <tr>
           <th style="width: 32%; min-width: 180px; max-width: 200px;">
-            Application Starts On
+            Period Starts On
           </th>
           <td>
-            {{ round.opens_on }}
+            {{ round.opens_on.strftime('%d-%m-%Y') }}
           </td>
         </tr>
       {% endif %}
@@ -25,10 +25,10 @@
       {% if round.closes_on %}
         <tr>
           <th style="width: 32%; min-width: 180px; max-width: 200px;">
-            Application Ends On
+            Ends On
           </th>
           <td>
-            {{ round.closes_on }}
+            {{ round.closes_on.strftime('%d-%m-%Y') }}
           </td>
         </tr>
       {% endif %}
