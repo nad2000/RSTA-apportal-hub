@@ -222,9 +222,11 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                   {% endif %}
 
                   {% if request.user.can_apply %}
-                    <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
-                      {% trans "Read" %} <b>{% trans "More" %}</b>
-                    </a>
+                    {% if scheme.guidelines %}
+                      <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
+                        {% blocktrans %}Read <b>More</b>{% endblocktrans %}
+                      </a>
+                    {% endif %}
                   {% else %}
                     <button type="button" class="btn btn-outline-primary"
                                           data-toggle="modal"
@@ -232,7 +234,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                                           data-round-id="{{ round.id }}"
                                           data-round-title="{{ round.title }}"
                                           style="text-transform: uppercase;">
-                      {% trans "Show" %} <b>{% trans "Details" %}</b>
+                      {% blocktrans %}Show <b>Details</b>{% endblocktrans %}
                     </button>
                   {% endif %}
 
