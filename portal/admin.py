@@ -913,6 +913,18 @@ class IsActiveRoundListFilter(admin.SimpleListFilter):
 
     parameter_name = "is_active"
 
+    def choices(self, changelist):
+        yield {
+            "selected": self.value() == "1" or not self.value(),
+            "query_string": changelist.get_query_string(remove=[self.parameter_name]),
+            "display": _("ACTIVE"),
+        }
+        yield {
+            "selected": self.value() == "0",
+            "query_string": changelist.get_query_string({self.parameter_name: "0"}),
+            "display": _("Previous"),
+        }
+
     def lookups(self, request, model_admin):
         return (
             (1, _("ACTIVE")),
@@ -920,7 +932,7 @@ class IsActiveRoundListFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        if self.value() == "1":
+        if self.value() == "1" or not self.value():
             return queryset.filter(scheme__current_round__id=F("id"))
         if self.value() == "0":
             return queryset.filter(~Q(scheme__current_round__id=F("id")))
@@ -953,22 +965,24 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
         (
             "Options",
             {
-                "fields": [(
-                    "applicant_cv_required",
-                    "team_can_apply",
-                    "can_nominate",
-                    "direct_application_allowed",
-                    "ethics_statement_required",
-                    "has_online_scoring",
-                    "has_referees",
-                    "has_title",
-                    "letter_of_support_required",
-                    "nominator_cv_required",
-                    "pid_required",
-                    "presentation_required",
-                    "referee_cv_required",
-                    "research_summary_required",
-                )]
+                "fields": [
+                    (
+                        "applicant_cv_required",
+                        "team_can_apply",
+                        "can_nominate",
+                        "direct_application_allowed",
+                        "ethics_statement_required",
+                        "has_online_scoring",
+                        "has_referees",
+                        "has_title",
+                        "letter_of_support_required",
+                        "nominator_cv_required",
+                        "pid_required",
+                        "presentation_required",
+                        "referee_cv_required",
+                        "research_summary_required",
+                    )
+                ]
             },
         ),
         (
