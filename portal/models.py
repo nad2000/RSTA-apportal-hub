@@ -2134,22 +2134,31 @@ class Invitation(InvitationMixin, Model):
             subject = __("You have been nominated for %s") % self.nomination.round
             body = __(
                 "Tēnā koe,\n\n"
-                "You have been nominated for the %(round)s by %(inviter)s. \n\nTo accept this nomination, "
-                "please follow the link: %(url)s\n\n"
-                "Ngā mihi"
+                "Congratulations on being nominated for the %(round)s by %(inviter)s.\n\n"
+                "Before you click on the portal link we strongly advise you "
+                "to read about the application process: %(guidelines)s.\n\n"
+                "To accept the nomination, please follow the portal link %(url)s\n\n\n"
+                "Ngā mihi nui"
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
+                guidelines=self.nomination.round.guidelines,
                 url=url,
             )
             html_body = (
                 __(
-                    "Tēnā koe,<br><br>You have been nominated for the %(round)s by %(inviter)s.<br><br>"
-                    "To accept this nomination, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
+                    "<p>Tēnā koe,</p>"
+                    "<p>Congratulations on being nominated for the %(round)s by %(inviter)s.</p>"
+                    "<p>Before you click on the portal link we strongly advise you "
+                    'to read about the <a href="%(guidelines)s">application process</a>.</p>'
+                    "<p>To accept the nomination, please follow the portal link: "
+                    "<a href='%(url)s'>%(url)s</a><br></p></br>"
+                    "<p>Ngā mihi nui"
                 )
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
+                guidelines=self.nomination.round.guidelines,
                 url=url,
             )
         elif self.type == INVITATION_TYPES.P:
