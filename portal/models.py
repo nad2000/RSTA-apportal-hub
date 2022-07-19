@@ -2153,7 +2153,6 @@ class Invitation(InvitationMixin, Model):
                     'to read about the <a href="%(guidelines)s">application process</a>.</p>'
                     "<p>To accept the nomination, please follow the portal link: "
                     "<a href='%(url)s'>%(url)s</a><br></p></br>"
-                    "<p>Ngā mihi nui"
                 )
             ) % dict(
                 round=self.nomination.round,

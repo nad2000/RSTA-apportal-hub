@@ -14,7 +14,7 @@ __send_mail = mail.send_mail
 DEFAULT_HTML_FOOTER = """
 <br>To learn more about the Prime Minister’s Science Prizes
 <a href='https://www.pmscienceprizes.org.nz/'>click here</a>.<br>
-<br>Ngā mihi,</p><br>
+<br>Ngā mihi nui,</p><br>
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
 font-family:"Helvetica",sans-serif;color:black'><img border='0' width='298'
 height='96' style='width:3.1041in;height:1.0in' src='%(logo_url)s'
@@ -53,7 +53,7 @@ DEFAULT_SITE_HTML_FOOTER = {
     "international.royalsociety.org.nz": """
 <br>To learn more about the Catalyst Fund administered by the Royal Society Te Apārangi
 <a href='https://www.royalsociety.org.nz/what-we-do/funds-and-opportunities/catalyst-fund/'>click here</a>.<br>
-<br>Ngā mihi,</p><br>
+<br>Ngā mihi nui,</p><br>
 <p style='margin-bottom:12.0pt'><span style='font-size:12.0pt;
 font-family:"Helvetica",sans-serif;color:black'>
 <img border='0' src='%(logo_url)s'
