@@ -606,7 +606,13 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     ]
     list_filter = ["application__round", "created_at", "testified_at", "status"]
     date_hierarchy = "testified_at"
-    readonly_fields = ["application", "status", "status_changed_at", "has_testifed", "testified_at"]
+    readonly_fields = [
+        "application",
+        "status",
+        "status_changed_at",
+        "has_testifed",
+        "testified_at",
+    ]
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
@@ -880,7 +886,11 @@ class SchemeAdmin(StaffPermsMixin, TranslationAdmin, ImportExportModelAdmin):
         model = models.Round
         ordering = ["-id"]
         fields = [
-            "is_active", "year", "title", "opens_on", "closes_on",
+            "is_active",
+            "year",
+            "title",
+            "opens_on",
+            "closes_on",
         ]
         readonly_fields = ["is_active", "year"]
 
@@ -926,6 +936,54 @@ class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
         "site",
     ]
     actions = ["create_new_round"]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": [
+                    "scheme",
+                    ("title_en", "title_mi"),
+                    ("opens_on", "closes_on"),
+                    "description_en",
+                    "description_mi",
+                    "guidelines",
+                ]
+            },
+        ),
+        (
+            "Options",
+            {
+                "fields": [(
+                    "applicant_cv_required",
+                    "team_can_apply",
+                    "can_nominate",
+                    "direct_application_allowed",
+                    "ethics_statement_required",
+                    "has_online_scoring",
+                    "has_referees",
+                    "has_title",
+                    "letter_of_support_required",
+                    "nominator_cv_required",
+                    "pid_required",
+                    "presentation_required",
+                    "referee_cv_required",
+                    "research_summary_required",
+                )]
+            },
+        ),
+        (
+            "Templates",
+            {
+                "fields": [
+                    "score_sheet_template",
+                    "nomination_template",
+                    "application_template",
+                    "referee_template",
+                    "budget_template",
+                ]
+            },
+        ),
+    )
 
     @admin.action(description="Create new round")
     def create_new_round(self, request, queryset):
