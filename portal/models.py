@@ -2121,15 +2121,35 @@ class Invitation(InvitationMixin, Model):
             body = __(
                 "Tēnā koe,\n\n"
                 "You have been invited to be a referee for %(inviter)s's application to "
-                "the %(site_name)s. \n\n"
+                "the %(application)s. \n\n"
+                "We strongly advise clicking on the Application Process before clicking  "
+                "on the portal link below: %(guidelines)s\n\n"
                 "To review this invitation, please follow the link: %(url)s\n\n"
-                "Ngā mihi"
-            ) % dict(inviter=by, url=url, site_name=site_name)
+                "If you have any further questions, please contact: pmscienceprizes@royalsociety.org.nz\n\n"
+                "Ngā mihi nui"
+            ) % dict(
+                inviter=by,
+                url=url,
+                site_name=site_name,
+                application=self.referee.application,
+                guidelines=self.referee.application.round.get_guidelines(),
+            )
             html_body = __(
-                "Tēnā koe,<br><br>You have been invited to be a referee for %(inviter)s's application to the "
-                "%(site_name)s application.<br><br>"
-                "To review this invitation, please follow the link: <a href='%(url)s'>%(url)s</a><br>"
-            ) % dict(inviter=by, url=url, site_name=site_name)
+                "<p>Tēnā koe,</p><p>You have been invited to be a referee for %(inviter)s's application to the "
+                "%(application)s application.</p>"
+                "<p>We strongly advise clicking on the Application Process <strong>before</strong> clicking  "
+                "on the portal link below. <a href='%(guidelines)s'>Application Process through the portal</a></p>"
+                "<p><strong>To review this invitation, you are required to follow the portal link</strong>: "
+                "<a href='%(url)s'>%(url)s</a> after you have read about the process.</p>"
+                "<p>If you have any further questions, please contact "
+                "<a href='mailto:pmscienceprizes@royalsociety.org.nz'>pmscienceprizes@royalsociety.org.nz</a></p>"
+            ) % dict(
+                inviter=by,
+                url=url,
+                site_name=site_name,
+                application=self.referee.application,
+                guidelines=self.referee.application.round.get_guidelines(),
+            )
         elif self.type == INVITATION_TYPES.A:
             subject = __("You have been nominated for %s") % self.nomination.round
             body = __(
@@ -2142,7 +2162,7 @@ class Invitation(InvitationMixin, Model):
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
-                guidelines=self.nomination.round.guidelines,
+                guidelines=self.nomination.round.get_guidelines(),
                 url=url,
             )
             html_body = (
@@ -2157,7 +2177,7 @@ class Invitation(InvitationMixin, Model):
             ) % dict(
                 round=self.nomination.round,
                 inviter=self.inviter,
-                guidelines=self.nomination.round.guidelines,
+                guidelines=self.nomination.round.get_guidelines(),
                 url=url,
             )
         elif self.type == INVITATION_TYPES.P:
@@ -2680,6 +2700,15 @@ class Round(Model):
             )
         ],
     )
+
+    def get_guidelines(self):
+        if not self.guidelines and (
+            pr := Round.where(Q(guidelines__isnull=False) | ~Q(guidelines=""), scheme=self.scheme)
+            .order_by("-id")
+            .first()
+        ):
+            return pr.guidelines
+        return self.guidelines
 
     @property
     def is_active(self):

@@ -118,6 +118,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
     "django.forms",
     "django.contrib.flatpages",
+    # "django_mail_admin",
 ]
 THIRD_PARTY_APPS = [
     "captcha",
