@@ -434,7 +434,7 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
         if round.has_referees:
-            referees_information_lines = [
+            referee_information_lines = [
                 _(
                     "The Selection Panel at its sole discretion, may request further "
                     "referees or make contact with outside parties."
@@ -444,21 +444,26 @@ class ApplicationForm(forms.ModelForm):
                 ),
             ]
             if round.required_referees:
-                referees_information_lines.insert(
-                    0,
-                    (
-                        _("%s referees are required to support this application.")
-                        % apnumber(round.required_referees)
-                    ).capitalize(),
-                )
-            referees_information_lines = "".join(
-                f"<p>{line}</p>" for line in referees_information_lines
+                if round.required_referees > 1:
+                    referee_information_lines.insert(
+                        0,
+                        (
+                            _("%s referees are required to support this application.")
+                            % apnumber(round.required_referees)
+                        ).capitalize(),
+                    )
+                else:
+                    referee_information_lines.insert(
+                        0, _("At least one referee is required to support this application.")
+                    )
+            referee_information_lines = "".join(
+                f"<p>{line}</p>" for line in referee_information_lines
             )
             tabs.append(
                 Tab(
                     _("Referees"),
                     HTML(
-                        f'<div class="alert alert-dark" role="alert">{referees_information_lines}</div>'
+                        f'<div class="alert alert-dark" role="alert">{referee_information_lines}</div>'
                     ),
                     Div(TableInlineFormset("referees"), css_id="referees"),
                 ),
