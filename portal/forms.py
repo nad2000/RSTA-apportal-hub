@@ -200,6 +200,30 @@ class AdminFileWidget(forms.FileInput):
         return mark_safe("".join(output))
 
 
+def apnumber(value):
+    """
+    For numbers 1-9, return the number spelled out. Otherwise, return the
+    number. This follows Associated Press style.
+    """
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return value
+    if not 0 < value < 10:
+        return value
+    return (
+        _("one"),
+        _("two"),
+        _("three"),
+        _("four"),
+        _("five"),
+        _("six"),
+        _("seven"),
+        _("eight"),
+        _("nine"),
+    )[value - 1]
+
+
 class ApplicationForm(forms.ModelForm):
 
     letter_of_support_file = FileField(
@@ -410,9 +434,32 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
         if round.has_referees:
+            referees_information_lines = [
+                _(
+                    "The Selection Panel at its sole discretion, may request further "
+                    "referees or make contact with outside parties."
+                ),
+                _(
+                    "The panel also reserves the right to hold interviews to help inform their decision."
+                ),
+            ]
+            if round.required_referees:
+                referees_information_lines.insert(
+                    0,
+                    (
+                        _("%s referees are required to support this application.")
+                        % apnumber(round.required_referees)
+                    ).capitalize(),
+                )
+            referees_information_lines = "".join(
+                f"<p>{line}</p>" for line in referees_information_lines
+            )
             tabs.append(
                 Tab(
                     _("Referees"),
+                    HTML(
+                        f'<div class="alert alert-dark" role="alert">{referees_information_lines}</div>'
+                    ),
                     Div(TableInlineFormset("referees"), css_id="referees"),
                 ),
             )

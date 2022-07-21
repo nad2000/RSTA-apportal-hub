@@ -105,7 +105,7 @@ DJANGO_APPS = [
     "multisite",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "django.contrib.humanize", # Handy template tags
+    "django.contrib.humanize",
     # NB: has to be added before admin
     "modeltranslation",
     "dal",
