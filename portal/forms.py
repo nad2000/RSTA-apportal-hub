@@ -141,7 +141,14 @@ class ProfileForm(forms.ModelForm):
         widgets = dict(
             gender=forms.RadioSelect(attrs={"style": "display: inline-block"}),
             date_of_birth=DateInput(),
-            ethnicities=autocomplete.ModelSelect2Multiple(url="ethnicity-autocomplete"),
+            ethnicities=autocomplete.ModelSelect2Multiple(
+                url="ethnicity-autocomplete",
+                attrs={
+                    "data-placeholder": _(
+                        "Please start typing your ethnicity. You can select multiple ethnicities..."
+                    ),
+                },
+            ),
             # ethnicities=ModelSelect2MultipleWidget(
             #     model=models.Ethnicity,
             #     search_fields=["description__icontains"],
@@ -155,7 +162,14 @@ class ProfileForm(forms.ModelForm):
             #     model=models.IwiGroup,
             #     search_fields=["description__icontains"],
             # ),
-            iwi_groups=autocomplete.ModelSelect2Multiple(url="iwi-group-autocomplete"),
+            iwi_groups=autocomplete.ModelSelect2Multiple(
+                url="iwi-group-autocomplete",
+                attrs={
+                    "data-placeholder": _(
+                        "Please start typing your iwi group. You can select multiple groups..."
+                    ),
+                },
+            ),
             # protection_pattern_expires_on=DateInput(),
             is_accepted=forms.CheckboxInput(),
         )

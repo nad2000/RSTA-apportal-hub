@@ -193,8 +193,7 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                   </b>
                 </h5>
                 <div class="card-body">
-
-                  <p class="card-text"> {{ record.description }}</p>
+                  {{ record.description|safe }}
                   {% if round %}
                     <p class="card-text">{% trans 'Application period' %}:
                     <strong

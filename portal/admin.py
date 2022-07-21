@@ -939,7 +939,13 @@ class IsActiveRoundListFilter(admin.SimpleListFilter):
 
 
 @admin.register(models.Round)
-class RoundAdmin(TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin):
+class RoundAdmin(
+    SummernoteModelAdminMixin, TranslationAdmin, StaffPermsMixin, ImportExportModelAdmin
+):
+    summernote_fields = (
+        "description_en",
+        "description_mi",
+    )
     save_on_top = True
     list_display = ["title", "scheme", "opens_on", "closes_on", "is_active"]
     list_filter = [IsActiveRoundListFilter, "opens_on", "closes_on"]
