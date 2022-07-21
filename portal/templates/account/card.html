@@ -1,4 +1,28 @@
 {% load static i18n account socialaccount crispy_forms_tags %}
+
+<div class="modal fade" id="welcome" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">{% trans 'Welcome!' %}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% blocktrans %}
+          <p>Welcome to the sign-up and login page.</p>
+          <p>You can sign up/in using a number of options: TUAKIRI; ORCID; Google, or create an username/password account. If you have participated in any of the Society’s portals before (currently only the Prime Minister’s Science Prize Portal), you can Sign In with the account used there; your authorisation and profile settings will be transferred. For first time portal users, please Sign Up.</p>
+        {% endblocktrans %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">{% trans 'Continue' %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="row">
 
   <div class="col-sm-9 col-md-7 col-lg-5 mx-auto my-3" style="max-width: 480px;">
@@ -18,8 +42,10 @@
             <a class="nav-link{% if active == 'signup' %} active{% endif %}"
                href="#signup"
                id="signup-tab"
-               data-toggle="tab" role="tab" aria-controls="home"
-                                            aria-selected="true">{% trans 'Sign Up' %}</a>
+               data-toggle="tab"
+               role="tab"
+               aria-controls="sign up"
+               aria-selected="true">{% trans 'Sign Up' %}</a>
           </li>
         </ul>
       </div>

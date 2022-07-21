@@ -987,7 +987,8 @@ class RoundAdmin(
                         "presentation_required",
                         "referee_cv_required",
                         "research_summary_required",
-                    )
+                    ),
+                    "required_referees",
                 ]
             },
         ),

@@ -2594,6 +2594,14 @@ class Round(Model):
     nominator_cv_required = BooleanField(_("Nominator CV required"), default=True)
 
     has_referees = BooleanField(_("can invite referees"), default=True)
+    required_referees = PositiveIntegerField(
+        _("Required number of referees"),
+        null=True,
+        blank=True,
+        default=0,
+        choices=Choices(0, 1, 2, 3, 4),
+        help_text="Minimum of referees the application needs to nominate"
+    )
     referee_cv_required = BooleanField(_("Referee CV required"), default=True)
 
     letter_of_support_required = BooleanField(default=False)
@@ -2827,6 +2835,7 @@ class Round(Model):
                 "letter_of_support_required",
                 "research_summary_required",
                 "team_can_apply",
+                "required_referees",
                 # "budget_required",
             ]:
                 if f not in kwargs:

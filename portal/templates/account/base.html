@@ -36,6 +36,13 @@
           if (parts && parts.length > 0) el.value = parts[0];
         }
       }
-    }
+    };
+    {% if domain == "portal.pmscienceprizes.org.nz" %}
+    $(document).ready(function(){
+      $("#signup-tab").on('show.bs.tab', function (e) {
+        $('#welcome').modal('show');
+      })
+    });
+    {% endif %}
   </script>
 {% endblock javascript %}
