@@ -51,10 +51,12 @@ from django.forms import widgets
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.base import TemplateView
@@ -619,6 +621,17 @@ class ProfileView:
 
 
 @login_required
+@csrf_exempt
+def disable_profile_protection_patterns(request):
+    if request.method == "POST":
+        if profile := models.Profile.where(user=request.user).first():
+            models.ProfileProtectionPattern.where(profile=profile).delete()
+            profile.has_protection_patterns = False
+            profile.save()
+    return HttpResponse(status=204)
+
+
+@login_required
 @shoud_be_onboarded
 def profile_protection_patterns(request):
     profile = request.profile
@@ -657,6 +670,25 @@ def profile_protection_patterns(request):
             url = (i and i.handler_url) or "index"
         else:
             url = "profile"
+
+        if not request.user.is_approved and not profile.account_approval_message_sent_at:
+            site = Site.objects.get_current()
+            profile.account_approval_message_sent_at = timezone.now()
+            profile.save(update_fields=["account_approval_message_sent_at"])
+            if site.domain == "portal.pmscienceprizes.org.nz":
+                send_mail(
+                    recipient_list=[request.user.full_email_address],
+                    subject="Account Approval request submitted",
+                    html_message=(
+                        "<p>Tēnā koe,</p>"
+                        f"<p>You have submitted an Account Approval request to {site.name}. "
+                        "Please allow up to 2 working days for an Administrator to approve your request. "
+                        "If you do not receive a confirmation email after 2 working days, please contact "
+                        "<a href='mailto:pmscienceprizes@royalsociety.org.nz'>"
+                        "pmscienceprizes@royalsociety.org.nz</a></p>"
+                        "<p>(Please also check your Spam/Junk inbox)</p>"
+                    ),
+                )
 
         reset_cache(request)
         return redirect(url)
@@ -2293,7 +2325,6 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
             "year_achieved": widgets.DateInput(attrs={"class": "yearpicker", "min": 1950}),
             "career_stage": widgets.Select(
                 attrs={
-                    # "required": True,
                     "data-placeholder": _("Choose a career stage ..."),
                     "placeholder": _("Choose a career stage ..."),
                     "data-required": 1,
@@ -2388,7 +2419,17 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "org": autocomplete.ModelSelect2(
+                        "org-autocomplete",
+                        attrs={
+                            "data-placeholder": _("Choose an organisation ..."),
+                            "placeholder": _("Choose an organisation ..."),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("Organisation is required"),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "qualification": HiddenInput(),
@@ -2965,7 +3006,8 @@ class NominationView(CreateUpdateView):
                 self.request,
                 _("Invitation to submit an application has been sent to %s.") % invitation.email
                 if created
-                else _("Invitation to submit an application has been resent to %s.") % invitation.email,
+                else _("Invitation to submit an application has been resent to %s.")
+                % invitation.email,
             )
         elif self.request.method == "POST" or "save_draft" in self.request.POST:
             n.save_draft()

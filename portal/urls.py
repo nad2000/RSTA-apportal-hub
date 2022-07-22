@@ -165,6 +165,11 @@ urlpatterns = [
                     name="profile-protection-patterns",
                 ),
                 path(
+                    "disable-protection-patterns/",
+                    views.disable_profile_protection_patterns,
+                    name="disable-profile-protection-patterns",
+                ),
+                path(
                     "cvs/",
                     views.ProfileCurriculumVitaeFormSetView.as_view(),
                     name="profile-cvs",

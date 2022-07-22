@@ -716,6 +716,7 @@ class Profile(Model, PersonMixin):
 
     history = HistoricalRecords(table_name="profile_history")
     has_protection_patterns = BooleanField(default=True)
+    account_approval_message_sent_at = DateTimeField(null=True, blank=True, editable=False)
 
     @property
     def employments(self):
@@ -2600,7 +2601,7 @@ class Round(Model):
         blank=True,
         default=0,
         choices=Choices(0, 1, 2, 3, 4),
-        help_text="Minimum of referees the application needs to nominate"
+        help_text="Minimum of referees the application needs to nominate",
     )
     referee_cv_required = BooleanField(_("Referee CV required"), default=True)
 
