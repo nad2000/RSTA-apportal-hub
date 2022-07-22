@@ -55,6 +55,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
 from django.views.generic.base import TemplateView
@@ -616,6 +617,17 @@ class ProfileView:
         form.save()
         reset_cache(self.request)
         return super().post(request, *args, **kwargs)
+
+
+@login_required
+@csrf_exempt
+def disable_profile_protection_patterns(request):
+    if request.method == "POST":
+        if profile := models.Profile.where(user=request.user).first():
+            models.ProfileProtectionPattern.where(profile=profile).delete()
+            profile.has_protection_patterns = False
+            profile.save()
+    return HttpResponse(status=204)
 
 
 @login_required
@@ -2293,7 +2305,6 @@ class ProfileCareerStageFormSetView(ProfileSectionFormSetView):
             "year_achieved": widgets.DateInput(attrs={"class": "yearpicker", "min": 1950}),
             "career_stage": widgets.Select(
                 attrs={
-                    # "required": True,
                     "data-placeholder": _("Choose a career stage ..."),
                     "placeholder": _("Choose a career stage ..."),
                     "data-required": 1,
@@ -2388,7 +2399,17 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "org": autocomplete.ModelSelect2(
+                        "org-autocomplete",
+                        attrs={
+                            "data-placeholder": _("Choose an organisation ..."),
+                            "placeholder": _("Choose an organisation ..."),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("Organisation is required"),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "qualification": HiddenInput(),
@@ -2965,7 +2986,8 @@ class NominationView(CreateUpdateView):
                 self.request,
                 _("Invitation to submit an application has been sent to %s.") % invitation.email
                 if created
-                else _("Invitation to submit an application has been resent to %s.") % invitation.email,
+                else _("Invitation to submit an application has been resent to %s.")
+                % invitation.email,
             )
         elif self.request.method == "POST" or "save_draft" in self.request.POST:
             n.save_draft()

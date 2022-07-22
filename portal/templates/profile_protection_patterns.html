@@ -90,7 +90,12 @@
             var is_disabled = ($(this).prop('checked'));
             $("#patterns input").prop('disabled', is_disabled);
             if (is_disabled) {
-              $("#pattern-form").submit();
+              // $("#pattern-form").submit();
+              $.ajax({
+                  type     : "POST",
+                  url      : "{% url 'disable-profile-protection-patterns' %}",
+                  cache    : false,
+              });
             } else {
               $('#ppEnabled-5').prop('checked', true);
               $('#ppEnabled-6').prop('checked', true);
