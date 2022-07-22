@@ -86,9 +86,19 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
       <div class="container">
         <div class="jumbotron">
           <h1>{% trans "Account Approval Pending" %}</h1>
+          {% if domain == "portal.pmscienceprizes.org.nz" %}
+          {% blocktrans %}
+            <p>Your account request to access the Portal has not yet been authorised.</p>
+            <p>Please allow up to 2 working days for an Administrator to approve your request.
+            If you do not receive a confirmation email after 2 working days, please contact
+            <a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a></p>
+            <p>(Please also check your Spam/Junk inbox)</p>
+          {% endblocktrans %}
+          {% else %}
           <p>{% blocktrans %}
             Your portal access has not been authorised, please allow up to two working days for admin us to look into your request.
           {% endblocktrans %}</p>
+          {% endif %}
         </div>
       </div>
 

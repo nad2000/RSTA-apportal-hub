@@ -51,6 +51,7 @@ from django.forms import widgets
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template.loader import get_template
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -669,6 +670,25 @@ def profile_protection_patterns(request):
             url = (i and i.handler_url) or "index"
         else:
             url = "profile"
+
+        if not request.user.is_approved and not profile.account_approval_message_sent_at:
+            site = Site.objects.get_current()
+            profile.account_approval_message_sent_at = timezone.now()
+            profile.save(update_fields=["account_approval_message_sent_at"])
+            if site.domain == "portal.pmscienceprizes.org.nz":
+                send_mail(
+                    recipient_list=[request.user.full_email_address],
+                    subject="Account Approval request submitted",
+                    html_message=(
+                        "<p>Tēnā koe,</p>"
+                        f"<p>You have submitted an Account Approval request to {site.name}. "
+                        "Please allow up to 2 working days for an Administrator to approve your request. "
+                        "If you do not receive a confirmation email after 2 working days, please contact "
+                        "<a href='mailto:pmscienceprizes@royalsociety.org.nz'>"
+                        "pmscienceprizes@royalsociety.org.nz</a></p>"
+                        "<p>(Please also check your Spam/Junk inbox)</p>"
+                    ),
+                )
 
         reset_cache(request)
         return redirect(url)
