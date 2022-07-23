@@ -12,6 +12,41 @@
 button:hover .previous-applications-button:hover, button:focus .previous-applications-button:focus {
   background-color: inherit;
 }
+
+.partialcollapse .collapse {
+    display: block;
+    height: 120px !important;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    /*overflow-y: scroll;*/
+}
+.partialcollapse .collapsing {
+    height: inherit!important;
+}
+.partialcollapse .collapse.show {
+    height: auto !important;
+    -webkit-mask-image: inherit;
+    mask-image: inherit;
+    /*overflow-y: scroll;*/
+}
+.partialcollapse .collapse.hide {
+    height: inherit!important;
+}
+.partialcollapse .collapse+button:after {
+    content: '+ Show More';
+}
+.partialcollapse .show+button:after, .partialcollapse .collapsing+button:after {
+    content: '- Show Less';
+}
+
+.partialcollapse a.collapsed:after {
+  content: '+ Show More';
+}
+
+.partialcollapse a:not(.collapsed):after {
+  content: '- Show Less';
+}
 </style>
 {% endblock %}
 
@@ -203,9 +238,22 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
                   </b>
                 </h5>
                 <div class="card-body">
-                  {{ record.description|safe }}
+                  {% if record.description|collapsible %}
+                  <div class="partialcollapse">
+                    <div class="collapse mb-1" id="round-description-{{ round.id }}" aria-expanded="false">
+                      {{ record.description|safe }}
+                    </div>
+                    <a role="button"
+                      class="collapsed"
+                      data-toggle="collapse"
+                      href="#round-description-{{ round.id }}"
+                    ></a>
+                  </div>
+                  {% else %}
+                    {{ record.description|safe }}
+                  {% endif %}
                   {% if round %}
-                    <p class="card-text">{% trans 'Application period' %}:
+                    <p class="card-text mt-2">{% trans 'Application period' %}:
                     <strong
                        {% if not round.is_open %}
                          class="badge-danger"

@@ -10,6 +10,14 @@ register = template.Library()
 
 
 @register.filter()
+def collapsible(value):
+    """collapsible if the text length exceeds ML and remainder is more then 20% of the text."""
+    ml = 400  # max length
+    if value and (s := value.strip()) and (l := len(s)) > ml:
+        return (l - ml) / l > 0.2
+
+
+@register.filter()
 def dump(value):
     """User can edit the application."""
     if not isinstance(value, dict):
