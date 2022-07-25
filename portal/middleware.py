@@ -17,3 +17,5 @@ class FlatpageFallbackMiddleware(FlatpageFallbackMiddleware):
                 if settings.DEBUG:
                     raise
         return response
+
+# vim:set ft=python.django:

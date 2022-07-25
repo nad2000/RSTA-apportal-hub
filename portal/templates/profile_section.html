@@ -4,6 +4,11 @@
 {% block css %}
   {{ formset.media.css }}
   {{ block.super }}
+<style>
+.asteriskField {
+  color: gray;
+}
+</style>
 {% endblock %}
 
 {% block breadcrumbs %}

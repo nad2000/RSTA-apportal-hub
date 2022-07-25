@@ -442,3 +442,5 @@ if settings.SENTRY_DSN:
             path("sentry-debug-login/<message>", trigger_error_with_login),
         ]
     )
+
+# vim:set ft=python.django:

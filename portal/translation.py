@@ -69,3 +69,5 @@ class ProtectionPatternProfileOptions(TranslationOptions):
         "description",
         "comment",
     )
+
+# vim:set ft=python.django:

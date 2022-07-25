@@ -625,6 +625,7 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     list_display = ["email", "full_name", "application", "status", "has_authorized"]
     fsm_field = ["status"]
     search_fields = [
+        "email",
         "first_name",
         "last_name",
         "application__number",
@@ -1053,3 +1054,6 @@ class EvaluationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
             return reverse("scores-list", kwargs={"round": obj.criterion.round_id})
 
     inlines = [ScoreInline, StateLogInline]
+
+
+# vim:set ft=python.django:

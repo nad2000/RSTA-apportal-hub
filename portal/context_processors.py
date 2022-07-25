@@ -64,3 +64,5 @@ def portal_context(request):
             cache.set(cache_key, stats)
         context.update(stats)
     return context
+
+# vim:set ft=python.django:

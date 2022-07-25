@@ -1565,6 +1565,20 @@ class ApplicationView(LoginRequiredMixin):
                         if not url:
                             url = self.continue_url("id-verification")
 
+                    if (
+                        a.round.required_referees
+                        and a.referees.filter(status="submitted").count() < a.round.required_referees
+                    ):
+                        messages.error(
+                            self.request,
+                            _(
+                                "You need to procure reviews of your application from at least %d referees."
+                            )
+                            % a.round.required_referees,
+                        )
+                        if not url:
+                            url = self.continue_url("referees")
+
                     if url:
                         return redirect(url)
 
@@ -2352,21 +2366,32 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
             {
                 "widgets": {
                     "profile": HiddenInput(),
-                    # "code": autocomplete.ModelSelect2("person-identifier-autocomplete", attrs={ "required": True}),
-                    "code": widgets.Select(
+                    "code": autocomplete.ModelSelect2(
+                        "person-identifier-autocomplete",
                         attrs={
-                            # "required": True,
-                            "data-placeholder": _("Choose an identifier type ..."),
-                            "placeholder": _("Choose an identifier type ..."),
+                            # "required": True
+                            "data-placeholder": _("Choose an identifier type or a new one..."),
+                            # "placeholder": _("Choose an identifier type or a new one ..."),
                             "data-required": 1,
                             "oninvalid": "this.setCustomValidity('%s')"
                             % _("Identifier type is required"),
                             "oninput": "this.setCustomValidity('')",
-                        }
+                        },
                     ),
+                    # "code": widgets.Select(
+                    #     attrs={
+                    #         # "required": True,
+                    #         "data-placeholder": _("Choose an identifier type ..."),
+                    #         "placeholder": _("Choose an identifier type ..."),
+                    #         "data-required": 1,
+                    #         "oninvalid": "this.setCustomValidity('%s')"
+                    #         % _("Identifier type is required"),
+                    #         "oninput": "this.setCustomValidity('')",
+                    #     }
+                    # ),
                     "value": TextInput(
                         attrs={
-                            "placeholder": _("Enter an identifier value ..."),
+                            "placeholder": _("Enter an identifier or a reference ..."),
                             # "data-placeholder": _("Choose an identifier value ..."),
                             "data-required": 1,
                             "oninvalid": "this.setCustomValidity('%s')"
@@ -4815,3 +4840,6 @@ class SummaryReportList(LoginRequiredMixin, SingleTableMixin, FilterView):
         queryset = queryset.filter(round=F("round__scheme__current_round"))
         queryset = queryset.prefetch_related("round")
         return queryset
+
+
+# vim:set ft=python.django:

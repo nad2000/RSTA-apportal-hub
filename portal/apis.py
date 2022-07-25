@@ -35,3 +35,5 @@ class OrganisationViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, 
 router = routers.DefaultRouter()
 router.register("affiliations", AffiliationViewSet)
 router.register("organisations", OrganisationViewSet)
+
+# vim:set ft=python.django:

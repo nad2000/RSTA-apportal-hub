@@ -4,7 +4,7 @@
 {% block breadcrumbs_content %}<div class="mt-3"></div>{% endblock %}
 
 {% block localcss %}
-  {{ block.super }}
+{{ block.super }}
 <style>
 .previous-applications-button {
   background-color: white;
@@ -14,452 +14,455 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
 }
 
 .partialcollapse .collapse {
-    display: block;
-    height: 120px !important;
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
-    /*overflow-y: scroll;*/
+  display: block;
+  height: 120px !important;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  /*overflow-y: scroll;*/
 }
 .partialcollapse .collapsing {
-    height: inherit!important;
+  height: inherit!important;
 }
 .partialcollapse .collapse.show {
-    height: auto !important;
-    -webkit-mask-image: inherit;
-    mask-image: inherit;
-    /*overflow-y: scroll;*/
+  height: auto !important;
+  -webkit-mask-image: inherit;
+  mask-image: inherit;
+  /*overflow-y: scroll;*/
 }
 .partialcollapse .collapse.hide {
-    height: inherit!important;
+  height: inherit!important;
 }
 .partialcollapse .collapse+button:after {
-    content: '+ Show More';
+  content: "+ {% trans 'Show More' %}";
 }
 .partialcollapse .show+button:after, .partialcollapse .collapsing+button:after {
-    content: '- Show Less';
+  content: "- {% trans 'Show Less' %}";
 }
 
 .partialcollapse a.collapsed:after {
-  content: '+ Show More';
+  content: "+ {% trans 'Show More' %}";
 }
 
 .partialcollapse a:not(.collapsed):after {
-  content: '- Show Less';
+  content: "- {% trans 'Show Less' %}";
 }
 </style>
 {% endblock %}
 
 {% block content %}
 
-  <!-- Modal -->
-  <div class="modal fade" id="roundDetail" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="roundDetailLabel" style="color:inherit">{% trans 'Round' %}</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" id="roundDetailBody">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
-          <!-- button type="button" class="btn btn-primary">Save changes</button -->
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="roundDetail" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="roundDetailLabel" style="color:inherit">{% trans 'Round' %}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="roundDetailBody">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+        <!-- button type="button" class="btn btn-primary">Save changes</button -->
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="previous-application" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="previous-application-title" style="color:inherit">
-            {% trans 'Copy over the previous application' %}
-          </h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" id="previous-application-body">
-          {% trans 'You have an application in the previous round' %}:<br/>
-          <a href="#" id="previous-application-link" target="_blank">
-            <strong id="previous-application-link-number"></strong>:
-            <span id="previous-application-link-title"></span></a>.
-          {% trans 'Do you wish to copy over it as new application and re-enter the current round?' %}
-        </div>
-        <div class="modal-footer">
-          <a id="copy-application-button"
-             type="button"
-             href="#"
-             class="btn btn-primary"
-             data-toggle="tooltip"
-             title="{% trans 'Copy the previous application over as a new application and re-enter the current round' %}"
-          >{% trans 'Yes' %}</a>
-          <a id="new-application-button"
-             type="button"
-             href="#"
-             class="btn btn-outline-primary"
-             data-toggle="tooltip"
-             title="{% trans 'Create a new application from scratch' %}"
-          >{% trans 'No' %}</a>
-          <a  type="button" href="#" class="btn btn-outline-danger" data-dismiss="modal">{% trans 'Cancel' %}</a>
-          <!-- button type="button" class="btn btn-primary">Save changes</button -->
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="previous-application" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="previous-application-title" style="color:inherit">
+          {% trans 'Copy over the previous application' %}
+        </h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="previous-application-body">
+        {% trans 'You have an application in the previous round' %}:<br/>
+        <a href="#" id="previous-application-link" target="_blank">
+          <strong id="previous-application-link-number"></strong>:
+          <span id="previous-application-link-title"></span></a>.
+        {% trans 'Do you wish to copy over it as new application and re-enter the current round?' %}
+      </div>
+      <div class="modal-footer">
+        <a id="copy-application-button"
+           type="button"
+           href="#"
+           class="btn btn-primary"
+           data-toggle="tooltip"
+           title="{% trans 'Copy the previous application over as a new application and re-enter the current round' %}"
+           >{% trans 'Yes' %}</a>
+        <a id="new-application-button"
+           type="button"
+           href="#"
+           class="btn btn-outline-primary"
+           data-toggle="tooltip"
+           title="{% trans 'Create a new application from scratch' %}"
+           >{% trans 'No' %}</a>
+        <a  type="button" href="#" class="btn btn-outline-danger" data-dismiss="modal">{% trans 'Cancel' %}</a>
+        <!-- button type="button" class="btn btn-primary">Save changes</button -->
       </div>
     </div>
   </div>
+</div>
 
+
+<div class="container">
+  {% if not request.user.is_approved %}
 
   <div class="container">
-    {% if not request.user.is_approved %}
+    <div class="jumbotron">
+      <h1>{% trans "Account Approval Pending" %}</h1>
+      {% if domain == "portal.pmscienceprizes.org.nz" %}
+      {% blocktrans %}
+      <p>Your account request to access the Portal has not yet been authorised.</p>
+      <p>Please allow up to 2 working days for an Administrator to approve your request.
+      If you do not receive a confirmation email after 2 working days, please contact
+      <a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a></p>
+      <p>(Please also check your Spam/Junk inbox)</p>
+      {% endblocktrans %}
+      {% else %}
+      <p>{% blocktrans %}
+      Your portal access has not been authorised, please allow up to two working days for admin us to look into your request.
+      {% endblocktrans %}</p>
+      {% endif %}
+    </div>
+  </div>
 
-      <div class="container">
-        <div class="jumbotron">
-          <h1>{% trans "Account Approval Pending" %}</h1>
-          {% if domain == "portal.pmscienceprizes.org.nz" %}
-          {% blocktrans %}
-            <p>Your account request to access the Portal has not yet been authorised.</p>
-            <p>Please allow up to 2 working days for an Administrator to approve your request.
-            If you do not receive a confirmation email after 2 working days, please contact
-            <a href="mailto:pmscienceprizes@royalsociety.org.nz">pmscienceprizes@royalsociety.org.nz</a></p>
-            <p>(Please also check your Spam/Junk inbox)</p>
-          {% endblocktrans %}
-          {% else %}
-          <p>{% blocktrans %}
-            Your portal access has not been authorised, please allow up to two working days for admin us to look into your request.
-          {% endblocktrans %}</p>
-          {% endif %}
+  {% else %}
+  <!-- h1>{% trans "Apply for The Prime Minister’s Science Prizes" %}</h1 -->
+
+  {% if previous_applications %}
+  <div class="card text-white bg-warning border-warning mb-3">
+    <h5 class="card-header align-middle" style="text-transform: uppercase;">
+      <div class="row">
+        <div class="col">
+          <strong class="align-middle"> {% trans 'Previous Applications' %} </strong>
+          <button
+              id="previous-applications-button"
+              style="padding-top: 1px; padding-bottom: 0px;"
+              data-toggle="collapse"
+              data-target="#previous-applications"
+              class="btn btn-outline-warning previous-applications-button float-right align-top"
+              type="button"
+              >{% trans 'Show' %}</button>
         </div>
       </div>
+    </h5>
+    <ul class="list-group list-group-flush collapse" id="previous-applications">
+      {% for a in previous_applications %}
+      <li class="list-group-item border-warning">
+        <a href="{% url 'application' pk=a.id %}"
+           class="text-warning"
+           >
+           <strong>{{ a.number }}</strong>: {{ a.title }}
+           {% if a.created_on %}
+           <span class="text-muted">({{ a.created_on|date:"d-m-Y" }})</span>
+           {% endif %}
+        </a></li>
+        {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
-    {% else %}
-      <!-- h1>{% trans "Apply for The Prime Minister’s Science Prizes" %}</h1 -->
-
-      {% if previous_applications %}
-        <div class="card text-white bg-warning border-warning mb-3">
-          <h5 class="card-header align-middle" style="text-transform: uppercase;">
-            <div class="row">
-              <div class="col">
-              <strong class="align-middle"> {% trans 'Previous Applications' %} </strong>
-              <button
-                id="previous-applications-button"
-                style="padding-top: 1px; padding-bottom: 0px;"
-                data-toggle="collapse"
-                data-target="#previous-applications"
-                class="btn btn-outline-warning previous-applications-button float-right align-top"
-                type="button"
-              >{% trans 'Show' %}</button>
-              </div>
-            </div>
-          </h5>
-          <ul class="list-group list-group-flush collapse" id="previous-applications">
-            {% for a in previous_applications %}
-              <li class="list-group-item border-warning">
-                <a href="{% url 'application' pk=a.id %}"
-                  class="text-warning"
-                  >
-                  <strong>{{ a.number }}</strong>: {{ a.title }}
-                  {% if a.created_on %}
-                    <span class="text-muted">({{ a.created_on|date:"d-m-Y" }})</span>
-                  {% endif %}
-                </a></li>
-            {% endfor %}
-          </ul>
-        </div>
+  {% if draft_applications %}
+  <div class="card text-white bg-success border-success mb-3">
+    <h5 class="card-header" style="text-transform: uppercase;"><strong>
+        {% trans 'Application Drafts' %} </strong></h5>
+    {% for a in draft_applications %}
+    {% if a and a.id %}
+    <ul class="list-group list-group-flush">
+      {% if a|can_edit:user %}
+      <li class="list-group-item">
+        {% if a.deadline_days > 0 and a.deadline_days < 5 %}
+        <i class="fas fa-exclamation-circle text-danger"
+           data-toggle="tooltip"
+           title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
+           ></i>
+        {% endif %}
+        <a href="{% url 'application-update' pk=a.id %}"
+           {% if a.deadline_days < 5 %}
+           data-toggle="tooltip"
+           title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
+           {% endif %}
+           >{{ a }}</a></li>
+      {% else %}
+      <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
       {% endif %}
-
-      {% if draft_applications %}
-        <div class="card text-white bg-success border-success mb-3">
-          <h5 class="card-header" style="text-transform: uppercase;"><strong>
-              {% trans 'Application Drafts' %} </strong></h5>
-            {% for a in draft_applications %}
-              {% if a and a.id %}
-                <ul class="list-group list-group-flush">
-                  {% if a|can_edit:user %}
-                    <li class="list-group-item">
-                      {% if a.deadline_days > 0 and a.deadline_days < 5 %}
-                        <i class="fas fa-exclamation-circle text-danger"
-                           data-toggle="tooltip"
-                           title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
-                        ></i>
-                      {% endif %}
-                      <a href="{% url 'application-update' pk=a.id %}"
-                        {% if a.deadline_days < 5 %}
-                            data-toggle="tooltip"
-                            title="{% blocktrans with deadline_days=a.deadline_days closes_on=a.round.closes_on|date:"d-m-Y" closes_at=a.round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
-                        {% endif %}
-                      >{{ a }}</a></li>
-                  {% else %}
-                    <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
-                  {% endif %}
-                </ul>
-              {% endif %}
-            {% endfor %}
-            <!-- div class="card-body">
-              <h5 class="card-title">Success card title</h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              </div -->
-        </div>
-      {% endif %}
+    </ul>
+    {% endif %}
+    {% endfor %}
+    <!-- div class="card-body">
+      <h5 class="card-title">Success card title</h5>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      </div -->
+</div>
+{% endif %}
 
 {% if current_applications %}
-  <div class="card text-white bg-info border-info mb-3">
-    <h5 class="card-header" style="text-transform: uppercase;"><strong>
-        {% trans 'Current Submitted Applications' %}
-      </strong></h5>
-      {% for a in current_applications %}
-        {% if a and a.id %}
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
-          </ul>
-        {% endif %}
-      {% endfor %}
-      <!-- div class="card-body">
-        <h5 class="card-title">Success card title</h5>
-        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-        </div -->
-        </div>
+<div class="card text-white bg-info border-info mb-3">
+  <h5 class="card-header" style="text-transform: uppercase;"><strong>
+      {% trans 'Current Submitted Applications' %}
+    </strong></h5>
+    {% for a in current_applications %}
+    {% if a and a.id %}
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+    </ul>
+    {% endif %}
+    {% endfor %}
+    <!-- div class="card-body">
+      <h5 class="card-title">Success card title</h5>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+      </div -->
+      </div>
       {% endif %}
 
       {% for record in schemes %}
-        {% with round=record.scheme.current_round scheme=record.scheme count=record.count application=record.application is_panellist=record.is_panellist has_submitted=record.has_submitted %}
-          <div class="row">
-            <div class="col mb-3">
-              <div class="card">
-                <h5 class="card-header">
-                  {#% trans "The Prime Minister's" %#}
-                  <b style="text-transform: uppercase;">
-                    {{ record.title }}
-                  </b>
-                </h5>
-                <div class="card-body">
-                  {% if record.description|collapsible %}
-                  <div class="partialcollapse">
-                    <div class="collapse mb-1" id="round-description-{{ round.id }}" aria-expanded="false">
-                      {{ record.description|safe }}
-                    </div>
-                    <a role="button"
-                      class="collapsed"
-                      data-toggle="collapse"
-                      href="#round-description-{{ round.id }}"
-                    ></a>
-                  </div>
-                  {% else %}
-                    {{ record.description|safe }}
-                  {% endif %}
-                  {% if round %}
-                    <p class="card-text mt-2">{% trans 'Application period' %}:
-                    <strong
-                       {% if not round.is_open %}
-                         class="badge-danger"
-                       {% elif round.deadline_days > 0 and round.deadline_days < 5 %}
-                          class="badge-warning"
-                       {% endif %}
-                       {% if round.deadline_days > 0 and round.deadline_days < 5 %}
-                          data-toggle="tooltip"
-                          title="{% blocktrans with deadline_days=round.deadline_days closes_on=round.closes_on|date:"d-m-Y" closes_at=round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
-                       {% endif %}
-                    >
-                      {{ round.opens_on|date:"d-m-Y" }}
-                      {% if round.closes_on %}
-                        - {{ round.closes_on|date:"d-m-Y" }}
-                        {% if round.closes_on.hour or round.closes_on.minute %}
-                          {% blocktrans  with round.closes_on|time:"P" as closes_at %}
-                           at {{ closes_at }}
-                          {% endblocktrans %}
-                        {% endif %}
-                      {% endif %}
-                    </strong>
-                    </p>
-                  {% endif %}
-
-                  {% if request.user.can_apply %}
-                    {% if scheme.guidelines %}
-                      <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
-                        {% blocktrans %}Read <b>More</b>{% endblocktrans %}
-                      </a>
-                    {% endif %}
-                  {% else %}
-                    <button type="button" class="btn btn-outline-primary"
-                                          data-toggle="modal"
-                                          data-target="#roundDetail"
-                                          data-round-id="{{ round.id }}"
-                                          data-round-title="{{ round.title }}"
-                                          style="text-transform: uppercase;">
-                      {% blocktrans %}Show <b>Details</b>{% endblocktrans %}
-                    </button>
-                  {% endif %}
-
-                  {% if round %}
-                    {% if request.user.can_apply %}
-
-                      {% if application and not is_panellist %}
-                        <div class="tooltip-wrapper{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
-                             {% if application.state == 'submitted'%}
-                               disabled
-                               data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
-                             {% elif round.has_closed %}
-                               disabled
-                               data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}. {% trans 'Applications can no longer be accepted for this round.' %}"
-                           {% else %}
-                               data-title="{% trans 'Modify your application and continue application process' %}"
-                             {% endif %}
-                               >
-                             <a href="{% if application and application.id %}{% url 'application-update' pk=application.id %}{% else %}#{% endif %}"
-                                class="btn btn-primary{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
-                                style="text-transform: uppercase;"
-                                > {% trans "Continue" %} <b>{% trans "Application" %}</b>
-                             </a>
-                        </div>
-                      {% else %}
-                        <div class="tooltip-wrapper{% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %} disabled{% endif %}"
-                             {% if is_panellist %}
-                               disabled
-                             data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
-                           {% elif not round.is_open %}
-                               disabled
-                             {% if round.will_open %}
-                               data-title="{% trans 'The application will be open on' %} {{ round.opens_on|date:'o-m-d'}}"
-                             {% else %}
-                               {% endif %}
-                             {% elif has_submitted %}
-                                 disabled
-                               data-title="{% trans 'You have already submitted one application in this round' %}"
-                             {% elif not round.direct_application_allowed and not round|user_has_nomination:user %}
-                                 disabled
-                               data-title="{% trans 'You need to be nominated in order to apply for the application' %}"
-                             {% else %}
-                                 data-title="{% trans 'Start a new application' %}"
-                               {% endif %}
-                                 >
-                                 <a href="{% url 'application-create' round=round.id %}"
-                                    class="btn btn-primary {% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}"
-
-                                    style="text-transform: uppercase;"
-                                    {% if not round.is_open or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}
-                                    {% if record.previous_application %}
-                                      data-toggle="modal"
-                                      data-target="#previous-application"
-                                      data-previous-id="{{ record.previous_application_id }}"
-                                      data-previous-title="{{ record.previous_application_title }}"
-                                      data-previous-number="{{ record.previous_application_number }}"
-                                      data-previous-url="{% url 'application' pk=record.previous_application_id %}"
-                                      data-round-id="{{ round.id }}"
-                                      data-round-title="{{ round.title }}"
-                                      data-new-url="{% url 'application-create' round=round.id %}"
-                                      data-copy-url="{% url 'application-create' round=round.id %}?previous={{ record.previous_application_id }}"
-                                    {% endif %}
-                                >
-                                    {% trans "Apply" %} <b>{% trans "Now" %}</b>
-                                 </a>
-                        </div>
-                      {% endif %}
-                      {% if round.can_nominate %}
-                        <div class="tooltip-wrapper{% if is_panellist or not round.is_open %} disabled{% endif %}"
-                             {% if is_panellist or not round.is_open %}
-                               disabled
-                             {% if is_panellist %}
-                               data-title="{% trans 'You cannot apply or nominate for a round where you are a panellist' %}"
-                             {% elif round.will_open %}
-                                 data-title="{% trans 'The application will be open on' %} {{ round.opens_on|date:'o-m-d'}}"
-                               {% else %}
-                                   data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}"
-                                 {% endif %}
-                                 {% endif %}
-                                   >
-                                   <a href="{% url 'nomination-create' round=round.id %}" class="btn btn-primary {% if is_panellist or not round.is_open %}disabled{% endif %}" style="text-transform: uppercase;"
-                                                                                                                                                                                {% if not round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
-                                   </a>
-                        </div>
-                      {% endif %}
-
-                      {% if is_panellist %}
-                        {% if application %}
-                          <a href="{% url 'application-evaluation' pk=application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
-                        {% elif round %}
-                          <a href="{% url 'round-application-list' round_id=round.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Applications" %}</b></a>
-                        {% endif %}
-                      {% endif %}
-
-                      {% if round and count > 1 %}
-                        <a href="{% url 'applications' %}?round={{ round.id }}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Show" %} <b>{% trans "Applications" %}</b></a>
-                      {% endif %}
-
-
-                    {% else %}
-                      {% if request.user.is_superuser %}
-                        <a href="{% url 'admin:portal_round_change' object_id=round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-                                                                                                                   > {% trans "Edit" %} <b>{% trans "Round" %}</b>
-                        </a>
-                      {% endif %}
-                    {% endif %}
-
-                    {% if request.user.is_staff %}
-                      <a href="{% url 'panellist-invite' round=round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
-                                                                                                    > {% trans "Invite" %}
-                                                                                                    <b>{% trans "Panellist" %}</b>
-                      </a>
-                    {% endif %}
-
-                    {% if request.user.is_staff %}
-                      <a href="{% url 'round-coi-list' round=round.id %}" class="btn btn-outline-primary" style="text-transform: uppercase;"
-
-                                                                                                          > {% trans "Conflicts of" %}
-                                                                                                          <b>{% trans "Interest" %}</b>
-                      </a>
-                    {% endif %}
-
-                  {% else %}
-                    <span>
-                      <strong>
-                        {% trans 'Scheme has no round available to apply for' %}
-                      </strong>
-                    </span>
-                  {% endif %}
+      {% with round=record.scheme.current_round scheme=record.scheme count=record.count application=record.application is_panellist=record.is_panellist has_submitted=record.has_submitted %}
+      <div class="row">
+        <div class="col mb-3">
+          <div class="card">
+            <h5 class="card-header">
+              {#% trans "The Prime Minister's" %#}
+              <b style="text-transform: uppercase;">
+                {{ record.title }}
+              </b>
+            </h5>
+            <div class="card-body">
+              {% if record.description|collapsible %}
+              <div class="partialcollapse">
+                <div class="collapse mb-1" id="round-description-{{ round.id }}" aria-expanded="false">
+                  {{ record.description|safe }}
                 </div>
+                <a role="button"
+                   class="collapsed"
+                   data-toggle="collapse"
+                   href="#round-description-{{ round.id }}"
+                   ></a>
               </div>
+              {% else %}
+              {{ record.description|safe }}
+              {% endif %}
+              {% if round %}
+              <p class="card-text mt-2">{% trans 'Application period' %}:
+              <strong
+                  {% if not round.is_open %}
+                  class="badge-danger"
+                  {% elif round.deadline_days > 0 and round.deadline_days < 5 %}
+                  class="badge-warning"
+                  {% endif %}
+                  {% if round.deadline_days > 0 and round.deadline_days < 5 %}
+                  data-toggle="tooltip"
+                  title="{% blocktrans with deadline_days=round.deadline_days closes_on=round.closes_on|date:"d-m-Y" closes_at=round.closes_on|time:"P" %}The round is closing in {{ deadline_days }} day(s) on {{ closes_on }} by {{ closes_at }}{% endblocktrans %}"
+                  {% endif %}
+                  >
+                  {{ round.opens_on|date:"d-m-Y" }}
+                  {% if round.closes_on %}
+                  - {{ round.closes_on|date:"d-m-Y" }}
+                  {% if round.closes_on.hour or round.closes_on.minute %}
+                  {% blocktrans  with round.closes_on|time:"P" as closes_at %}
+                  at {{ closes_at }}
+                  {% endblocktrans %}
+                  {% endif %}
+                  {% endif %}
+              </strong>
+              </p>
+              {% endif %}
+
+              {% if request.user.can_apply %}
+              {% if scheme.guidelines %}
+              <a href="{{ scheme.guidelines }}" target="_blank" class="btn btn-outline-primary" style="text-transform: uppercase;">
+                {% blocktrans %}Read <b>More</b>{% endblocktrans %}
+              </a>
+              {% endif %}
+              {% else %}
+              <button type="button" class="btn btn-outline-primary"
+                                    data-toggle="modal"
+                                    data-target="#roundDetail"
+                                    data-round-id="{{ round.id }}"
+                                    data-round-title="{{ round.title }}"
+                                    style="text-transform: uppercase;">
+                {% blocktrans %}Show <b>Details</b>{% endblocktrans %}
+              </button>
+              {% endif %}
+
+              {% if round %}
+              {% if request.user.can_apply %}
+
+              {% if application and not is_panellist %}
+              <div class="tooltip-wrapper{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
+                   {% if application.state == 'submitted'%}
+                   disabled
+                   data-title="{% trans 'The application has been already submitted and cannot be modified' %}"
+                   {% elif round.has_closed %}
+                   disabled
+                   data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}. {% trans 'Applications can no longer be accepted for this round.' %}"
+                   {% else %}
+                   data-title="{% trans 'Modify your application and continue application process' %}"
+                   {% endif %}
+                   >
+                   <a href="{% if application and application.id %}{% url 'application-update' pk=application.id %}{% else %}#{% endif %}"
+                      class="btn btn-primary{% if application.state == 'submitted' or round.has_closed %} disabled{% endif %}"
+                      style="text-transform: uppercase;"
+                      > {% trans "Continue" %} <b>{% trans "Application" %}</b>
+                   </a>
+              </div>
+              {% else %}
+              <div class="tooltip-wrapper{% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %} disabled{% endif %}"
+                   {% if is_panellist %}
+                   disabled
+                   data-title="{% trans 'You are a panellist of this round and cannot apply for it' %}"
+                   {% elif not round.is_open %}
+                   disabled
+                   {% if round.will_open %}
+                   data-title="{% trans 'The application will be open on' %} {{ round.opens_on|date:'o-m-d'}}"
+                   {% else %}
+                   {% endif %}
+                   {% elif has_submitted %}
+                   disabled
+                   data-title="{% trans 'You have already submitted one application in this round' %}"
+                   {% elif not round.direct_application_allowed and not round|user_has_nomination:user %}
+                   disabled
+                   data-title="{% trans 'You need to be nominated in order to apply for the application' %}"
+                   {% else %}
+                   data-title="{% trans 'Start a new application' %}"
+                   {% endif %}
+                   >
+                   <a href="{% url 'application-create' round=round.id %}"
+                      class="btn btn-primary {% if not round.is_open or is_panellist or has_submitted or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}"
+
+                      style="text-transform: uppercase;"
+                      {% if not round.is_open or not round.direct_application_allowed and not round|user_has_nomination:user %}disabled{% endif %}
+                      {% if record.previous_application %}
+                      data-toggle="modal"
+                      data-target="#previous-application"
+                      data-previous-id="{{ record.previous_application_id }}"
+                      data-previous-title="{{ record.previous_application_title }}"
+                      data-previous-number="{{ record.previous_application_number }}"
+                      data-previous-url="{% url 'application' pk=record.previous_application_id %}"
+                      data-round-id="{{ round.id }}"
+                      data-round-title="{{ round.title }}"
+                      data-new-url="{% url 'application-create' round=round.id %}"
+                      data-copy-url="{% url 'application-create' round=round.id %}?previous={{ record.previous_application_id }}"
+                      {% endif %}
+                      >
+                      {% trans "Apply" %} <b>{% trans "Now" %}</b>
+                   </a>
+              </div>
+              {% endif %}
+              {% if round.can_nominate %}
+              <div class="tooltip-wrapper{% if is_panellist or not round.is_open %} disabled{% endif %}"
+                   {% if is_panellist or not round.is_open %}
+                   disabled
+                   {% if is_panellist %}
+                   data-title="{% trans 'You cannot apply or nominate for a round where you are a panellist' %}"
+                   {% elif round.will_open %}
+                   data-title="{% trans 'The application will be open on' %} {{ round.opens_on|date:'o-m-d'}}"
+                   {% else %}
+                   data-title="{% trans 'The application period closed on' %} {{ round.closes_on|date:'o-m-d'}}"
+                   {% endif %}
+                   {% endif %}
+                   >
+                   <a href="{% url 'nomination-create' round=round.id %}" class="btn btn-primary {% if is_panellist or not round.is_open %}disabled{% endif %}" style="text-transform: uppercase;"
+                                                                                                                                                                {% if not round.is_open %}disabled{% endif %}> {% trans "Nominate to" %} <b>{% trans "Apply" %}</b>
+                   </a>
+              </div>
+              {% endif %}
+
+              {% if is_panellist %}
+              {% if application %}
+              <a href="{% url 'application-evaluation' pk=application.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Application" %}</b></a>
+              {% elif round %}
+              <a href="{% url 'round-application-list' round_id=round.id %}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Review" %} <b>{% trans "Applications" %}</b></a>
+              {% endif %}
+              {% endif %}
+
+              {% if round and count > 1 %}
+              <a href="{% url 'applications' %}?round={{ round.id }}" class="btn btn-primary" style="text-transform: uppercase;">{% trans "Show" %} <b>{% trans "Applications" %}</b></a>
+              {% endif %}
+
+
+              {% else %}
+              {% if request.user.is_superuser %}
+              <a href="{% url 'admin:portal_round_change' object_id=round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+                                                                                                         > {% trans "Edit" %} <b>{% trans "Round" %}</b>
+              </a>
+              {% endif %}
+              {% endif %}
+
+              {% if request.user.is_staff %}
+              <a href="{% url 'panellist-invite' round=round.id %}" class="btn btn-primary" style="text-transform: uppercase;"
+                                                                                            > {% trans "Invite" %}
+                                                                                            <b>{% trans "Panellist" %}</b>
+              </a>
+              {% endif %}
+
+              {% if request.user.is_staff %}
+              <a href="{% url 'round-coi-list' round=round.id %}" class="btn btn-outline-primary" style="text-transform: uppercase;"
+
+                                                                                                  > {% trans "Conflicts of" %}
+                                                                                                  <b>{% trans "Interest" %}</b>
+              </a>
+              {% endif %}
+
+              {% else %}
+              <span>
+                <strong>
+                  {% trans 'Scheme has no round available to apply for' %}
+                </strong>
+              </span>
+              {% endif %}
             </div>
           </div>
+        </div>
+      </div>
 
-        {% endwith %}
+      {% endwith %}
       {% endfor %}
 
-    {% endif %}
-    </div>
+      {% endif %}
+      </div>
 
-  {% endblock content %}
 
-  {% block javascript %}
-    {{ block.super }}
-    <script>
-      $(document).ready(function(){
-              $("#previous-application").on("show.bs.modal", function(event){
-                      $("#previous-application-title").html(event.relatedTarget.dataset.roundTitle);
-                      $("#previous-application-link-number").html(event.relatedTarget.dataset.previousNumber);
-                      $("#previous-application-link-title").html(event.relatedTarget.dataset.previousTitle);
-                      $("#previous-application-link").attr("href", event.relatedTarget.dataset.previousUrl);
-                      $("#new-application-button").attr("href", event.relatedTarget.dataset.newUrl);
-                      $("#copy-application-button").attr("href", event.relatedTarget.dataset.copyUrl);
-                      // $("#previous-application-body").load("round/" + event.relatedTarget.dataset.roundId);
-                      // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
-                    });
-              $("#roundDetail").on("show.bs.modal", function(event){
-                      $("#roundDetailLabel").html(event.relatedTarget.dataset.roundTitle);
-                      $("#roundDetailBody").load("round/" + event.relatedTarget.dataset.roundId);
-                      // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
-                    });
-              $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
-              $('#previous-applications').on('hide.bs.collapse', function () {
-                $("#previous-applications-button").text("{% trans 'Show' %}")
-              });
-              $('#previous-applications').on('show.bs.collapse', function () {
-                $("#previous-applications-button").text("{% trans 'Hide' %}")
-              });
-            });
-    </script>
-  {% endblock javascript %}
+      {% endblock content %}
+
+      {% block javascript %}
+      {{ block.super }}
+      <script>
+        $(document).ready(function(){
+                  $("#previous-application").on("show.bs.modal", function(event){
+                            $("#previous-application-title").html(event.relatedTarget.dataset.roundTitle);
+                            $("#previous-application-link-number").html(event.relatedTarget.dataset.previousNumber);
+                            $("#previous-application-link-title").html(event.relatedTarget.dataset.previousTitle);
+                            $("#previous-application-link").attr("href", event.relatedTarget.dataset.previousUrl);
+                            $("#new-application-button").attr("href", event.relatedTarget.dataset.newUrl);
+                            $("#copy-application-button").attr("href", event.relatedTarget.dataset.copyUrl);
+                            // $("#previous-application-body").load("round/" + event.relatedTarget.dataset.roundId);
+                            // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
+                          });
+                  $("#roundDetail").on("show.bs.modal", function(event){
+                            $("#roundDetailLabel").html(event.relatedTarget.dataset.roundTitle);
+                            $("#roundDetailBody").load("round/" + event.relatedTarget.dataset.roundId);
+                            // $(this).find(".modal-body").load("round/" + event.relatedTarget.dataset.roundId);
+                          });
+                  $('.tooltip-wrapper').tooltip(); // .tooltip({position: "bottom"});
+                  $('#previous-applications').on('hide.bs.collapse', function () {
+                            $("#previous-applications-button").text("{% trans 'Show' %}")
+                          });
+                  $('#previous-applications').on('show.bs.collapse', function () {
+                            $("#previous-applications-button").text("{% trans 'Hide' %}")
+                          });
+                });
+      </script>
+      {% endblock javascript %}
+
+      {# vim:set ft=htmldjango: #}

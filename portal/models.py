@@ -519,8 +519,13 @@ class ProfilePersonIdentifier(Model):
         "Profile",
         on_delete=CASCADE,
     )
-    code = ForeignKey(PersonIdentifierType, on_delete=DO_NOTHING, verbose_name=_("type"))
-    value = CharField(_("value"), max_length=100)
+    code = ForeignKey(
+        PersonIdentifierType,
+        on_delete=DO_NOTHING,
+        verbose_name=_("type"),
+        help_text=_("Choose a type or enter a new identifier or reference type"),
+    )
+    value = CharField(_("Identifier or reference"), max_length=100)
     put_code = PositiveIntegerField(_("put-code"), null=True, blank=True, editable=False)
 
     class Meta:
@@ -1251,6 +1256,16 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "Please either contact your referees, or replace them with one that will respond."
                 )
             )
+
+        if (
+            round.required_referees
+            and self.referees.filter(status="submitted").count() < round.required_referees
+        ):
+            raise Exception(
+                _("You need to procure reviews of your application from at least %d referees.")
+                % round.required_referees
+            )
+
         if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
             raise Exception(
                 _(
@@ -3770,3 +3785,6 @@ def clean_private_fils():
     if total:
         total = round(total / 1048576, 2)
         print(f"*** Recovered {total}MiB")
+
+
+# vim:set ft=python.django:

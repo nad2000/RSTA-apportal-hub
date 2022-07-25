@@ -497,3 +497,5 @@ class SummaryReportTable(tables.Table):
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
         fields = ["number", "round", "submitted_by", "status"]
+
+# vim:set ft=python.django:

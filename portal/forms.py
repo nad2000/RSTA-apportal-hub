@@ -1328,3 +1328,5 @@ class ScoreSheetForm(forms.ModelForm):
                 attrs={"accept": ".xls,.xlw,.xlt,.xml,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.csv,.ctv"}
             )
         )
+
+# vim:set ft=python.django:
