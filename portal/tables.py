@@ -67,6 +67,9 @@ class NominationTable(tables.Table):
         if record.application
         else None,
     )
+    first_name = tables.Column(verbose_name=_("Nominee First Name"))
+    last_name = tables.Column(verbose_name=_("Nominee Last Name"))
+    email = tables.Column(verbose_name=_("Nominee Email Address"))
 
     def render_application(self, record, value):
         if value:
@@ -76,6 +79,11 @@ class NominationTable(tables.Table):
         if value:
             return value.full_name_with_email
 
+    def before_render(self, request):
+
+        if (u := request.user) and not u.is_superuser and not u.is_staff:
+            self.columns.hide("nominator")
+
     class Meta:
         model = models.Nomination
         template_name = "django_tables2/bootstrap4.html"
@@ -84,9 +92,9 @@ class NominationTable(tables.Table):
             "status",
             "round",
             "nominator",
-            "email",
             "first_name",
             "last_name",
+            "email",
             "application",
         )
 
@@ -497,5 +505,6 @@ class SummaryReportTable(tables.Table):
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
         fields = ["number", "round", "submitted_by", "status"]
+
 
 # vim:set ft=python.django:
