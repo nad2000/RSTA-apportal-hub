@@ -849,6 +849,18 @@ class NominationForm(forms.ModelForm):
         fields = [
             # "round",
             "nominator",
+            Fieldset(
+                _("Nominee - details of the person you are nominating to receive this award"),
+                Row(
+                    Column("title", css_class="form-group col-2 mb-0"),
+                    Column("first_name", css_class="form-group col-3 mb-0"),
+                    Column("middle_names", css_class="form-group col-4 mb-0"),
+                    Column("last_name", css_class="form-group col-3 mb-0"),
+                ),
+                "email",
+                css_id="nominee",
+            ),
+            "org",
             HTML(
                 """
             <div id="div_id_nominator" class="form-group">
@@ -862,24 +874,23 @@ class NominationForm(forms.ModelForm):
             """
                 % _("Nominator")
             ),
-            Fieldset(
-                _("Nominee"),
-                Row(
-                    Column("title", css_class="form-group col-2 mb-0"),
-                    Column("first_name", css_class="form-group col-3 mb-0"),
-                    Column("middle_names", css_class="form-group col-4 mb-0"),
-                    Column("last_name", css_class="form-group col-3 mb-0"),
-                ),
-                "email",
-                css_id="nominee",
-            ),
-            "org",
         ]
         if r and r.nomination_template:
             help_text = _(
                 'You can download the nomination form template at <strong><a href="%s">%s</a></strong>'
             ) % (r.nomination_template.url, os.path.basename(r.nomination_template.name))
-            # fields.append(HTML(f'<div class="alert alert-info" role="alert">{help_text}</div>'))
+            fields.append(
+                HTML(
+                    '<div class="alert alert-dark" role="alert">%s</div>'
+                    % (
+                        _(
+                            'Please download the <strong><a href="%s">%s</a></strong>, '
+                            "complete then upload below."
+                        )
+                        % (r.nomination_template.url, os.path.basename(r.nomination_template.name))
+                    )
+                )
+            )
             fields.append(Field("file", label=help_text, help_text=help_text))
             self.fields["file"].help_text = help_text
         else:
@@ -1328,5 +1339,6 @@ class ScoreSheetForm(forms.ModelForm):
                 attrs={"accept": ".xls,.xlw,.xlt,.xml,.xlsx,.xlsm,.xltx,.xltm,.xlsb,.csv,.ctv"}
             )
         )
+
 
 # vim:set ft=python.django:
