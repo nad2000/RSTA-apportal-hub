@@ -7,12 +7,37 @@
   {{ block.super }}
   <!-- link href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" rel="stylesheet" -->
   <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet">
+  <style>
+.table-container th.asc:after {
+  /*content: '\0000a0\0025b2';
+float: right;*/
+  color: #026d7d;
+}
+.table-container th.desc:after {
+  /*content: '\0000a0\0025b2';
+float: right;*/
+  color: #026d7d;
+}
+/* thead th.orderable > a {
+   padding-right: 20px;
+   background: url("{% static 'images/arrow-inactive-up.png' %}") right center no-repeat;
+}
+thead th.orderable.asc > a {
+  padding-right: 20px;
+  background: url("{% static 'images/arrow-active-up.png' %}") right center no-repeat;
+}
+thead th.orderable.desc > a {
+  padding-right: 20px;
+  background: url("{% static 'images/arrow-active-down.png' %}") right center no-repeat;
+}*/
+  </style>
 {% endblock localcss %}
 
 {% block breadcrumbs %}
   {{ block.super }}
   {% if view_name == "invitation-list" %}
     {% breadcrumb "Innovations" "invitation-list" %}
+  {% elif view_name == "invitation-list" %}
   {% else %}
     {% breadcrumb "Applications" "applications" %}
     {% if state == "draft" %}
@@ -114,19 +139,19 @@
 
   {% if view.export_formats %}
     <form method="GET">
-    <input type="hidden" name="show_only_conflicts" value="{% if show_only_conflicts %}1{% else %}0{% endif %}" >
+      <input type="hidden" name="show_only_conflicts" value="{% if show_only_conflicts %}1{% else %}0{% endif %}" >
 
-    <div class="buttonHolder mb-5 mt-3 float-right" style="display: inline-flex;">
+      <div class="buttonHolder mb-5 mt-3 float-right" style="display: inline-flex;">
 
-      <!-- label for="_export">{% trans 'Export Format' %}</label -->
-      <select class="form-control mr-1"  name="_export" id="_export">
-        {% for format in view.export_formats %}
-          <option value="{{ format }}">{{ format }}</option>
-        {% endfor %}
-      </select>
-      <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
+        <!-- label for="_export">{% trans 'Export Format' %}</label -->
+        <select class="form-control mr-1"  name="_export" id="_export">
+          {% for format in view.export_formats %}
+            <option value="{{ format }}">{{ format }}</option>
+          {% endfor %}
+        </select>
+        <input class="btn btn-primary" type="submit" value="{% trans 'Export' %}" >
 
-    </div>
+      </div>
 
 
     </form>

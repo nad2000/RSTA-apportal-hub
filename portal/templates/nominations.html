@@ -1,10 +1,10 @@
-{% extends "base.html" %}
+{% extends "table.html" %}
 
 {% load static i18n django_bootstrap_breadcrumbs %}
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  {{ block.super }}
+  {% breadcrumb_raw_safe '<i class="fa fa-fw fa-home"></i>' "/" %}
   {% breadcrumb "Nominations" "nominations" %}
   {% if state == "draft" %}
     {% breadcrumb "Draft" "nominations-draft" %}
@@ -14,7 +14,3 @@
 {% endblock %}
 
 {% block sidebar %}{% include 'sidebar.html' with category="nominations" %}{% endblock sidebar %}
-
-{% block content %}
-  {% render_table table %}
-{% endblock %}

@@ -46,20 +46,6 @@
       {% compress css %}
       {% block localcss %}
         <!-- This file stores project-specific CSS -->
-<style>
-thead th.orderable > a {
-    padding-right: 20px;
-    /* background: url("{% static 'images/arrow-inactive-up.png' %}") right center no-repeat;*/
-}
-thead th.orderable.asc > a {
-  padding-right: 20px;
-  background: url("{% static 'images/arrow-active-up.png' %}") right center no-repeat;
-}
-thead th.orderable.desc > a {
-  padding-right: 20px;
-  background: url("{% static 'images/arrow-active-down.png' %}") right center no-repeat;
-}
-</style>
       {% endblock %}
       {% endcompress %}
     {% endblock %}
