@@ -1567,7 +1567,8 @@ class ApplicationView(LoginRequiredMixin):
 
                     if (
                         a.round.required_referees
-                        and a.referees.filter(status="submitted").count() < a.round.required_referees
+                        and a.referees.filter(status="submitted").count()
+                        < a.round.required_referees
                     ):
                         messages.error(
                             self.request,
@@ -3029,9 +3030,12 @@ class NominationView(CreateUpdateView):
             invitation, created = n.submit(request=self.request)
             messages.info(
                 self.request,
-                _("Invitation to submit an application has been sent to %s.") % invitation.email
+                _("An invitation to submit an application has been sent to %s (your nominee).")
+                % invitation.email
                 if created
-                else _("Invitation to submit an application has been resent to %s.")
+                else _(
+                    "An invitation to submit an application has been resent to %s (your nominee)."
+                )
                 % invitation.email,
             )
         elif self.request.method == "POST" or "save_draft" in self.request.POST:
