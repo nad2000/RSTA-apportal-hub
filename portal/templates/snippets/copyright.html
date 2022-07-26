@@ -1,7 +1,53 @@
 {% load static i18n %}
-© 2021, 2022 {% trans 'Copyright' %}: <a href="https://www.royalsociety.org.nz/" class="text-white" >
-  {% trans 'Royal Society Te Apārangi' %}
-</a>
-<a class="text-white" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
-  <img src="{% static 'images/CC-BY-icon-88x31.png' %}" alt="CC-BY">
-</a>
+<div class="d-flex">
+  <div class="mr-auto">
+    ©<a href="https://www.royalsociety.org.nz/"
+        style="border-bottom: none;"
+        target="_blank"
+        class="text-white"
+        > {% trans 'Royal Society Te Apārangi' %} </a>
+    <a class="text-white" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">
+      <img src="{% static 'images/CC-BY-icon-88x31.png' %}" alt="CC-BY">
+    </a>
+  </div>
+  <div class="ml-auto">
+    <a href="https://www.pmscienceprizes.org.nz/contact-us/"
+       style="border-bottom: none;"
+       target="_blank"
+       data-toggle="tooltip"
+       title="{% trans 'Contact Us' %}"
+       >
+       <i class="fas fa-envelope"></i>
+    </a>
+    <a href="https://www.linkedin.com/company/royal-society-of-new-zealand/?originalSubdomain=nz"
+       style="border-bottom: none;"
+       data-toggle="tooltip"
+       title="{% trans 'Follow Us' %}"
+       target="_blank"
+       >
+       <i class="fab fa-linkedin"></i>
+    </a>
+    <a href="https://twitter.com/royalsocietynz"
+       style="border-bottom: none;"
+       data-toggle="tooltip"
+       title="{% trans 'Follow Us' %}"
+       target="_blank">
+      <i class="fab fa-twitter-square"></i>
+    </a>
+    <a href="https://github.com/Royal-Society-of-New-Zealand"
+       style="border-bottom: none;"
+       data-toggle="tooltip"
+       title="{% trans 'Follow Us' %}"
+       target="_blank">
+      <i class="fab fa-github"></i>
+    </a>
+    <a href="https://www.facebook.com/RoyalSocietyNZ"
+       style="border-bottom: none;"
+       data-toggle="tooltip"
+       title="{% trans 'Follow Us' %}"
+       target="_blank">
+      <i class="fab fa-facebook"></i>
+    </a>
+  </div>
+</div>
+{# vim:set ft=htmldjango: #}
