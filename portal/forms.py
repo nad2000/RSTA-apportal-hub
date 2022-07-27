@@ -517,13 +517,14 @@ class ApplicationForm(forms.ModelForm):
                 )
             else:
                 tac_text = _(
-                    "As authorized lead applicant, I affirm that all information provided in this application is "
-                    "to the best of my knowledge true and correct. "
-                    "<br/><br/>I affirm that if successful, I (and where relevant, my team) will participate in "
-                    "publicity and that the content of this application can be used in promotion of the Prizes."
-                    "<br/><br/>If the Prize comes with conditions on use, I affirm that any Prize money will be "
-                    "used in accordance with the Prize's guidelines, and in accord with any plan submitted as "
-                    "part of the Prize application"
+                    "<p>As the authorized applicant I have read the eligibility criteria and other information in "
+                    "the Prize Guidelines and all the information provided in this application I believe to be "
+                    "true and correct."
+                    "<p>I affirm that if successful, I will participate in publicity and that the content of "
+                    "this application can be used in promotion of the Prizes.</p>"
+                    "<p>If the Prize comes with conditions on use, I affirm that any Prize money will be used in "
+                    "accordance with the Prize’s guidelines, and in accord with any plan "
+                    "submitted as part of the Prize.</p>"
                 )
             tabs.append(
                 Tab(
