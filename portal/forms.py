@@ -434,36 +434,33 @@ class ApplicationForm(forms.ModelForm):
                 ),
             )
         if round.has_referees:
-            referee_information_lines = [
-                _(
-                    "The Selection Panel at its sole discretion, may request further "
-                    "referees or make contact with outside parties."
-                ),
-                _(
-                    "The panel also reserves the right to hold interviews to help inform their decision."
-                ),
-            ]
-            if round.required_referees:
-                if round.required_referees > 1:
-                    referee_information_lines.insert(
-                        0,
-                        (
-                            _("%s referees are required to support this application.")
-                            % apnumber(round.required_referees)
-                        ).capitalize(),
-                    )
-                else:
-                    referee_information_lines.insert(
-                        0, _("At least one referee is required to support this application.")
-                    )
-            referee_information_lines = "".join(
-                f"<p>{line}</p>" for line in referee_information_lines
-            )
+            if round.required_referees and round.required_referees > 1:
+                referee_information_lines = [
+                    (
+                        _("%s referees are required to support this application.")
+                        % apnumber(round.required_referees)
+                    ).capitalize(),
+                    _(
+                        "The Selection Panel at its sole discretion, may request further "
+                        "referees or make contact with outside parties."
+                    ),
+                    _(
+                        "The panel also reserves the right to hold interviews to help inform their decision."
+                    ),
+                ]
+                referee_information_text = "".join(
+                    f"<p>{line}</p>" for line in referee_information_lines
+                )
+            else:
+                referee_information_text = _(
+                    "This Prize requires one referee who has a solid understanding of your interest "
+                    "in communication and is able to give expert, current opinion."
+                )
             tabs.append(
                 Tab(
                     _("Referees"),
                     HTML(
-                        f'<div class="alert alert-dark" role="alert">{referee_information_lines}</div>'
+                        f'<div class="alert alert-dark" role="alert">{referee_information_text}</div>'
                     ),
                     Div(TableInlineFormset("referees"), css_id="referees"),
                 ),
