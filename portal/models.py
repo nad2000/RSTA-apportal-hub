@@ -641,8 +641,12 @@ class Affiliation(Model):
     org = ForeignKey(Organisation, on_delete=CASCADE, verbose_name=_("organisation"))
     type = CharField(_("type"), max_length=10, choices=AFFILIATION_TYPES)
     role = CharField(
-        _("role"), max_length=512, null=True, blank=True
-    )  # , help_text="position or degree")
+        _("role"),
+        max_length=512,
+        null=True,
+        blank=True,
+        help_text="position or role, e.g., student, postdoc, etc.",
+    )
     qualification = CharField(
         _("qualification"), max_length=512, null=True, blank=True
     )  # , help_text="position or degree")
@@ -1055,7 +1059,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         related_name="applications",
     )
     organisation = CharField(max_length=200, verbose_name=_("organisation"))
-    position = CharField(max_length=80, verbose_name=_("position"))
+    position = CharField(
+        max_length=80,
+        verbose_name=_("position"),
+        help_text="position or role, e.g., student, postdoc, etc.",
+    )
     postal_address = CharField(max_length=120, verbose_name=_("postal address"))
     city = CharField(max_length=80, verbose_name=_("city"))
     postcode = CharField(max_length=4, verbose_name=_("postcode"))

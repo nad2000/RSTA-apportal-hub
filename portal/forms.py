@@ -602,6 +602,9 @@ class ApplicationForm(forms.ModelForm):
             daytime_phone=TelInput(),
             mobile_phone=TelInput(),
             # file=FileInput(),
+            position=TextInput(
+                attrs={"placeholder": _("studen, postdoc, etc.")},
+            ),
             summary=SummernoteInplaceWidget(),
             summary_en=SummernoteInplaceWidget(),
             summary_mi=SummernoteInplaceWidget(),

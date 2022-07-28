@@ -2456,6 +2456,9 @@ class ProfileAffiliationsFormSetView(ProfileSectionFormSetView):
                             "oninput": "this.setCustomValidity('')",
                         },
                     ),
+                    "role": TextInput(
+                        attrs={"placeholder": _("studen, postdoc, etc.")},
+                    ),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "qualification": HiddenInput(),
