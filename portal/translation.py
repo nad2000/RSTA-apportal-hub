@@ -17,6 +17,7 @@ class RoundTranslationOptions(TranslationOptions):
     fields = (
         "title",
         "description",
+        "tac",
     )
 
 
@@ -69,5 +70,6 @@ class ProtectionPatternProfileOptions(TranslationOptions):
         "description",
         "comment",
     )
+
 
 # vim:set ft=python.django:

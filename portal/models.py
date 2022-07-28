@@ -2633,6 +2633,10 @@ class Round(Model):
     direct_application_allowed = BooleanField(default=True)
     can_nominate = BooleanField(default=True)
 
+    tac = TextField(
+        _("T&C"), max_length=10000, null=True, blank=True, help_text=_("Terms and Conditions")
+    )
+
     has_online_scoring = BooleanField(default=True)
     score_sheet_template = FileField(
         null=True,
@@ -2848,6 +2852,8 @@ class Round(Model):
                 "can_nominate",
                 "description_en",
                 "description_mi",
+                "tac_en",
+                "tac_mi",
                 "direct_application_allowed",
                 "ethics_statement_required",
                 "guidelines",

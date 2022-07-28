@@ -946,6 +946,8 @@ class RoundAdmin(
     summernote_fields = (
         "description_en",
         "description_mi",
+        "tac_en",
+        "tac_mi",
     )
     save_on_top = True
     list_display = ["title", "scheme", "opens_on", "closes_on", "is_active"]
@@ -991,6 +993,16 @@ class RoundAdmin(
                     ),
                     "required_referees",
                 ]
+            },
+        ),
+        (
+            "Terms and Conditions",
+            {
+                # "classes": ("collapse",),
+                "fields": [
+                    "tac_en",
+                    "tac_mi",
+                ],
             },
         ),
         (
