@@ -684,16 +684,6 @@ class MandatoryApplicationFormInlineFormSet(BaseInlineFormSet):
         pass
 
 
-RefereeFormSet = inlineformset_factory(
-    models.Application,
-    models.Referee,
-    form=RefereeForm,
-    formset=MandatoryApplicationFormInlineFormSet,
-    extra=1,
-    can_delete=True,
-)
-
-
 class ProfileCareerStageForm(forms.ModelForm):
     class Meta:
         exclude = ()

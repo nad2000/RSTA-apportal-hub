@@ -1719,10 +1719,34 @@ class ApplicationView(LoginRequiredMixin):
                     else forms.MemberFormSet(initial=initial_members)
                 )
 
-        if self.request.POST:
-            context["referees"] = forms.RefereeFormSet(self.request.POST, instance=self.object)
+        if round.required_referees:
+            kwargs = {
+                "min_num": round.required_referees,
+                "max_num": round.required_referees,
+                "can_delete": False,
+                "extra": round.required_referees
+                - (self.object and self.object.referees.count() or 0),
+                "validate_max": False,
+                "validate_min": False,
+            }
         else:
-            context["referees"] = forms.RefereeFormSet(
+            kwargs = {
+                "extra": 1,
+                "can_delete": True,
+            }
+
+        RefereeFormSet = forms.inlineformset_factory(
+            models.Application,
+            models.Referee,
+            form=forms.RefereeForm,
+            formset=forms.MandatoryApplicationFormInlineFormSet,
+            **kwargs,
+        )
+
+        if self.request.POST:
+            referee_form_set = RefereeFormSet(self.request.POST, instance=self.object)
+        else:
+            referee_form_set = RefereeFormSet(
                 instance=self.object,
                 initial=[
                     dict(
@@ -1736,6 +1760,7 @@ class ApplicationView(LoginRequiredMixin):
                 if latest_application and not (self.object and self.object.id)
                 else [],
             )
+        context["referees"] = referee_form_set
         return context
 
     def get_form_kwargs(self):
