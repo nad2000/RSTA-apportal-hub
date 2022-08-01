@@ -1721,7 +1721,7 @@ class ApplicationView(LoginRequiredMixin):
 
         if round.required_referees:
             kwargs = {
-                "min_num": round.required_referees,
+                # "min_num": round.required_referees,
                 "max_num": round.required_referees,
                 "can_delete": False,
                 "extra": round.required_referees
