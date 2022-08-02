@@ -1209,7 +1209,8 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     )
     def submit(self, *args, **kwargs):
         request = kwargs.get("request")
-        if self.round.budget_template and not self.budget:
+        round = self.round
+        if round.budget_template and not self.budget:
             raise Exception(
                 _("You must upload a budget spreadsheet to complete your Prize application")
             )
@@ -1234,8 +1235,8 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
         if (
-            self.round
-            and self.round.pid_required
+            round
+            and round.pid_required
             and self.submitted_by.needs_identity_verification
             and not (self.photo_identity or IdentityVerification.where(application=self).exists())
         ):
@@ -1256,7 +1257,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             Q(testified_at__isnull=True)
             | Q(user__isnull=True)
             | ~Q(testimonial__state="submitted"),
-            ~Q(status__in=["submitted", "opted_out"]),
+            ~Q(status__in=["submitted", "opted_out", "testified"]),
         ).exists():
             raise Exception(
                 _(
@@ -1267,14 +1268,14 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
 
         if (
             round.required_referees
-            and self.referees.filter(status="submitted").count() < round.required_referees
+            and self.referees.filter(status="testified").count() < round.required_referees
         ):
             raise Exception(
                 _("You need to procure reviews of your application from at least %d referees.")
                 % round.required_referees
             )
 
-        if Member.where(application=self, authorized_at__isnull=True, user__isnull=True).exists():
+        if self.members.filter(Q(authorized_at__isnull=True) | Q(user__isnull=True)).exists():
             raise Exception(
                 _(
                     "Not all team members have given their consent to be part of the team "
@@ -1298,7 +1299,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "nominator": nominator,
                     "url": url,
                     "number": self.number,
-                    "title": self.application_title or self.round.title,
+                    "title": self.application_title or round.title,
                 },
                 recipient_list=[nominator.full_email_address],
                 fail_silently=False,
