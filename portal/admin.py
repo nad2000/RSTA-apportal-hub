@@ -816,6 +816,11 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
 
 @admin.register(models.Invitation)
 class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmin):
+    @admin.action(description="Resend invitations")
+    def resend(self, request, queryset):
+        for o in queryset:
+            o.send(request)
+            o.save()
 
     save_on_top = True
     view_on_site = False
@@ -823,12 +828,23 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
     exclude = [
         "site",
     ]
-    list_display = ["type", "status", "email", "first_name", "last_name", "organisation"]
+    list_display = [
+        "type",
+        "status",
+        "created_at",
+        "sent_at",
+        "email",
+        "first_name",
+        "last_name",
+        "organisation",
+    ]
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email", "token"]
     date_hierarchy = "created_at"
     readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
     inlines = [StateLogInline]
+    ordering = ["-id"]
+    actions = ["resend"]
 
 
 @admin.register(models.Testimonial)
