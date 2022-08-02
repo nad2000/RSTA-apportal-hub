@@ -766,6 +766,7 @@ class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin)
         "summary",
         "site",
     ]
+    autocomplete_fields = ["application"]
 
     actions = ["resend_invitations"]
 
@@ -995,6 +996,7 @@ class RoundAdmin(
                         "applicant_cv_required",
                         "team_can_apply",
                         "can_nominate",
+                        "notify_nominator",
                         "direct_application_allowed",
                         "ethics_statement_required",
                         "has_online_scoring",

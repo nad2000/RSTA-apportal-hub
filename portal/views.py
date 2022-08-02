@@ -1567,7 +1567,7 @@ class ApplicationView(LoginRequiredMixin):
 
                     if (
                         a.round.required_referees
-                        and a.referees.filter(status="submitted").count()
+                        and a.referees.filter(status="testified").count()
                         < a.round.required_referees
                     ):
                         messages.error(

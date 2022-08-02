@@ -1282,7 +1282,29 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                     "Please either contact your team's members, or modify the team membership"
                 )
             )
-        pass
+
+        if round.notify_nominator:
+            nomination = self.nomination
+            nominator = nomination.nominator
+            url = request.build_absolute_uri(reverse("application", args=[str(self.id)]))
+            send_mail(
+                __("Application '%s' Submitted") % self,
+                html_message=__(
+                    "<p>Kia ora %(nominator)s</p>"
+                    '<p>The nominee has submitted an application <a href="%(url)s">%(number)s: '
+                    '"%(title)s</a></p>'
+                )
+                % {
+                    "nominator": nominator,
+                    "url": url,
+                    "number": self.number,
+                    "title": self.application_title or self.round.title,
+                },
+                recipient_list=[nominator.full_email_address],
+                fail_silently=False,
+                request=request,
+                reply_to=settings.DEFAULT_FROM_EMAIL,
+            )
 
     @transition(field=state, source=["submitted"], target="draft")
     def request_resubmission(self, request=None, *args, **kwargs):
@@ -2632,6 +2654,10 @@ class Round(Model):
 
     direct_application_allowed = BooleanField(default=True)
     can_nominate = BooleanField(default=True)
+    notify_nominator = BooleanField(
+        default=False,
+        verbose_name=_("Notify nominator/principal/mentor"),
+    )
 
     tac = TextField(
         _("T&C"), max_length=10000, null=True, blank=True, help_text=_("Terms and Conditions")
@@ -2850,6 +2876,7 @@ class Round(Model):
                 "has_title",
                 "applicant_cv_required",
                 "can_nominate",
+                "notify_nominator",
                 "description_en",
                 "description_mi",
                 "tac_en",

@@ -662,6 +662,23 @@ class RefereeForm(forms.ModelForm):
                 self.instance.status_changed_at or self.instance.updated_at
             )
 
+    def save(self, commit=True):
+        """Prevent 'status' getting overwritten"""
+        if self.errors:
+            raise ValueError(
+                "The %s could not be %s because the data didn't validate."
+                % (
+                    self.instance._meta.object_name,
+                    "created" if self.instance._state.adding else "changed",
+                )
+            )
+        if commit:
+            self.instance.save(update_fields=["email", "first_name", "middle_names", "last_name"])
+            self._save_m2m()
+        else:
+            self.save_m2m = self._save_m2m
+        return self.instance
+
     class Meta:
         model = models.Referee
         fields = ["status", "email", "first_name", "middle_names", "last_name"]
