@@ -37,7 +37,11 @@ function formset_set_inputs(prefix="form") {
       } else {
         // $(this).show();
         $tr.find("input[data-required],select[data-required]").filter(function() { return !$(this).val(); }).each(function() {
-          $(this).attr("required", '');
+	  let el=$(this);
+	  if (el.attr("type")=="file") {
+	    // workaroud - ignore 'file' fields with exiting values
+	    if (!el.parent().siblings()[0]) el.attr("required", '');
+	  } else el.attr("required", '');
         });
       }
   })

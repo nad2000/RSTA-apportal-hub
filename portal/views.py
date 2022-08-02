@@ -2553,7 +2553,16 @@ class ProfileProfessionalFormSetView(ProfileAffiliationsFormSetView):
         kwargs.update(
             {
                 "widgets": {
-                    "org": autocomplete.ModelSelect2("org-autocomplete"),
+                    "org": autocomplete.ModelSelect2(
+                        "org-autocomplete",
+                        attrs={
+                            # "placeholder": _(""),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("The organisation is required ..."),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
                     "type": HiddenInput(),
                     "profile": HiddenInput(),
                     "start_date": forms.DateInput(),
@@ -2693,7 +2702,15 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "owner": HiddenInput(),
-                    # "file": FileInput(),
+                    "file": widgets.ClearableFileInput(
+                        attrs={
+                            "placeholder": _("Please upload a file ..."),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("The file is required. Please upload a file ..."),
+                            "oninput": "this.setCustomValidity('')",
+                        }
+                    ),
                 },
             }
         )
@@ -2768,7 +2785,16 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
                     "profile": HiddenInput(),
                     "start_year": DateInput(attrs={"class": "yearpicker"}),
                     "qualification": autocomplete.ModelSelect2("qualification-autocomplete"),
-                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                    "awarded_by": autocomplete.ModelSelect2(
+                        "org-autocomplete",
+                        attrs={
+                            "placeholder": _("The organisation that awarded the degree"),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("The organisation is required ..."),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
                     # "awarded_by": ModelSelect2Widget(
                     #     model=models.Organisation, search_fields=["name__icontains"],
                     # ),
@@ -2844,8 +2870,26 @@ class ProfileRecognitionFormSetView(ProfileSectionFormSetView):
                 "widgets": {
                     "profile": HiddenInput(),
                     "recognized_in": forms.YearInput(),
-                    "award": autocomplete.ModelSelect2("award-autocomplete"),
-                    "awarded_by": autocomplete.ModelSelect2("org-autocomplete"),
+                    "award": autocomplete.ModelSelect2(
+                        "award-autocomplete",
+                        attrs={
+                            # "placeholder": _(""),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("The award is required ..."),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
+                    "awarded_by": autocomplete.ModelSelect2(
+                        "org-autocomplete",
+                        attrs={
+                            "placeholder": _("The organisation that awarded the award"),
+                            "data-required": 1,
+                            "oninvalid": "this.setCustomValidity('%s')"
+                            % _("The organisation is required ..."),
+                            "oninput": "this.setCustomValidity('')",
+                        },
+                    ),
                 },
             }
         )
@@ -4363,8 +4407,17 @@ class RoundConflictOfInterestFormSetView(LoginRequiredMixin, ModelFormSetView):
                     "application": forms.HiddenInput(),
                     "has_conflict": forms.HiddenInput(),
                     "panellist": forms.HiddenInput(),
-                    # "file": FileInput(),
-                },
+                    # "file": widgets.FileInput(
+                    #     attrs={
+                    #         "data-placeholder": _("Choose a career stage ..."),
+                    #         "placeholder": _("Choose a career stage ..."),
+                    #         "data-required": 1,
+                    #         "oninvalid": "this.setCustomValidity('%s')"
+                    #         % _("Career stage is required"),
+                    #         "oninput": "this.setCustomValidity('')",
+                    #     }
+                    # ),
+                }
             }
         )
         return kwargs
