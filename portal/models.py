@@ -1161,6 +1161,11 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             user.is_superuser
             or user.is_staff
             or self.is_applicant(user)
+            or (
+                self.nomination
+                and self.nomination.nominator
+                and self.nomination.nominator.user == user
+            )
             or (self.referees.filter(Q(user=user) | Q(email=user.email)).exists())
             or (self.round.panellists.filter(Q(user=user) | Q(email=user.email)).exists())
         )
@@ -1284,9 +1289,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 )
             )
 
-        if round.notify_nominator:
-            nomination = self.nomination
-            nominator = nomination.nominator
+        if round.notify_nominator and self.nomination and (nominator := self.nomination.nominator):
             url = request.build_absolute_uri(reverse("application", args=[str(self.id)]))
             send_mail(
                 __("Application '%s' Submitted") % self,
@@ -1786,11 +1789,11 @@ class Referee(RefereeMixin, PersonMixin, Model):
         monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
     )
 
-    def clean(self):
-        if self.application_id and not self.application.file:
-            raise ValidationError(
-                _("Before inviting referees, please upload a completed application form.")
-            )
+    # def clean(self):
+    #     if self.application_id and not self.application.file:
+    #         raise ValidationError(
+    #             _("Before inviting referees, please upload a completed application form.")
+    #         )
 
     @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):

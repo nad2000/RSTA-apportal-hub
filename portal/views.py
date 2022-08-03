@@ -1322,31 +1322,41 @@ class ApplicationView(LoginRequiredMixin):
                     # referees.instance = a
                     has_deleted = bool(has_deleted or referees.deleted_forms)
                     if has_deleted or "send_invitations" in self.request.POST:
-                        # url = self.request.path_info.split("?")[0] + "#referees"
                         url = self.continue_url("referees")
                     referees.save()
-                    count = invite_referee(self.request, a)
-                    if count > 0:
-                        messages.success(
+                    if a.file:
+                        count = invite_referee(self.request, a)
+                        if count > 0:
+                            messages.success(
+                                self.request,
+                                _("%d referee invitation(s) sent.") % count,
+                            )
+                    elif a.referees.count():
+                        messages.info(
                             self.request,
-                            _("%d referee invitation(s) sent.") % count,
+                            _(
+                                "The invitation(s) to referee(s) will be sent after "
+                                "you upload the application form."
+                            ),
                         )
+
                     if has_deleted:
                         return redirect(url)
                 else:
                     for f in referees.forms:
                         if not f.is_valid():
                             form.errors.update(f.errors)
-                            if not a.file:
-                                url = self.continue_url("summary")
-                                messages.error(
-                                    self.request,
-                                    "Before inviting referees, please upload a completed application form.",
-                                    # "Please upload a new application form or remove the referees.",
-                                )
-                                raise ValidationError(_("Missing application form file"))
-                            else:
-                                url = self.continue_url("referees")
+                            # if not a.file:
+                            #     url = self.continue_url("summary")
+                            #     messages.error(
+                            #         self.request,
+                            #         "Before inviting referees, please upload a completed application form.",
+                            #         # "Please upload a new application form or remove the referees.",
+                            #     )
+                            #     raise ValidationError(_("Missing application form file"))
+                            # else:
+                            #     url = self.continue_url("referees")
+                            url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
 
                 if "photo_identity" in form.changed_data and form.instance.photo_identity:
