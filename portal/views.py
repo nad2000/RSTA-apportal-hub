@@ -1272,8 +1272,8 @@ class ApplicationView(LoginRequiredMixin):
         referees = context["referees"]
         user = self.request.user
         reset_cache(self.request)
-
         url = self.request.path_info
+
         try:
             with transaction.atomic():
 
@@ -1341,9 +1341,10 @@ class ApplicationView(LoginRequiredMixin):
                                 url = self.continue_url("summary")
                                 messages.error(
                                     self.request,
-                                    "Please upload a new application form or remove the referees.",
+                                    "Before inviting referees, please upload a completed application form.",
+                                    # "Please upload a new application form or remove the referees.",
                                 )
-                                raise ValidationError(_("Missing referee form file"))
+                                raise ValidationError(_("Missing application form file"))
                             else:
                                 url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
@@ -1443,8 +1444,8 @@ class ApplicationView(LoginRequiredMixin):
         if has_deleted:  # keep editing
             return redirect(url)
         else:
+            url = None
             try:
-                url = None
                 if "submit" in self.request.POST:
 
                     if self.round.applicant_cv_required:
