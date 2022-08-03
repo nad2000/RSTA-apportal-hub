@@ -673,7 +673,10 @@ class RefereeForm(forms.ModelForm):
                 )
             )
         if commit:
-            self.instance.save(update_fields=["email", "first_name", "middle_names", "last_name"])
+            if self.instance.id:
+                self.instance.save(update_fields=["email", "first_name", "middle_names", "last_name"])
+            else:
+                self.instance.save()
             self._save_m2m()
         else:
             self.save_m2m = self._save_m2m
