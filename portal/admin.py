@@ -841,6 +841,15 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
         "organisation",
         "updated_at",
     ]
+    autocomplete_fields = [
+        "inviter",
+        "application",
+        "nomination",
+        "member",
+        "referee",
+        "panellist",
+        "org",
+    ]
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email", "token"]
     date_hierarchy = "created_at"
