@@ -839,6 +839,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
         "first_name",
         "last_name",
         "organisation",
+        "updated_at",
     ]
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email", "token"]
