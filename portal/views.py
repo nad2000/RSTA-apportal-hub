@@ -892,32 +892,28 @@ def get_or_create_referee_invitation(referee, by=None):
     if hasattr(referee, "invitation"):
         i = referee.invitation
         if referee.email != i.email:
-            if by:
-                i.inviter = by
-            i.email = referee.email
-            i.first_name = first_name
-            i.middle_names = middle_names
-            i.last_name = last_name
-            i.sent_at = None
-            i.site = site
-            i.submit()
+            i.revoke(by=by)
             i.save()
-        referee.satus = None
-        return (i, False)
-    else:
-        return models.Invitation.get_or_create(
-            type=models.INVITATION_TYPES.R,
-            referee=referee,
-            email=referee.email,
-            defaults=dict(
-                inviter=by,
-                application=referee.application,
-                first_name=first_name,
-                middle_names=middle_names,
-                last_name=last_name,
-                site=site,
-            ),
-        )
+        else:
+            referee.satus = None
+            return (i, False)
+
+    i, created = models.Invitation.get_or_create(
+        type=models.INVITATION_TYPES.R,
+        referee=referee,
+        email=referee.email,
+        defaults=dict(
+            inviter=by,
+            application=referee.application,
+            first_name=first_name,
+            middle_names=middle_names,
+            last_name=last_name,
+            site=site,
+        ),
+    )
+    referee.invitation = i
+    referee.save()
+    return (i, created)
 
 
 def invite_panellist(request, round):

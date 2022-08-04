@@ -830,11 +830,12 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
         "site",
     ]
     list_display = [
+        "token",
         "type",
         "status",
+        "email",
         "created_at",
         "sent_at",
-        "email",
         "first_name",
         "last_name",
         "organisation",
@@ -842,7 +843,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
     list_filter = ["type", "status", "created_at", "updated_at"]
     search_fields = ["first_name", "last_name", "email", "token"]
     date_hierarchy = "created_at"
-    readonly_fields = ["submitted_at", "accepted_at", "expired_at"]
+    readonly_fields = ["submitted_at", "accepted_at", "expired_at", "token", "url"]
     inlines = [StateLogInline]
     ordering = ["-id"]
     actions = ["resend"]

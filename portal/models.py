@@ -61,6 +61,7 @@ from django.urls import reverse
 from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMField, transition
+from django_fsm_log.decorators import fsm_log_by
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
@@ -2022,7 +2023,7 @@ class InvitationMixin:
 
 class Invitation(InvitationMixin, Model):
 
-    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced")
+    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced", "revoked")
 
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
@@ -2097,11 +2098,12 @@ class Invitation(InvitationMixin, Model):
         elif self.type == INVITATION_TYPES.T:
             return reverse("application", kwargs=dict(pk=self.member.application.id))
         elif self.type == INVITATION_TYPES.R:
-            r = self.referee
-            if t := Testimonial.where(referee=r).first():
-                return reverse("review-update", kwargs=dict(pk=t.id))
-            a = r.application
-            return reverse("application", kwargs=dict(pk=a.id))
+            if r := self.referee:
+                if t := Testimonial.where(referee=r).first():
+                    return reverse("review-update", kwargs=dict(pk=t.id))
+                a = r.application
+                return reverse("application", kwargs=dict(pk=a.id))
+            return
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
             if p.round_id:
@@ -2129,6 +2131,17 @@ class Invitation(InvitationMixin, Model):
     )
     def submit(self, *args, **kwargs):
         pass
+
+    @fsm_log_by
+    @transition(
+        field=status,
+        source=["*"],
+        target=STATUS.revoked,
+    )
+    def revoke(self, request=None, by=None):
+        self.referee = None
+        self.member = None
+        self.panellist = None
 
     @transition(
         field=status,
@@ -2379,8 +2392,9 @@ class Invitation(InvitationMixin, Model):
         site_id = cls.get_current_site_id()
         return cls.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
-            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired') AND i.site_id=%s"
-            "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired') AND site_id=%s",
+            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired', 'revoked') AND i.site_id=%s"
+            "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired', 'revoked') "
+            "  AND site_id=%s",
             [user.id, site_id, user.email, site_id],
         )
 
