@@ -1163,8 +1163,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             or self.is_applicant(user)
             or (
                 self.nomination
-                and self.nomination.nominator
-                and self.nomination.nominator.user == user
+                and (self.nomination.nominator == user or self.nomination.user == user)
             )
             or (self.referees.filter(Q(user=user) | Q(email=user.email)).exists())
             or (self.round.panellists.filter(Q(user=user) | Q(email=user.email)).exists())
