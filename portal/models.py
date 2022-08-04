@@ -7,6 +7,7 @@ import ssl
 import subprocess
 import tempfile
 from datetime import date, datetime
+from functools import partial, wraps
 from urllib.parse import urljoin, urlparse
 
 import simple_history
@@ -61,7 +62,7 @@ from django.urls import reverse
 from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMField, transition
-from django_fsm_log.decorators import fsm_log_by
+from django_fsm_log.helpers import FSMLogDescriptor
 from model_utils import Choices
 from model_utils.fields import MonitorField, StatusField
 from private_storage.fields import PrivateFileField
@@ -169,6 +170,37 @@ LANGUAGES = Choices(
     "Vietnamese",
     "Yue Chinese (Cantonese)",
 )
+
+
+def fsm_log(func=None, allow_inline=False):
+    # Combines fsm_log_by and fsm_log_description with defaulting
+    # to the request user usnigng simple_history context
+    if func is None:
+        return partial(fsm_log, allow_inline=allow_inline)
+
+    @wraps(func)
+    def wrapped(instance, *args, **kwargs):
+
+        by = kwargs.get("by")
+        if (
+            not by
+            and (c := simple_history.models.HistoricalRecords.context)
+            and (r := getattr(c, "request", None))
+            and (u := r.user)
+        ):
+            by = u
+        with FSMLogDescriptor(instance, "by", by):
+            with FSMLogDescriptor(instance, "description") as descriptor:
+                try:
+                    description = kwargs["description"]
+                except KeyError:
+                    if allow_inline:
+                        kwargs["description"] = descriptor
+                    return func(instance, *args, **kwargs)
+                descriptor.set(description)
+                return func(instance, *args, **kwargs)
+
+    return wrapped
 
 
 def get_request(*args, **kwargs):
@@ -1201,17 +1233,17 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             self.number = f"{code}-{org_code}-{year}-{application_number:03}"
         super().save(*args, **kwargs)
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["draft", "new", "tac_accepted"], target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["draft", "new", "tac_accepted"], target="draft")
     def accept_tac(self, *args, **kwargs):
         self.is_tac_accepted = True
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=state, source=["new", "draft", "submitted", "tac_accepted"], target="submitted"
     )
@@ -1313,7 +1345,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
                 reply_to=settings.DEFAULT_FROM_EMAIL,
             )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["submitted"], target="draft")
     def request_resubmission(self, request=None, *args, **kwargs):
         recipients = [self.submitted_by, *self.members.all()]
@@ -1692,12 +1724,12 @@ class Member(PersonMixin, MemberMixin, Model):
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="authorized")
     def authorize(self, *args, **kwargs):
         self.has_authorized = True
@@ -1712,12 +1744,12 @@ class Member(PersonMixin, MemberMixin, Model):
                 reply_to=self.full_email_address,
             )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="bounced")
     def bounce(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="opted_out")
     def opt_out(self, *args, **kwargs):
         self.has_authorized = False
@@ -1732,7 +1764,7 @@ class Member(PersonMixin, MemberMixin, Model):
                 reply_to=self.full_email_address,
             )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="sent")
     def send(self, *args, **kwargs):
         pass
@@ -1804,27 +1836,27 @@ class Referee(RefereeMixin, PersonMixin, Model):
     #             _("Before inviting referees, please upload a completed application form.")
     #         )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="testified")
     def testify(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="bounced")
     def bounce(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="opted_out")
     def opt_out(self, *args, **kwargs):
         self.has_testifed = False
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="sent")
     def send(self, *args, **kwargs):
         pass
@@ -1945,17 +1977,17 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     def has_all_coi_statements_submitted(self):
         return self.has_all_coi_statements_submitted_for()
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="bounced")
     def bounce(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=status, source=["*"], target="sent")
     def send(self, *args, **kwargs):
         pass
@@ -2141,7 +2173,7 @@ class Invitation(InvitationMixin, Model):
             | Q(email__in=user.emailaddress_set.values("email"))
         ).distinct()
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=["*"],
@@ -2150,24 +2182,45 @@ class Invitation(InvitationMixin, Model):
     def submit(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=["*"],
         target=STATUS.revoked,
     )
-    def revoke(self, request=None, by=None):
+    def revoke(self, request=None, by=None, *args, **kwargs):
+        site = Site.objects.get_current()
+        site_name = site.name
+
+        subject = __("The inviation sent from %(site_name)s portal was revoked") % {
+            "site_name": site_name
+        }
+        html_body = __(
+            "<p>Tēnā koe,</p>"
+            "<p>The invitation previouly sent from %(site_name)s portal was revoke.</p>"
+        ) % {"site_name": site_name}
+
+        send_mail(
+            subject,
+            html_message=html_body,
+            recipient_list=[self.email],
+            fail_silently=False,
+            request=request,
+            reply_to=by.email if by else settings.DEFAULT_FROM_EMAIL,
+            invitation=self,
+        )
+
         self.referee = None
         self.member = None
         self.panellist = None
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=[STATUS.draft, STATUS.sent, STATUS.submitted, STATUS.bounced],
         target=STATUS.sent,
     )
-    def send(self, request=None, by=None):
+    def send(self, request=None, by=None, *args, **kwargs):
         if not by:
             by = request.user if request else self.inviter
         url = reverse("onboard-with-token", kwargs=dict(token=self.token))
@@ -2315,13 +2368,13 @@ class Invitation(InvitationMixin, Model):
                 self.panellist.save()
         return resp
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=[STATUS.draft, STATUS.sent, STATUS.accepted, STATUS.bounced],
         target=STATUS.accepted,
     )
-    def accept(self, request=None, by=None):
+    def accept(self, request=None, by=None, *args, **kwargs):
         if not by:
             if not request or not request.user:
                 raise Exception("User unknown!")
@@ -2350,11 +2403,11 @@ class Invitation(InvitationMixin, Model):
             p.accept(request)
             p.save()
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
     )
-    def bounce(self, request=None, by=None):
+    def bounce(self, request=None, by=None, *args, **kwargs):
         def get_absolute_uri(request, url):
             if request:
                 url = request.build_absolute_uri(url)
@@ -2478,14 +2531,14 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     def application(self):
         return self.referee.application
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["new", "draft"], target="draft")
     def save_draft(self, request=None, by=None):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["new", "draft"], target="submitted")
-    def submit(self, request=None, by=None):
+    def submit(self, request=None, by=None, *args, **kwargs):
         self.referee.has_testifed = True
         self.referee.status = "testified"
         # self.referee.testified_at = datetime.now()
@@ -3226,12 +3279,12 @@ class Evaluation(EvaluationMixin, Model):
             for s in Score.where(evaluation=self)
         )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["draft", "new"], target="draft")
     def save_draft(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["new", "draft", "submitted"], target="submitted")
     def submit(self, *args, **kwargs):
         self.total_score = self.calc_evaluation_score()
@@ -3581,7 +3634,7 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
         ):
             raise ValidationError(_("You cannot nominate yourself for this round."))
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=[NOMINATION_STATUS.new, NOMINATION_STATUS.draft],
@@ -3610,7 +3663,7 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
             return (i, False)
         return (i, True)
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=[
@@ -3624,7 +3677,7 @@ class Nomination(NominationMixin, PersonMixin, PdfFileMixin, Model):
     def submit(self, *args, **kwargs):
         return self.send_invitation(*args, **kwargs)
 
-    @fsm_log_by
+    @fsm_log
     @transition(
         field=status,
         source=[
@@ -3699,12 +3752,12 @@ class IdentityVerification(Model):
     resolution = TextField(blank=True, null=True)
     state = FSMField(default="new", db_index=True)
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source="new", target="draft")
     def save_draft(self, *args, **kwargs):
         pass
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["new", "draft", "needs-resubmission", "sent"], target="sent")
     def send(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
@@ -3716,16 +3769,16 @@ class IdentityVerification(Model):
             % dict(user=self.user, url=url),
         )
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, source=["submitted", "sent", "accepted"], target="accepted")
-    def accept(self, *args, request=None, **kwargs):
+    def accept(self, request=None, *args, **kwargs):
         self.user.is_identity_verified = True
         if request:
             self.identity_verified_by = request.user
         self.identity_verified_at = datetime.now()
         self.user.save()
 
-    @fsm_log_by
+    @fsm_log
     @transition(field=state, target="needs-resubmission")
     def request_resubmission(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("photo-identity"))
