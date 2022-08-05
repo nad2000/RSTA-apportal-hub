@@ -53,7 +53,7 @@ def field_value(value, name):
     """Returns the value of the field of an object."""
     try:
         v = getattr(value, name)
-    except:
+    except AttributeError:
         return ""
     f = value._meta.get_field(name)
     if isinstance(f, models.BooleanField):
