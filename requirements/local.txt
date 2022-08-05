@@ -12,8 +12,8 @@ pre-commit>=2.2.0  # https://github.com/pre-commit/pre-commit
 
 # Django
 # ------------------------------------------------------------------------------
-django-debug-toolbar>=2.2  # https://github.com/jazzband/django-debug-toolbar
-django-extensions>=2.2.8  # https://github.com/django-extensions/django-extensions
+django-debug-toolbar>=3.5.0  # https://github.com/jazzband/django-debug-toolbar
+django-extensions>=3.2.0  # https://github.com/django-extensions/django-extensions
 django-coverage-plugin>=1.8.0  # https://github.com/nedbat/django_coverage_plugin
 
 # Profiling

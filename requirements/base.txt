@@ -9,15 +9,13 @@ whitenoise>=5.0.1,<6.0.0  # https://github.com/evansd/whitenoise
 
 # Django
 # ------------------------------------------------------------------------------
-#django==2.1.1
-#django==3.0.4 #,<3.1.0  # pyup: < 3.1  # https://www.djangoproject.com/
-django>=4.0.6,<4.1.0  # pyup: < 3.1  # https://www.djangoproject.com/
+django>=4.0.6,<=4.1.0  # pyup: < 3.1  # https://www.djangoproject.com/
 django-environ>=0.4.5,<0.5.0  # https://github.com/joke2k/django-environ
 django-model-utils>=4.0.0,<5.0.0  # https://github.com/jazzband/django-model-utils
-django-allauth>=0.41.0,<0.45.0  # https://github.com/pennersr/django-allauth
+django-allauth>=0.41.0,<0.52.0  # https://github.com/pennersr/django-allauth
 # git+https://github.com/nad2000/django-allauth.git@rapidconnect#egg=django_allauth
 PyJWT>=2.4.0,<2.5.0
-django-crispy-forms>=1.9.0,<1.14.0  # https://github.com/django-crispy-forms/django-crispy-forms
+django-crispy-forms>=1.9.0,<1.15.0  # https://github.com/django-crispy-forms/django-crispy-forms
 django-compressor>=4.0,<5.0  # https://github.com/django-compressor/django-compressor
 # django-redis>=4.11.0  # https://github.com/niwinz/django-redis
 # Django REST Framework
@@ -55,7 +53,7 @@ html2text==2020.1.16
 PyPDF2>=2.1.1,<2.2.0
 
 django-bootstrap4<23.0.0
-django-filter<2.5.0
+django-filter<22.2
 # django-sql-explorer<3.0.0
  git+https://github.com/nad2000/django-sql-explorer@issue477
 
