@@ -1,3 +1,5 @@
+from datetime import date
+
 import pytest
 
 from portal import models
@@ -28,8 +30,16 @@ def test_send_invitation(mocker):
     u = models.User.create(username="test", email="test@test.org")
     site_name = models.Site.objects.get_current().name
     s = models.Scheme.create(title="TEST")
-    r = models.Round.create(scheme=s)
+    r = models.Round.create(scheme=s, opens_on=date.today())
     n = models.Nomination.create(round=r, email="test123@test.org", nominator=u)
+    org = models.Organisation.create(name="ORG")
+    a = models.Application.create(
+        round=r,
+        submitted_by=u,
+        org=org,
+        email=u.email,
+    )
+    ref = models.Referee.create(email="rer123@test.com", application=a)
 
     for invitation_type, _ in models.INVITATION_TYPES:
         i = models.Invitation.create(
@@ -40,6 +50,8 @@ def test_send_invitation(mocker):
             type=invitation_type,
             round=r,
             nomination=n,
+            application=a,
+            referee=(invitation_type == models.INVITATION_TYPES.R and ref) or None,
         )
         i.send()
 
