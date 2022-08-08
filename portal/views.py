@@ -500,6 +500,11 @@ def check_profile(request, token=None):
 
         if token:
             request.session["invitation_token"] = token
+            if (i := models.Invitation.where(token=token).first()) and i.status == "revoked":
+                messages.warning(
+                    request,
+                    _("The invitation has been revoked and is not any more valid."),
+                )
         return redirect(
             reverse("account_login" if user_exists else "account_signup")
             + f"?next={quote(request.get_full_path())}"
@@ -553,6 +558,12 @@ def check_profile(request, token=None):
             i.accept(by=u, request=request)
             i.save()
             reset_cache(request)
+
+        if i.status == "revoked":
+            messages.warning(
+                request,
+                _("The invitation has been revoked and is not any more valid."),
+            )
 
         if i.status != "accepted":
             next_url = i.handler_url
