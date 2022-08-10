@@ -376,6 +376,7 @@ LOGGING = {
 
 # django-allauth
 # ------------------------------------------------------------------------------
+SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 # ACCOUNT_AUTHENTICATION_METHOD = "username"
