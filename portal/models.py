@@ -2197,7 +2197,7 @@ class Invitation(InvitationMixin, Model):
         }
         html_body = __(
             "<p>Tēnā koe,</p>"
-            "<p>The invitation previouly sent from %(site_name)s portal was revoke.</p>"
+            "<p>The invitation previouly sent from %(site_name)s portal was revoked.</p>"
         ) % {"site_name": site_name}
 
         send_mail(

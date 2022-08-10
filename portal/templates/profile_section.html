@@ -49,9 +49,16 @@
         career trajectories, and to better understand needs for succession planning and support for particular groups.
       {% endblocktrans %}
     {% elif view_name == "profile-recognitions" %}
+      <p>
       {% blocktrans %}
         Prizes and/or medals are requested in order to enable analysis over time of the causes and effects of recognition.
       {% endblocktrans %}
+      </p>
+      <p>
+      {% blocktrans %}
+        Please add any prizes, medals or awards you have received for your research mahi.
+      {% endblocktrans %}
+      </p>
     {% elif view_name == "profile-professional-records" %}
       {% blocktrans %}
         Information on professional bodies, is useful for demonstrating participation in the research community,
@@ -114,11 +121,11 @@
     /* }); */
     </script -->
     <script>
-    $(document).ready(function() {
-        $("#submit-id-save").click(function() {
-          formset_set_inputs(prefix="form");
-          return true;
-        });
-    });
+      $(document).ready(function() {
+              $("#submit-id-save").click(function() {
+                      formset_set_inputs(prefix="form");
+                      return true;
+                    });
+            });
     </script>
-{% endblock %}
+  {% endblock %}
