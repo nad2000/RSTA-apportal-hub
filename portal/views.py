@@ -34,6 +34,7 @@ from django.db.models import (
     FilteredRelation,
     Func,
     OuterRef,
+    ProtectedError,
     Q,
     Value,
 )
@@ -2341,7 +2342,21 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
             elif url_name == "profile-recognitions":
                 profile.is_recognitions_completed = True
         profile.save()
-        resp = super().formset_valid(formset)
+        try:
+            resp = super().formset_valid(formset)
+        except ProtectedError as ex:
+            if url_name == "profile-cvs" and hasattr(formset, "deleted_objects"):
+                messages.error(
+                    self.request,
+                    _(
+                        "You cannot delete a CV that has been used as part of an application (%s). "
+                        "<br/>If you are trying to update your CV, you can replace the old with a new document. "
+                        "If you are trying to delete an old application, please let us know and we can do this for you."
+                    )
+                    % ", ".join(a.number for a in ex.protected_objects),
+                )
+                return redirect(self.request.path_info)
+
         if hasattr(formset, "deleted_objects"):
             if len(formset.deleted_objects) == 1:
                 messages.info(

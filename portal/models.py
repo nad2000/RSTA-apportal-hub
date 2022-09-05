@@ -2616,6 +2616,10 @@ class CurriculumVitae(PdfFileMixin, PersonMixin, Model):
             _("Submitted At"): self.updated_at or self.created_at,
         }
 
+    @property
+    def can_be_deleted(self):
+        return not Application.where(cv=self).exists()
+
     class Meta:
         db_table = "curriculum_vitae"
 
