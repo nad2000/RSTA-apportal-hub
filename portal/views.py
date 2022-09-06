@@ -2036,30 +2036,41 @@ class ApplicationFilter(django_filters.FilterSet):
     application_filter = django_filters.CharFilter(
         method="set_filter", label=gettext_lazy("Application Filter")
     )
+    archived_filter = django_filters.BooleanFilter(
+        method="filter_archived", label=gettext_lazy("Archived Applications")
+    )
 
     class Meta:
         model = models.Application
-        fields = ["application_filter"]
+        fields = ["application_filter", "archived_filter"]
+
+    def filter_archived(self, queryset, name, value):
+        breakpoint()
+        qs = queryset.filter(round__scheme__current_round=F("round"))
+        return qs
 
     def set_filter(self, queryset, name, value):
-        return queryset.filter(
-            Q(application_title__icontains=value)
-            | Q(number__icontains=value)
-            | Q(first_name__icontains=value)
-            | Q(last_name__icontains=value)
-            | Q(email__icontains=value)
-            | Q(submitted_by__first_name__icontains=value)
-            | Q(submitted_by__last_name__icontains=value)
-            | Q(submitted_by__email__icontains=value)
-            | Q(
-                Exists(
-                    models.Member.where(first_name__icontains=value, application=OuterRef("pk"))
+        if value:
+            return queryset.filter(
+                Q(application_title__icontains=value)
+                | Q(number__icontains=value)
+                | Q(first_name__icontains=value)
+                | Q(last_name__icontains=value)
+                | Q(email__icontains=value)
+                | Q(submitted_by__first_name__icontains=value)
+                | Q(submitted_by__last_name__icontains=value)
+                | Q(submitted_by__email__icontains=value)
+                | Q(
+                    Exists(
+                        models.Member.where(first_name__icontains=value, application=OuterRef("pk"))
+                    )
                 )
-            )
-            | Q(
-                Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk")))
-            )
-        ).distinct()
+                | Q(
+                    Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk")))
+                )
+            ).distinct()
+        else:
+            return queryset
 
 
 class InvitationList(LoginRequiredMixin, SingleTableView):
