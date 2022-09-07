@@ -2039,13 +2039,15 @@ class ApplicationFilter(django_filters.FilterSet):
     archived_filter = django_filters.BooleanFilter(
         method="filter_archived", label=gettext_lazy("Archived Applications")
     )
+    active_filter = django_filters.BooleanFilter(
+        method="filter_active", label=gettext_lazy("Active Applications")
+    )
 
     class Meta:
         model = models.Application
-        fields = ["application_filter", "archived_filter"]
+        fields = ["application_filter", "archived_filter", "active_filter"]
 
     def filter_archived(self, queryset, name, value):
-        breakpoint()
         qs = queryset.filter(round__scheme__current_round=F("round"))
         return qs
 
@@ -2062,11 +2064,15 @@ class ApplicationFilter(django_filters.FilterSet):
                 | Q(submitted_by__email__icontains=value)
                 | Q(
                     Exists(
-                        models.Member.where(first_name__icontains=value, application=OuterRef("pk"))
+                        models.Member.where(
+                            first_name__icontains=value, application=OuterRef("pk")
+                        )
                     )
                 )
                 | Q(
-                    Exists(models.Member.where(last_name__icontains=value, application=OuterRef("pk")))
+                    Exists(
+                        models.Member.where(last_name__icontains=value, application=OuterRef("pk"))
+                    )
                 )
             ).distinct()
         else:
@@ -2093,14 +2099,15 @@ class InvitationList(LoginRequiredMixin, SingleTableView):
 class ApplicationListMixin:
     def get_queryset(self, *args, **kwargs):
         u = self.request.user
-        if not (u.is_superuser or u.is_staff):
-            return models.Application.user_applications(
-                self.request.user, round=self.request.GET.get("round")
-            )
-        queryset = super().get_queryset(*args, **kwargs)
-        if "round" in self.request.GET:
-            queryset = queryset.filter()
-        return queryset
+        # if not (u.is_superuser or u.is_staff):
+        #     return models.Application.user_applications(
+        #         self.request.user, round=self.request.GET.get("round")
+        #     )
+        # queryset = super().get_queryset(*args, **kwargs)
+        # if "round" in self.request.GET:
+        #     queryset = queryset.filter(round=self.request.GET["round"])
+        # return queryset
+        return models.Application.user_applications(u, round=self.request.GET.get("round"))
 
 
 class ApplicationList(
@@ -2128,7 +2135,7 @@ class ApplicationList(
             )
         ):
             context["filter_disabled"] = True
-            self.table_pagination = False
+            # self.table_pagination = False
         if (state := self.request.path.split("/")[-1]) and state in ["draft", "submitted"]:
             context["state"] = state
 
@@ -3417,6 +3424,7 @@ class NominationList(LoginRequiredMixin, StateInPathMixin, SingleTableView):
         u = self.request.user
         if not (u.is_superuser or u.is_staff):
             queryset = queryset.filter(nominator=u)
+        queryset = queryset.filter(round__scheme__current_round=F("round"))
         status = self.request.path.split("/")[-1]
         if status == "draft":
             queryset = queryset.filter(status__in=[status, "new"])
