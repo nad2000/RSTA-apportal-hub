@@ -662,7 +662,15 @@ class Organisation(Model):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = default_organisation_code(self.name)
+        original_code = self.id and self.get(self.id).code
         super().save(*args, **kwargs)
+        if original_code and self.code.strip() and self.code != original_code:
+            if org_applications := list(
+                Application.where(org=self, number__icontains=original_code)
+            ):
+                for a in org_applications:
+                    a.number = a.number.replace(f"-{original_code}-", f"-{self.code}-")
+                Application.objects.bulk_update(org_applications, ["number"])
 
     class Meta:
         db_table = "organisation"
