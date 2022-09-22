@@ -666,7 +666,7 @@ class Organisation(Model):
         super().save(*args, **kwargs)
         if original_code and self.code.strip() and self.code != original_code:
             if org_applications := list(
-                Application.where(org=self, number__icontains=original_code)
+                Application.where(org=self, number__icontains=original_code, state__in=["new", "draft"])
             ):
                 for a in org_applications:
                     a.number = a.number.replace(f"-{original_code}-", f"-{self.code}-")
