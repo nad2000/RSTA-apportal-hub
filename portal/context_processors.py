@@ -24,7 +24,9 @@ def portal_context(request):
         stats = cache.get(cache_key)
         if not stats:
             score_sheet_count = models.ScoreSheet.user_score_sheet_count(u)
-            application_draft_count = models.Application.user_application_count(u, "draft")
+            application_draft_count = models.Application.user_application_count(
+                u, ["draft", "new"]
+            )
             application_submitted_count = models.Application.user_application_count(u, "submitted")
             stats = {
                 "three_days_ago": timezone.now() - timedelta(days=3),
@@ -64,5 +66,6 @@ def portal_context(request):
             cache.set(cache_key, stats)
         context.update(stats)
     return context
+
 
 # vim:set ft=python.django:
