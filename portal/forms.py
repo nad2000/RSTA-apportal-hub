@@ -911,6 +911,7 @@ class NominationForm(forms.ModelForm):
 
         # fields.append("summary")
         was_submitted = self.instance and self.instance.id and self.instance.status == "submitted"
+        was_accepted = self.instance and self.instance.id and self.instance.status == "accepted"
         self.helper.layout = Layout(
             *fields,
             HTML("""<input type="hidden" name="action">"""),
@@ -920,9 +921,11 @@ class NominationForm(forms.ModelForm):
                     _("Save"),
                     css_class="btn-primary",
                     data_toggle="tooltip",
-                    disabled=was_submitted,
+                    disabled=was_submitted or was_accepted,
                     title=_("Nomination was already submitted")
                     if was_submitted
+                    else _("Nomination was already accepted")
+                    if was_accepted
                     else _("Save draft nomination"),
                 ),
                 Button(
@@ -931,6 +934,11 @@ class NominationForm(forms.ModelForm):
                     css_class="btn-outline-primary",
                     # data_toggle="modal",
                     # data_target="#confirm-submit",
+                    data_toggle="tooltip",
+                    disabled=was_accepted,
+                    title=_("Nomination was already accepted")
+                    if was_accepted
+                    else _("Submit or re-submit the nomination"),
                 ),
                 HTML(
                     """<a href="{{ view.get_success_url }}" class="btn btn-secondary">%s</a>"""

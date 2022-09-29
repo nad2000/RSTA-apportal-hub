@@ -3070,6 +3070,15 @@ class NominationView(CreateUpdateView):
                     request, _("You do not have permissions to access this nomination.")
                 )
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
+            if n and n.status == "accepted":
+                messages.warning(
+                    request,
+                    _(
+                        "You cannot alter a nomination that has been submitted and accepted.  "
+                        "If you feel a need to do this, please email pmscienceprizes@royalsociety.org.nz "
+                        "with a reason and we may be able to enable."
+                    ),
+                )
         return super().dispatch(request, *args, **kwargs)
 
     @cached_property
@@ -3132,6 +3141,17 @@ class NominationView(CreateUpdateView):
                 )
                 return resp
 
+            if n.status == "accepted":
+                messages.warning(
+                    self.request,
+                    _(
+                        "You cannot alter a nomination that has been submitted and accepted.  "
+                        "If you feel a need to do this, please email pmscienceprizes@royalsociety.org.nz "
+                        "with a reason and we may be able to enable."
+                    ),
+                )
+                return resp
+
             if self.round.nominator_cv_required:
                 if (
                     cv := models.CurriculumVitae.where(owner=self.request.user)
@@ -3150,17 +3170,27 @@ class NominationView(CreateUpdateView):
                     )
                     return redirect(reverse("profile-cvs") + "?next=" + next_url)
 
-            invitation, created = n.submit(request=self.request)
-            messages.info(
-                self.request,
-                _("An invitation to submit an application has been sent to %s (your nominee).")
-                % invitation.email
-                if created
-                else _(
-                    "An invitation to submit an application has been resent to %s (your nominee)."
+            try:
+                invitation, created = n.submit(request=self.request)
+                messages.info(
+                    self.request,
+                    _("An invitation to submit an application has been sent to %s (your nominee).")
+                    % invitation.email
+                    if created
+                    else _(
+                        "An invitation to submit an application has been resent to %s (your nominee)."
+                    )
+                    % invitation.email,
                 )
-                % invitation.email,
-            )
+            except Exception as ex:
+                capture_exception(ex)
+                messages.error(
+                    self.request,
+                    _(
+                        f"Failed to submit the nomination: {ex}. "
+                        "Please contact administration: pmscienceprizes@royalsociety.org.nz."
+                    ),
+                )
         elif self.request.method == "POST" or "save_draft" in self.request.POST:
             n.save_draft()
 
