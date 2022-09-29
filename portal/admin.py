@@ -766,7 +766,7 @@ class NominationAdmin(PdfFileAdminMixin, FSMTransitionMixin, SimpleHistoryAdmin)
         "summary",
         "site",
     ]
-    autocomplete_fields = ["application"]
+    autocomplete_fields = ["application", "user", "round", "nominator", "cv"]
 
     actions = ["resend_invitations"]
 
@@ -984,6 +984,7 @@ class RoundAdmin(
     exclude = [
         "site",
     ]
+    search_fields = ["title"]
     actions = ["create_new_round"]
     fieldsets = (
         (
