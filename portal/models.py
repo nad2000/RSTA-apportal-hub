@@ -2008,6 +2008,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
         q = Invitation.objects.raw(
             "SELECT DISTINCT p.* FROM panellist AS p JOIN account_emailaddress AS ae ON ae.email = p.email "
             "JOIN application AS a ON a.round_id = p.round_id AND a.state NOT IN ('new', 'draft', 'archived') "
+            "JOIN scheme AS s ON s.current_round_id=p.round_id "
             "LEFT JOIN conflict_of_interest AS coi ON coi.application_id = a.id AND coi.panellist_id = p.id "
             "LEFT JOIN evaluation AS e ON e.application_id = a.id AND e.panellist_id = p.id "
             "WHERE (p.user_id=%s OR ae.user_id=%s) "
