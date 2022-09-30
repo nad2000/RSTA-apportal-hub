@@ -2371,7 +2371,14 @@ class ProfileSectionFormSetView(LoginRequiredMixin, ModelFormSetView):
                         "<br/>If you are trying to update your CV, you can replace the old with a new document. "
                         "If you are trying to delete an old application, please let us know and we can do this for you."
                     )
-                    % ", ".join(a.number for a in ex.protected_objects),
+                    % ", ".join(
+                        (
+                            o.number
+                            if isinstance(o, models.Application)
+                            else o.referee.application.number
+                        )
+                        for o in ex.protected_objects
+                    ),
                 )
                 return redirect(self.request.path_info)
 
