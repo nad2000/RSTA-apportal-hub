@@ -4112,7 +4112,8 @@ class ConflictOfInterestView(CreateUpdateView):
             if coi := models.ConflictOfInterest.where(
                 application=a, panellist__user=self.request.user
             ).first():
-                return redirect("coi-update", pk=coi.pk)
+                # return redirect("coi-update", pk=coi.pk)
+                return redirect("round-coi", round=a.round_id)
 
         return super().get(request, *args, **kwargs)
 

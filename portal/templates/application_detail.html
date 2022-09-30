@@ -121,7 +121,8 @@
                      {% elif not evaluation and not has_coi %}
                          href="{% url 'application-evaluation-create' application=a.pk %}"
                        {% else %}
-                           href="{% url 'coi-create' application_id=a.pk %}"
+                           {#href="{% url 'coi-create' application_id=a.pk %}"#}
+                           href="{% url 'round-coi' round=a.round_id %}"
                          {% endif %}
                          {% else %}
                              {% if evaluation or not coi %}

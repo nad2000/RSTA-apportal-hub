@@ -59,9 +59,8 @@ option {direction: rtl;}
       </a>
 
       {% if coi %}
-        <a class="btn btn-outline-primary"
-          href="{% url 'coi-update' pk=coi.pk %}"
-        >
+        <!-- a class="btn btn-outline-primary" href="{% url 'coi-update' pk=coi.pk %}" -->
+        <a class="btn btn-outline-primary" href="{% url 'round-coi' round=a.round_id %}">
           {% trans "Conflict of Interest" %}
         </a>
       {% endif %}

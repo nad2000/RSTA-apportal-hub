@@ -262,10 +262,11 @@ def application_review_link(table, record, value):
     coi = record.conflict_of_interests.filter(panellist__user=user).last()
     #  coi = record.conflict_of_interests.last()
     if not coi or coi.has_conflict is None:
-        return reverse(
-            "round-application-review",
-            kwargs={"round_id": record.round.id, "application_id": record.id},
-        )
+        return reverse("round-coi", kwargs={"round": record.round_id})
+        # return reverse(
+        #     "round-application-review",
+        #     kwargs={"round_id": record.round.id, "application_id": record.id},
+        # )
     elif not coi.has_conflict:
         e = record.evaluations.filter(panellist__user=user).order_by("-id").first()
         if e and e.state in ["new", "draft"]:
