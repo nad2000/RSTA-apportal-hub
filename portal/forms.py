@@ -21,6 +21,7 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.contrib.sites.models import Site
+from django.core import validators
 from django.forms import FileField, HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, Select, TextInput
@@ -674,7 +675,9 @@ class RefereeForm(forms.ModelForm):
             )
         if commit:
             if self.instance.id:
-                self.instance.save(update_fields=["email", "first_name", "middle_names", "last_name"])
+                self.instance.save(
+                    update_fields=["email", "first_name", "middle_names", "last_name"]
+                )
             else:
                 self.instance.save()
             self._save_m2m()
@@ -1277,21 +1280,28 @@ class ScoreForm(forms.ModelForm):
         )
 
 
-class ThreeValuedBooleanField(forms.BooleanField):
-    def to_python(self, value):
-        """Return a Python boolean object."""
-        if value is None or (isinstance(value, str) and value.lower() in ["null", "none", "nil"]):
-            return None
-        if isinstance(value, str) and value.lower() in ("false", "0"):
-            value = False
-        else:
-            value = bool(value)
-        return super().to_python(value)
+class ThreeValuedBooleanField(forms.NullBooleanField):
+    pass
+
+    # def to_python(self, value):
+    #     breakpoint()
+    #     return super().to_python(value)
+
+    # def to_python(self, value):
+    #     """Return a Python boolean object."""
+    #     breakpoint()
+    #     if value is None or (isinstance(value, str) and value.lower() in ["null", "none", "nil"]):
+    #         return None
+    #     if isinstance(value, str) and value.lower() in ("false", "0"):
+    #         value = False
+    #     else:
+    #         value = bool(value)
+    #     return super().to_python(value)
 
 
 class RoundConflictOfInterestForm(forms.ModelForm):
 
-    has_conflict = ThreeValuedBooleanField(
+    has_conflict = forms.NullBooleanField(
         label=_("Conflict of Interest"), required=False, widget=forms.HiddenInput()
     )
     # has_conflict = forms.BooleanField(label=_("Conflict of Interest"), required=False)
