@@ -570,7 +570,10 @@ def check_profile(request, token=None):
             next_url = i.handler_url
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
-        if i.type == "P" and i.panellist:
+
+        if token and (
+            i := models.Invitation.where(token=token, type="P", panellist__isnull=False).first()
+        ):
             next_url = reverse("round-coi", kwargs=dict(round=i.panellist.round_id))
 
         return redirect(next_url or "home")
