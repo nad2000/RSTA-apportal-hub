@@ -49,8 +49,9 @@
           <style>
 table.table .asteriskField,.popover-header {color: gray;}
 .jumbotron {padding: 2rem 2rem;}
-.tooltip-inner #gravatar-tooltip {text-align: left; white-space: nowrap;}
+/* .tooltip-inner #gravatar-tooltip {text-align: left; white-space: nowrap;} */
 .tooltip-inner {max-width: 300px;}
+.popover {max-width: 400px;}
           </style>
         {% endblock %}
       {% endcompress %}
@@ -143,7 +144,7 @@ table.table .asteriskField,.popover-header {color: gray;}
                          data-placement="left"
                          title="{% trans 'User' %}"
                          data-content="<p id='gravatar-tooltip' class='mb-0'><b>{% trans 'Email' %}:&nbsp</b>{{ request.user.email }}<br/>
-                                <b>{% trans 'Name' %}:&nbsp</b>{{ request.user.name }}<br/>
+                                <b>{% trans 'Name' %}:&nbsp</b>{{ request.user.name|default:'N/A' }}<br/>
                                 <b>{% trans 'Username' %}:&nbsp</b>{{ request.user.username }}</p>"
                     >
                     <li class="nav-item dropdown" id="profile">
