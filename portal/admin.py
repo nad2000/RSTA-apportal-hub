@@ -486,6 +486,7 @@ class ApplicationAdmin(
         extra = 0
         model = models.Member
         readonly_fields = ["status", "status_changed_at"]
+        autocomplete_fields = ["user"]
 
         def view_on_site(self, obj):
             return reverse("application", kwargs={"pk": obj.application_id})
@@ -494,6 +495,7 @@ class ApplicationAdmin(
         extra = 0
         model = models.Referee
         readonly_fields = ["status", "status_changed_at", "has_testifed", "testified_at"]
+        autocomplete_fields = ["user"]
 
         def view_on_site(self, obj):
             return reverse("application", kwargs={"pk": obj.application_id})
@@ -606,8 +608,9 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     ]
     list_filter = ["application__round", "created_at", "testified_at", "status"]
     date_hierarchy = "testified_at"
+    autocomplete_fields = ["user", "application"]
     readonly_fields = [
-        "application",
+        # "application",
         "status",
         "status_changed_at",
         "has_testifed",
@@ -864,11 +867,12 @@ class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, a
 
     # summernote_fields = ["summary"]
     save_on_top = True
-    exclude = ["summary", "site"]
+    exclude = ["summary", "site", "converted_file"]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
     search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
     date_hierarchy = "created_at"
+    autocomplete_fields = ["cv", "referee"]
     inlines = [StateLogInline]
 
     def view_on_site(self, obj):
