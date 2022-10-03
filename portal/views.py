@@ -1770,17 +1770,17 @@ class ApplicationView(LoginRequiredMixin):
         else:
             referee_form_set = RefereeFormSet(
                 instance=self.object,
-                initial=[
-                    dict(
-                        email=r.email,
-                        first_name=r.first_name,
-                        middle_names=r.middle_names,
-                        last_name=r.last_name,
-                    )
-                    for r in latest_application.referees.all()
-                ]
-                if latest_application and not (self.object and self.object.id)
-                else [],
+                # initial=[
+                #     dict(
+                #         email=r.email,
+                #         first_name=r.first_name,
+                #         middle_names=r.middle_names,
+                #         last_name=r.last_name,
+                #     )
+                #     for r in latest_application.referees.all()
+                # ]
+                # if latest_application and not (self.object and self.object.id)
+                # else [],
             )
         context["referees"] = referee_form_set
         return context
