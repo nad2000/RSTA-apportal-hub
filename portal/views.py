@@ -2117,7 +2117,7 @@ class ApplicationListMixin:
 
 
 class ApplicationList(
-    LoginRequiredMixin, ApplicationListMixin, StateInPathMixin, SingleTableMixin, FilterView
+    LoginRequiredMixin, StateInPathMixin, ApplicationListMixin, SingleTableMixin, FilterView
 ):
 
     model = models.Application
