@@ -597,12 +597,14 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 @admin.register(models.Referee)
 class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+
     save_on_top = True
     list_display = ["application", "full_name", "status", "testified_at"]
     fsm_field = ["status"]
     search_fields = [
         "first_name",
         "last_name",
+        "email",
         "application__number",
         "application__application_title",
     ]
@@ -866,14 +868,16 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmi
 class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     # summernote_fields = ["summary"]
-    save_on_top = True
+
+    autocomplete_fields = ["cv", "referee"]
+    date_hierarchy = "created_at"
     exclude = ["summary", "site", "converted_file"]
+    inlines = [StateLogInline]
     list_display = ["referee", "application", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
+    readonly_fields = ["state"]
+    save_on_top = True
     search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
-    date_hierarchy = "created_at"
-    autocomplete_fields = ["cv", "referee"]
-    inlines = [StateLogInline]
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.referee.application_id})

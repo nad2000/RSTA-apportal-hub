@@ -3286,16 +3286,26 @@ class TestimonialView(CreateUpdateView):
     def form_valid(self, form):
 
         t = form.instance
+        u = self.request.user
         reset_cache(self.request)
 
         if not t.id:
             a = self.application
+            q = models.Referee.where(Q(user=u) | Q(email=u.email))
             if a:
-                t.referee = models.Referee.get(user=self.request.user, application=a)
-            else:
-                t.referee = models.Referee.where(user=self.request.user).last()
+                q = q.filter(application=a)
+            r = q.last()
+            if not r.user:
+                r.user = u
+                r.save(update_fields=["user"])
+            t.referee = r
 
         resp = super().form_valid(form)
+
+        if r := t.referee:
+            for i in models.Invitation.where(~Q(status="accepted"), type="R", referee=r):
+                i.accept(self.request, by=u)
+                i.save(update_fields=["status"])
 
         if t.state != "submitted":
 

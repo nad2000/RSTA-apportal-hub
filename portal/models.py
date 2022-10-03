@@ -666,7 +666,9 @@ class Organisation(Model):
         super().save(*args, **kwargs)
         if original_code and self.code.strip() and self.code != original_code:
             if org_applications := list(
-                Application.where(org=self, number__icontains=original_code, state__in=["new", "draft"])
+                Application.where(
+                    org=self, number__icontains=original_code, state__in=["new", "draft"]
+                )
             ):
                 for a in org_applications:
                     a.number = a.number.replace(f"-{original_code}-", f"-{self.code}-")
@@ -1870,7 +1872,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
         pass
 
     def __str__(self):
-        return str(self.user or self.email)
+        return f"{self.application.number}: {self.user or self.email}"
 
     @classmethod
     def outstanding_requests(cls, user):
@@ -2404,8 +2406,7 @@ class Invitation(InvitationMixin, Model):
             r.accept(request)
             r.save()
             if self.status != self.STATUS.accepted:
-                t = Testimonial.objects.create(referee=r)
-                t.save()
+                t, _ = Testimonial.get_or_create(referee=r)
         elif self.type == INVITATION_TYPES.P:
             p = self.panellist
             p.user = by
@@ -2571,6 +2572,16 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     @classmethod
     def user_testimonial_count(cls, user, state=None, round=None):
         return cls.user_testimonials(user, state=state, round=round).count()
+
+    def save(self, *args, **kwargs):
+        if (
+            not self.cv
+            and self.referee
+            and (u := self.referee.user)
+            and (cv := CurriculumVitae.last_user_cv(u))
+        ):
+            self.cv = cv
+        super().save(*args, **kwargs)
 
     def __str__(self):
         if self.referee_id:
