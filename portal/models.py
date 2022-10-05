@@ -2428,7 +2428,7 @@ class Invitation(InvitationMixin, Model):
 
     @fsm_log
     @transition(
-        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
+        field=status, source=["*"], target=STATUS.bounced
     )
     def bounce(self, request=None, by=None, *args, **kwargs):
         def get_absolute_uri(request, url):

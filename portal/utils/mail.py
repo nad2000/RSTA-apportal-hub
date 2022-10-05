@@ -109,6 +109,8 @@ def send_mail(
     site = (invitation and invitation.site) or Site.objects.get_current()
     domain = request and request.get_host() or site.domain
     root = f"https://{domain}"
+    if recipient_list and isinstance(recipient_list, (list, tuple)):
+        recipient_list = [r.lower() for r in recipient_list]
 
     if not from_email:
         from_email = f"{site.name} <noreply@{domain}>"
