@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import render, reverse
 from django.utils.html import format_html
@@ -832,57 +833,20 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
                 if target_code and target_code != target.code:
                     pass
 
-                for o in list(queryset.filter(~Q(id=target_id))):
+                orgs = list(queryset.filter(~Q(id=target_id)))
+                for o in orgs:
                     try:
                         with transaction.atomic():
-                            EmailAddress.objects.filter(user=u).update(
-                                user=target, primary=(F("email") == target.email)
-                            )
-                            u.socialaccount_set.update(user=target)
+                            models.Affiliation.where(org=o).update(org=target)
+                            models.AcademicRecord.where(awarded_by=o).update(awarded_by=target)
+                            models.Recognition.where(awarded_by=o).update(awarded_by=target)
+                            models.Application.where(org=o).update(org=target)
+                            # TODO: update number
+                            models.Invitation.where(org=o).update(org=target)
+                            models.Nomination.where(org=o).update(org=target)
 
-                            Application.where(submitted_by=u).update(submitted_by=target)
-                            Member.where(user=u).update(user=target)
-                            Nomination.where(nominator=u).update(nominator=target)
-                            Nomination.where(user=u).update(user=target)
-                            Referee.where(user=u).update(user=target)
-                            Panellist.where(user=u).update(user=target)
-                            CurriculumVitae.where(owner=u).update(owner=target)
-
-                            if p := Profile.where(user=u).first():
-                                if profile:
-                                    CurriculumVitae.where(profile=p).update(profile=profile)
-                                else:
-                                    CurriculumVitae.where(profile=p).delete()
-                            Profile.where(user=u).delete()
-                            u.delete()
-                            deleted.append(u.username)
-                    except Exception as ex:
-                        errors.append(ex)
-
-                for u in list(queryset.filter(~Q(id=target_id))):
-                    try:
-                        with transaction.atomic():
-                            EmailAddress.objects.filter(user=u).update(
-                                user=target, primary=(F("email") == target.email)
-                            )
-                            u.socialaccount_set.update(user=target)
-
-                            Application.where(submitted_by=u).update(submitted_by=target)
-                            Member.where(user=u).update(user=target)
-                            Nomination.where(nominator=u).update(nominator=target)
-                            Nomination.where(user=u).update(user=target)
-                            Referee.where(user=u).update(user=target)
-                            Panellist.where(user=u).update(user=target)
-                            CurriculumVitae.where(owner=u).update(owner=target)
-
-                            if p := Profile.where(user=u).first():
-                                if profile:
-                                    CurriculumVitae.where(profile=p).update(profile=profile)
-                                else:
-                                    CurriculumVitae.where(profile=p).delete()
-                            Profile.where(user=u).delete()
-                            u.delete()
-                            deleted.append(u.username)
+                            o.delete()
+                            deleted.append(f"{o.code}: {o.name}")
                     except Exception as ex:
                         errors.append(ex)
 
@@ -893,7 +857,7 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
             if errors:
                 messages.error(
                     request,
-                    "Failed to merge all users:<ul>%s</ul>"
+                    "Failed to merge all organisations:<ul>%s</ul>"
                     % "".join(f"<li>{e}</li>" for e in errors),
                 )
 

@@ -33,6 +33,7 @@ class AccountAdapter(DefaultAccountAdapter):
         return url
 
     def is_email_verified(self, request, email):
+        email = email and email.lower()
         ret = super().is_email_verified(request, email)
         if (token := request.session.get("invitation_token")) and (
             i := Invitation.where(token=token).first()
@@ -46,13 +47,12 @@ class AccountAdapter(DefaultAccountAdapter):
         super().pre_authenticate(request, **credentials)
 
     def confirm_email(self, request, email_address):
+        email_address = email_address and email_address.lower()
         return super().confirm_email(request, email_address)
 
     def clean_email(self, email):
         email = super().clean_email(email)
-        if email:
-            return email.lower()
-        return email
+        return email and email.lower()
 
     def clean_username(self, username, shallow=False):
         username = super().clean_username(username, shallow=False)
@@ -68,7 +68,7 @@ class AccountAdapter(DefaultAccountAdapter):
         domain = self.request and self.request.get_host() or site.domain
         root = f"https://{domain}"
 
-        to = [email] if isinstance(email, str) else email
+        to = [email.lower()] if isinstance(email, str) else email
         subject = render_to_string("{0}_subject.txt".format(template_prefix), context)
         # remove superfluous line breaks
         subject = " ".join(line.strip() for line in subject.splitlines() if line.strip()).strip()
@@ -166,7 +166,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
                     else:
                         sociallogin.email_addresses.append(
                             EmailAddress(
-                                email=self.invitation.email,
+                                email=self.invitation.email and self.invitation.email.lower(),
                                 verified=True,
                                 primary=not sociallogin.email_addresses,
                             )

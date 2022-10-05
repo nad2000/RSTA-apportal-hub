@@ -1675,6 +1675,19 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         db_table = "application"
 
 
+class ApplicationNumber(Model):
+    """Historical or alternative application numbers."""
+
+    application = ForeignKey(Application, on_delete=CASCADE, related_name="numbers")
+    number = CharField(
+        _("number"), max_length=24, null=True, blank=True, editable=False, unique=True
+    )
+    is_active = BooleanField(default=False)
+
+    class Meta:
+        db_table = "application_number"
+
+
 class EthicsStatement(PdfFileMixin, Model):
 
     application = OneToOneField(Application, on_delete=CASCADE, related_name="ethics_statement")
@@ -2415,7 +2428,7 @@ class Invitation(InvitationMixin, Model):
 
     @fsm_log
     @transition(
-        field=status, source=[STATUS.draft, STATUS.sent, STATUS.accepted], target=STATUS.bounced
+        field=status, source=["*"], target=STATUS.bounced
     )
     def bounce(self, request=None, by=None, *args, **kwargs):
         def get_absolute_uri(request, url):

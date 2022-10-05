@@ -148,6 +148,12 @@ class User(HelperMixin, AbstractUser, PersonMixin):
             url += urlencode(queries)
         return url
 
+    @property
+    def email_addresses(self):
+        """All user email addresses"""
+        # return [self.email, *(r[0] for r in self.emailaddress_set.values_list("email"))]
+        return [r[0] for r in self.emailaddress_set.values_list("email")]
+
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         mail.send_mail(subject, message, from_email, [self.email], **kwargs)
