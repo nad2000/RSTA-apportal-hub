@@ -3268,6 +3268,15 @@ class TestimonialView(CreateUpdateView):
                     request, _("You do not have permissions to access this testimonial.")
                 )
                 return redirect(self.request.META.get("HTTP_REFERER", "index"))
+        if u.is_authenticated and "application" in self.kwargs:
+            r = models.Referee.where(
+                Q(user=u) | Q(email=u.email), application_id=self.kwargs["application"]
+            ).last()
+            if r:
+                t = models.Testimonial.where(referee=r).last()
+                if t:
+                    return redirect("testimonial-update", pk=t.pk)
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
