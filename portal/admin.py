@@ -829,9 +829,6 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
             errors = []
             if target_id := request.POST.get("target"):
                 target = models.Organisation.get(target_id)
-                target_code = request.POST.get("target_code", "").strip()
-                if target_code and target_code != target.code:
-                    pass
 
                 orgs = list(queryset.filter(~Q(id=target_id)))
                 for o in orgs:
@@ -840,8 +837,20 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
                             models.Affiliation.where(org=o).update(org=target)
                             models.AcademicRecord.where(awarded_by=o).update(awarded_by=target)
                             models.Recognition.where(awarded_by=o).update(awarded_by=target)
-                            models.Application.where(org=o).update(org=target)
-                            # TODO: update number
+
+                            if org_applications := list(
+                                models.Application.where(
+                                    ~Q(number__icontains=f"-{target.code}-"), org=o
+                                ).order_by("number")
+                            ):
+                                for a in org_applications:
+                                    models.ApplicationNumber.get_or_create(
+                                        application=a, number=a.number
+                                    )
+                                    a.org = target
+                                    a.number = models.default_application_number(a)
+                                    a.save(update_fields=["org", "number"])
+
                             models.Invitation.where(org=o).update(org=target)
                             models.Nomination.where(org=o).update(org=target)
 

@@ -667,12 +667,14 @@ class Organisation(Model):
         if original_code and self.code.strip() and self.code != original_code:
             if org_applications := list(
                 Application.where(
-                    org=self, number__icontains=original_code, state__in=["new", "draft"]
+                    org=self, number__icontains=f"-{original_code}-", state__in=["new", "draft"]
                 )
             ):
                 for a in org_applications:
-                    a.number = a.number.replace(f"-{original_code}-", f"-{self.code}-")
-                Application.objects.bulk_update(org_applications, ["number"])
+                    ApplicationNumber.get_or_create(application=a, number=a.number)
+                    # a.number = a.number.replace(f"-{original_code}-", f"-{self.code}-")
+                    a.number = default_application_number(a)
+                    a.save(update_fields=["number"])
 
     class Meta:
         db_table = "organisation"
@@ -1037,6 +1039,24 @@ class LetterOfSupport(PdfFileMixin, Model):
         db_table = "letter_of_support"
 
 
+def default_application_number(application):
+    code = application.round.scheme.code
+    org_code = application.org.get_code()
+    year = f"{application.round.opens_on.year}"
+    last_number = (
+        Application.where(
+            round=application.round,
+            number__isnull=False,
+            number__istartswith=f"{code}-{org_code}-{year}",
+        )
+        .order_by("-number")
+        .values("number")
+        .first()
+    )
+    application_number = int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
+    return f"{code}-{org_code}-{year}-{application_number:03}"
+
+
 class ApplicationMixin:
 
     STATUS = APPLICATION_STATUS
@@ -1224,23 +1244,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
         if not self.application_title:
             self.application_title = self.round.title
         if not self.number:
-            code = self.round.scheme.code
-            org_code = self.org.get_code()
-            year = f"{self.round.opens_on.year}"
-            last_number = (
-                Application.where(
-                    round=self.round,
-                    number__isnull=False,
-                    number__istartswith=f"{code}-{org_code}-{year}",
-                )
-                .order_by("-number")
-                .values("number")
-                .first()
-            )
-            application_number = (
-                int(last_number["number"].split("-")[-1]) + 1 if last_number else 1
-            )
-            self.number = f"{code}-{org_code}-{year}-{application_number:03}"
+            self.number = default_application_number(self)
         super().save(*args, **kwargs)
 
     @fsm_log
@@ -2427,9 +2431,7 @@ class Invitation(InvitationMixin, Model):
             p.save()
 
     @fsm_log
-    @transition(
-        field=status, source=["*"], target=STATUS.bounced
-    )
+    @transition(field=status, source=["*"], target=STATUS.bounced)
     def bounce(self, request=None, by=None, *args, **kwargs):
         def get_absolute_uri(request, url):
             if request:
