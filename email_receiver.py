@@ -36,6 +36,9 @@ if __name__ == "__main__":
     to = msg["to"]
     subject = msg["subject"]
     body = msg["body"]
+    if not msg.is_multipart():
+        body = msg.get_payload(decode=True)
+
     message_id = msg["references"] or msg["in-reply-to"]
 
     for part in msg.walk():
@@ -52,7 +55,7 @@ if __name__ == "__main__":
                 ml.error = (
                     f"{subject}\n{datetime.datetime.now()}\n"
                     "========================================\n"
-                    f"{body}"
+                    f"{body or part.get_payload() or 'N/A'}"
                 )
                 ml.was_sent_successfully = False
                 ml.save()
