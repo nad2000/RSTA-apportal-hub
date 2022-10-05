@@ -24,7 +24,7 @@ class RapidConnectAccount(ProviderAccount):
         if first_name and last_name:
             return "%s %s" % (first_name, last_name)
         if email:
-            return email
+            return email.lower()
         return super(RapidConnectAccount, self).to_str()
 
 
@@ -68,7 +68,7 @@ class RapidConnectProvider(Provider):
             name=cn or displayname,
             first_name=givenname,
             last_name=surname,
-            email=email,
+            email=email and email.lower(),
             orcid=orcid,
             is_approved=True,
         )
@@ -77,12 +77,12 @@ class RapidConnectProvider(Provider):
     def extract_email_addresses(self, data):
         email = data.get("mail")
         if email:
-            return [EmailAddress(email=email, verified=True, primary=True)]
+            return [EmailAddress(email=email.lower(), verified=True, primary=True)]
         return []
 
     def cleanup_email_addresses(self, email, addresses):
         if email and email.lower() not in [a.email.lower() for a in addresses]:
-            addresses.append(EmailAddress(email=email, verified=False, primary=True))
+            addresses.append(EmailAddress(email=email.lower(), verified=False, primary=True))
 
 
 provider_classes = [RapidConnectProvider]
