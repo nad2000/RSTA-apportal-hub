@@ -49,7 +49,11 @@ if __name__ == "__main__":
         ml = MailLog.where(token=message_id).first()
         if ml:
             with transaction.atomic():
-                ml.error = f"{subject}\n{datetime.datetime.now()}"
+                ml.error = (
+                    f"{subject}\n{datetime.datetime.now()}\n"
+                    "========================================\n"
+                    f"{body}"
+                )
                 ml.was_sent_successfully = False
                 ml.save()
                 if ml.invitation:

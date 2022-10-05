@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 from django.db.models import F, Q
-from django.shortcuts import reverse
+from django.shortcuts import render, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_fsm_log.admin import StateLogInline
@@ -818,6 +818,96 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
     search_fields = ["name", "code"]
     date_hierarchy = "created_at"
     resource_class = OrganisationResource
+
+    actions = ["merge_orgs"]
+
+    @admin.action(description="Merge Organisations")
+    def merge_orgs(self, request, queryset):
+        if "do_action" in request.POST:
+            deleted = []
+            errors = []
+            if target_id := request.POST.get("target"):
+                target = models.Organisation.get(target_id)
+                target_code = request.POST.get("target_code", "").strip()
+                if target_code and target_code != target.code:
+                    pass
+
+                for o in list(queryset.filter(~Q(id=target_id))):
+                    try:
+                        with transaction.atomic():
+                            EmailAddress.objects.filter(user=u).update(
+                                user=target, primary=(F("email") == target.email)
+                            )
+                            u.socialaccount_set.update(user=target)
+
+                            Application.where(submitted_by=u).update(submitted_by=target)
+                            Member.where(user=u).update(user=target)
+                            Nomination.where(nominator=u).update(nominator=target)
+                            Nomination.where(user=u).update(user=target)
+                            Referee.where(user=u).update(user=target)
+                            Panellist.where(user=u).update(user=target)
+                            CurriculumVitae.where(owner=u).update(owner=target)
+
+                            if p := Profile.where(user=u).first():
+                                if profile:
+                                    CurriculumVitae.where(profile=p).update(profile=profile)
+                                else:
+                                    CurriculumVitae.where(profile=p).delete()
+                            Profile.where(user=u).delete()
+                            u.delete()
+                            deleted.append(u.username)
+                    except Exception as ex:
+                        errors.append(ex)
+
+                for u in list(queryset.filter(~Q(id=target_id))):
+                    try:
+                        with transaction.atomic():
+                            EmailAddress.objects.filter(user=u).update(
+                                user=target, primary=(F("email") == target.email)
+                            )
+                            u.socialaccount_set.update(user=target)
+
+                            Application.where(submitted_by=u).update(submitted_by=target)
+                            Member.where(user=u).update(user=target)
+                            Nomination.where(nominator=u).update(nominator=target)
+                            Nomination.where(user=u).update(user=target)
+                            Referee.where(user=u).update(user=target)
+                            Panellist.where(user=u).update(user=target)
+                            CurriculumVitae.where(owner=u).update(owner=target)
+
+                            if p := Profile.where(user=u).first():
+                                if profile:
+                                    CurriculumVitae.where(profile=p).update(profile=profile)
+                                else:
+                                    CurriculumVitae.where(profile=p).delete()
+                            Profile.where(user=u).delete()
+                            u.delete()
+                            deleted.append(u.username)
+                    except Exception as ex:
+                        errors.append(ex)
+
+            if deleted:
+                messages.success(
+                    request, f'{len(deleted)} users merged and deleted: {", ".join(deleted)}'
+                )
+            if errors:
+                messages.error(
+                    request,
+                    "Failed to merge all users:<ul>%s</ul>"
+                    % "".join(f"<li>{e}</li>" for e in errors),
+                )
+
+            return
+
+        return render(
+            request,
+            "action_merge_orgs.html",
+            {
+                "title": "Choose target organisation",
+                "objects": queryset,
+                "orgs": queryset,
+            },
+        )
 
 
 @admin.register(models.Invitation)
