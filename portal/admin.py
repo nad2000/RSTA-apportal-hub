@@ -600,7 +600,7 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     save_on_top = True
-    list_display = ["application", "full_name", "status", "testified_at"]
+    list_display = ["application", "email", "full_name", "status", "testified_at"]
     fsm_field = ["status"]
     search_fields = [
         "first_name",
