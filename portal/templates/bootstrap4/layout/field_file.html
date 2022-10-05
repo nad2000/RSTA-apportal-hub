@@ -11,6 +11,7 @@
         <span class="text-break" style="flex-grow:1;min-width:0">
         <a href="{{ field.value.url }}">{{ field.value|basename }}</a>
         </span>
+        {% comment %}
         {% if not widget.data.required %}
         <span class="align-self-center ml-2">
             <span class="custom-control custom-checkbox">
@@ -18,7 +19,8 @@
                 <label class="custom-control-label mb-0" for="{{ widget.data.checkbox_id }}">{{ widget.data.clear_checkbox_label }}</label>
             </span>
         </span>
-    {% endif %}
+        {% endif %}
+        {% endcomment %}
     </div>
 </div>
 <div class="input-group mb-0">
