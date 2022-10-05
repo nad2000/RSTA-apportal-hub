@@ -1180,6 +1180,20 @@ class ApplicationView(LoginRequiredMixin):
                         request, _("You do not have permissions to edit this application.")
                     )
                     return redirect("application", pk=pk)
+
+                if a.members.filter(
+                    ~Q(status="authorized"),
+                    Q(user=u) | Q(email__in=u.email_addresses),
+                ).exists():
+                    messages.warning(
+                        request,
+                        _(
+                            "You have not yet reviewed the application and "
+                            "have not authorized your team representative."
+                        ),
+                    )
+                    return redirect("application", pk=pk)
+
                 if a.state and a.state not in ["new", "draft"]:
                     messages.error(
                         request,
@@ -2096,9 +2110,7 @@ class InvitationList(LoginRequiredMixin, SingleTableView):
         queryset = super().get_queryset(*args, **kwargs)
         u = self.request.user
         if not (u.is_superuser or u.is_staff):
-            queryset = queryset.filter(
-                Q(inviter=u) | Q(email__in=[r[0] for r in u.emailaddress_set.values_list("email")])
-            )
+            queryset = queryset.filter(Q(inviter=u) | Q(email__in=u.email_addresses))
         return queryset
 
 

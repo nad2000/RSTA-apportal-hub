@@ -1,11 +1,11 @@
 import os
 
 import modeltranslation
-from django.db import transaction
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
+from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import render, reverse
 from django.utils.html import format_html

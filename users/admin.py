@@ -62,6 +62,7 @@ class UserAdmin(auth_admin.UserAdmin, SimpleHistoryAdmin):
 
     list_display = [
         "username",
+        "email",
         "full_name",
         "is_superuser",
     ]
