@@ -52,11 +52,15 @@ if __name__ == "__main__":
         ml = MailLog.where(token=message_id).first()
         if ml:
             with transaction.atomic():
-                ml.error = (
-                    f"{subject}\n{datetime.datetime.now()}\n"
-                    "========================================\n"
-                    f"{body or part.get_payload() or 'N/A'}"
-                )
+                if ml.error:
+                    ml.error += "\n\n****************************************\n"
+                else:
+                    ml.error = ''
+                ml.error += f"{subject}\n{datetime.datetime.now()}"
+                if payload := (body or part.get_payload()):
+                    if isinstance(payload, list):
+                        payload = payload[0].get_payload()
+                    ml.error += f"\n========================================\n{payload}"
                 ml.was_sent_successfully = False
                 ml.save()
                 if ml.invitation:
