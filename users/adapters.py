@@ -47,7 +47,8 @@ class AccountAdapter(DefaultAccountAdapter):
         super().pre_authenticate(request, **credentials)
 
     def confirm_email(self, request, email_address):
-        email_address = email_address and email_address.lower()
+        if email_address and email_address.email and email_address.email != email_address.email.lower():
+            email_address.email = email_address.email.lower()
         return super().confirm_email(request, email_address)
 
     def clean_email(self, email):
