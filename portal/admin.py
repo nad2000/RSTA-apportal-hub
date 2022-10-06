@@ -597,7 +597,7 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 
 
 @admin.register(models.Referee)
-class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
 
     save_on_top = True
     list_display = ["application", "email", "full_name", "status", "testified_at"]
