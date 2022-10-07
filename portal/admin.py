@@ -750,7 +750,14 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
 
     save_on_top = True
     view_on_site = False
-    search_fields = ["token", "recipient"]
+    list_display = [
+        "token",
+        "was_sent_successfully",
+        "sent_at",
+        "recipient",
+        "subject",
+    ]
+    search_fields = ["token", "recipient", "subject"]
     exclude = ["site"]
     list_filter = ["sent_at", "updated_at", "was_sent_successfully"]
     date_hierarchy = "sent_at"
