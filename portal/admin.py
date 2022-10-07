@@ -495,8 +495,13 @@ class ApplicationAdmin(
     class RefereeInline(StaffPermsMixin, admin.TabularInline):
         extra = 0
         model = models.Referee
-        readonly_fields = ["status", "status_changed_at", "has_testifed", "testified_at"]
+        readonly_fields = ["status", "status_changed_at", "has_testified", "testified_at"]
         autocomplete_fields = ["user"]
+
+        def has_testified(self, obj):
+            return obj.status == "testified"
+
+        has_testified.boolean = True
 
         def view_on_site(self, obj):
             return reverse("application", kwargs={"pk": obj.application_id})
@@ -600,7 +605,7 @@ class ScoreSheetAdmin(StaffPermsMixin, admin.ModelAdmin):
 class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
 
     save_on_top = True
-    list_display = ["application", "email", "full_name", "status", "testified_at"]
+    list_display = ["application", "has_testified", "email", "full_name", "status", "testified_at"]
     fsm_field = ["status"]
     search_fields = [
         "first_name",
@@ -616,10 +621,15 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
         # "application",
         "status",
         "status_changed_at",
-        "has_testifed",
+        "has_testified",
         "testified_at",
     ]
     inlines = [StateLogInline]
+
+    def has_testified(self, obj):
+        return obj.status == "testified"
+
+    has_testified.boolean = True
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.application_id})

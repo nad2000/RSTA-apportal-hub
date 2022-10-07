@@ -252,7 +252,7 @@ class ApplicationForm(forms.ModelForm):
 
         return self.cleaned_data.get("letter_of_support_file")
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if (
             self.cleaned_data.get("letter_of_support_file") is False
             and self.instance
@@ -260,7 +260,7 @@ class ApplicationForm(forms.ModelForm):
         ):
             self.instance.letter_of_support = None
             los.delete()
-        return super().save()
+        return super().save(*args, **kwargs)
 
     def __init__(self, *args, **kwargs):
 
@@ -696,7 +696,7 @@ class RefereeForm(forms.ModelForm):
                     "oninput": "this.setCustomValidity('')",
                 }
             ),
-            has_testifed=NullBooleanSelect(attrs=dict(readonly=True)),
+            has_testiefed=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )
 

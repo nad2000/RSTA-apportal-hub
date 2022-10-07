@@ -1477,7 +1477,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
     def user_draft_applications(cls, user):
         return cls.user_applications(user, ["draft", "new"])
 
-    def get_testimonials(self, has_testifed=None):
+    def get_testimonials(self, has_testified=None):
         sql = (
             "SELECT DISTINCT tm.* FROM referee AS r "
             "JOIN application AS a "
@@ -1485,8 +1485,8 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             "LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
             "WHERE (r.application_id=%s OR a.id=%s) AND a.site_id=%s"
         )
-        if has_testifed:
-            sql += " AND r.has_testified IS NOT NULL"
+        if has_testified:
+            sql += " AND r.status='testified'"
 
         return Testimonial.objects.raw(sql, [self.id, self.id, self.current_site_id])
 
@@ -1849,13 +1849,17 @@ class Referee(RefereeMixin, PersonMixin, Model):
         help_text=_("Comma separated list of middle names"),
     )
     last_name = CharField(max_length=150, null=True, blank=True)
-    has_testifed = BooleanField(null=True, blank=True)
+    # has_testifed = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     status = StateField(null=True, blank=True, default=REFEREE_STATUS.new)
     status_changed_at = MonitorField(monitor="status", null=True, blank=True, default=None)
     testified_at = MonitorField(
         monitor="status", when=[REFEREE_STATUS.testified], null=True, blank=True, default=None
     )
+
+    @property
+    def has_testified(self):
+        return self.status == "testified"
 
     # def clean(self):
     #     if self.application_id and not self.application.file:
@@ -1881,7 +1885,8 @@ class Referee(RefereeMixin, PersonMixin, Model):
     @fsm_log
     @transition(field=status, source=["*"], target="opted_out")
     def opt_out(self, *args, **kwargs):
-        self.has_testifed = False
+        # self.has_testifed = False
+        pass
 
     @fsm_log
     @transition(field=status, source=["*"], target="sent")
@@ -2564,9 +2569,10 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     @fsm_log
     @transition(field=state, source=["new", "draft"], target="submitted")
     def submit(self, request=None, by=None, *args, **kwargs):
-        self.referee.has_testifed = True
-        self.referee.status = "testified"
+        # self.referee.has_testifed = True
+        # self.referee.status = "testified"
         # self.referee.testified_at = datetime.now()
+        self.referee.testify(request=request, by=by, *args, **kwargs)
         self.referee.save()
 
     @classmethod
@@ -3226,7 +3232,9 @@ class Round(Model):
             """
             WITH summary AS (
                 SELECt a.id, count(r.id) AS referee_count,
-                    sum(CASE WHEN r.status='testified' OR has_testifed THEN 1 ELSE 0 END) AS submitted_reference_count
+                    sum(CASE WHEN r.status='testified'
+                    -- OR has_testifed
+                    THEN 1 ELSE 0 END) AS submitted_reference_count
                 FROM application AS a
                     LEFT JOIN referee AS r ON r.application_id=a.id
                 WHERE a.round_id=%s AND a.site_id=%s

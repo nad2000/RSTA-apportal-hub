@@ -837,7 +837,11 @@ def invite_referee(request, application):
     count = 0
     # referees = list(models.Referee.where(application=application, invitation__isnull=True))
     # referees = list(models.Referee.where(invitation__isnull=True))
-    referees = list(models.Referee.where(~Q(invitation__email=F("email"))))
+    referees = list(
+        models.Referee.where(
+            ~Q(status__in=["testified", "accepted", "opted_out"]), ~Q(invitation__email=F("email"))
+        )
+    )
     for r in referees:
         get_or_create_referee_invitation(r, by=request.user)
 
@@ -845,7 +849,7 @@ def invite_referee(request, application):
     invitations = list(
         models.Invitation.where(
             Q(sent_at__isnull=True),
-            ~Q(status__in=["accepted", "expired", "bounced"]),
+            ~Q(status__in=["accepted", "expired", "bounced", "revoked"]),
             application=application,
             type="R",
         )
@@ -1149,6 +1153,48 @@ class ApplicationView(LoginRequiredMixin):
     model = Application
     template_name = "application.html"
     form_class = forms.ApplicationForm
+    fragment = None  # next application form tab to be selected
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object:
+            r = self.object.round
+        elif "round" in kwargs:
+            r = models.Round.get(kwargs["round"])
+        else:
+            r = models.Nomination.get(kwargs["nomination"]).round
+        if r.panellists.all().filter(user=request.user).exists():
+            messages.error(
+                self.request,
+                _("You are a panellist for this round. You cannot apply for this round: %s")
+                % r.title,
+            )
+            return redirect("home")
+
+        # a = models.Application.where(submitted_by=request.user, round=r).order_by("-id").first()
+        # if a:
+        #     messages.warning(
+        #         self.request, _("You have already created an application. Please update it.")
+        #     )
+        #     return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
+        # return super().get(request, *args, **kwargs)
+        return self.render_to_response(self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def get_object(self):
+        if (pk := self.kwargs.get("pk")) and (a := get_object_or_404(self.model, pk=pk)):
+            return a
+        elif r := (
+            models.Round.get(self.kwargs["round"])
+            if "round" in self.kwargs
+            else models.Nomination.get(self.kwargs["nomination"]).round
+        ):
+            return (
+                self.model.where(submitted_by=self.request.user, round=r).order_by("-id").first()
+            )
 
     @property
     def previous_application(self):
@@ -1215,6 +1261,10 @@ class ApplicationView(LoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
     def continue_url(self, fragment=None):
+        if not fragment:
+            fragment = self.fragment
+        else:
+            self.fragment = fragment
         if self.object and self.object.pk:
             url = reverse("application-update", kwargs=dict(pk=self.object.pk))
         else:
@@ -1294,6 +1344,11 @@ class ApplicationView(LoginRequiredMixin):
     #     breakpoint()
     #     return super().form_invalid(form)
 
+    def get_success_url(self):
+        if (a := getattr(self, "object", None)) and a.id:
+            return reverse("application", kwargs={"pk": a.id})
+        return super().get_success_url()
+
     def form_valid(self, form):
 
         context = self.get_context_data()
@@ -1316,17 +1371,71 @@ class ApplicationView(LoginRequiredMixin):
                     form.instance.letter_of_support = letter_of_support
                     # if letter_of_support_file.name.endswith(".pdf")
 
-                resp = super().form_valid(form)
+                a = form.save(commit=not (form.instance.id))
+                resp = HttpResponseRedirect(self.get_success_url())
+                breakpoint()
+
+                if a.submitted_by == user:
+                    # Update user names:
+                    if not (
+                        (user.first_name or user.first_name != a.first_name)
+                        and (
+                            user.middle_names
+                            and a.middle_names
+                            or user.middle_names != a.middle_names
+                        )
+                        and (user.last_name or user.last_name != a.last_name)
+                    ):
+                        user.first_name, user.middle_names, user.last_name = (
+                            user.first_name or a.first_name,
+                            user.middle_names or a.middle_names,
+                            user.last_name or a.last_name,
+                        )
+                        user.name = " ".join(
+                            p.strip()
+                            for p in (user.first_name, user.middle_names, user.last_name)
+                            if p and p.strip()
+                        )
+                        user.save(
+                            update_fields=["first_name", "middle_names", "last_name", "name"]
+                        )
+
+                    # Update user affiliations:
+                    profile = user.profile
+                    models.Affiliation.get_or_create(
+                        profile=profile,
+                        org=a.org,
+                        role=a.position,
+                        defaults={
+                            "type": models.AFFILIATION_TYPES.EDU
+                            if a.position.lower() in ["student", "postdoc"]
+                            else models.AFFILIATION_TYPES.EMP
+                        },
+                    )
+
+                if "submit" in self.request.POST:
+                    if (
+                        self.round.applicant_cv_required
+                        and not a.cv
+                        and (
+                            cv := models.CurriculumVitae.where(owner=a.submitted_by)
+                            .order_by("-id")
+                            .first()
+                        )
+                    ):
+                        a.cv = cv
+
+                elif "save_draft" in self.request.POST:
+                    a.save_draft(request=self.request)
 
                 has_deleted = False
-                a = self.object
-
                 if a.is_team_application:
                     members = context["members"]
                     has_deleted = bool(members.deleted_forms)
                     if has_deleted:
                         # url = self.request.path_info + "?members=1"
                         # url = self.request.path_info.split("?")[0] + "#application"
+                        self.fragment = "application"
                         url = self.continue_url("application")
                     if members.is_valid():
                         members.instance = a
@@ -1350,6 +1459,7 @@ class ApplicationView(LoginRequiredMixin):
                     # referees.instance = a
                     has_deleted = bool(has_deleted or referees.deleted_forms)
                     if has_deleted or "send_invitations" in self.request.POST:
+                        self.fragment = "referees"
                         url = self.continue_url("referees")
                     referees.save()
                     if a.file:
@@ -1375,6 +1485,7 @@ class ApplicationView(LoginRequiredMixin):
                         if not f.is_valid():
                             form.errors.update(f.errors)
                             # if not a.file:
+                            #     self.fragment = "summary"
                             #     url = self.continue_url("summary")
                             #     messages.error(
                             #         self.request,
@@ -1384,6 +1495,7 @@ class ApplicationView(LoginRequiredMixin):
                             #     raise ValidationError(_("Missing application form file"))
                             # else:
                             #     url = self.continue_url("referees")
+                            self.fragment = "referees"
                             url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
 
@@ -1431,6 +1543,7 @@ class ApplicationView(LoginRequiredMixin):
                         )
                         # url = self.request.path_info.split("?")[0] + "?summary=1"
                         # url = self.request.path_info.split("?")[0] + "#summary"
+                        self.fragment = "summary"
                         url = self.continue_url("summary")
                         return redirect(url)
 
@@ -1466,6 +1579,7 @@ class ApplicationView(LoginRequiredMixin):
                                 "Please save the letter of support into PDF format and try to upload it again."
                             ),
                         )
+                        self.fragment = "summary"
                         url = self.continue_url("summary")
                         return redirect(url)
 
@@ -1475,12 +1589,13 @@ class ApplicationView(LoginRequiredMixin):
             else:
                 messages.error(self.request, ex)
             capture_exception(ex)
-
-            return redirect(url)
+            # return redirect(url)
             # return resp
+            return self.form_invalid(form)
 
         if has_deleted:  # keep editing
             return redirect(url)
+
         else:
             url = None
             try:
@@ -1536,6 +1651,7 @@ class ApplicationView(LoginRequiredMixin):
                             ),
                         )
                         if not url:
+                            self.fragment = "ethics-statement"
                             url = self.continue_url("ethics-statement")
                         # url = url or (self.request.path_info.split("?")[0] + "#ethics-statement")
 
@@ -1548,6 +1664,7 @@ class ApplicationView(LoginRequiredMixin):
                                 ),
                             )
                             if not url:
+                                self.fragment = "tac"
                                 url = self.continue_url("tac")
                             # url = url or (self.request.path_info.split("?")[0] + "#tac")
 
@@ -1559,6 +1676,7 @@ class ApplicationView(LoginRequiredMixin):
                             ),
                         )
                         if not url:
+                            self.fragment = "summary"
                             url = self.continue_url("summary")
                         # url = url or (self.request.path_info.split("?")[0] + "#summary")
 
@@ -1570,6 +1688,7 @@ class ApplicationView(LoginRequiredMixin):
                             ),
                         )
                         if not url:
+                            self.fragment = "summary"
                             url = self.continue_url("summary")
                         # url = url or (self.request.path_info.split("?")[0] + "#summary")
 
@@ -1602,6 +1721,7 @@ class ApplicationView(LoginRequiredMixin):
                                 ),
                             )
                         if not url:
+                            self.fragment = "id-verification"
                             url = self.continue_url("id-verification")
 
                     if (
@@ -1617,10 +1737,12 @@ class ApplicationView(LoginRequiredMixin):
                             % a.round.required_referees,
                         )
                         if not url:
+                            self.fragment = "referees"
                             url = self.continue_url("referees")
 
-                    if url:
-                        return redirect(url)
+                    if self.fragment:
+                        # return redirect(url)
+                        return self.form_invalid(form)
 
                     a.submit(request=self.request)
                     a.save()
@@ -1641,12 +1763,16 @@ class ApplicationView(LoginRequiredMixin):
                     a.save()
                     if "send_invitations" in self.request.POST:
                         # url = self.request.path_info.split("?")[0] + "#referees"
+                        self.fragment = "referees"
                         url = self.continue_url("referees")
-                        return redirect(url)
+                        # return redirect(url)
+                        return self.form_invalid(form)
+
             except Exception as e:
                 capture_exception(e)
                 messages.error(self.request, str(e))
-                return redirect(self.continue_url())
+                # return redirect(self.continue_url())
+                return self.form_invalid(form)
 
         return resp
 
@@ -1849,28 +1975,6 @@ class ApplicationCreate(ApplicationView, CreateView):
     # def form_invalid(self, form):
     #     return super().form_invalid(form)
 
-    def get(self, request, *args, **kwargs):
-        r = (
-            models.Round.get(kwargs["round"])
-            if "round" in kwargs
-            else models.Nomination.get(kwargs["nomination"]).round
-        )
-        if r.panellists.all().filter(user=request.user).exists():
-            messages.error(
-                self.request,
-                _("You are a panellist for this round. You cannot apply for this round: %s")
-                % r.title,
-            )
-            return redirect("home")
-
-        a = models.Application.where(submitted_by=request.user, round=r).order_by("-id").first()
-        if a:
-            messages.warning(
-                self.request, _("You have already created an application. Please update it.")
-            )
-            return redirect(reverse("application-update", kwargs=dict(pk=a.id)))
-        return super().get(request, *args, **kwargs)
-
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
     #     context["helper"] = forms.MemberFormSetHelper()
@@ -1892,16 +1996,17 @@ class ApplicationCreate(ApplicationView, CreateView):
             else getattr(form.instance, "round")
         )
         if r and (a := models.Application.where(round=r, submitted_by=self.request.user).last()):
-            messages.error(
-                self.request,
-                _(
-                    "Fatal ERROR! You already have a created application. "
-                    "Please continue with this application."
-                ),
-            )
-            if a.state == "draft":
-                return redirect("application-update", pk=a.id)
-            return redirect("application", pk=a.id)
+            if a.state not in ["new", "draft"]:
+                messages.error(
+                    self.request,
+                    _(
+                        "Fatal ERROR! You already have a created application. "
+                        "Please continue with this application."
+                    ),
+                )
+                # if a.state == "draft":
+                #     return redirect("application-update", pk=a.id)
+                return redirect("application", pk=a.id)
 
         try:
             with transaction.atomic():
@@ -1911,7 +2016,7 @@ class ApplicationCreate(ApplicationView, CreateView):
                 a.round = self.round
                 a.scheme = a.round.scheme
                 resp = super().form_valid(form)
-                a.save()
+                # a.save()
                 n = (
                     self.nomination
                     or self.round.user_nominations(self.request.user).order_by("-id").first()
@@ -3301,7 +3406,7 @@ class TestimonialView(CreateUpdateView):
             return (
                 t
                 and t.referee
-                and t.referee.has_testifed
+                and t.referee.has_testified
                 or a.referees.filter(
                     Q(user=u) | Q(email__in=u.emailaddress_set.values("email"))
                 ).last()
@@ -3619,7 +3724,7 @@ class TestimonialDetail(DetailView):
             context["update_button_name"] = _("Add Testimonial")
         else:
             context["update_button_name"] = _("Edit Testimonial")
-        if not self.object.referee.has_testifed:
+        if not self.object.referee.has_testified:
             messages.info(
                 self.request,
                 _("Please review the application details and submit testimonial."),
