@@ -1751,6 +1751,20 @@ class Member(PersonMixin, MemberMixin, Model):
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
 
+    def clean(self):
+        super().clean()
+        if not (application := getattr(self, "application", None)):
+            raise ValidationError(_("Missing application"))
+        member_id = getattr(self, "id", None)
+        q = application.members.filter(email=self.email)
+        if member_id:
+            q = q.filter(~Q(id=member_id))
+        if q.exists():
+            raise ValidationError(
+                _("Team member with the email address %(email)s was alrady added"),
+                params={"email": self.email},
+            )
+
     @fsm_log
     @transition(field=status, source=["new", "sent"], target="accepted")
     def accept(self, *args, **kwargs):
@@ -1861,11 +1875,19 @@ class Referee(RefereeMixin, PersonMixin, Model):
     def has_testified(self):
         return self.status == "testified"
 
-    # def clean(self):
-    #     if self.application_id and not self.application.file:
-    #         raise ValidationError(
-    #             _("Before inviting referees, please upload a completed application form.")
-    #         )
+    def clean(self):
+        super().clean()
+        if not (application := getattr(self, "application", None)):
+            raise ValidationError(_("Missing application"))
+        referee_id = getattr(self, "id", None)
+        q = application.referees.filter(email=self.email)
+        if referee_id:
+            q = q.filter(~Q(id=referee_id))
+        if q.exists():
+            raise ValidationError(
+                _("Referee with the email address %(email)s was alrady added"),
+                params={"email": self.email},
+            )
 
     @fsm_log
     @transition(field=status, source=["*"], target="accepted")

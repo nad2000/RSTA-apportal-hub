@@ -632,6 +632,25 @@ class MemberForm(forms.ModelForm):
                 self.instance.status_changed_at or self.instance.updated_at
             )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if member := cleaned_data.get("id"):
+            application = member.application
+        else:
+            application = cleaned_data.get("application")
+        email = cleaned_data.get("email")
+        if not email:
+            raise forms.ValidationError(_("Team member email address is mandatory"))
+        q = application.members.filter(email=email)
+        if member:
+            q = q.filter(~models.Q(id=member.id))
+        if q.exists():
+            raise forms.ValidationError(
+                _("Team member with the email address %(email)s was alrady added"),
+                params={"email": email},
+            )
+        return cleaned_data
+
     class Meta:
         model = models.Member
         fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
@@ -683,6 +702,25 @@ class RefereeForm(forms.ModelForm):
         else:
             self.save_m2m = self._save_m2m
         return self.instance
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if referee := cleaned_data.get("id"):
+            application = referee.application
+        else:
+            application = cleaned_data.get("application")
+        email = cleaned_data.get("email")
+        if not email:
+            raise forms.ValidationError(_("Referee email address is mandatory"))
+        q = application.referees.filter(email=email)
+        if referee:
+            q = q.filter(~models.Q(id=referee.id))
+        if q.exists():
+            raise forms.ValidationError(
+                _("Referee with the email address %(email)s was alrady added"),
+                params={"email": email},
+            )
+        return cleaned_data
 
     class Meta:
         model = models.Referee

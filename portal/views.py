@@ -1343,6 +1343,13 @@ class ApplicationView(LoginRequiredMixin):
                                 self.request,
                                 _("%d invitation(s) to join the team have been sent.") % count,
                             )
+                    else:
+                        for f in members.forms:
+                            if not f.is_valid():
+                                form.errors.update(f.errors)
+                                url = self.continue_url("application")
+                                raise ValidationError(_("Invalid member form"))
+
                     if has_deleted:
                         return redirect(url)
 
@@ -1476,12 +1483,16 @@ class ApplicationView(LoginRequiredMixin):
                         return redirect(url)
 
         except Exception as ex:
-            if hasattr(ex, "message"):
-                messages.error(self.request, ex.message)
+            if hasattr(form, "errors") and (errors := set(form.errors.get("__all__", []))):
+                for e in errors:
+                    messages.error(self.request, e)
             else:
-                messages.error(self.request, ex)
+                if hasattr(ex, "message"):
+                    messages.error(self.request, ex.message)
+                else:
+                    messages.error(self.request, ex)
             capture_exception(ex)
-
+            # breakpoint()
             return redirect(url)
             # return resp
 
