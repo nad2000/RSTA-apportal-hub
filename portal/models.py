@@ -1045,7 +1045,7 @@ def default_application_number(application):
     year = f"{application.round.opens_on.year}"
     last_number = (
         Application.where(
-            round=application.round,
+            # round=application.round,
             number__isnull=False,
             number__istartswith=f"{code}-{org_code}-{year}",
         )
@@ -1864,7 +1864,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
     #         )
 
     @fsm_log
-    @transition(field=status, source=["new", "sent"], target="accepted")
+    @transition(field=status, source=["*"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
