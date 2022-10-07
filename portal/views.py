@@ -2488,9 +2488,8 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
                     "code": autocomplete.ModelSelect2(
                         "person-identifier-autocomplete",
                         attrs={
-                            # "required": True
                             "data-placeholder": _("Choose an identifier type or a new one..."),
-                            # "placeholder": _("Choose an identifier type or a new one ..."),
+                            "placeholder": _("Choose an identifier type or a new one ..."),
                             "data-required": 1,
                             "oninvalid": "this.setCustomValidity('%s')"
                             % _("Identifier type is required"),
@@ -2511,7 +2510,7 @@ class ProfilePersonIdentifierFormSetView(ProfileSectionFormSetView):
                     "value": TextInput(
                         attrs={
                             "placeholder": _("Enter an identifier or a reference ..."),
-                            # "data-placeholder": _("Choose an identifier value ..."),
+                            "data-placeholder": _("Choose an identifier value ..."),
                             "data-required": 1,
                             "oninvalid": "this.setCustomValidity('%s')"
                             % _("Identifier value is required"),
@@ -2798,6 +2797,7 @@ class ProfileCurriculumVitaeFormSetView(ProfileSectionFormSetView):
                     "file": widgets.ClearableFileInput(
                         attrs={
                             "placeholder": _("Please upload a file ..."),
+                            "data-placeholder": _("Please upload a file ..."),
                             "data-required": 1,
                             "oninvalid": "this.setCustomValidity('%s')"
                             % _("The file is required. Please upload a file ..."),

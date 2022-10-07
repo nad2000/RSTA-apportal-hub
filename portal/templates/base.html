@@ -381,9 +381,11 @@ table.table .asteriskField,.popover-header {color: gray;}
           {% include "form_errors.html" %}
         {% endif %}
 
+        {% comment %}
         {% if formset.errors %}
           {% include "formset_errors.html" %}
         {% endif %}
+        {% endcomment %}
 
         {% if inlines %}
           {% for formset in inlines %}
