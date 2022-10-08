@@ -87,6 +87,7 @@ class SocialTokenAdmin(SocialTokenAdmin):
         "account__user__username",
         "account__user__email",
     ]
+    ordering = ["-id"]
 
 
 admin.site.unregister(SocialToken)
