@@ -1,6 +1,8 @@
 import os
 
 import modeltranslation
+from allauth.socialaccount.admin import SocialTokenAdmin
+from allauth.socialaccount.models import SocialToken
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.flatpages.admin import FlatPageAdmin
@@ -77,6 +79,18 @@ class FlatPageAdmin(SummernoteModelAdminMixin, FlatPageAdmin):
 # Re-register FlatPageAdmin
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, FlatPageAdmin)
+
+
+class SocialTokenAdmin(SocialTokenAdmin):
+
+    search_fields = [
+        "account__user__username",
+        "account__user__email",
+    ]
+
+
+admin.site.unregister(SocialToken)
+admin.site.register(SocialToken, SocialTokenAdmin)
 
 
 class PdfFileAdminMixin:
@@ -757,6 +771,7 @@ class MailLogAdmin(StaffPermsMixin, admin.ModelAdmin):
         "recipient",
         "subject",
     ]
+    autocomplete_fields = ["user", "invitation"]
     search_fields = ["token", "recipient", "subject"]
     exclude = ["site"]
     list_filter = ["sent_at", "updated_at", "was_sent_successfully"]
