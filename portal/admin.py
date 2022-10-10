@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django_fsm_log.admin import StateLogInline
 from django_summernote.admin import SummernoteModelAdminMixin
 from fsm_admin.mixins import FSMTransitionMixin
-from import_export.admin import ImportExportModelAdmin
+from import_export.admin import ImportExportMixin, ImportExportModelAdmin
 from import_export.resources import ModelResource
 from modeltranslation.admin import TranslationAdmin
 from simple_history.admin import SimpleHistoryAdmin
@@ -917,7 +917,7 @@ class OrganisationAdmin(StaffPermsMixin, ImportExportModelAdmin, SimpleHistoryAd
 
 
 @admin.register(models.Invitation)
-class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportModelAdmin):
+class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportMixin, SimpleHistoryAdmin):
     @admin.action(description="Resend invitations")
     def resend(self, request, queryset):
         for o in queryset:

@@ -668,9 +668,17 @@ class MemberForm(forms.ModelForm):
         )
 
 
-MemberFormSet = inlineformset_factory(
-    models.Application, models.Member, form=MemberForm, extra=1, can_delete=True
-)
+class MemberFormSet(
+    inlineformset_factory(
+        models.Application, models.Member, form=MemberForm, extra=1, can_delete=True
+    )
+):
+    def delete_existing(self, obj, commit=True):
+        if commit:
+            for i in models.Invitation.where(member=obj):
+                i.revoke()
+                i.save()
+            obj.delete()
 
 
 class RefereeForm(forms.ModelForm):
@@ -702,6 +710,15 @@ class RefereeForm(forms.ModelForm):
         else:
             self.save_m2m = self._save_m2m
         return self.instance
+
+    def full_clean(self):
+        if (referee_id := self["id"].data) and not (self["email"].data or "").strip():
+            self.cleaned_data = {
+                forms.formsets.DELETION_FIELD_NAME: True,
+                "id": models.Referee.get(referee_id),
+            }
+            return self.cleaned_data
+        return super().full_clean()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -740,6 +757,19 @@ class RefereeForm(forms.ModelForm):
 
 
 class MandatoryApplicationFormInlineFormSet(BaseInlineFormSet):
+    def delete_existing(self, obj, commit=True):
+        if commit:
+            for i in models.Invitation.where(referee=obj):
+                i.revoke()
+                i.save()
+            obj.delete()
+
+    def add_fields(self, form, index):
+        # workaround:
+        super().add_fields(
+            form, index=index if (self.can_delete_extra or index is not None) else 9999
+        )
+
     def clean(self):
         pass
 
