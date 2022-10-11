@@ -1775,6 +1775,10 @@ class Member(PersonMixin, MemberMixin, Model):
     def authorize(self, *args, **kwargs):
         self.has_authorized = True
         request = get_request(*args, **kwargs)
+        for i in Invitation.where(~Q(status="accepted"), member=self):
+            i.accept(request)
+            i.save()
+
         if self.application.submitted_by.email:
             send_mail(
                 __("A team member accepted your invitation"),
@@ -2434,8 +2438,11 @@ class Invitation(InvitationMixin, Model):
             if not request or not request.user:
                 raise Exception("User unknown!")
             by = request.user
-        if self.type == INVITATION_TYPES.T:
-            m = self.member
+        if (
+            self.type == INVITATION_TYPES.T
+            and (m := self.member)
+            and m.status not in ["accepted", "authorized"]
+        ):
             m.user = by
             m.accept(request)
             m.save()
@@ -2444,8 +2451,11 @@ class Invitation(InvitationMixin, Model):
                 n = self.nomination
                 n.user = by
                 n.save()
-        elif self.type == INVITATION_TYPES.R:
-            r = self.referee
+        elif (
+            self.type == INVITATION_TYPES.R
+            and (r := self.referee)
+            and r.status not in ["accepted", "opted_out", "testified"]
+        ):
             r.user = by
             r.accept(request)
             r.save()

@@ -560,14 +560,27 @@ def check_profile(request, token=None):
             i.save()
             reset_cache(request)
 
-        if i.status == "revoked":
+        elif i.status == "revoked":
             messages.warning(
                 request,
                 _("The invitation has been revoked and is not any more valid."),
             )
+        elif i.status == "accepted":
+            messages.warning(
+                request,
+                _("The invitation has been already accepted."),
+            )
 
         if i.status != "accepted":
             next_url = i.handler_url
+        else:
+            if i.type == "T" and (m := i.member) and (a_id := m.application_id):
+                next_url = reverse("application", kwargs={"pk": a_id})
+            elif i.type == "R" and (r := i.referee):
+                if t := models.Testimonial.where(referee=r).last():
+                    next_url = reverse("testimonial-update", kwargs={"pk": t.id})
+                elif a_id := r.application_id:
+                    next_url = reverse("testimonial-detail", kwargs={"pk": a_id})
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
 
@@ -1023,6 +1036,13 @@ class MemberInline(InlineFormSetFactory):
     model = models.Member
     fields = ["first_name", "middle_names", "last_name", "email"]
 
+    def delete_existing(self, obj, commit=True):
+        if commit:
+            for i in models.Invitation.where(member=obj):
+                i.revoke(self.request)
+                i.save()
+            obj.delete()
+
 
 class AuthorizationForm(Form):
 
@@ -1362,8 +1382,15 @@ class ApplicationView(LoginRequiredMixin):
                 if referees.is_valid():
                     # referees.instance = a
                     has_deleted = bool(has_deleted or referees.deleted_forms)
-                    if has_deleted or "send_invitations" in self.request.POST:
-                        url = self.continue_url("referees")
+                    # if has_deleted or "send_invitations" in self.request.POST:
+                    #     url = self.continue_url("referees")
+
+                    # for df in referees.deleted_forms:
+                    #     if referee := df.instance:
+                    #         for i in models.Invitation.where(models.Q(referee=referee)):
+                    #             i.revoke(self.request)
+                    #             i.save()
+
                     referees.save()
                     if a.file:
                         count = invite_referee(self.request, a)
@@ -1779,7 +1806,9 @@ class ApplicationView(LoginRequiredMixin):
             kwargs = {
                 # "min_num": round.required_referees,
                 "max_num": round.required_referees,
-                "can_delete": False,
+                # "can_delete": False,
+                "can_delete": True,
+                "can_delete_extra": False,
                 "extra": round.required_referees
                 - (self.object and self.object.referees.count() or 0),
                 "validate_max": False,
