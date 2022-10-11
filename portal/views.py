@@ -560,14 +560,27 @@ def check_profile(request, token=None):
             i.save()
             reset_cache(request)
 
-        if i.status == "revoked":
+        elif i.status == "revoked":
             messages.warning(
                 request,
                 _("The invitation has been revoked and is not any more valid."),
             )
+        elif i.status == "accepted":
+            messages.warning(
+                request,
+                _("The invitation has been already accepted."),
+            )
 
         if i.status != "accepted":
             next_url = i.handler_url
+        else:
+            if i.type == "T" and (m := i.member) and (a_id := m.application_id):
+                next_url = reverse("application", kwargs={"pk": a_id})
+            elif i.type == "R" and (r := i.referee):
+                if t := models.Testimonial.where(referee=r).last():
+                    next_url = reverse("testimonial-update", kwargs={"pk": t.id})
+                elif a_id := r.application_id:
+                    next_url = reverse("testimonial-detail", kwargs={"pk": a_id})
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
 
