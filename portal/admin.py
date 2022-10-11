@@ -479,6 +479,8 @@ class ApplicationAdmin(
         "organisation",
         "org__name",
         "round__title",
+        "members__email",
+        "referees__email",
     ]
     autocomplete_fields = [
         "submitted_by",
