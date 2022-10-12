@@ -578,9 +578,9 @@ def check_profile(request, token=None):
                 next_url = reverse("application", kwargs={"pk": a_id})
             elif i.type == "R" and (r := i.referee):
                 if t := models.Testimonial.where(referee=r).last():
-                    next_url = reverse("testimonial-update", kwargs={"pk": t.id})
+                    next_url = reverse("testimonial-detail", kwargs={"pk": t.id})
                 elif a_id := r.application_id:
-                    next_url = reverse("testimonial-detail", kwargs={"pk": a_id})
+                    next_url = reverse("application", kwargs={"pk": a_id})
 
     if Profile.where(user=request.user).exists() and request.user.profile.is_completed:
 

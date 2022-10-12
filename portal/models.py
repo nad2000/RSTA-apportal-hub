@@ -2114,12 +2114,13 @@ INVITATION_TYPES = Choices(
 )
 
 INVITATION_STATUS = Choices(
-    ("draft", _("draft")),
-    ("submitted", _("submitted")),
-    ("sent", _("sent")),
     ("accepted", _("accepted")),
-    ("expired", _("expired")),
     ("bounced", _("bounced")),
+    ("draft", _("draft")),
+    ("expired", _("expired")),
+    ("revoked", _("revoked")),
+    ("sent", _("sent")),
+    ("submitted", _("submitted")),
 )
 
 
@@ -2131,7 +2132,7 @@ class InvitationMixin:
 
 class Invitation(InvitationMixin, Model):
 
-    STATUS = Choices("draft", "submitted", "sent", "accepted", "expired", "bounced", "revoked")
+    STATUS = INVITATION_STATUS
 
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
@@ -2196,28 +2197,29 @@ class Invitation(InvitationMixin, Model):
 
     @property
     def handler_url(self):
-        if self.type == INVITATION_TYPES.A:
+        if self.status == "revoked":
+            return reverse("index")
+        elif self.type == INVITATION_TYPES.A and self.nomination_id:
             if a := self.nomination.application:
                 if a.state != "submitted":
                     return reverse("application-update", kwargs=dict(pk=a.id))
                 else:
                     return reverse("application", kwargs=dict(pk=a.id))
-            return reverse("nomination-detail", kwargs=dict(pk=self.nomination.id))
-        elif self.type == INVITATION_TYPES.T:
-            return reverse("application", kwargs=dict(pk=self.member.application.id))
-        elif self.type == INVITATION_TYPES.R:
-            if r := self.referee:
-                if t := Testimonial.where(referee=r).first():
-                    return reverse("review-update", kwargs=dict(pk=t.id))
-                a = r.application
-                return reverse("application", kwargs=dict(pk=a.id))
-            return
-        elif self.type == INVITATION_TYPES.P:
-            p = self.panellist
+            return reverse("nomination-detail", kwargs=dict(pk=self.nomination_id))
+        elif self.type == INVITATION_TYPES.T and self.member:
+            return reverse("application", kwargs=dict(pk=self.member.application_id))
+        elif self.type == INVITATION_TYPES.R and (r := self.referee):
+            if t := Testimonial.where(referee=r).first():
+                return reverse("review-update", kwargs=dict(pk=t.id))
+            a = r.application
+            return reverse("application", kwargs=dict(pk=a.id))
+        elif self.type == INVITATION_TYPES.P and (p := self.panelist):
             if p.round_id:
                 if p.has_all_coi_statements_submitted or p.round.has_online_scoring:
                     return reverse("round-application-list", kwargs=dict(round_id=p.round.id))
                 return reverse("round-coi", kwargs=dict(round=p.round.id))
+        elif self.type in INVITATION_TYPES:
+            return reverse("index")
         return self.token and reverse("onboard-with-token", kwargs=dict(token=self.token))
 
     @classmethod
