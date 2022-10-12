@@ -23,6 +23,7 @@
 {% endblock %}
 
 {% block javascript %}
+  <script src="{% static 'js/project.js' %}"></script>
   {{ block.super }}
   {{ formset.media.js }}
 {% endblock %}
