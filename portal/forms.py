@@ -1199,13 +1199,24 @@ class PanellistForm(forms.ModelForm):
         )
 
 
-PanellistFormSet = modelformset_factory(
-    models.Panellist,
-    form=PanellistForm,
-    exclude=("site",),
-    can_delete=True,
-    widgets={"round": HiddenInput(), "status": InvitationStatusInput(attrs={"readonly": True})},
-)
+class PanellistFormSet(
+    modelformset_factory(
+        models.Panellist,
+        form=PanellistForm,
+        exclude=("site",),
+        can_delete=True,
+        widgets={
+            "round": HiddenInput(),
+            "status": InvitationStatusInput(attrs={"readonly": True}),
+        },
+    )
+):
+    def delete_existing(self, obj, commit=True):
+        if commit:
+            for i in models.Invitation.where(panellist=obj):
+                i.revoke()
+                i.save()
+            obj.delete()
 
 
 class PanellistFormSetHelper(FormHelper):

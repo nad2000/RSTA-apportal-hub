@@ -2158,22 +2158,22 @@ class Invitation(InvitationMixin, Model):
         Organisation, verbose_name=_("organisation"), on_delete=SET_NULL, null=True, blank=True
     )  # the org matched with the entered name
     application = ForeignKey(
-        Application, null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+        Application, null=True, blank=True, on_delete=SET_NULL, related_name="invitations"
     )
     nomination = ForeignKey(
-        "Nomination", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+        "Nomination", null=True, blank=True, on_delete=SET_NULL, related_name="invitations"
     )
     member = OneToOneField(
-        Member, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+        Member, null=True, blank=True, on_delete=SET_NULL, related_name="invitation"
     )
     referee = OneToOneField(
-        Referee, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+        Referee, null=True, blank=True, on_delete=SET_NULL, related_name="invitation"
     )
     panellist = OneToOneField(
-        Panellist, null=True, blank=True, on_delete=CASCADE, related_name="invitation"
+        Panellist, null=True, blank=True, on_delete=SET_NULL, related_name="invitation"
     )
     round = ForeignKey(
-        "Round", null=True, blank=True, on_delete=CASCADE, related_name="invitations"
+        "Round", null=True, blank=True, on_delete=SET_NULL, related_name="invitations"
     )
     status = StateField(default="draft")
     submitted_at = MonitorField(
