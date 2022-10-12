@@ -2213,7 +2213,7 @@ class Invitation(InvitationMixin, Model):
                 return reverse("review-update", kwargs=dict(pk=t.id))
             a = r.application
             return reverse("application", kwargs=dict(pk=a.id))
-        elif self.type == INVITATION_TYPES.P and (p := self.panelist):
+        elif self.type == INVITATION_TYPES.P and (p := self.panellist):
             if p.round_id:
                 if p.has_all_coi_statements_submitted or p.round.has_online_scoring:
                     return reverse("round-application-list", kwargs=dict(round_id=p.round.id))
@@ -3313,7 +3313,7 @@ class Criterion(Model):
 
     round = ForeignKey(Round, on_delete=CASCADE, related_name="criteria")
     definition = TextField(max_length=200)
-    comment = BooleanField(default=True, help_text=_("The panelist should comment their score"))
+    comment = BooleanField(default=True, help_text=_("The panellist should comment their score"))
     min_score = PositiveSmallIntegerField(default=0)
     max_score = PositiveSmallIntegerField(default=10)
     scale = SmallIntegerField(null=True, blank=True)

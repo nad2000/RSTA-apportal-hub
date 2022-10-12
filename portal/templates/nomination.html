@@ -60,7 +60,7 @@
 
 {% block javascript %}
   {{ block.super }}
-  {% if object and object.status != "accepted" %}
+  {% if object and object.status != "accepted" or not object %}
   <script>
     $(document).ready(function(){
       $('#button-id-submit_button').click(function() {
