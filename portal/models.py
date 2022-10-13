@@ -1827,6 +1827,7 @@ class Member(PersonMixin, MemberMixin, Model):
 
     class Meta:
         db_table = "member"
+        unique_together = ["application", "email"]
 
 
 simple_history.register(
@@ -1934,6 +1935,7 @@ class Referee(RefereeMixin, PersonMixin, Model):
 
     class Meta:
         db_table = "referee"
+        unique_together = ["application", "email"]
 
 
 simple_history.register(
@@ -2072,6 +2074,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
 
     class Meta:
         db_table = "panellist"
+        unique_together = ["round", "email"]
 
 
 simple_history.register(

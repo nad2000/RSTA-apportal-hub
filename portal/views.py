@@ -1316,10 +1316,6 @@ class ApplicationView(LoginRequiredMixin):
         if "nomination" in self.kwargs:
             return models.Nomination.get(self.kwargs["nomination"])
 
-    # def form_invalid(self, form):
-    #     breakpoint()
-    #     return super().form_invalid(form)
-
     def form_valid(self, form):
 
         context = self.get_context_data()
@@ -1519,9 +1515,7 @@ class ApplicationView(LoginRequiredMixin):
                 else:
                     messages.error(self.request, ex)
             capture_exception(ex)
-            # breakpoint()
             return redirect(url)
-            # return resp
 
         if has_deleted:  # keep editing
             return redirect(url)
@@ -3930,14 +3924,15 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
         if "cancel" in request.POST:
             return HttpResponseRedirect(reverse("home"))
         else:
-            super().post(request, *args, **kwargs)
+            resp = super().post(request, *args, **kwargs)
+
             count = invite_panellist(self.request, self.round)
             if count > 0:
                 messages.success(
                     self.request,
                     _("%d invitation(s) to panellist sent.") % count,
                 )
-            return HttpResponseRedirect(self.request.path_info)
+            return resp
 
     def formset_valid(self, formset):
         for form in formset.forms[:]:
