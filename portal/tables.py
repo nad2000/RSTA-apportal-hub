@@ -106,7 +106,10 @@ class TestimonialTable(tables.Table):
         linkify=lambda record: reverse("testimonial-detail", kwargs=dict(pk=record.id)),
     )
     application_title = tables.Column(accessor="referee.application.application_title")
-    referee = tables.Column(accessor="referee.full_name_with_email")
+    referee = tables.Column(
+        accessor="referee.full_name_with_email",
+        order_by=("referee__first_name", "referee__last_name", "referee__email"),
+    )
 
     class Meta:
         model = models.Testimonial
