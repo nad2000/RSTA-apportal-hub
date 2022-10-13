@@ -2256,7 +2256,7 @@ class Invitation(InvitationMixin, Model):
         site = Site.objects.get_current()
         site_name = site.name
 
-        subject = __("The inviation sent from %(site_name)s portal was revoked") % {
+        subject = __("The invitation sent from %(site_name)s portal was revoked") % {
             "site_name": site_name
         }
         html_body = __(
@@ -2298,7 +2298,7 @@ class Invitation(InvitationMixin, Model):
 
         # TODO: handle the rest of types
         if self.type == INVITATION_TYPES.T:
-            subject = __("You are invited to part of a %(site_name)s application") % {
+            subject = __("You are invited to be part of a %(site_name)s application") % {
                 "site_name": site_name
             }
             body = __(
