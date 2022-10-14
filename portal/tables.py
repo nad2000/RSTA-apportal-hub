@@ -42,7 +42,7 @@ class StatusColumn(tables.Column):
             title = _("The invitee has turned down the nomination")
         elif value == "bounced":
             css_classes = "fa fa-exclamation-triangle text-danger text-center"
-            title = _("The invitation failed. Please check the email address")
+            title = _("The invitation failed or autoreplied. Please check the recipient")
         elif value == "submitted":
             css_classes = "fa fa-check text-success text-center"
             title = _("The invitation was submitted")

@@ -19,7 +19,7 @@
      <i class="fa fa-exclamation-triangle text-danger text-center"
         aria-hidden="true"
         data-toggle="tooltip"
-        title="{% trans 'The invitation delivery failed at' %}{{ changed_at }}. {% trans 'Please correct the email address and resend the invitation.'%}"></i>
+        title="{% trans 'The invitation delivery failed or autoreplied at' %}{{ changed_at }}. {% trans 'Please confirm the recipient is receiving email.'%}"></i>
    {% endif %}
    <input type="hidden" name="{{ widget.name }}"
                         {% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %}>
