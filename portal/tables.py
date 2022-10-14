@@ -22,12 +22,30 @@ class StatusColumn(tables.Column):
     attrs = {"td": {"class": "align-middle text-center"}}
 
     def render(self, value, record):
-        if not value or value in ["new", "draft"]:
-            css_classes = "far fa-plus-square text-success text-center"
+        if not value:
+            return mark_safe(
+                '<i class="far fa-question-circle text-dark text-center" aria-hidden="true"></i>'
+            )
+        elif value in ["new", "draft"]:
             if value == "draft":
-                title = _("The invitation has not been processed yet or it is in draft version")
+                if isinstance(record, (models.Testimonial, models.Application)):
+                    css_classes = "far fa-times-circle text-danger text-center"
+                    title = _("Work in progress")
+                else:
+                    css_classes = "far fa-plus-square text-success text-center"
+                    title = _(
+                        "The invitation has not been processed yet or it is in draft version"
+                    )
             else:
-                title = _("The invitation was created")
+                if isinstance(record, (models.Testimonial, models.Application)):
+                    css_classes = "far fa-times-circle text-danger text-center"
+                    if isinstance(record, models.Testimonial):
+                        title = _("The temstimonial was just created")
+                    else:
+                        title = _("The application was just created")
+                else:
+                    title = _("The invitation was created")
+                    css_classes = "far fa-plus-square text-success text-center"
         elif value == "sent":
             css_classes = "far fa-envelope text-success text-center"
             title = _("The invitation was sent")
@@ -45,8 +63,17 @@ class StatusColumn(tables.Column):
             title = _("The invitation failed or autoreplied. Please check the recipient")
         elif value == "submitted":
             css_classes = "fa fa-check text-success text-center"
-            title = _("The invitation was submitted")
+            if isinstance(record, models.Testimonial):
+                title = _("The testimonial was completed and submitted")
+            elif isinstance(record, models.Application):
+                title = _("The application was completed and submitted")
+            else:
+                title = _("The invitation was submitted")
         else:
+            if isinstance(record, (models.Testimonial, models.Application)):
+                return mark_safe(
+                    '<i class="fas fa-plus text-success text-center" aria-hidden="true"></i>'
+                )
             css_classes = "fas fa-plus text-success text-center"
             title = _("The invitation was created")
 
@@ -101,6 +128,7 @@ class NominationTable(tables.Table):
 
 class TestimonialTable(tables.Table):
 
+    state = StatusColumn(verbose_name=_("Submitted"))
     number = tables.Column(
         accessor="referee.application.number",
         linkify=lambda record: reverse("testimonial-detail", kwargs=dict(pk=record.id)),
@@ -137,6 +165,7 @@ def application_round_link(table, record, value):
 
 class ApplicationTable(tables.Table):
 
+    state = StatusColumn(verbose_name=_("Submitted"))
     number = tables.Column(linkify=application_link)
     round = tables.Column(linkify=application_round_link)
     email = tables.Column(
@@ -180,6 +209,7 @@ class ApplicationTable(tables.Table):
         template_name = "django_tables2/bootstrap4.html"
         attrs = {"class": "table table-striped table-bordered"}
         fields = (
+            "state",
             "number",
             "round",
             "email",
