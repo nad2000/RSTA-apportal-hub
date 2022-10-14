@@ -75,7 +75,6 @@ class TelInput(TextInput):
 
 
 class ReadOnlyFieldsMixin:
-
     def get_readonly_fields(self):
         meta = getattr(self, "Meta", None)
         return (
@@ -99,6 +98,16 @@ class ReadOnlyFieldsMixin:
     #         for f in readonly_fields:
     #             self.cleaned_data.pop(f, None)
     #     return super().clean()
+
+class FormWithStatusFieldMixin:
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if instance := self.instance:
+            attrs = self.fields["status"].widget.attrs
+            attrs["changed_at"] = instance.status_changed_at or instance.updated_at
+            if instance.status == "bounced" and (error_message := instance.mail_log_error):
+                attrs["error_message"] = error_message
 
 
 class TableInlineFormset(LayoutObject):
@@ -647,20 +656,18 @@ class ApplicationForm(forms.ModelForm):
 
 class InvitationStatusInput(Widget):
 
+    # def __init__(self, attrs=None):
+    #     super().__init__(attrs)
+    #     breakpoint()
+    #     pass
+
     # template_name = "portal/widgets/invitation_status.html"
     template_name = "invitation_status.html"
 
 
-class MemberForm(ReadOnlyFieldsMixin, forms.ModelForm):
+class MemberForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelForm):
 
     readonly_fields = ["status"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.fields["status"].widget.attrs["changed_at"] = (
-                self.instance.status_changed_at or self.instance.updated_at
-            )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -713,16 +720,9 @@ class MemberFormSet(
             obj.delete()
 
 
-class RefereeForm(ReadOnlyFieldsMixin, forms.ModelForm):
+class RefereeForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelForm):
 
     readonly_fields = ["status"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.fields["status"].widget.attrs["changed_at"] = (
-                self.instance.status_changed_at or self.instance.updated_at
-            )
 
     def save(self, commit=True):
         """Prevent 'status' getting overwritten"""
@@ -1223,7 +1223,7 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-class PanellistForm(ReadOnlyFieldsMixin, forms.ModelForm):
+class PanellistForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelForm):
 
     readonly_fields = ["status"]
 

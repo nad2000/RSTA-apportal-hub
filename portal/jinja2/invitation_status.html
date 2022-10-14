@@ -1,5 +1,6 @@
 <div class="align-middle text-center">
   {% set changed_at = widget.attrs.changed_at %}
+  {% set error_message = widget.attrs.error_message %}
   {% set changed_on = (changed_at and changed_at.strftime("%d-%m-%Y")) or _("N/A") %}
   {% set changed_time_at = (changed_at and changed_at.strftime('%H:%M')) or _("N/A") %}
   {% if widget.value == 'sent' %}
@@ -24,9 +25,13 @@
       title="{% trans %}The user has opted out of your invitation on {{ changed_at }} at {{ changed_time_at }}{% endtrans %}"></i>
  {% elif widget.value == 'bounced' %}
    <i class="fa fa-exclamation-triangle text-danger text-center"
+      data-placement="right"
       aria-hidden="true"
-      data-toggle="tooltip"
-      title="{% trans %}The invitation delivery failed on {{ changed_on }} at {{ changed_time_at }}. Please correct the email address and resend the invitation{% endtrans %}"></i>
+      data-toggle="popover"
+      data-trigger="hover"
+      data-html="true"
+      title="{% trans %}The invitation delivery failed{% endtrans %}"
+      data-content="{% trans %}The invitation delivery failed on {{ changed_on }} at {{ changed_time_at }}. Please correct the email address and resend the invitation{% endtrans %}{% if error_message %}<br/><br/>{{ error_message }}{% endif %}"></i>
  {% endif %}
  <input type="hidden"
         name="{{ widget.name }}"

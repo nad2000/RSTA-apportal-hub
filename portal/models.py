@@ -1752,6 +1752,11 @@ class Member(PersonMixin, MemberMixin, Model):
     )
 
     @property
+    def mail_log_error(self):
+        if ml := MailLog.where(invitation__member=self, error__isnull=False).last():
+            return ml.error
+
+    @property
     def has_authorized(self):
         if self.status == "authorized":
             return True
@@ -1889,6 +1894,11 @@ class Referee(RefereeMixin, PersonMixin, Model):
     )
 
     @property
+    def mail_log_error(self):
+        if ml := MailLog.where(invitation__referee=self, error__isnull=False).last():
+            return ml.error
+
+    @property
     def has_testified(self):
         return self.status == "testified"
 
@@ -1989,6 +1999,12 @@ class Panellist(PanellistMixin, PersonMixin, Model):
     )
     last_name = CharField(max_length=150, null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
+    status_changed_at = MonitorField(monitor="status", null=True, blank=True, default=None)
+
+    @property
+    def mail_log_error(self):
+        if ml := MailLog.where(invitation__panellist=self, error__isnull=False).last():
+            return ml.error
 
     def get_or_create_invitation(self):
 

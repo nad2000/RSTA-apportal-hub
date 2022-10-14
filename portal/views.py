@@ -3910,6 +3910,7 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
     exclude = (
         "user",
         "site",
+        "status_changed_at",
     )
 
     @property

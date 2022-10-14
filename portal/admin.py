@@ -686,7 +686,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     save_on_top = True
     list_display = ["full_name_with_email", "round", "status"]
     fsm_field = ["status"]
-    search_fields = ["first_name", "last_name"]
+    search_fields = ["first_name", "last_name", "email"]
     list_filter = ["round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
     exclude = ["site"]
