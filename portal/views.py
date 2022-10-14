@@ -1115,14 +1115,15 @@ class ApplicationDetail(DetailView):
         u = self.request.user
         if a.members.filter(
             Q(user=u) | Q(email=u.email) | Q(email__in=u.emailaddress_set.values("email")),
-            has_authorized__isnull=True,
+            # has_authorized__isnull=True,
+            Q(status__isnull=True) | ~Q(status__in=["authorized", "opted_out"]),
         ).exists():
             messages.info(
                 self.request,
                 _("Please review the application and authorize your team representative."),
             )
             context["form"] = AuthorizationForm()
-        is_owner = a.submitted_by == u or a.members.filter(user=u, has_authorized=True).exists()
+        is_owner = a.submitted_by == u or a.members.filter(user=u, status="authorized").exists()
         if p := a.round.panellists.filter(user=u).first():
             context["is_panellist"] = True
             coi = p.conflict_of_interests.filter(Q(application=a)).last()
@@ -1362,6 +1363,7 @@ class ApplicationView(LoginRequiredMixin):
                     else:
                         for f in members.forms:
                             if not f.is_valid():
+                                breakpoint()
                                 form.errors.update(f.errors)
                                 url = self.continue_url("application")
                                 raise ValidationError(_("Invalid member form"))

@@ -653,7 +653,7 @@ class RefereeAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
 
 
 @admin.register(models.Member)
-class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
     save_on_top = True
     list_display = ["email", "full_name", "application", "status", "has_authorized"]
     fsm_field = ["status"]
@@ -664,10 +664,18 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
         "application__number",
         "application__application_title",
     ]
-    list_filter = ["application__round", "created_at", "updated_at", "status", "has_authorized"]
+    list_filter = ["application__round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
-    readonly_fields = ["application", "status", "status_changed_at"]
+    readonly_fields = ["application", "status", "status_changed_at", "authorized_at", "has_authorized"]
+
+    def has_authorized(self, obj):
+        if obj.status == "authorized":
+            return True
+        elif obj.status == "opted_out":
+            return False
+
+    has_authorized.boolean = True
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.application_id})

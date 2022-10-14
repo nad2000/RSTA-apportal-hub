@@ -21,7 +21,7 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.contrib.sites.models import Site
-from django.forms import FileField, HiddenInput, Widget, inlineformset_factory
+from django.forms import FileField, HiddenInput, TypedChoiceField, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, Select, TextInput
 from django.shortcuts import reverse
@@ -72,6 +72,33 @@ class Submit(BaseInput):
 
 class TelInput(TextInput):
     input_type = "tel"
+
+
+class ReadOnlyFieldsMixin:
+
+    def get_readonly_fields(self):
+        meta = getattr(self, "Meta", None)
+        return (
+            getattr(self, "readonly_fields", None)
+            or meta
+            and getattr(meta, "readonly_fields", None)
+            or ()
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if readonly_fields := self.get_readonly_fields():
+            for field in (field for name, field in self.fields.items() if name in readonly_fields):
+                field.widget.attrs["disabled"] = "true"
+                field.widget.attrs["readonly"] = "true"
+                field.required = False
+                field.disabled = True
+
+    # def clean(self):
+    #     if readonly_fields := self.get_readonly_fields():
+    #         for f in readonly_fields:
+    #             self.cleaned_data.pop(f, None)
+    #     return super().clean()
 
 
 class TableInlineFormset(LayoutObject):
@@ -624,7 +651,10 @@ class InvitationStatusInput(Widget):
     template_name = "invitation_status.html"
 
 
-class MemberForm(forms.ModelForm):
+class MemberForm(ReadOnlyFieldsMixin, forms.ModelForm):
+
+    readonly_fields = ["status"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance:
@@ -654,6 +684,8 @@ class MemberForm(forms.ModelForm):
     class Meta:
         model = models.Member
         fields = ["status", "email", "first_name", "middle_names", "last_name", "role"]
+        # fields = ["email", "first_name", "middle_names", "last_name", "role"]
+        disabled = ["status"]
         widgets = dict(
             email=forms.EmailInput(
                 attrs={
@@ -663,7 +695,7 @@ class MemberForm(forms.ModelForm):
                     "oninput": "this.setCustomValidity('')",
                 }
             ),
-            has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
+            # has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
         )
 
@@ -681,7 +713,10 @@ class MemberFormSet(
             obj.delete()
 
 
-class RefereeForm(forms.ModelForm):
+class RefereeForm(ReadOnlyFieldsMixin, forms.ModelForm):
+
+    readonly_fields = ["status"]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance:
@@ -1188,12 +1223,14 @@ class IdentityVerificationForm(forms.ModelForm):
         fields = ["file", "resolution"]
 
 
-class PanellistForm(forms.ModelForm):
+class PanellistForm(ReadOnlyFieldsMixin, forms.ModelForm):
+
+    readonly_fields = ["status"]
+
     class Meta:
         model = models.Panellist
         exclude = ("site",)
         widgets = dict(
-            has_authorized=NullBooleanSelect(attrs=dict(readonly=True)),
             status=InvitationStatusInput(attrs={"readonly": True}),
             round=HiddenInput(),
         )
@@ -1207,7 +1244,7 @@ class PanellistFormSet(
         can_delete=True,
         widgets={
             "round": HiddenInput(),
-            "status": InvitationStatusInput(attrs={"readonly": True}),
+            # "status": InvitationStatusInput(attrs={"readonly": True}),
         },
     )
 ):

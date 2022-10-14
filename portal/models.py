@@ -1447,7 +1447,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             return q
 
         f = (
-            Q(members__user=user, members__has_authorized=True)
+            Q(members__user=user, members__status="authorized")
             | Q(referees__user=user)
             | Q(nomination__user=user)
             | Q(submitted_by=user)
@@ -1743,13 +1743,24 @@ class Member(PersonMixin, MemberMixin, Model):
     )
     last_name = CharField(max_length=150, null=True, blank=True)
     role = CharField(max_length=200, null=True, blank=True)
-    has_authorized = BooleanField(null=True, blank=True)
+    # has_authorized = BooleanField(null=True, blank=True)
     user = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     status = StateField(null=True, blank=True, default="new")
     status_changed_at = MonitorField(monitor="status", null=True, blank=True, default=None)
     authorized_at = MonitorField(
         monitor="status", when=[MEMBER_STATUS.authorized], null=True, blank=True, default=None
     )
+
+    @property
+    def has_authorized(self):
+        if self.status == "authorized":
+            return True
+        elif self.status == "opted_out":
+            return False
+
+    # @has_authorized.setter
+    # def has_authorized(self, value):
+    #     breakpoint()
 
     def clean(self):
         super().clean()
@@ -1773,7 +1784,7 @@ class Member(PersonMixin, MemberMixin, Model):
     @fsm_log
     @transition(field=status, source=["*"], target="authorized")
     def authorize(self, *args, **kwargs):
-        self.has_authorized = True
+        # self.has_authorized = True
         request = get_request(*args, **kwargs)
         for i in Invitation.where(~Q(status="accepted"), member=self):
             i.accept(request)
@@ -1797,7 +1808,7 @@ class Member(PersonMixin, MemberMixin, Model):
     @fsm_log
     @transition(field=status, source=["*"], target="opted_out")
     def opt_out(self, *args, **kwargs):
-        self.has_authorized = False
+        # self.has_authorized = False
         request = get_request(*args, **kwargs)
         if self.application.submitted_by.email:
             send_mail(
@@ -1821,7 +1832,8 @@ class Member(PersonMixin, MemberMixin, Model):
     def outstanding_requests(cls, user):
         return cls.objects.raw(
             "SELECT DISTINCT m.* FROM member AS m JOIN account_emailaddress AS ae ON ae.email = m.email "
-            "WHERE (m.user_id=%s OR ae.user_id=%s) AND has_authorized IS NULL",
+            "WHERE (m.user_id=%s OR ae.user_id=%s) "
+            "  AND (m.status IS NOT NULL OR m.status NOT IN ('authorized', 'opted_out'))",
             [user.id, user.id],
         )
 
@@ -3278,7 +3290,7 @@ class Round(Model):
                 GROUP BY a.id
             ), member_summary AS (
                 SELECt a.id, count(m.id) AS member_count,
-                    sum(CASE WHEN m.status='authorized' OR has_authorized THEN 1 ELSE 0 END) AS member_authorized_count
+                    sum(CASE WHEN m.status='authorized' THEN 1 ELSE 0 END) AS member_authorized_count
                 FROM application AS a
                     LEFT JOIN member AS m ON m.application_id=a.id
                 WHERE a.round_id=%s AND a.site_id=%s
