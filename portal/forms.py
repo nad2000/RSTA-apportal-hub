@@ -21,7 +21,7 @@ from crispy_forms.layout import (
 from dal import autocomplete
 from django import forms
 from django.contrib.sites.models import Site
-from django.forms import FileField, HiddenInput, TypedChoiceField, Widget, inlineformset_factory
+from django.forms import FileField, HiddenInput, Widget, inlineformset_factory
 from django.forms.models import BaseInlineFormSet, modelformset_factory
 from django.forms.widgets import NullBooleanSelect, Select, TextInput
 from django.shortcuts import reverse
@@ -99,8 +99,8 @@ class ReadOnlyFieldsMixin:
     #             self.cleaned_data.pop(f, None)
     #     return super().clean()
 
-class FormWithStatusFieldMixin:
 
+class FormWithStatusFieldMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if instance := self.instance:
