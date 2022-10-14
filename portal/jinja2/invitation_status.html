@@ -31,7 +31,7 @@
       data-trigger="hover"
       data-html="true"
       title="{% trans %}The invitation delivery failed{% endtrans %}"
-      data-content="{% trans %}The invitation delivery failed on {{ changed_on }} at {{ changed_time_at }}. Please correct the email address and resend the invitation{% endtrans %}{% if error_message %}<br/><br/>{{ error_message }}{% endif %}"></i>
+      data-content="{% trans %}The invitation delivery failed on {{ changed_on }} at {{ changed_time_at }}. Please correct the email address and resend the invitation{% endtrans %}{% if error_message %}<br/><br/><pre>{{ error_message }}</pre>{% endif %}"></i>
  {% endif %}
  <input type="hidden"
         name="{{ widget.name }}"
