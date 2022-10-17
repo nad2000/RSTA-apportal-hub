@@ -506,7 +506,13 @@ table.table .asteriskField,.popover-header {color: gray;}
                             el.html(dt.format(el.data("format") || "YYYY[&#8209;]MM[&#8209;]DD[&nbsp;]HH:mm"));
                           });
                   $('[data-toggle="tooltip"]').tooltip();
-                  $('[data-toggle="popover"]').popover();
+                  $('[data-toggle="popover"][data-trigger!="manual"]').popover();
+          $('[data-toggle="popover"][data-trigger="manual"]').hover(function() {
+            $(this).popover('show');
+            $(document.getElementById($(this).attr("aria-describedby"))).click(function() {
+              $(this).popover('hide');
+            });
+          });
                   $("#{{view_name}}").addClass("active");
                 });
       </script>
