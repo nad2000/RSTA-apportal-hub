@@ -389,8 +389,10 @@ class ApplicationForm(forms.ModelForm):
                 Field("file", data_toggle="tooltip", title=self.fields["file"].help_text)
             )
 
-        if round.budget_template and not (
-            instance and instance.submitted_by and instance.submitted_by != user
+        if round.budget_template and (
+            not (instance and instance.submitted_by and instance.submitted_by != user)
+            or user.is_superuser
+            or user.is_staff
         ):
             help_text = _(
                 'You can download the budget template at <strong><a href="%s">%s</a></strong>'
