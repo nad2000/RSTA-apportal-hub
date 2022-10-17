@@ -19,10 +19,12 @@ def portal_context(request):
         "disable_breadcrumbs": not view_name
         or view_name in ["index", "home"],  # , "account_login", "account_signup"],
     }
+
     if (u := request.user) and u.is_authenticated:
         cache_key = f"{u.username}:{settings.SITE_ID}"
-        stats = cache.get(cache_key)
-        if not stats:
+        if not (has_refreshed := request.META.get("HTTP_CACHE_CONTROL") == 'max-age=0'):
+            stats = cache.get(cache_key)
+        if has_refreshed or not stats:
             score_sheet_count = models.ScoreSheet.user_score_sheet_count(u)
             application_draft_count = models.Application.user_application_count(
                 u, ["draft", "new"]
