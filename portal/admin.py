@@ -667,7 +667,13 @@ class MemberAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
     list_filter = ["application__round", "created_at", "updated_at", "status"]
     date_hierarchy = "created_at"
     inlines = [StateLogInline]
-    readonly_fields = ["application", "status", "status_changed_at", "authorized_at", "has_authorized"]
+    readonly_fields = [
+        "application",
+        "status",
+        "status_changed_at",
+        "authorized_at",
+        "has_authorized",
+    ]
 
     def has_authorized(self, obj):
         if obj.status == "authorized":
@@ -732,13 +738,21 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
 
 @admin.register(models.IdentityVerification)
-class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+class IdentityVerificationAdmin(StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
     save_on_top = True
-    list_display = ["user", "application"]
+    list_display = ["user", "is_accepted", "application"]
     search_fields = ["user__first_name", "user__last_name", "application__application_title"]
-    list_filter = ["application__round", "created_at", "updated_at"]
+    list_filter = ["application__round", "created_at", "updated_at", "state"]
     date_hierarchy = "created_at"
+    readonly_fields = ["state"]
     inlines = [StateLogInline]
+    autocomplete_fields = ["user", "application"]
+
+    def is_accepted(self, obj):
+        return obj.state == "accepted"
+
+    is_accepted.boolean = True
+    is_accepted.short_description = _("Verified")
 
     def view_on_site(self, obj):
         app = (
@@ -755,16 +769,17 @@ class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
     save_on_top = True
     list_display = ["panellist", "application", "has_conflict"]
     readonly_fields = [
-        "created_at",
-        "updated_at",
         "application",
+        "created_at",
+        "panellist",
+        "updated_at",
         # "comment",
         # "has_conflict",
-        "panellist",
     ]
     list_filter = ["has_conflict", "application__round", "created_at", "updated_at"]
     search_fields = ["panellist__first_name", "panellist__last_name", "application__number"]
     date_hierarchy = "created_at"
+    autocomplete_fields = ["panellist", "application"]
 
     def view_on_site(self, obj):
         return reverse("round-coi-list", kwargs={"round": obj.application.round_id})

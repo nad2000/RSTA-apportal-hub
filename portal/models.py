@@ -72,7 +72,7 @@ from weasyprint import HTML
 
 from common.models import TITLES, Base, EmailField, HelperMixin, Model, PersonMixin
 
-from .utils import mail_admins, send_mail, vignere
+from .utils import send_mail, vignere
 
 
 def __(s):
@@ -3873,12 +3873,25 @@ class IdentityVerification(Model):
     @transition(field=state, source=["new", "draft", "needs-resubmission", "sent"], target="sent")
     def send(self, request, *args, **kwargs):
         url = request.build_absolute_uri(reverse("identity-verification", kwargs=dict(pk=self.id)))
-        mail_admins(
+        send_mail(
             _("User Identity Verification"),
             _(
                 "User %(user)s submitted a photo identity for verification. Please review the ID here: %(url)s"
             )
             % dict(user=self.user, url=url),
+            html_message=_(
+                "<p>User <b>%(user)s</b> submitted a photo identity for verification. "
+                "Please review the ID here: <a href='%(url)s'>%(url)s</a></p>"
+            )
+            % dict(user=self.user, url=url),
+            recipient_list=list(
+                User.where(staff_of_sites__id=settings.SITE_ID, is_staff=True)
+                .distinct()
+                .values_list("name", "email")
+            ),
+            fail_silently=False,
+            request=request,
+            reply_to=settings.DEFAULT_FROM_EMAIL,
         )
 
     @fsm_log
