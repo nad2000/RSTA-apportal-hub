@@ -2621,6 +2621,8 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
         verbose_name=_("curriculum vitae"),
     )
     state = StateField(_("state"), default=TESTIMONIAL_STATUS.new)
+    
+
 
     @property
     def application(self):
@@ -2679,6 +2681,10 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
     class Meta:
         db_table = "testimonial"
 
+
+simple_history.register(
+    Testimonial, inherit=True, table_name="testimonial_history", bases=[TestimonialMixin, Model]
+)
 
 FILE_TYPE = Choices("CV")
 

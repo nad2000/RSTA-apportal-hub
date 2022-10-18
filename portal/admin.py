@@ -986,7 +986,7 @@ class InvitationAdmin(StaffPermsMixin, FSMTransitionMixin, ImportExportMixin, Si
 
 
 @admin.register(models.Testimonial)
-class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
+class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, SimpleHistoryAdmin):
 
     # summernote_fields = ["summary"]
 
@@ -994,11 +994,25 @@ class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, a
     date_hierarchy = "created_at"
     exclude = ["summary", "site", "converted_file"]
     inlines = [StateLogInline]
-    list_display = ["referee", "application", "state"]
+    list_display = ["referee", "application_url", "state"]
     list_filter = ["created_at", "state", "referee__application__round"]
     readonly_fields = ["state"]
     save_on_top = True
-    search_fields = ["referee__first_name", "referee__last_name", "referee__email"]
+    search_fields = ["referee__first_name", "referee__last_name", "referee__email", "application__number"]
+
+    def application_url(self, obj):
+        return '<a href="%s%s">%s</a>' % (obj.number, reverse("application", kwargs={"object_id": obj.id})
+
+    application_url.allow_tags = True
+    application_url.short_description = 'Application'
+
+    def is_submitted(self, obj):
+        return obj.is_active
+
+    is_submitted.boolean = True
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("application")
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.referee.application_id})
