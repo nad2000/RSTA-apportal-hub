@@ -3357,10 +3357,18 @@ class TestimonialView(CreateUpdateView):
 
         if not t.id:
             a = self.application
-            q = models.Referee.where(Q(user=u) | Q(email=u.email))
+            q = models.Referee.where(Q(user=u) | Q(email__in=u.email_addresses))
             if a:
                 q = q.filter(application=a)
-            r = q.last()
+            if not (r := q.last()):
+                form.errors.append(_("Referee entry is absent. Please contact Administrator"))
+                capture_message(
+                    "Referee entry is absent for referee/user: "
+                    f"{u} (ID: {u.id}), {a} (ID: {a.id})",
+                    level="error",
+                )
+                return self.form_invalid(form)
+
             if not r.user:
                 r.user = u
                 r.save(update_fields=["user"])
