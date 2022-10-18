@@ -391,8 +391,7 @@ class ApplicationForm(forms.ModelForm):
 
         if round.budget_template and (
             not (instance and instance.submitted_by and instance.submitted_by != user)
-            or user.is_superuser
-            or user.is_staff
+            or (instance and (user.is_superuser or user.is_staff))
         ):
             help_text = _(
                 'You can download the budget template at <strong><a href="%s">%s</a></strong>'
