@@ -11,6 +11,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.shortcuts import render, reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_fsm_log.admin import StateLogInline
 from django_summernote.admin import SummernoteModelAdminMixin
@@ -995,16 +996,35 @@ class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, S
     exclude = ["summary", "site", "converted_file"]
     inlines = [StateLogInline]
     list_display = ["referee", "application_url", "state"]
-    list_filter = ["created_at", "state", "referee__application__round"]
+    list_filter = [
+        "created_at",
+        "state",
+        ("referee__application__round", admin.RelatedOnlyFieldListFilter),
+        ("referee__application", admin.RelatedOnlyFieldListFilter),
+    ]
     readonly_fields = ["state"]
     save_on_top = True
-    search_fields = ["referee__first_name", "referee__last_name", "referee__email", "application__number"]
+    search_fields = [
+        "referee__first_name",
+        "referee__last_name",
+        "referee__email",
+        "referee__application__number",
+    ]
 
     def application_url(self, obj):
-        return '<a href="%s%s">%s</a>' % (obj.number, reverse("application", kwargs={"object_id": obj.id})
+        return mark_safe(
+            '<a href="%s">%s</a>'
+            % (
+                reverse(
+                    "admin:portal_application_change",
+                    kwargs={"object_id": obj.referee.application_id},
+                ),
+                obj.referee.application.number,
+            )
+        )
 
     application_url.allow_tags = True
-    application_url.short_description = 'Application'
+    application_url.short_description = "Application"
 
     def is_submitted(self, obj):
         return obj.is_active
@@ -1012,7 +1032,11 @@ class TestimonialAdmin(PdfFileAdminMixin, StaffPermsMixin, FSMTransitionMixin, S
     is_submitted.boolean = True
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("application")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("referee__application", "referee__application__round", "referee__user")
+        )
 
     def view_on_site(self, obj):
         return reverse("application", kwargs={"pk": obj.referee.application_id})

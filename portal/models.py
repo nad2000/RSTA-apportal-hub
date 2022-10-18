@@ -2621,8 +2621,6 @@ class Testimonial(TestimonialMixin, PersonMixin, PdfFileMixin, Model):
         verbose_name=_("curriculum vitae"),
     )
     state = StateField(_("state"), default=TESTIMONIAL_STATUS.new)
-    
-
 
     @property
     def application(self):
