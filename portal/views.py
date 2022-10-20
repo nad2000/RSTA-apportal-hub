@@ -1328,16 +1328,26 @@ class ApplicationView(LoginRequiredMixin):
         try:
             with transaction.atomic():
 
-                form.instance.organisation = form.instance.org.name
-                if not form.instance.email:
-                    form.instance.email = user.email
+                instance = form.instance
+                instance.organisation = instance.org.name
+                if not instance.email:
+                    instance.email = user.email
 
                 if self.round.letter_of_support_required and (
                     letter_of_support_file := self.request.FILES.get("letter_of_support_file")
                 ):
                     letter_of_support = models.LetterOfSupport.create(file=letter_of_support_file)
-                    form.instance.letter_of_support = letter_of_support
+                    instance.letter_of_support = letter_of_support
                     # if letter_of_support_file.name.endswith(".pdf")
+
+                if (
+                    "file" in form.changed_data
+                    and instance.id
+                    and instance.file
+                    and instance.converted_file
+                ):
+                    instance.converted_file.delete()
+                    instance.converted_file = None
 
                 resp = super().form_valid(form)
 
@@ -1425,14 +1435,14 @@ class ApplicationView(LoginRequiredMixin):
                             url = self.continue_url("referees")
                             raise ValidationError(_("Invalid referee form"))
 
-                if "photo_identity" in form.changed_data and form.instance.photo_identity:
+                if "photo_identity" in form.changed_data and instance.photo_identity:
                     iv, created = models.IdentityVerification.get_or_create(
-                        application=form.instance,
+                        application=instance,
                         user=self.request.user,
-                        defaults=dict(file=form.instance.photo_identity),
+                        defaults=dict(file=instance.photo_identity),
                     )
                     if not created:
-                        iv.file = form.instance.photo_identity
+                        iv.file = instance.photo_identity
                         iv.resolution = ""
                     iv.send(self.request)
                     messages.info(
@@ -1446,9 +1456,9 @@ class ApplicationView(LoginRequiredMixin):
                     if ethics_statement_form.is_valid():
                         ethics_statement_form.save()
 
-                if "file" in form.changed_data and form.instance.file:
+                if "file" in form.changed_data and instance.file:
                     try:
-                        if cf := form.instance.update_converted_file():
+                        if cf := instance.update_converted_file():
                             messages.success(
                                 self.request,
                                 _(
@@ -1474,14 +1484,14 @@ class ApplicationView(LoginRequiredMixin):
 
                 if (
                     "letter_of_support_file" in form.changed_data
-                    and form.instance.letter_of_support
-                    and form.instance.letter_of_support.file
+                    and instance.letter_of_support
+                    and instance.letter_of_support.file
                     and form.cleaned_data["letter_of_support_file"].content_type
                     != "application/pdf"
                 ):
                     try:
                         if (
-                            letter_of_support_cf := form.instance.letter_of_support.update_converted_file()
+                            letter_of_support_cf := instance.letter_of_support.update_converted_file()
                         ):
                             messages.success(
                                 self.request,
@@ -2920,7 +2930,7 @@ class ProfileAcademicRecordFormSetView(ProfileSectionFormSetView):
                     # "discipline": ModelSelect2Widget(
                     #     model=models.FieldOfResearch, search_fields=["description__icontains"],
                     # ),
-                    "conferred_on": forms.DateInput(),
+                    "converted_on": forms.DateInput(),
                 },
             }
         )

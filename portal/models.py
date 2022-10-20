@@ -987,7 +987,7 @@ class ConvertedFile(HelperMixin, Base):
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
-    file = PrivateFileField(upload_subfolder=lambda instance: ["converted"])
+    file = PrivateFileField(upload_to="conferred/%Y/%m/%d")
 
     @property
     def file_size(self):
