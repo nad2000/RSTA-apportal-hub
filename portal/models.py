@@ -922,7 +922,7 @@ class AcademicRecord(Model):
     qualification = ForeignKey(
         Qualification, null=True, blank=True, on_delete=DO_NOTHING, verbose_name=_("qualification")
     )
-    conferred_on = DateField(_("conferred on"), null=True, blank=True)
+    converted_on = DateField(_("converted on"), null=True, blank=True)
     discipline = ForeignKey(
         FieldOfStudy, on_delete=CASCADE, null=True, blank=True, verbose_name=_("discipline")
     )
@@ -987,7 +987,7 @@ class ConvertedFile(HelperMixin, Base):
     site = ForeignKey(Site, on_delete=PROTECT, default=Model.get_current_site_id)
     objects = CurrentSiteManager()
 
-    file = PrivateFileField(upload_to="conferred/%Y/%m/%d")
+    file = PrivateFileField(upload_to="converted/%Y/%m/%d")
 
     @property
     def file_size(self):
