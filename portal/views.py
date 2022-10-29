@@ -4288,11 +4288,15 @@ class ScoreInline(InlineFormSetFactory):
             if self.request.method == "GET":
                 kwargs["extra"] = self.get_entries().count()
             else:
-                kwargs["extra"] = a.round.criteria.count() - self.object.scores.count()
+                extra_entry_count = a.round.criteria.count()
+                if self.object and self.object.id:
+                    extra_entry_count -= self.object.scores.count()
+                kwargs["extra"] = extra_entry_count
         else:
-            kwargs["extra"] = (
-                self.object.application.round.criteria.count() - self.object.scores.count()
-            )
+            extra_entry_count = self.object.application.round.criteria.count()
+            if self.object and self.object.id:
+                extra_entry_count -= self.object.scores.count()
+            kwargs["extra"] = extra_entry_count
         return kwargs
 
     def get_initial(self):
