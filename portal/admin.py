@@ -778,7 +778,7 @@ class ConflictOfInterestAdmin(StaffPermsMixin, admin.ModelAdmin):
         # "has_conflict",
     ]
     list_filter = ["has_conflict", "application__round", "created_at", "updated_at"]
-    search_fields = ["panellist__first_name", "panellist__last_name", "application__number"]
+    search_fields = ["panellist__first_name", "panellist__last_name", "panellist__email", "application__number"]
     date_hierarchy = "created_at"
     autocomplete_fields = ["panellist", "application"]
 
