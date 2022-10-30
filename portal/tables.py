@@ -417,6 +417,14 @@ class EvaluationTable(tables.Table):
     total_score = tables.Column(
         verbose_name=_("Total Score"), attrs={"td": {"style": "text-align: right;"}}
     )
+    panellist = tables.Column(
+        accessor="panellist.full_name_with_email",
+        order_by=("panellist__first_name", "panellist__last_name", "panellist__email"),
+    )
+
+    # def render_panellist(self, record, value):
+    #     if value:
+    #         return value.full_name_with_email
 
     class Meta:
         model = models.Evaluation
@@ -424,7 +432,7 @@ class EvaluationTable(tables.Table):
         attrs = {"class": "table table-striped table-bordered"}
         fields = (
             # "round",
-            "panellist__full_name",
+            "panellist",
             "total_score",
         )
 
