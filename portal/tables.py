@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.shortcuts import reverse
 from django.utils.html import format_html, mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, gettext as _
 
 from . import models
 
@@ -176,6 +176,23 @@ class ApplicationTable(tables.Table):
         and record.submitted_by_id
         else None
     )
+    export = tables.LinkColumn(
+        "application-export",
+        args=[tables.A("pk")],
+        text=gettext_lazy("Export"),
+        attrs={
+            "a": {
+                "class": "btn btn-primary",
+                "target": "_blank",
+                "data-toggle": "tooltip",
+                "title": gettext_lazy("Export the application into a consolidated PDF file"),
+            }
+        },
+    )
+
+    def before_render(self, request):
+        if (u := request.user) and not u.is_superuser and not u.is_staff:
+            self.columns.hide("export")
 
     def render_number(self, record, value):
         if (
@@ -215,6 +232,7 @@ class ApplicationTable(tables.Table):
             "email",
             "first_name",
             "last_name",
+            "export",
         )
 
 

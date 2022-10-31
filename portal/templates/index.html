@@ -215,7 +215,21 @@ button:hover .previous-applications-button:hover, button:focus .previous-applica
     {% for a in current_applications %}
     {% if a and a.id %}
     <ul class="list-group list-group-flush">
-      <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a></li>
+      <li class="list-group-item"><a href="{% url 'application' pk=a.id %}">{{ a }}</a>
+
+      {% if user.is_staff or user.is_superuser %}
+      <a
+        href="{% url 'application-export' pk=a.pk %}"
+        style="padding-top: 1px; padding-bottom: 0px;"
+        target="_blank"
+        class="btn btn-info float-right align-top"
+        data-toggle="tooltip"
+        title="{% trans 'Export the application into a consolidated PDF file' %}"
+      >{% trans 'Export' %}
+      </a>
+      {% endif %}
+
+      </li>
     </ul>
     {% endif %}
     {% endfor %}
