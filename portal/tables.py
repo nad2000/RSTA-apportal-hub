@@ -1,7 +1,8 @@
 import django_tables2 as tables
 from django.shortcuts import reverse
 from django.utils.html import format_html, mark_safe
-from django.utils.translation import gettext_lazy, gettext as _
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from . import models
 
@@ -182,11 +183,12 @@ class ApplicationTable(tables.Table):
         text=gettext_lazy("Export"),
         attrs={
             "a": {
-                "class": "btn btn-primary",
+                "class": "btn btn-primary btn-sm",
                 "target": "_blank",
                 "data-toggle": "tooltip",
                 "title": gettext_lazy("Export the application into a consolidated PDF file"),
-            }
+            },
+            "td": {"style": "padding: 6px 0 0 16px;"},
         },
     )
 
