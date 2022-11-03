@@ -935,7 +935,7 @@ class AcademicRecord(Model):
 
 
 class Award(Model):
-    name = CharField(_("prestigious prize or medal"), max_length=100)
+    name = CharField(_("prestigious prize or medal"), max_length=200)
 
     def __str__(self):
         return self.name
@@ -2066,7 +2066,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
         return self.has_all_coi_statements_submitted_for()
 
     @fsm_log
-    @transition(field=status, source=["new", "sent"], target="accepted")
+    @transition(field=status, source=["new", "sent", "bounced"], target="accepted")
     def accept(self, *args, **kwargs):
         pass
 
