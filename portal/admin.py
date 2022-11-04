@@ -698,6 +698,7 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
     date_hierarchy = "created_at"
     exclude = ["site"]
     inlines = [StateLogInline]
+    readonly_fields = ["status"]
 
     actions = ["resend_invitations"]
 
@@ -726,13 +727,15 @@ class PanellistAdmin(StaffPermsMixin, FSMTransitionMixin, admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        i, _ = obj.get_or_create_invitation()
-        i.send(request)
-        i.save()
+        if obj and obj.status != "bounced":
+            i, _ = obj.get_or_create_invitation()
+            if i.status not in ["sent", "bounced"]:
+                i.send(request)
+                i.save()
 
-        messages.success(
-            request, "Successfully sent invitation to %s" % i.panellist.full_email_address
-        )
+                messages.success(
+                    request, "Successfully sent invitation to %s" % i.panellist.full_email_address
+                )
 
     def view_on_site(self, obj):
         return reverse("panellist-invite", kwargs={"round": obj.round_id})

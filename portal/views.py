@@ -534,7 +534,7 @@ def check_profile(request, token=None):
             messages.warning(request, _("There is no invitation with the given token."))
             return redirect(next_url or "home")
 
-        if i.status in ["draft", "submitted", "sent"]:
+        if i.status in ["draft", "submitted", "sent", "bounced"]:
             u = User.get(request.user.id)
             if i.first_name and not u.first_name:
                 u.first_name = i.first_name
@@ -697,7 +697,7 @@ def profile_protection_patterns(request):
         if "wizard" in request.session:
             del request.session["wizard"]
             request.session.modified = True
-            i = models.Invitation.user_inviations(request.user).last()
+            i = models.Invitation.user_inviations(request.user).filter(~Q(status="bounced")).last()
             url = (i and i.handler_url) or "index"
         else:
             url = "profile"
@@ -960,7 +960,7 @@ def invite_panellist(request, round):
         models.Panellist.where(~Q(invitation__email=F("email")) | Q(status__isnull=True))
     )
     for p in panellist:
-        p.get_or_create_invitation()
+        p.get_or_create_invitation(by=request and request.user)
 
     invitations = list(
         models.Invitation.where(
@@ -1373,7 +1373,6 @@ class ApplicationView(LoginRequiredMixin):
                     else:
                         for f in members.forms:
                             if not f.is_valid():
-                                breakpoint()
                                 form.errors.update(f.errors)
                                 url = self.continue_url("application")
                                 raise ValidationError(_("Invalid member form"))

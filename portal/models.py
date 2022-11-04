@@ -2006,7 +2006,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
         if ml := MailLog.where(invitation__panellist=self, error__isnull=False).last():
             return ml.error
 
-    def get_or_create_invitation(self):
+    def get_or_create_invitation(self, by=None):
 
         u = self.user or User.objects.filter(email=self.email).first()
         if not u and (ea := EmailAddress.objects.filter(email=self.email).first()):
@@ -2038,6 +2038,7 @@ class Panellist(PanellistMixin, PersonMixin, Model):
                     first_name=first_name,
                     middle_names=middle_names,
                     last_name=last_name,
+                    inviter=by,
                 ),
             )
 
@@ -2173,7 +2174,7 @@ class Invitation(InvitationMixin, Model):
     inviter = ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     type = CharField(max_length=1, default=INVITATION_TYPES.J, choices=INVITATION_TYPES)
     email = EmailField(_("email address"))
-    first_name = CharField(_("first name"), max_length=30)
+    first_name = CharField(_("first name"), max_length=30, null=True, blank=True)
     middle_names = CharField(
         _("middle names"),
         blank=True,
@@ -2181,7 +2182,7 @@ class Invitation(InvitationMixin, Model):
         max_length=280,
         help_text=_("Comma separated list of middle names"),
     )
-    last_name = CharField(_("last name"), max_length=150)
+    last_name = CharField(_("last name"), max_length=150, null=True, blank=True)
     organisation = CharField(
         _("organisation"), max_length=200, null=True, blank=True
     )  # entered name
