@@ -99,7 +99,16 @@ Moved to `Live reloading and SASS compilation`_.
 .. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.io/en/latest/live-reloading-and-sass-compilation.html
 
 
+PostgreSQL Upgrade
+^^^^^^^^^^^^^^^^^^
 
+::
+
+   /usr/lib/postgresql/15/bin/initdb -D /var/lib/postgresql/15/main --locale=C.UTF-8 # recreate the cluster wiht C.UTF-8 locale
+   /usr/lib/postgresql/15/bin/pg_upgrade   --old-datadir=/var/lib/postgresql/14/main   \
+        --new-datadir=/var/lib/postgresql/15/main   --old-bindir=/usr/lib/postgresql/14/bin \
+        --new-bindir=/usr/lib/postgresql/15/bin   --old-options '-c config_file=/etc/postgresql/14/main/postgresql.conf' \
+        --new-options '-c config_file=/etc/postgresql/15/main/postgresql.conf'  # upgrade the whole cluster
 
 
 Sentry
