@@ -1483,7 +1483,7 @@ class Application(ApplicationMixin, PersonMixin, PdfFileMixin, Model):
             "JOIN application AS a "
             "  ON a.id = r.application_id "
             "LEFT JOIN testimonial AS tm ON r.id = tm.referee_id "
-            "WHERE (r.application_id=%s OR a.id=%s) AND a.site_id=%s"
+            "WHERE (r.application_id=%s OR a.id=%s) AND a.site_id=%s "
         )
         if has_testified:
             sql += " AND r.status='testified'"
@@ -2562,7 +2562,7 @@ class Invitation(InvitationMixin, Model):
         site_id = cls.get_current_site_id()
         return cls.objects.raw(
             "SELECT i.* FROM invitation AS i JOIN account_emailaddress AS ae ON ae.email = i.email "
-            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired', 'revoked') AND i.site_id=%s"
+            "WHERE ae.user_id=%s AND i.status NOT IN ('accepted', 'expired', 'revoked') AND i.site_id=%s "
             "UNION SELECT * FROM invitation WHERE email=%s AND status NOT IN ('accepted', 'expired', 'revoked') "
             "  AND site_id=%s",
             [user.id, site_id, user.email, site_id],
