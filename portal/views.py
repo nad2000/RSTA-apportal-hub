@@ -3941,18 +3941,36 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
         return context
 
     def post(self, request, *args, **kwargs):
+
         if "cancel" in request.POST:
             return HttpResponseRedirect(reverse("home"))
-        else:
-            resp = super().post(request, *args, **kwargs)
 
-            count = invite_panellist(self.request, self.round)
-            if count > 0:
-                messages.success(
-                    self.request,
-                    _("%d invitation(s) to panellist sent.") % count,
+        formset = self.construct_formset()
+        if not formset.is_valid():
+            return self.formset_invalid(formset)
+
+        if deleted_forms := formset.deleted_forms:
+            deleted_panellist = deleted_forms[0].cleaned_data.get("id")
+
+        resp = self.formset_valid(formset)
+
+        count = invite_panellist(self.request, self.round)
+        if count > 0:
+            messages.success(
+                self.request,
+                _("%d invitation(s) to panellist sent.") % count,
+            )
+        if deleted_forms and deleted_panellist:
+            messages.success(
+                self.request,
+                _(
+                    "Panellist %s with related entries - CoI statement(s) and review(s) - "
+                    "was successfully deleted."
                 )
-            return resp
+                % deleted_panellist.full_name_with_email,
+            )
+
+        return resp
 
     def formset_valid(self, formset):
         for form in formset.forms[:]:

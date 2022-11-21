@@ -8,7 +8,11 @@
         <input type="hidden" name="{{ field.html_name }}" id="{{ field.auto_id }}">
         {% if form.id.value %}
           <button class="btn btn-danger"
-                  onclick='$("#{{ form.DELETE.auto_id }}").val("on");'
+                  {% if form.confirm_deletion %}
+                    onclick='event.preventDefault(); confirm_deletion($("#{{ form.DELETE.auto_id }}"));'
+                  {% else %}
+                    onclick='$("#{{ form.DELETE.auto_id }}").val("on");'
+                  {% endif %}
             ><i class="fa fa-times" style="width: 12px;"></i></button>
         {% else %}
           <button  type="button" class="btn btn-success" onclick="formset_add_a_row(this, '{{ formset.prefix }}');"><i class="fa fa-plus" style="width: 12px;"></i></button>

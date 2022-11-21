@@ -1227,14 +1227,15 @@ class IdentityVerificationForm(forms.ModelForm):
 class PanellistForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelForm):
 
     readonly_fields = ["status"]
+    confirm_deletion = True
 
     class Meta:
         model = models.Panellist
         exclude = ("site",)
-        widgets = dict(
-            status=InvitationStatusInput(attrs={"readonly": True}),
-            round=HiddenInput(),
-        )
+        widgets = {
+            "status": InvitationStatusInput(attrs={"readonly": True}),
+            "round": HiddenInput(),
+        }
 
 
 class PanellistFormSet(
