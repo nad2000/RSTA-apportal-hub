@@ -3940,11 +3940,20 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
         context["round"] = self.round
         return context
 
+    def get_queryset(self, *args, **kwargs):
+        return (
+            super()
+            .get_queryset(*args, **kwargs)
+            .filter(round=self.round)
+            .prefetch_related("conflict_of_interests", "evaluations")
+        )
+
     def post(self, request, *args, **kwargs):
 
         if "cancel" in request.POST:
             return HttpResponseRedirect(reverse("home"))
 
+        self.object_list = self.get_queryset()
         formset = self.construct_formset()
         if not formset.is_valid():
             return self.formset_invalid(formset)
@@ -3964,7 +3973,7 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
             messages.success(
                 self.request,
                 _(
-                    "Panellist %s with related entries - CoI statement(s) and review(s) - "
+                    "Panellist <b>%s</b> with related entries - CoI statement(s) and review(s) - "
                     "was successfully deleted."
                 )
                 % deleted_panellist.full_name_with_email,
@@ -3984,9 +3993,6 @@ class PanellistView(AdminRequiredMixin, ModelFormSetView):
                 formset.forms.remove(form)
 
         return super().formset_valid(formset)
-
-    def get_queryset(self):
-        return self.model.where(round=self.round)
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

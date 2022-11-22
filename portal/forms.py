@@ -1229,6 +1229,44 @@ class PanellistForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelFo
     readonly_fields = ["status"]
     confirm_deletion = True
 
+    def deletion_confirmation_message(self):
+        if p := getattr(self, "instance"):
+            cois = p.conflict_of_interests.all()
+            evaluations = p.evaluations.all()
+            message = _(
+                f"<p>Are you sure you want to delete the panellist <b>{p.full_name_with_email}</b>? "
+                "All of the following objects and their related items will be deleted:</p>"
+                "<h2>Summary</h2><ul>"
+                f"<li>Conflicts of interest: {cois.count()}</li>"
+                f"<li>Reviews: {evaluations.count()}</li></ul>"
+                "<h2>Objects</h2><ul><li>Panellist: "
+                f"""<a href='{reverse("admin:portal_panellist_change", kwargs={"object_id": p.pk})}' target="_blank">"""
+                f"{p.full_name_with_email}</a></li>"
+            )
+            if cois or evaluations:
+                message += "<ul>"
+                if cois:
+                    message += "".join(
+                        f"""<li>Conflict of interest: <a href='{reverse("admin:portal_conflictofinterest_change",
+                            kwargs={"object_id": c.pk})}' target="_blank">
+                            str(c)</a></li>"""
+                        for c in cois
+                    )
+                if evaluations:
+                    message += "".join(
+                        f"""<li>Review: <a href='{reverse("admin:portal_evaluation_change",
+                            kwargs={"object_id": e.pk})}' target="_blank">
+                            str(e)</a></li>"""
+                        for e in evaluations
+                    )
+                message += "</ul>"
+            message += "<ul>"
+            return message
+
+        return _(
+            "Do you wish to delete the selected panellist and all linked data entries to this panellist?"
+        )
+
     class Meta:
         model = models.Panellist
         exclude = ("site",)

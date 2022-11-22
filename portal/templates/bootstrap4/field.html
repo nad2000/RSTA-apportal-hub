@@ -9,7 +9,8 @@
         {% if form.id.value %}
           <button class="btn btn-danger"
                   {% if form.confirm_deletion %}
-                    onclick='event.preventDefault(); confirm_deletion($("#{{ form.DELETE.auto_id }}"));'
+                    onclick="event.preventDefault(); confirm_deletion($('#{{ form.DELETE.auto_id }}'), this.dataset.deletionMessage);"
+                    data-deletion-message="{{ form.deletion_confirmation_message }}"
                   {% else %}
                     onclick='$("#{{ form.DELETE.auto_id }}").val("on");'
                   {% endif %}
