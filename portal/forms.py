@@ -1229,6 +1229,7 @@ class PanellistForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelFo
     readonly_fields = ["status"]
     confirm_deletion = True
 
+    @property
     def deletion_confirmation_message(self):
         if p := getattr(self, "instance"):
             cois = p.conflict_of_interests.all()
