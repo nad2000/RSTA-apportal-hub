@@ -1250,14 +1250,14 @@ class PanellistForm(ReadOnlyFieldsMixin, FormWithStatusFieldMixin, forms.ModelFo
                     message += "".join(
                         f"""<li>Conflict of interest: <a href='{reverse("admin:portal_conflictofinterest_change",
                             kwargs={"object_id": c.pk})}' target="_blank">
-                            str(c)</a></li>"""
+                            {str(c)}</a></li>"""
                         for c in cois
                     )
                 if evaluations:
                     message += "".join(
                         f"""<li>Review: <a href='{reverse("admin:portal_evaluation_change",
                             kwargs={"object_id": e.pk})}' target="_blank">
-                            str(e)</a></li>"""
+                            {str(e)}</a></li>"""
                         for e in evaluations
                     )
                 message += "</ul>"
