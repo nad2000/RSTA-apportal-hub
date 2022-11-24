@@ -5763,7 +5763,7 @@ a.close.disabled {
   max-height: calc(100vh - 1rem);
   overflow: hidden;
 }
-.modal-dialog-scrollable .modal-header,
+.modal-dialog-scrollable .modal-header, .modal-dialog-scrollable .modal-header-bg,
 .modal-dialog-scrollable .modal-footer {
   flex-shrink: 0;
 }
@@ -5802,7 +5802,7 @@ a.close.disabled {
   pointer-events: auto;
   background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid #DFD7CA;
+  border: 1px solid #026473;
   border-radius: 0.3rem;
   outline: 0;
 }
@@ -5823,16 +5823,16 @@ a.close.disabled {
   opacity: 0.5;
 }
 
-.modal-header {
+.modal-header, .modal-header-bg {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   padding: 1rem 1rem;
-  border-bottom: 1px solid #DFD7CA;
+  border-bottom: 1px solid #014e5a;
   border-top-left-radius: calc(0.3rem - 1px);
   border-top-right-radius: calc(0.3rem - 1px);
 }
-.modal-header .close {
+.modal-header .close, .modal-header-bg .close {
   padding: 1rem 1rem;
   margin: -1rem -1rem -1rem auto;
 }
@@ -5854,7 +5854,7 @@ a.close.disabled {
   align-items: center;
   justify-content: flex-end;
   padding: 0.75rem;
-  border-top: 1px solid #DFD7CA;
+  border-top: 1px solid #014e5a;
   border-bottom-right-radius: calc(0.3rem - 1px);
   border-bottom-left-radius: calc(0.3rem - 1px);
 }
@@ -12242,6 +12242,12 @@ table.details tr:last-child > td {
   flex-wrap: wrap;
   list-style: none;
   background-color: #F8F5F0;
+}
+
+.modal-header-bg {
+  background-color: #026d7d;
+  color: #fff;
+  border-top: 2px dashed #026d7d;
 }
 
 /*# sourceMappingURL=portal.pmscienceprizes.org.nz.css.map */

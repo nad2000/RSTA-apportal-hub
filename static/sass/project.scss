@@ -359,3 +359,11 @@ table.details tr:last-child > td {
   background-color: $breadcrumb-bg;
   // @include border-radius($breadcrumb-border-radius);
 }
+
+
+.modal-header-bg {
+  @extend .modal-header;
+  background-color: $primary;
+  color: $white;
+}
+
