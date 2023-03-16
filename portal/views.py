@@ -2095,6 +2095,41 @@ class ApplicationCreate(ApplicationView, CreateView):
 #         return super().formset_valid(formset)
 
 
+class ApplicationFilterSet(django_filters.FilterSet):
+    class Meta:
+        model = models.Application
+        fields = ["round"]
+
+
+class RelatedOnlyModelChoiceFilter(django_filters.ModelChoiceFilter):
+    # ("round", admin.RelatedOnlyFieldListFilter),
+    __queryset = None
+
+    # @property
+    # def field(self):
+    #     request = self.get_request()
+    #     queryset = self.get_queryset(request).filter(**{"id__in": self.parent.qs.values_list(self.field_name)})
+    #     self.extra["choices"] = [(o, o) for o in queryset]
+    #     return super().field
+
+    def get_queryset(self, request):
+        if not self.__queryset:
+            self.__queryset = (
+                super()
+                .get_queryset(request)
+                .filter(**{"id__in": self.parent.queryset.values_list(self.field_name)})
+            )
+        return self.__queryset
+
+
+def application_filter_rounds(request, *args, **kwargs):
+    if request is None:
+        return models.Round.objects.none()
+
+    # company = request.user.company
+    return models.Round.objects.all()
+
+
 class ApplicationFilter(django_filters.FilterSet):
 
     # @property
@@ -2114,9 +2149,18 @@ class ApplicationFilter(django_filters.FilterSet):
         method="filter_active", label=gettext_lazy("Active Applications")
     )
 
+    round = RelatedOnlyModelChoiceFilter(  # django_filters.ModelChoiceFilter(
+        #     "round",
+        label=gettext_lazy("Round"),
+        widget=django_filters.widgets.LinkWidget,
+        field_name="round",
+        queryset=application_filter_rounds,
+        # queryset: <MultilingualQuerySet [<Round: Future Scientist 2020>, <Round: Science Prize 2021>, <Round: Science Teacher Prize>, <Round: MacDiarmid Emerging Scientist Prize 2021>, <Round: Future Scientist Prize 2020>, <Round: Science Communication Prize 2021>, <Round: Emerging Scientist Prize>]>, 'to_field_name': 'id', 'null_label': None, 'empty_label': '---------'
+    )
+
     class Meta:
         model = models.Application
-        fields = ["application_filter", "archived_filter", "active_filter"]
+        fields = ["application_filter", "archived_filter", "active_filter", "round"]
 
     def filter_archived(self, queryset, name, value):
         qs = queryset.filter(round__scheme__current_round=F("round"))

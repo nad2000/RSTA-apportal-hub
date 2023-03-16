@@ -18,7 +18,8 @@
     <![endif]-->
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    {% if domain == "international.royalsociety.org.nz" %}
+    {#% if domain == "international.royalsociety.org.nz" %#}
+    {% if SITE_ID == 2 %}
       <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/international.royalsociety.org.nz/favicons/apple-touch-icon.png' %}">
       <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/international.royalsociety.org.nz/favicons/favicon-32x32.png' %}">
       <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/international.royalsociety.org.nz/favicons/favicon-16x16.png' %}">
@@ -35,7 +36,10 @@
       <!-- link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
       <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet"/>
-      {% if domain == "international.royalsociety.org.nz" %}
+      {#% if domain == "international.royalsociety.org.nz" %#}
+      {% if SITE_ID == 3 %}
+        <link href="{% static 'css/stlp.royalsociety.org.nz.css' %}" rel="stylesheet">
+      {% elif SITE_ID == 2 %}
         <link href="{% static 'css/international.royalsociety.org.nz.css' %}" rel="stylesheet">
       {% else %}
         <link href="{% static 'css/portal.pmscienceprizes.org.nz.css' %}" rel="stylesheet">

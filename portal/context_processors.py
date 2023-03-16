@@ -12,16 +12,18 @@ from . import models
 def portal_context(request):
     view_name = (rm := request.resolver_match) and rm.view_name
     request.site = get_current_site(request)
+    site_id = settings.SITE_ID
     context = {
         "settings": settings,
         "view_name": view_name,
         "domain": request.site.domain,
+        "SITE_ID": site_id,
         "disable_breadcrumbs": not view_name
         or view_name in ["index", "home"],  # , "account_login", "account_signup"],
     }
 
     if (u := request.user) and u.is_authenticated:
-        cache_key = f"{u.username}:{settings.SITE_ID}"
+        cache_key = f"{u.username}:{site_id}"
         if not (has_refreshed := request.META.get("HTTP_CACHE_CONTROL") == 'max-age=0'):
             stats = cache.get(cache_key)
         if has_refreshed or not stats:
