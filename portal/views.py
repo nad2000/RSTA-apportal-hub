@@ -138,7 +138,7 @@ def favicon(request):
     return redirect(staticfiles_storage.url("images/favicons/favicon.ico"), permanent=True)
 
 
-@cache_page(600)
+# @cache_page(600)
 def about(request):
     lang = request.LANGUAGE_CODE
     url = f"/{lang or 'en'}/about/"

@@ -7,61 +7,45 @@
   {% breadcrumb "About the Prizes" "about" %}
 {% endblock %}
 
-{% cache None about_content %}
+{#% cache None about_content %#}
 {% block content %}
   <h1>
-    {% trans 'About the Prizes' %}
+    {% trans 'About has not yet been created' %}
   </h1>
   <div class="row">
 
-    <div class="col-md-4">
-      {% blocktrans %}
-        The Government of New Zealand introduced The Prime Minister’s Science Prizes in 2009 as a way of raising the
-        profile and prestige of science among New Zealanders, in Aotearoa and internationally.
-        <p>There are <b>five prizes</b> in total with a combined value of 1 million dollars.</p>
-        <p>Applications open mid Hōngongo July to early Here-turi-kōkā August and close mid Whiringa-ā-nuku October.</p>
-      {% endblocktrans %}
+    <div class="col">
+      <p>{% trans 'About has not yet been created.' %}</p>
+      
+    {% if request.user.is_superuser or request.user.is_staff %}
+      {% if perms.flatpages.change_flatpage %}
+      <ul>
+        <li>
+            <a type="button"
+            class="btn btn-primary"
+            data-toggle="tooltip"
+            title="{% trans 'Create About page in English' %}"
+            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=About">
+            <i class="fas fa-file"></i>
+            </a>
+            {% trans 'Create <b>About</b> page in English' %}
+        </li>
+        <li>
+            <a type="button"
+            class="btn btn-primary"
+            data-toggle="tooltip"
+            title="{% trans 'Create About page in te reo Māori' %}"
+            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=He%20Whakam%C4%81rama">
+            <i class="fas fa-file"></i>
+            </a>
+            {% trans 'Create <b>About</b> page in te reo Māori' %}
+        </li>
+      </ul>
+      {% endif %}
+    {% endif %}
     </div>
 
-    <div class="col-md-8">
-      {% blocktrans %}
-        The Prime Minister’s Science Prizes are awarded to:<br><br>
-        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/science-2-2-2/"><strong>Te Puiaki Pūtaiao Matua
-            a Te Pirimia The Prime Minister’s Science Prize</strong></a></p>
-        <p>An individual or team for a transformative scientific discovery or
-        achievement, which has had a significant economic, health, social and/or
-        environmental impact on New Zealand and/or internationally.</p>
-        <p><strong><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/macdiarmid-2-2/">Te Puiaki Kaipūtaiao Maea
-            The Prime Minister’s MacDiarmid Emerging Scientist Prize</a></strong></p>
-        <p>An outstanding emerging scientist who has had their PhD or equivalent
-        qualification conferred within the last eight years</p>
-        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/media-2-2-2/"><strong>Te Puiaki Whakapā Pūtaiao
-            The Prime Minister’s Science Communication Prize</strong></a></p>
-        <p>A practising scientist&nbsp;who can demonstrate an interest, passion
-        and aptitude for science communication and public engagement, <strong>or</strong>
-        to a person who has developed expertise in public engagement with, or
-        communication of complex scientific or technological information to the
-        public and/or science and research communities and hapori.</p>
-        <p><a href="https://www.pmscienceprizes.org.nz/about-the-prizes/teacher-2-2-3/"><strong>Te Puiaki Kaiwhakaaroaro
-            Pūtaiao The Prime Minister’s Science Teacher Prize</strong></a></p>
-        <p>A registered teacher kaiako who has been teaching science,
-        mathematics, technology, pūtaiao, hangarau or pāngarau learning areas of
-        the New Zealand curriculum to school-age children in a primary,
-        intermediate or secondary New Zealand registered school or kura kaupapa.</p>
-        <p><strong><a
-                       href="https://www.pmscienceprizes.org.nz/about-the-prizes/the-prime-ministers-future-scientist-prize-2-2-2/">Te
-                       Puiaki Kaipūtaiao Ānamata The Prime Minister’s Future Scientist Prize</a></strong></p>
-        <p>A secondary school tauira student for outstanding achievement in
-        carrying out a practical and innovative science research, maths,
-        technology or engineering project.</p>
-      {% endblocktrans %}
-    </div>
-
-    <p>&nbsp;<br>&nbsp;</p>
-    <p>Supported by the New Zealand Government with funding from the <strong>Ministry of Business, Innovation and
-      Employment</strong>.&nbsp; Nā Te Hīkina Whakatutuki te mana hāpai.<br>
-    <img border='0' width='100%' src="{% static 'images/MBIE-logos.png' %}" alt='MBIE Logo'></p>
   </div>
 
 {% endblock content %}
-{% endcache %}
+{#% endcache %#}
