@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.flatpages.views import flatpage
 from django.http import HttpResponse
 from django.urls import include, path
 from django.views.decorators.cache import cache_page
@@ -21,12 +20,7 @@ urlpatterns = [
         ),
         name="webmanifest",
     ),
-    path(
-        "about",
-        # TemplateView.as_view(template_name="pages/about.html"),
-        lambda request: flatpage(request, url=f"/{request.LANGUAGE_CODE or 'en'}/about/"),
-        name="about",
-    ),
+    path("about", views.about, name="about"),
     path("logout", views.logout, name="logout"),
     path("status", views.status, name="status"),
     path(

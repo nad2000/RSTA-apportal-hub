@@ -21,6 +21,8 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     UserPassesTestMixin,
 )
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.flatpages.views import flatpage
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -57,10 +59,11 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
-from django.views.generic.base import TemplateView
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView as _CreateView
 from django.views.generic.edit import UpdateView
 from django_filters.views import FilterView
@@ -133,6 +136,23 @@ def favicon(request):
             permanent=True,
         )
     return redirect(staticfiles_storage.url("images/favicons/favicon.ico"), permanent=True)
+
+
+@cache_page(600)
+def about(request):
+    lang = request.LANGUAGE_CODE
+    url = f"/{lang or 'en'}/about/"
+    breakpoint()
+    if FlatPage.objects.filter(url=url).exists():
+        return flatpage(request, url=url)
+    if lang != "en":
+        url = "/en/about/"
+        if FlatPage.objects.filter(url=url).exists():
+            return flatpage(request, url=url)
+    url = "/about/"
+    if FlatPage.objects.filter(url=url).exists():
+        return flatpage(request, url=url)
+    return TemplateView.as_view(template_name="pages/about.html")
 
 
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
