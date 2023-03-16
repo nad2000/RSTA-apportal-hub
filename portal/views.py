@@ -151,7 +151,7 @@ def about(request):
     url = "/about/"
     if FlatPage.objects.filter(url=url).exists():
         return flatpage(request, url=url)
-    return TemplateView.as_view(template_name="pages/about.html")(request)
+    return render(request, "pages/about.html", locals())
 
 
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
