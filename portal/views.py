@@ -142,14 +142,15 @@ def favicon(request):
 def about(request):
     lang = request.LANGUAGE_CODE
     url = f"/{lang or 'en'}/about/"
-    if FlatPage.objects.filter(url=url).exists():
+    site_id = settings.SITE_ID
+    if FlatPage.objects.filter(url=url, sites=site_id).exists():
         return flatpage(request, url=url)
     if lang != "en":
         url = "/en/about/"
-        if FlatPage.objects.filter(url=url).exists():
+        if FlatPage.objects.filter(url=url, sites=site_id).exists():
             return flatpage(request, url=url)
     url = "/about/"
-    if FlatPage.objects.filter(url=url).exists():
+    if FlatPage.objects.filter(url=url, sites=site_id).exists():
         return flatpage(request, url=url)
     return render(request, "pages/about.html", locals())
 
