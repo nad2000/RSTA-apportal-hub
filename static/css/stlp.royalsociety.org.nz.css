@@ -12204,6 +12204,11 @@ input.form-control.yearpicker {
   width: 4em;
 }
 
+input[type=checkbox], input[type=checkbox]:checked, .form-check-input:checked, .form-check-input {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
 #div_id_title div {
   padding-left: 6px;
   padding-right: 6px;

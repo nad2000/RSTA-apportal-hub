@@ -24,7 +24,6 @@ from django.contrib.auth.mixins import (
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.flatpages.views import flatpage
 from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
@@ -59,7 +58,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views import View
-from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import DetailView as _DetailView
@@ -127,8 +125,13 @@ def handler413(request, *args, **argv):
 
 
 def favicon(request):
-    site = get_current_site(request)
-    if site.domain == "international.royalsociety.org.nz":
+    site_id = settings.SITE_ID
+    if site_id == 3:
+        return redirect(
+            staticfiles_storage.url("images/stlp.royalsociety.org.nz/favicon.ico"),
+            permanent=True,
+        )
+    elif site_id == 2:
         return redirect(
             staticfiles_storage.url(
                 "images/international.royalsociety.org.nz/favicons/favicon.ico"

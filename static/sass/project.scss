@@ -312,6 +312,12 @@ input.form-control.yearpicker {
   width: 4em;
 }
 
+// Consistent background-color of checkboxes:
+/* input[type=checkbox],input[type=checkbox]:checked,.form-check-input:checked,.form-check-input {
+    background-color: $primary !important;
+    color: color-yiq($primary) !important;
+} */
+
 // Person title dropdown:
 #div_id_title div {
     padding-left: 6px;
