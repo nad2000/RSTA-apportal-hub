@@ -107,6 +107,7 @@
                              id="inputEmail"
                              class="form-control"
                              value="{{ form.login.value|default:'' }}"
+			     autocomplete="username"
                              placeholder="{% trans 'Email address or username' %}"
                              required{% if not form.login.value %} autofocus{% endif %}>
                       <label for="inputEmail">{% trans 'Email address or username' %}</label>
@@ -117,6 +118,7 @@
                            type="password"
                            id="inputPassword"
                            class="form-control"
+			   autocomplete="current-password"
                            placeholder="Password" required{% if form.login.value %} autofocus{% endif %}>
                     <label for="inputPassword">{% trans 'Password' %}</label>
                   </div>
@@ -179,6 +181,7 @@
                      minlength="1"
                      maxlength="150"
                      class="textinput textInput form-control"
+		     autocomplete="username"
                      required
                      id="id_username"
                      value="{{ form.username.value|default_if_none:'' }}"
@@ -194,8 +197,16 @@
 
           <div id="div_id_password1" class="form-group"> <label for="id_password1" class=" requiredField">
               Password<span class="asteriskField">*</span> </label> <div>
-              <input type="password" name="password1" placeholder="Password" class="textinput textInput form-control" required id="id_password1" value="{{ form.password1.value|default_if_none:'' }}"> </div>
-
+              <input 
+	      	type="password" 
+		name="password1" 
+		placeholder="Password" 
+		class="textinput textInput form-control" 
+	        autocomplete="new-password"
+		required 
+		id="id_password1" 
+		value="{{ form.password1.value|default_if_none:'' }}"
+	  > </div>
           </div> <div id="div_id_password2" class="form-group">
             <label for="id_password2" class=" requiredField">
               Password (again)<span class="asteriskField">*</span> </label> <div class="">
@@ -203,9 +214,9 @@
                      name="password2"
                      value="{{ form.password2.value|default_if_none:'' }}"
                      placeholder="Password (again)"
+	             autocomplete="new-password"
                      class="textinput textInput form-control"
                      required="" id="id_password2"> </div> </div>
-
           <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans "Sign Up" %} &raquo;</button>
         </form>
       </div>
