@@ -5954,7 +5954,7 @@ a.close.disabled {
 .bs-tooltip-top .arrow::before, .bs-tooltip-auto[x-placement^=top] .arrow::before {
   top: 0;
   border-width: 0.4rem 0.4rem 0;
-  border-top-color: black;
+  border-top-color: #212529;
 }
 
 .bs-tooltip-right, .bs-tooltip-auto[x-placement^=right] {
@@ -5968,7 +5968,7 @@ a.close.disabled {
 .bs-tooltip-right .arrow::before, .bs-tooltip-auto[x-placement^=right] .arrow::before {
   right: 0;
   border-width: 0.4rem 0.4rem 0.4rem 0;
-  border-right-color: black;
+  border-right-color: #212529;
 }
 
 .bs-tooltip-bottom, .bs-tooltip-auto[x-placement^=bottom] {
@@ -5980,7 +5980,7 @@ a.close.disabled {
 .bs-tooltip-bottom .arrow::before, .bs-tooltip-auto[x-placement^=bottom] .arrow::before {
   bottom: 0;
   border-width: 0 0.4rem 0.4rem;
-  border-bottom-color: black;
+  border-bottom-color: #212529;
 }
 
 .bs-tooltip-left, .bs-tooltip-auto[x-placement^=left] {
@@ -5994,7 +5994,7 @@ a.close.disabled {
 .bs-tooltip-left .arrow::before, .bs-tooltip-auto[x-placement^=left] .arrow::before {
   left: 0;
   border-width: 0.4rem 0 0.4rem 0.4rem;
-  border-left-color: black;
+  border-left-color: #212529;
 }
 
 .tooltip-inner {
@@ -6002,7 +6002,7 @@ a.close.disabled {
   padding: 0.25rem 0.5rem;
   color: #fff;
   text-align: center;
-  background-color: black;
+  background-color: #212529;
   border-radius: 0.25rem;
 }
 
@@ -12204,11 +12204,10 @@ input.form-control.yearpicker {
   width: 4em;
 }
 
-input[type=checkbox], input[type=checkbox]:checked, .form-check-input:checked, .form-check-input {
-  background-color: #000 !important;
-  color: #fff !important;
-}
-
+/* input[type=checkbox],input[type=checkbox]:checked,.form-check-input:checked,.form-check-input {
+    background-color: $primary !important;
+    color: color-yiq($primary) !important;
+} */
 #div_id_title div {
   padding-left: 6px;
   padding-right: 6px;

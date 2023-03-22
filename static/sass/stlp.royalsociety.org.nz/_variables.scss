@@ -102,7 +102,7 @@ $theme-colors: (
   "dark-pink": $dark-pink
 );
 
-$tooltip-bg:                    darken($primary, 16%) !default;
+$tooltip-bg:                    $gray-900;
 
 $alert-border-width:            medium !default;
 $alert-border-level:            -6 !default;
