@@ -26,7 +26,7 @@
             data-toggle="tooltip"
             title="{% trans 'Create About page in English' %}"
             target="_blank"
-            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=About">
+            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=About%2F&sites={{ SITE_ID }}">
             <i class="fas fa-file"></i>
             </a>
             {% trans 'Create <b>About</b> page in English' %}
@@ -37,7 +37,7 @@
             data-toggle="tooltip"
             title="{% trans 'Create About page in te reo Māori' %}"
             target="_blank"
-            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=He%20Whakam%C4%81rama">
+            href="{% url 'admin:flatpages_flatpage_add' %}?url=%2Fen%2Fabout%2F&title=He%20Whakam%C4%81rama%2F&sites={{ SITE_ID }}">
             <i class="fas fa-file"></i>
             </a>
             {% trans 'Create <b>About</b> page in te reo Māori' %}
